@@ -1,0 +1,162 @@
+<!-- ============================================================
+     UMMAH ACADEMY — COMPARISON SECTION
+     Paste directly into an Elementor "HTML" widget.
+
+     Not one of the original 15 named files — slots in near Why Ummah
+     Academy (same territory: differentiation), doesn't disturb the
+     established order of what's already built.
+
+     Copy preserved exactly from the source brief for every comparison
+     row — only the bilingual labels (sec-label's Arabic half, the
+     standalone Arabic subtitle, the Arabic caption) were dropped, per
+     the standing "all English going forward" instruction. That's a
+     supplementary-label change, not a change to the comparison content
+     itself.
+
+     Real semantics kept despite the heavy visual restyle: this is
+     still real table markup — table, caption, thead, tbody, and
+     th scope — plus explicit ARIA roles as a second layer of
+     insurance. The CSS below overrides display to grid so rows can
+     actually have border-radius and shadow (neither renders on a
+     native table-row box in any browser), and a display override can
+     in some browser/AT combinations weaken the implicit table
+     semantics that come from the tag names alone. The explicit roles
+     make the table structure unambiguous regardless.
+
+     The source's checkmark/cross characters are replaced with real
+     SVG icons, inlined per the
+     established self-contained-widget pattern. Colors use only tokens
+     already in our palette — the brief asked for a green check / red
+     X, but green isn't in the brand board, so this uses the same blue
+     "verified" token as every checkmark elsewhere on the site, and the
+     dusty rose secondary (the closest thing to red we actually have)
+     for the negative side, rather than introducing an off-brand color.
+
+     Mobile: no horizontal scroll, no JS. Each cell's data-label
+     attribute becomes a small heading via ::before in styles.css —
+     pure CSS responsive-table-to-cards, nothing scripted.
+
+     Depends on: styles.css (.ua-comparison-* rules, this pass).
+     No script.js changes needed.
+     ============================================================ -->
+<section class="ua-comparison" id="ua-comparison" aria-labelledby="ua-comparison-title">
+  <div class="ua-wrap">
+
+    <div class="ua-section-head ua-section-head--center">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> The Real Difference</p>
+      <h2 id="ua-comparison-title">Ummah Academy vs. <em>Traditional Platforms</em></h2>
+      <p class="ua-section-head-lede ua-section-head-lede--center">A direct comparison of our Itqan-based methodology against generic online platforms and traditional alternatives.</p>
+    </div>
+
+    <table class="ua-comparison-table" role="table">
+      <caption class="ua-visually-hidden">Comparison between Ummah Academy and generic platforms across eight learning aspects</caption>
+      <thead>
+        <tr role="row" class="ua-comparison-headrow">
+          <th scope="col" role="columnheader" class="ua-comparison-th ua-comparison-th--aspect">Learning Aspect</th>
+          <th scope="col" role="columnheader" class="ua-comparison-th ua-comparison-th--ummah">Ummah Academy</th>
+          <th scope="col" role="columnheader" class="ua-comparison-th ua-comparison-th--generic">Generic Platforms</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Teaching Staff</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Al-Azhar graduates with Ijazah — chain traced to Prophet ﷺ</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>Volunteers or uncertified teachers</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Session Format</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>100% live 1-on-1 — complete focus &amp; instant correction</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>Pre-recorded videos or large group classes</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Memorization Method</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Itqan method — thematic grouping for deep Tadabbur</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>Quantity over quality — display memorization</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Arabic Teaching</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Quranic Arabic linked to Al-Ajrumiyyah texts</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>General Arabic disconnected from religious texts</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Progress Tracking</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Post-session reports + monthly summaries</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>No systematic follow-up</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Timezone Coverage</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>24/7 scheduling for all global timezones</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>Fixed times that don't fit Western schedules</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Certification</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Official certificates + Ijazah with documented chain</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>No formal certification</span>
+          </td>
+        </tr>
+
+        <tr role="row" class="ua-comparison-row">
+          <td role="cell" class="ua-comparison-aspect">Non-Arabic Speakers</td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--yes" data-label="Ummah Academy">
+            <span class="ua-comparison-icon ua-comparison-icon--yes" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Bilingual teachers (Arabic + English)</span>
+          </td>
+          <td role="cell" class="ua-comparison-cell ua-comparison-cell--no" data-label="Generic Platforms">
+            <span class="ua-comparison-icon ua-comparison-icon--no" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+            <span>Arabic-only explanations</span>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </div>
+</section>

@@ -1,0 +1,87 @@
+<!-- ============================================================
+     UMMAH ACADEMY — WHY UMMAH ACADEMY
+     Paste directly into an Elementor "HTML" widget.
+
+     Adjusted from the uploaded reference:
+     - All Arabic converted to English, per your instruction. The
+       four ".ar-card-title" lines were direct Arabic translations of
+       the h3 right above them, so they were pure duplicates once in
+       one language — removed rather than kept as a second English
+       line. The Arabic subtitle under the heading is folded into the
+       English lede below it instead of becoming a third near-identical
+       sentence.
+     - ua- prefixed classes throughout (source used bare names like
+       .why-grid, .wc-icon), no Google Fonts CDN, no standalone
+       <html>/<head>/<style> document, this project's palette instead
+       of the source's separate teal/purple values.
+     - The source's four emoji icons replaced with inline SVGs — emoji
+       icons were one of the original site audit's top complaints, so
+       every section in this rebuild uses real icons instead.
+     - The four "01/02/03/04" watermark numbers are dropped: these are
+       four parallel, equally-weighted reasons, not a sequence, so a
+       numbered treatment implies an order that isn't really there.
+     - The source's inline <script> (a hand-rolled fade-in-on-scroll
+       with stagger) is replaced by reusing the .ua-reveal mechanism
+       already in script.js's initAnimations() — no new JS needed here
+       at all. The per-card stagger it added is kept, done in CSS via
+       nth-child transition-delay instead of inline styles.
+     - Note for later: card 2 here ("Itqan Methodology") only briefly
+       introduces Itqan/Tadabbur. The upcoming methodology.html (file 8)
+       should go deeper on the actual mechanism rather than repeating
+       this same paragraph — flagging now so that file doesn't just
+       duplicate this card when we get to it.
+
+     Depends on: styles.css (.ua-why-* rules, this pass).
+     Depends on script.js: initAnimations() (already built — reused,
+     not modified).
+     ============================================================ -->
+<section class="ua-why-ummah" id="ua-why-ummah" aria-labelledby="ua-why-title">
+  <div class="ua-wrap">
+
+    <div class="ua-section-head ua-section-head--center">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Why Ummah Academy</p>
+      <h2 id="ua-why-title">Authentic Scholarship. <em>Modern Flexibility.</em></h2>
+      <p class="ua-section-head-lede ua-section-head-lede--center">We unite the 1,000-year tradition of Al-Azhar with flexible, personalized 1-on-1 live teaching — built for Muslims living in the West.</p>
+    </div>
+
+    <div class="ua-why-grid">
+
+      <article class="ua-why-card ua-reveal">
+        <div class="ua-why-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5M4 19.5A1.5 1.5 0 0 0 5.5 21H19a1.5 1.5 0 0 0 1.5-1.5M4 19.5A1.5 1.5 0 0 1 5.5 18H19a1.5 1.5 0 0 1 1.5 1.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Azhari Excellence</h3>
+        <p>All teachers are Al-Azhar University graduates holding Ijazah certificates — a chain of knowledge connected directly to the Prophet ﷺ, ensuring authentic, verified transmission of the Quranic sciences.</p>
+        <p class="ua-why-tag"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Verified Credentials</p>
+      </article>
+
+      <article class="ua-why-card ua-reveal">
+        <div class="ua-why-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>
+        </div>
+        <h3>Itqan Methodology</h3>
+        <p>We focus on <em>Itqan</em> (mastery) and <em>Tadabbur</em> (deep contemplation) — not rote recitation. Every session is structured for lasting mastery through thematic verse grouping and precise correction.</p>
+        <p class="ua-why-tag"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Proven Methodology</p>
+      </article>
+
+      <article class="ua-why-card ua-reveal">
+        <div class="ua-why-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Safe Environment</h3>
+        <p>Specialized female teachers for women and children, in a fully private, faith-conscious setting — with complete parental oversight through session recordings, progress reports, and Family Portal access.</p>
+        <p class="ua-why-tag"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Family Approved</p>
+      </article>
+
+      <article class="ua-why-card ua-reveal">
+        <div class="ua-why-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>24/7 Flexibility</h3>
+        <p>We serve Muslims across every timezone — the UK, USA, Canada, Australia, and beyond. Choose your own schedule; we operate around the clock to fit every family's routine.</p>
+        <p class="ua-why-tag"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Global Reach</p>
+      </article>
+
+    </div>
+  </div>
+</section>

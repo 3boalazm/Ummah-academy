@@ -1,0 +1,274 @@
+<!-- ============================================================
+     UMMAH ACADEMY — TEACHERS PAGE (v2, replaces the earlier simpler grid)
+     Full separate page, same pattern as about.html / blog.html / faq.html.
+
+     ── What the uploaded file actually was ──
+     Not a plain HTML+CSS page — it was an export from a separate
+     design/prototyping tool: wrapped in that tool's own bundler
+     scaffolding (<x-dc>, __bundler/manifest, __bundler/page_order, a
+     floating dev-mode watermark div, a React-like `class Component
+     extends DCLogic` block) with the real page markup buried inside a
+     JSON-escaped string in a <script type="__bundler/template"> tag,
+     and every single element's styling inlined as style="..." rather
+     than classes. All of that scaffolding is stripped below; only the
+     actual design survives, cleaned up and separated.
+
+     Good sign: the colors and fonts inside that export are the exact
+     literal values already in our design tokens (#2E1D46, #24393C,
+     #1D5FA8, #FAFAFA, "Iowan Old Style", etc.) — this was clearly
+     built from our own system as a starting point, then expanded into
+     a fuller page (Hero, Why Different, Philosophy, a much richer
+     alternating-split Faculty layout, Selection Process, CTA) rather
+     than a competing design. Replaces the earlier simple 3-card-grid
+     teachers.html wholesale.
+
+     Two real bugs fixed in the process, not just style-tag cleanup:
+     - Every inline <svg> had `sc-camel-view-box` instead of `viewBox`
+       — invalid attribute name, meaning these icons had no coordinate
+       mapping and would render at the wrong scale. Restored to
+       `viewBox="0 0 24 24"` throughout.
+     - The four hero stats used <image-slot> placeholders and
+       {{ counts.x }} template bindings tied to that tool's own
+       Component class, which doesn't exist here. Rewired onto our
+       already-existing .ua-trust-item / .ua-counter pattern instead —
+       same markup Trust Bar already uses, so initCounters() in
+       script.js animates these for free with zero new JS. The target
+       numbers (100% certified, 25 years combined, 3 scholars,
+       2 languages) check out against real data already established:
+       10 + 8 + 7 years across Omneya/Sara/Nour = 25, exactly.
+     - <image-slot> portrait placeholders replaced with the same
+       gradient+initials placeholder pattern used everywhere else for
+       teachers without real photos yet.
+     - The philosophy section's "01/02/03" pillars keep their numbers
+       (unlike the earlier design-critique on decorative watermark
+       numbers) — these are a real enumerated list of principles, not
+       a false sequence dressed up as decoration.
+     - The export's own minimal footer stub is dropped — footer
+       content is site-wide (footer.html, not yet built) and shouldn't
+       be duplicated per page, same reasoning as dropping Blog's
+       "Contact Info" sidebar earlier.
+
+     Depends on: styles.css (.ua-teachers-* rules, this pass — the
+     older, simpler .ua-teachers-*/.ua-teacher-directory-* rules are
+     removed, not left dangling as dead code).
+     Depends on script.js: initAnimations() and initCounters(), both
+     already built — reused as-is, nothing new to wire up.
+     ============================================================ -->
+
+<section class="ua-teachers-hero">
+  <div class="ua-teachers-hero-texture" aria-hidden="true"></div>
+  <div class="ua-teachers-hero-glow" aria-hidden="true"></div>
+
+  <div class="ua-wrap ua-teachers-hero-grid">
+    <div class="ua-teachers-hero-copy">
+      <p class="ua-eyebrow ua-eyebrow--on-dark"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Our Faculty</p>
+      <h1>Learn From Scholars Who've <em>Walked This Path</em></h1>
+      <p class="ua-teachers-hero-lede">Every teacher at Ummah Academy is a personally vetted Al-Azhar graduate and Ijazah holder — chosen not only for scholarship, but for the patience and warmth it takes to teach the Qur'an well.</p>
+
+      <div class="ua-teachers-hero-actions">
+        <a href="#ua-faculty" class="ua-btn ua-btn-primary ua-btn-large ua-btn--on-dark">Meet Our Teachers</a>
+        <a href="#ua-process" class="ua-btn ua-btn-ghost ua-btn-large ua-btn--on-dark">How We Select Them</a>
+      </div>
+
+      <div class="ua-teachers-hero-stats">
+        <!-- Reuses Trust Bar's exact counter pattern — initCounters()
+             in script.js animates any .ua-trust-item on the page, no
+             per-section wiring needed. -->
+        <div class="ua-trust-item" data-count="100" data-suffix="%">
+          <p class="ua-trust-num ua-trust-num--on-dark"><span class="ua-counter">0</span>%</p>
+          <p class="ua-teachers-hero-stat-lbl">Al-Azhar Certified</p>
+        </div>
+        <div class="ua-trust-item" data-count="25" data-suffix="+">
+          <p class="ua-trust-num ua-trust-num--on-dark"><span class="ua-counter">0</span>+</p>
+          <p class="ua-teachers-hero-stat-lbl">Years Combined Teaching</p>
+        </div>
+        <div class="ua-trust-item" data-count="3">
+          <p class="ua-trust-num ua-trust-num--on-dark"><span class="ua-counter">0</span></p>
+          <p class="ua-teachers-hero-stat-lbl">Ijazah-Holding Scholars</p>
+        </div>
+        <div class="ua-trust-item" data-count="2">
+          <p class="ua-trust-num ua-trust-num--on-dark"><span class="ua-counter">0</span></p>
+          <p class="ua-teachers-hero-stat-lbl">Languages of Instruction</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ua-teachers-hero-visual">
+      <div class="ua-teachers-hero-portrait" role="img" aria-label="Portrait of a teacher, not yet available">
+        <svg width="36" height="36" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="17" r="9" fill="currentColor"/><path d="M6 42c0-10 8-16 18-16s18 6 18 16" fill="currentColor"/></svg>
+      </div>
+      <div class="ua-teachers-hero-badge ua-teachers-hero-badge--top">
+        <p class="ua-teachers-hero-badge-eyebrow">Verified</p>
+        <p class="ua-teachers-hero-badge-title">Ijazah Certified</p>
+      </div>
+      <div class="ua-teachers-hero-badge ua-teachers-hero-badge--bottom">
+        <p class="ua-teachers-hero-badge-eyebrow">Al-Azhar</p>
+        <p class="ua-teachers-hero-badge-title">Faculty Graduate</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-teachers-why">
+  <div class="ua-wrap">
+    <div class="ua-section-head">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> What Sets Them Apart</p>
+      <h2>Not just teachers. Verified scholars.</h2>
+      <p class="ua-section-head-lede">Anyone can teach a Zoom call. Few can trace their knowledge back through an unbroken chain to the Prophet ﷺ himself.</p>
+    </div>
+
+    <div class="ua-teachers-why-grid">
+      <div class="ua-teachers-why-feature">
+        <p class="ua-teachers-why-feature-eyebrow">Chain of Transmission</p>
+        <h3>A verified Sanad, not just a certificate</h3>
+        <p>Every teacher holds an Ijazah — formal authorization to teach Qur'anic recitation, carrying a documented chain of transmission back through their own teachers. It's the same standard of scholarly rigor Al-Azhar has upheld for a thousand years, brought to a laptop screen.</p>
+      </div>
+
+      <div class="ua-teachers-why-stack">
+        <div class="ua-why-card">
+          <div class="ua-why-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Al-Azhar University Trained</h3>
+          <p>Graduates of Al-Azhar's Faculties of Sharia, Arabic Language, and Islamic Studies — the oldest continuously operating seat of Islamic scholarship in the world.</p>
+        </div>
+        <div class="ua-why-card">
+          <div class="ua-why-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Chosen for Patience, Too</h3>
+          <p>Scholarship earns the interview; the ability to teach a nervous seven-year-old or a first-time adult reader with warmth is what earns the seat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-teachers-philosophy">
+  <div class="ua-teachers-philosophy-texture" aria-hidden="true"></div>
+  <div class="ua-wrap ua-teachers-philosophy-inner">
+    <p class="ua-teachers-quote-mark" aria-hidden="true">&ldquo;</p>
+    <p class="ua-teachers-quote">Seeking knowledge is a pursuit towards Allah — and as knowledge grows, faith increases.</p>
+    <p class="ua-teachers-quote-attr">Ustadha Omneya Ali, Head of Tajweed Department</p>
+
+    <div class="ua-teachers-pillars">
+      <div class="ua-teachers-pillar">
+        <p class="ua-teachers-pillar-num">01</p>
+        <h3>One Student at a Time</h3>
+        <p>Lessons move at the student's own pace — never rushed toward a curriculum deadline that isn't theirs.</p>
+      </div>
+      <div class="ua-teachers-pillar">
+        <p class="ua-teachers-pillar-num">02</p>
+        <h3>Precision Before Speed</h3>
+        <p>Correct Tajweed comes first; fluency and confidence follow naturally once the foundation is right.</p>
+      </div>
+      <div class="ua-teachers-pillar">
+        <p class="ua-teachers-pillar-num">03</p>
+        <h3>Built on Approved Curricula</h3>
+        <p>Noor Al-Bayan, Al-Qaida Al-Nooraniyyah, and Al-Ajrumiyyah — proven texts, not improvised lesson plans.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-teachers-featured" id="ua-faculty">
+  <div class="ua-wrap">
+    <div class="ua-section-head">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Our Faculty</p>
+      <h2>Meet the scholars behind every lesson</h2>
+    </div>
+
+    <div class="ua-teacher-split">
+      <div class="ua-teacher-split-visual">
+        <div class="ua-teacher-split-portrait" role="img" aria-label="Portrait of Ustadha Omneya Ali, not yet available"><span aria-hidden="true">OA</span></div>
+      </div>
+      <div class="ua-teacher-split-body">
+        <p class="ua-teacher-split-badge ua-teacher-split-badge--solid">Head of Tajweed Department</p>
+        <h3>Omneya Ali</h3>
+        <p class="ua-teacher-split-subject">Tajweed &amp; Qira'at Specialist</p>
+        <p class="ua-teacher-split-bio">A graduate of Al-Azhar University's Faculty of Sharia and Law, Omneya memorized the entire Qur'an by age 12 and holds an Ijazah in Hafs 'an 'Asim with a chain of transmission to the Prophet ﷺ. She specializes in teaching children from age seven and women, using approved curricula including Noor Al-Bayan, Al-Qaida Al-Nooraniyyah, and Al-Ajrumiyyah.</p>
+        <ul class="ua-teacher-split-tags">
+          <li><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Ijazah in Hafs 'an 'Asim</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> 10+ Years Teaching</li>
+          <li>Arabic &amp; English</li>
+        </ul>
+        <a href="#ua-cta" class="ua-btn ua-btn-primary">Book with Omneya</a>
+      </div>
+    </div>
+
+    <div class="ua-teacher-split ua-teacher-split--reverse">
+      <div class="ua-teacher-split-body">
+        <p class="ua-teacher-split-badge">Arabic Foundation Specialist</p>
+        <h3>Sara Ahmed</h3>
+        <p class="ua-teacher-split-subject">Arabic Language &amp; Noor Al-Bayan</p>
+        <p class="ua-teacher-split-bio">A graduate of Al-Azhar's Arabic Language Faculty, Sara is certified in Noor Al-Bayan and specializes in absolute beginners and children — the first steps of connecting letters, short vowels, and building toward confident, independent reading.</p>
+        <ul class="ua-teacher-split-tags">
+          <li><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Certified — Noor Al-Bayan</li>
+          <li>8 Years Online Teaching</li>
+        </ul>
+        <a href="#ua-cta" class="ua-btn ua-btn-outline">Book with Sara</a>
+      </div>
+      <div class="ua-teacher-split-visual">
+        <div class="ua-teacher-split-portrait ua-teacher-split-portrait--sm" role="img" aria-label="Portrait of Ustadha Sara Ahmed, not yet available"><span aria-hidden="true">SA</span></div>
+      </div>
+    </div>
+
+    <div class="ua-teacher-split">
+      <div class="ua-teacher-split-visual">
+        <div class="ua-teacher-split-portrait ua-teacher-split-portrait--sm" role="img" aria-label="Portrait of Ustadha Nour Hassan, not yet available"><span aria-hidden="true">NH</span></div>
+      </div>
+      <div class="ua-teacher-split-body">
+        <p class="ua-teacher-split-badge">Ummah Cubs Programme Lead</p>
+        <h3>Nour Hassan</h3>
+        <p class="ua-teacher-split-subject">Kids &amp; Islamic Studies</p>
+        <p class="ua-teacher-split-bio">Certified in Early Islamic Education from Al-Azhar, Nour leads the Ummah Cubs programme — an expert in gamified Qur'an learning for children ages 5 to 14, keeping first steps with the Qur'an playful and encouraging.</p>
+        <ul class="ua-teacher-split-tags">
+          <li><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Certified — Early Islamic Education</li>
+          <li>7 Years With Ages 5–14</li>
+        </ul>
+        <a href="#ua-cta" class="ua-btn ua-btn-outline">Book with Nour</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-teachers-process" id="ua-process">
+  <div class="ua-wrap">
+    <div class="ua-section-head">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Quality Assurance</p>
+      <h2>How a teacher earns a place at Ummah Academy</h2>
+      <p class="ua-section-head-lede">A deliberately narrow path — most applicants don't make it through.</p>
+    </div>
+
+    <div class="ua-process-grid">
+      <div class="ua-process-line" aria-hidden="true"></div>
+      <div class="ua-process-step">
+        <p class="ua-process-num">1</p>
+        <h3>Application Review</h3>
+        <p>Academic credentials and Al-Azhar affiliation are verified before any interview is scheduled.</p>
+      </div>
+      <div class="ua-process-step">
+        <p class="ua-process-num">2</p>
+        <h3>Ijazah &amp; Sanad Verification</h3>
+        <p>Each teacher's chain of transmission is checked directly, not taken on their word.</p>
+      </div>
+      <div class="ua-process-step">
+        <p class="ua-process-num">3</p>
+        <h3>Live Teaching Demonstration</h3>
+        <p>Knowledge alone isn't enough — candidates teach a real trial lesson before being approved.</p>
+      </div>
+      <div class="ua-process-step">
+        <p class="ua-process-num">4</p>
+        <h3>Ongoing Evaluation</h3>
+        <p>Standards don't stop at hiring — teaching quality is reviewed continuously, not just once.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-teachers-cta" id="ua-cta">
+  <div class="ua-wrap ua-teachers-cta-inner">
+    <h2>Ready to learn from a certified scholar?</h2>
+    <p>Book a free trial lesson and get matched with the right teacher for your goals.</p>
+    <div class="ua-teachers-cta-actions">
+      <a href="https://ummahacademy.net/contact/" class="ua-btn ua-btn-primary ua-btn-large ua-btn--on-dark">Book a Free Trial Lesson</a>
+      <a href="#ua-faculty" class="ua-btn ua-btn-ghost ua-btn-large ua-btn--on-dark">Browse All Teachers</a>
+    </div>
+  </div>
+</section>

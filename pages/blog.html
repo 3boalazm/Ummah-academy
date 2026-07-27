@@ -1,0 +1,130 @@
+<!-- ============================================================
+     UMMAH ACADEMY — BLOG (listing page)
+     Full separate page, same as about.html — paste as its own
+     Elementor page at /blog/, with header.html as its header.
+
+     ── What the screenshot showed ──
+     The live page currently has a "Contact Info" block whose icons
+     (phone, envelope, and what looks like a location pin/pie shape)
+     are rendering at massive, uncontrolled size — hundreds of pixels
+     tall instead of the small icons they're meant to be. That's
+     almost always a missing size constraint on an SVG/icon-font
+     element (no width/height/viewBox, or a CSS rule that should cap
+     it isn't being applied). I don't have that page's actual
+     underlying code, only the screenshot, so I can't patch that
+     specific bug in place — this is a full rebuild in our own system
+     instead, which avoids the failure mode entirely (every icon here
+     is inline SVG with explicit width/height, the same pattern used
+     everywhere else on the site).
+
+     ── Content notes ──
+     The four real post titles, authors, and dates from the live page
+     are kept. The excerpts are rewritten, not copied verbatim — the
+     live excerpts had "Share This Story Facebook / Instagram"
+     boilerplate bleeding directly into the post body text, which reads
+     as a content/template bug rather than intentional copy. One post's
+     excerpt on the live site claims a "70% discount for families" —
+     that figure doesn't appear anywhere else in this whole project
+     (Pricing, Structure doc, anywhere), so it's not carried over here
+     without confirmation it's a real, current offer. Post 4's title
+     ("Want to learn Arabic...") but body (about Fiqh) didn't match on
+     the live page either — kept the real title, wrote an excerpt that
+     matches what the title actually promises.
+
+     "Contact Info" as a sidebar widget is dropped rather than rebuilt
+     — that's footer content (site-wide), not something that should be
+     duplicated per-page. It'll live in footer.html once that's built.
+
+     Category filter pills below link to # — swap in real WordPress
+     category archive URLs once you confirm the actual slugs.
+
+     Depends on: styles.css (.ua-blog-* rules, this pass).
+     No script.js changes needed.
+     ============================================================ -->
+
+<section class="ua-blog-hero">
+  <div class="ua-wrap ua-section-head ua-section-head--center">
+    <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> From the Blog</p>
+    <h1>Practical Islamic Knowledge for the Modern Muslim</h1>
+    <p class="ua-section-head-lede ua-section-head-lede--center">Qur'an, Arabic, and Islamic studies — explained clearly, for students and parents alike.</p>
+  </div>
+</section>
+
+<section class="ua-blog-listing">
+  <div class="ua-wrap">
+
+    <div class="ua-blog-toolbar">
+      <!-- Real WordPress search — submits to the site's built-in
+           search rather than being decorative. -->
+      <form class="ua-blog-search" role="search" method="get" action="https://ummahacademy.net/">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" name="s" placeholder="Search articles…" aria-label="Search the blog">
+        <button type="submit" class="ua-visually-hidden">Search</button>
+      </form>
+
+      <div class="ua-blog-filters" role="group" aria-label="Filter by category">
+        <a href="#" class="ua-filter-pill is-active">All</a>
+        <a href="#" class="ua-filter-pill">Qur'an</a>
+        <a href="#" class="ua-filter-pill">Arabic</a>
+        <a href="#" class="ua-filter-pill">Islamic Studies</a>
+        <a href="#" class="ua-filter-pill">Announcements</a>
+      </div>
+    </div>
+
+    <div class="ua-blog-grid">
+
+      <article class="ua-blog-card ua-reveal">
+        <div class="ua-blog-card-thumb" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <p class="ua-blog-card-cat">Qur'an</p>
+        <h2 class="ua-blog-card-title">Recite in the Name of Your Lord Who Created</h2>
+        <p class="ua-blog-card-excerpt">Have you ever wondered why this is the first ayah revealed in the Qur'an to Prophet Muhammad ﷺ? We look at the significance of Surah Al-'Alaq's opening verse as Islam's founding message.</p>
+        <div class="ua-blog-card-meta">
+          <span>Ummah Academy</span><span aria-hidden="true">·</span><time datetime="2026-02-14">Feb 14, 2026</time>
+        </div>
+        <a href="#" class="ua-blog-card-link">Read More <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </article>
+
+      <article class="ua-blog-card ua-reveal">
+        <div class="ua-blog-card-thumb" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+        </div>
+        <p class="ua-blog-card-cat">Announcements</p>
+        <h2 class="ua-blog-card-title">Learn Qur'an and Islamic Studies From Anywhere in the World</h2>
+        <p class="ua-blog-card-excerpt">Our certified teachers from Al-Azhar Al-Sharif offer personalized 1-on-1 lessons over live audio and video — high-quality, engaging remote learning wherever you are.</p>
+        <div class="ua-blog-card-meta">
+          <span>Ummah Academy</span><span aria-hidden="true">·</span><time datetime="2026-02-14">Feb 14, 2026</time>
+        </div>
+        <a href="#" class="ua-blog-card-link">Read More <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </article>
+
+      <article class="ua-blog-card ua-reveal">
+        <div class="ua-blog-card-thumb" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="ua-blog-card-cat">Islamic Studies</p>
+        <h2 class="ua-blog-card-title">Allah's Mercy on the Night of Forgiveness</h2>
+        <p class="ua-blog-card-excerpt">The blessed night between mid-Sha'ban's Maghrib and Fajr is described as a time when Allah's mercy and forgiveness pour especially generously upon His servants.</p>
+        <div class="ua-blog-card-meta">
+          <span>Ummah Academy</span><span aria-hidden="true">·</span><time datetime="2026-02-14">Feb 14, 2026</time>
+        </div>
+        <a href="#" class="ua-blog-card-link">Read More <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </article>
+
+      <article class="ua-blog-card ua-reveal">
+        <div class="ua-blog-card-thumb" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24"><path d="M5 8h14M5 8a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="ua-blog-card-cat">Arabic</p>
+        <h2 class="ua-blog-card-title">Want to Learn Arabic but Not Sure Where to Start?</h2>
+        <p class="ua-blog-card-excerpt">Understanding Qur'anic Arabic is the foundation for everything else — from Tajweed to Fiqh. Here's how Ummah Academy structures that first step for complete beginners.</p>
+        <div class="ua-blog-card-meta">
+          <span>Ummah Academy</span><span aria-hidden="true">·</span><time datetime="2026-01-28">Jan 28, 2026</time>
+        </div>
+        <a href="#" class="ua-blog-card-link">Read More <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </article>
+
+    </div>
+  </div>
+</section>

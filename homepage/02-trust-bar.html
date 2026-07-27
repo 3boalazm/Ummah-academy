@@ -1,0 +1,72 @@
+<!-- ============================================================
+     UMMAH ACADEMY — TRUST BAR (merges "Statistics", file #3 in the
+     original 15-file list, into this one — the uploaded Trust Bar
+     doc's own content is entirely numeric stats, so a separate
+     stats.html would just repeat these same five numbers. Sequence
+     is now: Hero → Trust Bar → How It Works → Learning Paths → ...
+     (15 files total, not 16).
+
+     Paste directly into an Elementor "HTML" widget.
+
+     Adjusted from the uploaded reference to match this project's
+     established rules: ua- prefixed classes (the source used bare
+     names like .trust-bar, .trust-num), no Google Fonts CDN (source
+     linked fonts.googleapis.com — this build stays zero-dependency),
+     no standalone <html>/<head>/<style> document (source was a full
+     page — this is a bare fragment for styles.css/script.js to style
+     and drive), and this project's own palette rather than the
+     source's separate teal/purple values (kept only what's actually
+     in the brand palette board).
+
+     Depends on: styles.css (.ua-trust-bar rules, this pass).
+     Depends on script.js: initCounters() (this pass).
+     ============================================================ -->
+<section class="ua-trust-bar" aria-label="Ummah Academy statistics">
+  <div class="ua-wrap ua-trust-bar-inner">
+
+    <!-- Figures below are illustrative — confirm real numbers before
+         launch (flagged the same way in every prior document in this
+         project). "400+ Monthly Teaching Hours" is the one addition
+         here vs. the Hero's own stat row, and lines up with the
+         figure already used in the Structure document. -->
+
+    <div class="ua-trust-item" data-count="50" data-suffix="+">
+      <p class="ua-trust-num"><span class="ua-counter">50</span>+</p>
+      <p class="ua-trust-lbl">Countries Reached</p>
+      <p class="ua-trust-lbl-sub">Across 5 continents</p>
+    </div>
+
+    <div class="ua-trust-div" aria-hidden="true"></div>
+
+    <div class="ua-trust-item" data-count="100" data-suffix="+">
+      <p class="ua-trust-num"><span class="ua-counter">100</span>+</p>
+      <p class="ua-trust-lbl">Al-Azhar Verified Scholars</p>
+      <p class="ua-trust-lbl-sub">Ijazah certified</p>
+    </div>
+
+    <div class="ua-trust-div" aria-hidden="true"></div>
+
+    <div class="ua-trust-item" data-count="1000" data-suffix="+">
+      <p class="ua-trust-num"><span class="ua-counter">1000</span>+</p>
+      <p class="ua-trust-lbl">Active Students</p>
+      <p class="ua-trust-lbl-sub">Currently enrolled</p>
+    </div>
+
+    <div class="ua-trust-div" aria-hidden="true"></div>
+
+    <div class="ua-trust-item" data-count="400" data-suffix="+">
+      <p class="ua-trust-num"><span class="ua-counter">400</span>+</p>
+      <p class="ua-trust-lbl">Monthly Teaching Hours</p>
+      <p class="ua-trust-lbl-sub">Live sessions delivered</p>
+    </div>
+
+    <div class="ua-trust-div" aria-hidden="true"></div>
+
+    <div class="ua-trust-item" data-count="95" data-suffix="%">
+      <p class="ua-trust-num"><span class="ua-counter">95</span>%</p>
+      <p class="ua-trust-lbl">Satisfaction Rate</p>
+      <p class="ua-trust-lbl-sub">Verified parent reviews</p>
+    </div>
+
+  </div>
+</section>

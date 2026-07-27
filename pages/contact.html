@@ -1,0 +1,89 @@
+<!-- ============================================================
+     UMMAH ACADEMY — CONTACT / BOOK FREE TRIAL PAGE
+     Full separate page, reconciled from the raw source into our system.
+
+     ── The bug that matters most in this whole file ──
+     The source displayed "+1 (234) 567-8901" as the WhatsApp contact
+     text while the actual link underneath already pointed to the real
+     number (wa.me/201154644519) — display text and destination
+     disagreeing. This exact fake number was the single most-repeated
+     finding across all four original site audits at the very start of
+     this project, flagged again every time it resurfaced since. Fixed
+     here: the displayed text now matches the real linked number.
+
+     The source also embedded a second, duplicate FAQ block — this
+     page now links to the dedicated pages/faq.html instead of
+     repeating six Q&As that already have a proper home there.
+
+     Depends on: styles.css (.ua-contact-* rules, this pass).
+     Depends on script.js: initContactForm() (new, this pass).
+     ============================================================ -->
+
+<section class="ua-contact">
+  <div class="ua-contact-left">
+    <div class="ua-contact-left-bg" style="background-image:url('https://ummahacademy.net/wp-content/uploads/2024/07/pexels-thirdman-e1775741925290.jpg')" aria-hidden="true"></div>
+
+    <p class="ua-eyebrow ua-eyebrow--on-dark">Free Trial</p>
+    <h1>Begin Your Islamic Journey Today</h1>
+    <p class="ua-contact-lede">Fill the form to book your 2 free live trial sessions. We'll contact you via WhatsApp within 2 hours.</p>
+
+    <div class="ua-contact-channels">
+      <a href="https://wa.me/201154644519" class="ua-contact-channel">
+        <span class="ua-contact-channel-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg></span>
+        <span><span class="ua-contact-channel-lbl">WhatsApp (Fastest)</span><span class="ua-contact-channel-val">+20 115 464 4519</span></span>
+      </a>
+      <a href="mailto:info@ummahacademy.net" class="ua-contact-channel">
+        <span class="ua-contact-channel-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 8h14M5 8a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span><span class="ua-contact-channel-lbl">Email</span><span class="ua-contact-channel-val">info@ummahacademy.net</span></span>
+      </a>
+      <div class="ua-contact-channel ua-contact-channel--static">
+        <span class="ua-contact-channel-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></span>
+        <span><span class="ua-contact-channel-lbl">Available</span><span class="ua-contact-channel-val">24/7 — All Timezones</span></span>
+      </div>
+    </div>
+
+    <ul class="ua-contact-guarantees">
+      <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> 2 sessions free — no credit card</li>
+      <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Response within 2 hours via WhatsApp</li>
+      <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Al-Azhar certified teacher assigned</li>
+      <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Zero commitment — cancel anytime</li>
+      <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Flexible scheduling — any timezone</li>
+    </ul>
+  </div>
+
+  <div class="ua-contact-right">
+    <h2 class="ua-contact-form-title">Book Your Free Trial Sessions</h2>
+    <p class="ua-contact-form-subtitle">Complete this short form — we'll WhatsApp you within 2 hours to confirm your teacher and session time.</p>
+
+    <form class="ua-contact-form" id="ua-contact-form">
+      <div class="ua-form-group"><label class="ua-form-label">First Name *</label><input class="ua-form-input" type="text" placeholder="Ahmad"></div>
+      <div class="ua-form-group"><label class="ua-form-label">Last Name *</label><input class="ua-form-input" type="text" placeholder="Khan"></div>
+      <div class="ua-form-group ua-form-group--full"><label class="ua-form-label">WhatsApp Number *</label><input class="ua-form-input" type="tel" placeholder="+44 7700 900000"></div>
+      <div class="ua-form-group"><label class="ua-form-label">Email</label><input class="ua-form-input" type="email" placeholder="your@email.com"></div>
+      <div class="ua-form-group"><label class="ua-form-label">Country *</label>
+        <select class="ua-form-select"><option value="">Select…</option><option>United Kingdom</option><option>United States</option><option>Canada</option><option>Australia</option><option>Germany</option><option>France</option><option>Saudi Arabia</option><option>UAE</option><option>Other</option></select>
+      </div>
+      <div class="ua-form-group ua-form-group--full"><label class="ua-form-label">Course Track *</label>
+        <select class="ua-form-select"><option value="">What would you like to learn?</option><option>Qur'an Recitation</option><option>Tajweed Rules</option><option>Qur'an Memorization (Hifz)</option><option>Ijazah Program</option><option>Noor Al-Bayan</option><option>Arabic Grammar</option><option>Arabic Conversation</option><option>Ummah Cubs (Kids)</option><option>Islamic Studies</option></select>
+      </div>
+      <div class="ua-form-group"><label class="ua-form-label">Age Group *</label>
+        <select class="ua-form-select"><option>Child (5–12)</option><option>Teen (13–17)</option><option>Adult (18+)</option><option>Senior (55+)</option></select>
+      </div>
+      <div class="ua-form-group"><label class="ua-form-label">Teacher Preference</label>
+        <select class="ua-form-select"><option>No preference</option><option>Female teacher only</option><option>Male teacher only</option></select>
+      </div>
+      <div class="ua-form-group"><label class="ua-form-label">Preferred Days</label>
+        <select class="ua-form-select"><option>Weekdays</option><option>Weekends</option><option>Any day — flexible</option></select>
+      </div>
+      <div class="ua-form-group"><label class="ua-form-label">Preferred Time</label>
+        <select class="ua-form-select"><option>Morning (6–12 PM)</option><option>Afternoon (12–5 PM)</option><option>Evening (5–10 PM)</option><option>Any time</option></select>
+      </div>
+      <div class="ua-form-group ua-form-group--full"><label class="ua-form-label">Anything else? (optional)</label><input class="ua-form-input" type="text" placeholder="e.g. My child is 6 years old / I want Ijazah…"></div>
+
+      <div class="ua-form-group ua-form-group--full">
+        <button type="submit" class="ua-btn ua-btn-primary ua-btn-block ua-btn-large" id="ua-contact-submit">Book My 2 Free Trial Sessions</button>
+        <p class="ua-form-note">No payment required. No spam. We respond within 2 hours. Have a quick question first? <a href="/faq.html" class="ua-text-link">See the FAQ</a>.</p>
+      </div>
+    </form>
+  </div>
+</section>

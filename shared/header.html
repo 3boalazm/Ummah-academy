@@ -1,0 +1,119 @@
+<!-- ============================================================
+     UMMAH ACADEMY — HEADER / PRIMARY NAVIGATION
+     This is not one of the original 15 body-section files — it's
+     global chrome. Paste into Elementor's Theme Builder as the site
+     Header template, not into the homepage's own widget stack; it
+     should render on every page, not just this one.
+
+     Centering fix (the actual ask): the source positioned the center
+     nav links with `left:50%` + `translateX(-50%)` for the horizontal
+     axis, then leaned on the parent's `height:100%` + `align-items:
+     center` for the vertical axis. That works, but it's two different
+     mechanisms doing two different jobs, and it drifts if the parent's
+     box model doesn't resolve exactly as expected. Rebuilt below using
+     `top:50%; left:50%; transform:translate(-50%,-50%)` — one
+     mechanism, both axes, centered against the pill's own box
+     regardless of its content's height. Every icon/glyph element (logo,
+     language toggle, hamburger) also gets explicit `display:flex;
+     align-items:center;justify-content:center` plus `line-height:1`,
+     since font descender space is the other classic cause of things
+     looking almost-but-not-quite centered.
+
+     Other adjustments from the source:
+     - ua- prefixed classes, no Google Fonts CDN, no standalone
+       <html>/<head>/<style> document, this project's palette.
+     - The CTA button reuses the site's actual .ua-btn-primary instead
+       of a one-off rose/peach gradient — every other CTA on the site
+       (Hero, Pricing) is a solid accent-color pill; giving the nav's
+       CTA a different color family would be the one visibly
+       inconsistent button on the page.
+     - The 9 dropdown emoji icons are dropped rather than replaced with
+       9 bespoke SVGs — the three bold group labels already do the
+       organizing work; a wall of tiny mixed icons reads as more
+       cluttered than clarifying at this size (Linear/Apple's own
+       mega-menus mostly skip per-item icons for exactly this reason).
+     - All Arabic (aria-labels, group labels, mobile menu strings)
+       converted to English, per the standing instruction.
+     - The inline <script> at the bottom of the source is ported to
+       script.js as initNavigation() / initMobileMenu() — both were
+       already reserved placeholders there, waiting for this file.
+
+     Depends on: styles.css (.ua-header/.ua-nav-* rules, this pass).
+     Depends on script.js: initNavigation(), initMobileMenu() (new).
+     ============================================================ -->
+<header class="ua-header">
+  <a class="ua-skip-link" href="#main-content">Skip to main content</a>
+
+  <div class="ua-nav-wrap" id="ua-nav-wrap">
+    <nav class="ua-nav" aria-label="Primary">
+
+      <a href="https://ummahacademy.net/" class="ua-nav-logo" aria-label="Ummah Academy — Home">
+        <img src="https://ummahacademy.net/wp-content/uploads/2024/07/Asset-3.png" alt="Ummah Academy" loading="eager" width="40" height="40">
+      </a>
+
+      <ul class="ua-nav-center">
+        <li><a href="https://ummahacademy.net/" class="is-active" aria-current="page">Home</a></li>
+        <li><a href="https://ummahacademy.net/about/">About</a></li>
+        <li class="ua-nav-dropdown">
+          <a href="https://ummahacademy.net/courses/" aria-haspopup="true" aria-expanded="false" id="ua-courses-toggle">
+            Courses
+            <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="ua-nav-dropdown-menu" role="menu" aria-labelledby="ua-courses-toggle">
+            <div class="ua-nav-dgroup">
+              <p class="ua-nav-dlabel">Qur'an &amp; Tajweed</p>
+              <a href="https://ummahacademy.net/courses/#quran" role="menuitem">Recitation</a>
+              <a href="https://ummahacademy.net/courses/#quran" role="menuitem">Tajweed — 3 Levels</a>
+              <a href="https://ummahacademy.net/courses/#quran" role="menuitem">Memorization (Hifz)</a>
+              <a href="https://ummahacademy.net/courses/#quran" role="menuitem">Ijazah Program</a>
+            </div>
+            <div class="ua-nav-dgroup">
+              <p class="ua-nav-dlabel">Arabic Language</p>
+              <a href="https://ummahacademy.net/courses/#arabic" role="menuitem">Noor Al-Bayan</a>
+              <a href="https://ummahacademy.net/courses/#arabic" role="menuitem">Grammar</a>
+              <a href="https://ummahacademy.net/courses/#arabic" role="menuitem">Conversation</a>
+            </div>
+            <div class="ua-nav-dgroup">
+              <p class="ua-nav-dlabel">Islamic Studies</p>
+              <a href="https://ummahacademy.net/courses/#kids" role="menuitem">Ummah Cubs (Kids)</a>
+              <a href="https://ummahacademy.net/courses/#islamic" role="menuitem">Aqeedah &amp; Fiqh</a>
+              <a href="https://ummahacademy.net/courses/#islamic" role="menuitem">Tafseer &amp; Seerah</a>
+            </div>
+          </div>
+        </li>
+        <li><a href="https://ummahacademy.net/teachers/">Teachers</a></li>
+        <li><a href="https://ummahacademy.net/pricing/">Pricing</a></li>
+        <li><a href="https://ummahacademy.net/blog/">Blog</a></li>
+      </ul>
+
+      <div class="ua-nav-right">
+        <button type="button" class="ua-lang-toggle" id="ua-lang-toggle" aria-pressed="false">
+          <span aria-hidden="true">ع</span>
+          <span class="ua-visually-hidden">Switch to Arabic</span>
+        </button>
+
+        <a href="https://ummahacademy.net/contact/" class="ua-btn ua-btn-primary ua-btn-small">
+          Contact <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+
+        <button type="button" class="ua-nav-toggle" id="ua-nav-toggle" aria-expanded="false" aria-controls="ua-mobile-overlay">
+          <span></span><span></span><span></span>
+          <span class="ua-visually-hidden">Menu</span>
+        </button>
+      </div>
+
+    </nav>
+  </div>
+
+  <div class="ua-mobile-overlay" id="ua-mobile-overlay" role="dialog" aria-modal="true" aria-label="Main menu" hidden>
+    <a href="https://ummahacademy.net/" class="is-active" aria-current="page">Home</a>
+    <a href="https://ummahacademy.net/about/">About</a>
+    <a href="https://ummahacademy.net/courses/">Courses</a>
+    <a href="https://ummahacademy.net/teachers/">Teachers</a>
+    <a href="https://ummahacademy.net/pricing/">Pricing</a>
+    <a href="https://ummahacademy.net/blog/">Blog</a>
+    <div class="ua-mobile-divider" aria-hidden="true"></div>
+    <a href="https://ummahacademy.net/contact/" class="ua-btn ua-btn-primary ua-btn-large ua-btn-block">Book Free Trial →</a>
+    <button type="button" class="ua-mobile-lang">ع — Switch to Arabic</button>
+  </div>
+</header>

@@ -1,0 +1,346 @@
+<!-- ============================================================
+     UMMAH ACADEMY — ABOUT PAGE
+     This is a full separate page, not a homepage section — build it
+     as its own Elementor page (paste as one or more HTML widgets on
+     the "/about/" page), with header.html as its Theme Builder header
+     like every other page on the site.
+
+     ── What the console log (Doc 40) actually showed ──
+     Almost all of that log is Elementor's own internal tooling and
+     unrelated to this page's real code: the "angie.umd.cjs" / OIDC /
+     "Context Server" lines are Elementor's built-in AI assistant
+     talking to its own backend (only runs for logged-in editors, never
+     for real visitors); the Mixpanel "ERR_BLOCKED_BY_CLIENT" lines are
+     just an ad-blocker stopping an analytics beacon, not a bug; the
+     "preloaded but not used" warnings are generic performance notices.
+     The genuinely relevant lines were:
+       - A dozen 404s for Elementor's own auto-generated CSS/font files
+         (post-*.css, base-desktop.css, josefinsans.css, etc.). That's
+         a site-maintenance issue — Elementor's CSS cache needs
+         regenerating (Elementor → Tools → Regenerate CSS & Data) — not
+         something in this custom code.
+       - Two 404s for actual images: draft-20.jpg and draft-26.jpg.
+         Both were used in the source HTML below and are fixed here —
+         see the comments at each spot.
+
+     ── Other problems fixed while rebuilding ──
+     - The source document had a stray orphan closing </div> right
+       after <body> with no matching opening tag — a real markup bug.
+       Rebuilding from scratch here, so it isn't carried over.
+     - Dozens of scattered inline style="..." attributes moved into
+       real CSS classes (no inline CSS, per this project's standing
+       rule) — this source had far more of these than any previous
+       document.
+     - ua- prefixed classes throughout; no Google Fonts CDN; this
+       project's actual palette instead of the source's separate
+       purple/teal/rose values.
+     - All Arabic converted to English, with one narrow exception: the
+       line explaining what the word "Ummah" itself means keeps the
+       single Arabic word being defined (removing it would break the
+       sentence "'Ummah' refers to..." — that's citing the term, not a
+       duplicate translation). The large decorative Arabic watermarks
+       behind two of the source's cards are dropped entirely — purely
+       decorative, not informational.
+     - The source's emoji icons replaced with a
+       small reused SVG icon set — several of these (target, shield,
+       check) are the exact icons already built for Why Ummah Academy,
+       reused here rather than redrawn. Flag emoji for languages
+       replaced with plain text pills ("Arabic" / "English") — flag
+       emoji render inconsistently across operating systems.
+     - Mobile breakpoints included below, but per your own sequencing
+       ("fix problems, then the mobile view") treat this pass as the
+       structural/content fix and the next message as a dedicated
+       mobile-refinement pass if anything still looks off there.
+
+     Depends on: styles.css (.ua-about-* rules, this pass).
+     No script.js changes needed — nothing here requires JS beyond
+     the reveal-on-scroll this file's cards opt into via .ua-reveal,
+     already built.
+     ============================================================ -->
+
+<section class="ua-about-hero">
+  <div class="ua-about-hero-glow" aria-hidden="true"></div>
+  <div class="ua-wrap ua-about-hero-inner">
+    <div class="ua-about-hero-copy">
+      <p class="ua-eyebrow ua-eyebrow--on-dark">Our Story &amp; Mission</p>
+      <h1>About <em>Ummah Academy</em></h1>
+      <p class="ua-about-hero-lede">We were founded with a single conviction: every Muslim deserves access to authentic Qur'anic education — regardless of where they live. We bridge the 1,000-year legacy of Al-Azhar with the flexibility modern Muslim families need.</p>
+    </div>
+
+    <div class="ua-about-hero-visual">
+      <div class="ua-about-hero-card">
+        <!-- Reuses the real Hero photo already on WordPress. This is a
+             wide establishing shot in a tall portrait frame here — if
+             the crop looks awkward once rendered, swap in a more
+             portrait-oriented or people-focused photo. -->
+        <img src="https://ummahacademy.net/wp-content/uploads/2026/07/ChatGPT-Image-Jul-23-2026-03_20_04-PM.png" alt="Ummah Academy teaching team" loading="eager">
+        <div class="ua-about-hero-card-scrim" aria-hidden="true"></div>
+        <div class="ua-about-hero-card-badge">
+          <p class="ua-about-hero-card-badge-title">Our Teaching Family</p>
+          <p class="ua-about-hero-card-badge-sub">100+ Al-Azhar certified scholars worldwide</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-mission">
+  <div class="ua-wrap ua-mission-grid">
+    <div class="ua-mission-img">
+      <img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-thirdman-7993953-e1775741714427.jpg" alt="An Ummah Academy teacher during a live session" loading="lazy">
+      <div class="ua-mission-img-badge">
+        <p class="ua-mission-img-badge-num">1,000+</p>
+        <p class="ua-mission-img-badge-lbl">Years of Al-Azhar<br>scholarship tradition</p>
+      </div>
+    </div>
+
+    <div class="ua-mission-text">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Our Vision</p>
+      <h2>Empowering every Muslim to return to Allah's Book</h2>
+      <p>Our vision is to create a comprehensive, integrated program that motivates Muslims worldwide to return to the Qur'an — not merely for display recitation, but for genuine mastery (Itqan), deep contemplation (Tadabbur), and a heartfelt connection to Allah's words.</p>
+      <p>We believe authentic Islamic knowledge should never be a privilege of geography. Whether you're in London, Toronto, Sydney, or Dubai — you deserve the same quality of teaching Al-Azhar has maintained for over a millennium.</p>
+
+      <div class="ua-mission-values">
+        <div class="ua-mission-value">
+          <div class="ua-mission-value-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg></div>
+          <div><h3>Itqan (Perfection)</h3><p>We teach for deep mastery and retention, not surface-level display of knowledge.</p></div>
+        </div>
+        <div class="ua-mission-value">
+          <div class="ua-mission-value-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.5-9C.7 7.5 2 4 5.5 4c2 0 3.4 1.2 4.2 2.3C10.5 5.2 11.9 4 13.9 4 17.4 4 18.7 7.5 17 11c-2.5 4.6-9.5 9-9.5 9z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg></div>
+          <div><h3>Tadabbur (Contemplation)</h3><p>Every session connects the student to the deeper meaning of what they're learning.</p></div>
+        </div>
+        <div class="ua-mission-value">
+          <div class="ua-mission-value-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></div>
+          <div><h3>Accessibility for the Ummah</h3><p>Our name says it all — we serve the entire Muslim Ummah, regardless of location.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-timeline-section">
+  <div class="ua-wrap ua-timeline-grid">
+    <div>
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Our Journey</p>
+      <h2 class="ua-timeline-heading">How Ummah Academy Began</h2>
+
+      <ol class="ua-timeline">
+        <li class="ua-timeline-item ua-reveal">
+          <p class="ua-timeline-year">2022 — The Seed</p>
+          <h3>A Problem We Couldn't Ignore</h3>
+          <p>Our founder noticed Muslim families in the West struggled to find qualified, authentic Qur'an teachers — relying on uncertified volunteers or expensive local schools with inflexible schedules.</p>
+        </li>
+        <li class="ua-timeline-item ua-reveal">
+          <p class="ua-timeline-year">2023 — The Solution</p>
+          <h3>Building the Al-Azhar Connection</h3>
+          <p>We began recruiting directly from Al-Azhar University — focusing on scholars holding Ijazah certificates with documented chains to the Prophet ﷺ.</p>
+        </li>
+        <li class="ua-timeline-item ua-reveal">
+          <p class="ua-timeline-year">2024 — Launch</p>
+          <h3>Ummah Academy Goes Live</h3>
+          <p>We officially launched with 20 teachers and 150 students across 12 countries. Our first Ijazah was granted to a student in the UK within our first year.</p>
+        </li>
+        <li class="ua-timeline-item ua-reveal">
+          <p class="ua-timeline-year">2025 — Growth</p>
+          <h3>Expanding the Family</h3>
+          <p>Expanded to 100+ scholars, 1,000+ students, 50+ countries, and introduced the Ummah Cubs program for children age 5+.</p>
+        </li>
+        <li class="ua-timeline-item ua-reveal">
+          <p class="ua-timeline-year">2026 — Today</p>
+          <h3>A Platform for the Ummah</h3>
+          <p>Today we deliver 400+ live teaching hours monthly, with 12+ Ijazah certificates issued, 95% student retention, and a complete Family Portal.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="ua-timeline-aside">
+      <div class="ua-name-card">
+        <p class="ua-eyebrow ua-eyebrow--on-dark">Our Name, Our Mission</p>
+        <h3>What Does "Ummah" Mean?</h3>
+        <!-- The one Arabic word kept in this whole page: this sentence
+             is defining the term itself, not repeating an English
+             translation next to it. -->
+        <p>In the Qur'an, "Ummah" (أمة) refers to the global Muslim community — a united body of believers bound by faith. Our name is our promise: this academy exists to serve every member of that community.</p>
+      </div>
+
+      <div class="ua-stat-card">
+        <div class="ua-stat-card-grid">
+          <div><p class="ua-stat-card-num">50+</p><p class="ua-stat-card-lbl">Countries</p></div>
+          <div><p class="ua-stat-card-num">1K+</p><p class="ua-stat-card-lbl">Students</p></div>
+          <div><p class="ua-stat-card-num">100+</p><p class="ua-stat-card-lbl">Scholars</p></div>
+          <div><p class="ua-stat-card-num">12+</p><p class="ua-stat-card-lbl">Ijazahs</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-about-teachers">
+  <div class="ua-wrap">
+    <div class="ua-section-head ua-section-head--center">
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> The Teaching Family</p>
+      <h2>Meet Our Certified <em>Al-Azhar Scholars</em></h2>
+      <p class="ua-section-head-lede ua-section-head-lede--center">Every teacher is personally vetted — verified Al-Azhar graduate, Ijazah holder, and experienced in teaching both Arabs and non-Arabic speakers.</p>
+    </div>
+
+    <div class="ua-about-teacher-grid">
+
+      <article class="ua-about-teacher-card ua-reveal">
+        <div class="ua-about-teacher-photo">
+          <!-- Was pointing at testimonial-fatima.jpg — that file is
+               actually captioned as a different person (a student, not
+               this teacher) in the real Media Library. Using it here
+               would show a stranger's face under this teacher's name.
+               Clean placeholder until a real photo of Omneya Ali exists. -->
+          <div class="ua-about-teacher-photo-placeholder" role="img" aria-label="Photo of Ustadha Omneya Ali, not yet available">
+            <span aria-hidden="true">OA</span>
+          </div>
+          <p class="ua-about-teacher-badge">Featured Scholar</p>
+          <div class="ua-about-teacher-name-ovl">
+            <h3>Omneya Ali</h3>
+            <p>Head of Tajweed Department</p>
+          </div>
+        </div>
+        <div class="ua-about-teacher-body">
+          <ul class="ua-about-teacher-creds">
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Al-Azhar University — Faculty of Sharia</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ijazah in Hafs 'an 'Asim</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Specialist in Al-Ajrumiyyah &amp; Al-Jazariyyah</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>10+ years teaching experience</li>
+          </ul>
+          <div class="ua-about-teacher-tags">
+            <span class="ua-about-teacher-tag">Arabic</span>
+            <span class="ua-about-teacher-tag">English</span>
+            <span class="ua-about-teacher-tag">Qur'an · Tajweed · Arabic</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="ua-about-teacher-card ua-reveal">
+        <div class="ua-about-teacher-photo">
+          <div class="ua-about-teacher-photo-placeholder" role="img" aria-label="Photo of Ustadha Sara Ahmed, not yet available">
+            <span aria-hidden="true">SA</span>
+          </div>
+          <p class="ua-about-teacher-badge">Noor Al-Bayan</p>
+          <div class="ua-about-teacher-name-ovl">
+            <h3>Sara Ahmed</h3>
+            <p>Arabic Foundation Specialist</p>
+          </div>
+        </div>
+        <div class="ua-about-teacher-body">
+          <ul class="ua-about-teacher-creds">
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Al-Azhar — Arabic Language Faculty</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Certified in Noor Al-Bayan</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Specialist in beginners &amp; children</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>8 years online education</li>
+          </ul>
+          <div class="ua-about-teacher-tags">
+            <span class="ua-about-teacher-tag">Arabic</span>
+            <span class="ua-about-teacher-tag">English</span>
+            <span class="ua-about-teacher-tag">Noor Al-Bayan · Grammar</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="ua-about-teacher-card ua-reveal">
+        <div class="ua-about-teacher-photo">
+          <div class="ua-about-teacher-photo-placeholder" role="img" aria-label="Photo of Ustadha Nour Hassan, not yet available">
+            <span aria-hidden="true">NH</span>
+          </div>
+          <p class="ua-about-teacher-badge">Kids Specialist</p>
+          <div class="ua-about-teacher-name-ovl">
+            <h3>Nour Hassan</h3>
+            <p>Ummah Cubs Programme Lead</p>
+          </div>
+        </div>
+        <div class="ua-about-teacher-body">
+          <ul class="ua-about-teacher-creds">
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Al-Azhar — Islamic Education</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Certified Early Islamic Education</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Expert in gamified Qur'an learning</li>
+            <li><span class="ua-about-teacher-cred-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>7 years teaching children ages 5–14</li>
+          </ul>
+          <div class="ua-about-teacher-tags">
+            <span class="ua-about-teacher-tag">Arabic</span>
+            <span class="ua-about-teacher-tag">English</span>
+            <span class="ua-about-teacher-tag">Ummah Cubs · Qur'an</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="ua-about-teachers-cta">
+      <a href="https://ummahacademy.net/teachers/" class="ua-btn ua-btn-outline">Meet All Our Teachers</a>
+    </div>
+  </div>
+</section>
+
+<section class="ua-about-methodology">
+  <div class="ua-wrap ua-about-methodology-grid">
+    <div>
+      <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> Our Teaching Philosophy</p>
+      <h2>The Itqan Methodology — Perfection Over Display</h2>
+      <p class="ua-about-methodology-lede">Most platforms teach memorization as performance. We fundamentally reject this. Our "Itqan" (perfection) method insists on mastery, precision, and Tadabbur at every stage.</p>
+
+      <div class="ua-pillar-list">
+        <div class="ua-pillar">
+          <div class="ua-pillar-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg></div>
+          <div><h3>Thematic Verse Grouping</h3><p>We group verses by theme and meaning — allowing students to understand context.</p></div>
+        </div>
+        <div class="ua-pillar">
+          <div class="ua-pillar-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 5v14M12 3v18M16 5v14M4 9v6M20 9v6" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div>
+          <div><h3>Real-Time Makhraj Correction</h3><p>Live 1-on-1 sessions let teachers instantly correct articulation points.</p></div>
+        </div>
+        <div class="ua-pillar">
+          <div class="ua-pillar-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h3>Progressive Level System</h3><p>Three clearly defined levels with measurable milestones per track.</p></div>
+        </div>
+        <div class="ua-pillar">
+          <div class="ua-pillar-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div><h3>Chain of Transmission (Sanad)</h3><p>Ijazah graduates receive a documented chain tracing back to the Prophet ﷺ.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ua-about-methodology-aside">
+      <div class="ua-azhar-card">
+        <p class="ua-azhar-card-num">1,000+</p>
+        <h3>Years of Al-Azhar Academic Tradition</h3>
+        <p>Founded in 970 CE, Al-Azhar University is the oldest university in the world and the global authority on Qur'anic sciences. Every Ummah Academy teacher carries this living tradition into your home.</p>
+        <ul class="ua-azhar-certs">
+          <li><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>Ijazah with Sanad — documented chain to the Prophet ﷺ</li>
+          <li><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Al-Azhar University degree verification on request</li>
+          <li><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Bilingual teaching — Arabic &amp; English available</li>
+          <li><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg></span>Female teachers for women &amp; children — fully vetted</li>
+        </ul>
+      </div>
+
+      <div class="ua-cert-preview-card">
+        <!--
+          Original source pointed at .../2026/04/draft-26.jpg, which
+          404s (confirmed in the console log). Rather than link a
+          broken image, this uses a clean icon-based placeholder —
+          replace with a real certificate photo when one exists.
+        -->
+        <div class="ua-cert-preview-placeholder" role="img" aria-label="Sample completion certificate">
+          <svg width="32" height="32" viewBox="0 0 24 24"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M8 7h8M8 10.5h8M8 14h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <h4>Official Completion Certificates</h4>
+        <p>Every student receives a formal certificate upon finishing each level — recognized and verifiable. Advanced students pursuing Ijazah receive a documented chain of transmission.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ua-about-cta">
+  <div class="ua-wrap ua-about-cta-inner">
+    <p class="ua-eyebrow ua-eyebrow--on-dark">Join Our Family</p>
+    <h2>Ready to Begin Your Islamic Education Journey?</h2>
+    <p>Your first 2 sessions are completely free. Experience the Ummah Academy difference — authentic, certified, and personalized for you.</p>
+    <div class="ua-about-cta-actions">
+      <a href="https://ummahacademy.net/contact/" class="ua-btn ua-btn-primary ua-btn-large ua-btn--on-dark">Book Your Free Trial →</a>
+      <a href="https://ummahacademy.net/teachers/" class="ua-btn ua-btn-ghost ua-btn-large ua-btn--on-dark">Meet Our Teachers</a>
+    </div>
+  </div>
+</section>

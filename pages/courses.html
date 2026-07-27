@@ -1,0 +1,164 @@
+<!-- ============================================================
+     UMMAH ACADEMY — COURSES PAGE
+     Full separate page, reconciled from the raw source into our
+     system. The per-course prices here ($40/$64/$96 per month) are
+     internally consistent with the 7-package pricing already
+     established elsewhere in this project ($40–$128 range) — kept as
+     real data, not placeholder.
+
+     Depends on: styles.css (.ua-courses-page-* rules, this pass).
+     Depends on script.js: initCoursesTabs() (new, this pass) — swaps
+     the active tab pill and smooth-scrolls to the matching track,
+     reusing the smooth-scroll offset logic already in initScrollEffects().
+     ============================================================ -->
+
+<section class="ua-courses-page-hero">
+  <div class="ua-courses-page-hero-bg" style="background-image:url('https://ummahacademy.net/wp-content/uploads/2026/07/ChatGPT-Image-Jul-23-2026-03_20_04-PM.png')" aria-hidden="true"></div>
+  <div class="ua-wrap ua-section-head ua-section-head--center">
+    <p class="ua-eyebrow ua-eyebrow--pill"><span class="ua-eyebrow-dot" aria-hidden="true"></span> All Learning Tracks</p>
+    <h1>Comprehensive Islamic Courses for Every Level</h1>
+    <p class="ua-section-head-lede ua-section-head-lede--center">From your first Qur'an letter to earning an Ijazah — four complete tracks designed by Al-Azhar certified scholars.</p>
+  </div>
+</section>
+
+<section class="ua-courses-page">
+  <div class="ua-wrap">
+
+    <div class="ua-track-tabs" role="tablist" aria-label="Course tracks">
+      <button type="button" class="ua-track-tab is-active" data-target="ua-track-quran">Qur'an &amp; Tajweed</button>
+      <button type="button" class="ua-track-tab" data-target="ua-track-arabic">Arabic Language</button>
+      <button type="button" class="ua-track-tab" data-target="ua-track-kids">Ummah Cubs</button>
+      <button type="button" class="ua-track-tab" data-target="ua-track-islamic">Islamic Studies</button>
+    </div>
+
+    <!-- QUR'AN & TAJWEED -->
+    <div class="ua-track-section" id="ua-track-quran">
+      <div class="ua-track-header">
+        <div class="ua-track-header-img">
+          <img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-tayebmezahdia-318451-e1775741529152.jpg" alt="Qur'an and Tajweed course" loading="lazy">
+          <p class="ua-track-header-badge">Track 1 of 4</p>
+        </div>
+        <div class="ua-track-header-info">
+          <h2>Qur'an &amp; Tajweed Track</h2>
+          <p class="ua-track-header-desc">Master the Qur'an as it was revealed — with Tajweed, memorization using the Itqan method, and Ijazah.</p>
+          <ul class="ua-track-features">
+            <li>Correct recitation as transmitted from the Prophet ﷺ</li>
+            <li>Tajweed in 3 progressive levels</li>
+            <li>Memorization using the "Itqan" mastery method</li>
+            <li>Ijazah program with documented Sanad</li>
+          </ul>
+          <a href="/contact.html" class="ua-btn ua-btn-primary">Start Free Trial in Qur'an</a>
+        </div>
+      </div>
+      <div class="ua-courses-page-grid">
+        <article class="ua-course-page-card ua-reveal">
+          <div class="ua-course-page-thumb"><img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-timur-weber-9127603-e1744250118455.jpg" alt="Qur'an Recitation course" loading="lazy"><p class="ua-course-page-tag">Beginner → Advanced</p><p class="ua-course-page-title">Qur'an Recitation</p></div>
+          <div class="ua-course-page-body"><p class="ua-course-page-desc">Learn correct Qur'an recitation from Alif-Ba to full fluency.</p><div class="ua-course-page-footer"><span class="ua-course-page-price">From $64/mo</span><a href="/contact.html" class="ua-btn ua-btn-outline ua-btn-small">Enroll Free</a></div></div>
+        </article>
+        <article class="ua-course-page-card ua-reveal">
+          <div class="ua-course-page-thumb"><img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-michael-burrows-7129614.jpg" alt="Tajweed Rules course" loading="lazy"><p class="ua-course-page-tag">3-Level Program</p><p class="ua-course-page-title">Tajweed Rules</p></div>
+          <div class="ua-course-page-body"><p class="ua-course-page-desc">Makharij, Sifaat, Noon Sakinah, and Madd rules using Al-Jazariyyah.</p><div class="ua-course-page-footer"><span class="ua-course-page-price">From $64/mo</span><a href="/contact.html" class="ua-btn ua-btn-outline ua-btn-small">Enroll Free</a></div></div>
+        </article>
+        <article class="ua-course-page-card ua-reveal">
+          <div class="ua-course-page-thumb"><img src="https://ummahacademy.net/wp-content/uploads/2024/07/pexels-sedanur-kunuk-78972032-23853958.jpg" alt="Hifz and Ijazah course" loading="lazy"><p class="ua-course-page-tag">Ijazah Available</p><p class="ua-course-page-title">Hifz &amp; Ijazah</p></div>
+          <div class="ua-course-page-body"><p class="ua-course-page-desc">Memorize with thematic grouping and earn a formal Ijazah with Sanad.</p><div class="ua-course-page-footer"><span class="ua-course-page-price">From $96/mo</span><a href="/contact.html" class="ua-btn ua-btn-outline ua-btn-small">Enroll Free</a></div></div>
+        </article>
+      </div>
+    </div>
+
+    <div class="ua-track-divider" aria-hidden="true"></div>
+
+    <!-- ARABIC LANGUAGE -->
+    <div class="ua-track-section" id="ua-track-arabic">
+      <div class="ua-track-header ua-track-header--reverse">
+        <div class="ua-track-header-info">
+          <h2>Arabic Language Track</h2>
+          <p class="ua-track-header-desc">From reading the Mushaf correctly to conversational fluency and classical Arabic grammar mastery.</p>
+          <ul class="ua-track-features">
+            <li>Noor Al-Bayan &amp; Nooraniyyah foundation</li>
+            <li>Al-Ajrumiyyah classical grammar (Nahw &amp; Sarf)</li>
+            <li>Spoken Arabic for daily conversation</li>
+          </ul>
+          <a href="/contact.html" class="ua-btn ua-btn-primary">Start Free Trial in Arabic</a>
+        </div>
+        <div class="ua-track-header-img">
+          <img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-defrinomaasy-28823666.jpg" alt="Arabic Language course" loading="lazy">
+          <p class="ua-track-header-badge">Track 2 of 4</p>
+        </div>
+      </div>
+      <div class="ua-courses-page-grid">
+        <article class="ua-course-page-card ua-reveal">
+          <div class="ua-course-page-thumb"><img src="https://ummahacademy.net/wp-content/uploads/2024/07/pexels-timur-weber-9127771.jpg" alt="Noor Al-Bayan course" loading="lazy"><p class="ua-course-page-tag">Beginners &amp; Kids</p><p class="ua-course-page-title">Noor Al-Bayan</p></div>
+          <div class="ua-course-page-body"><p class="ua-course-page-desc">The most trusted foundation method for reading Arabic and Qur'an from scratch.</p><div class="ua-course-page-footer"><span class="ua-course-page-price">From $40/mo</span><a href="/contact.html" class="ua-btn ua-btn-outline ua-btn-small">Enroll Free</a></div></div>
+        </article>
+        <article class="ua-course-page-card ua-reveal">
+          <div class="ua-course-page-thumb"><img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-nerosable-10806396.jpg" alt="Arabic Grammar course" loading="lazy"><p class="ua-course-page-tag">Al-Ajrumiyyah</p><p class="ua-course-page-title">Grammar: Nahw &amp; Sarf</p></div>
+          <div class="ua-course-page-body"><p class="ua-course-page-desc">Deep study of Arabic grammar using the classical Al-Ajrumiyyah text.</p><div class="ua-course-page-footer"><span class="ua-course-page-price">From $64/mo</span><a href="/contact.html" class="ua-btn ua-btn-outline ua-btn-small">Enroll Free</a></div></div>
+        </article>
+        <article class="ua-course-page-card ua-reveal">
+          <div class="ua-course-page-thumb"><img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-thirdman-7993953-e1775741714427.jpg" alt="Arabic Conversation course" loading="lazy"><p class="ua-course-page-tag">Modern Standard</p><p class="ua-course-page-title">Arabic Conversation</p></div>
+          <div class="ua-course-page-body"><p class="ua-course-page-desc">Build practical speaking skills for daily life and Islamic lectures.</p><div class="ua-course-page-footer"><span class="ua-course-page-price">From $64/mo</span><a href="/contact.html" class="ua-btn ua-btn-outline ua-btn-small">Enroll Free</a></div></div>
+        </article>
+      </div>
+    </div>
+
+    <div class="ua-track-divider" aria-hidden="true"></div>
+
+    <!-- UMMAH CUBS -->
+    <div class="ua-track-section" id="ua-track-kids">
+      <div class="ua-track-header">
+        <div class="ua-track-header-img">
+          <img src="https://ummahacademy.net/wp-content/uploads/2025/02/pexels-timur-weber-9127735.jpg" alt="Ummah Cubs kids course" loading="lazy">
+          <p class="ua-track-header-badge">Track 3 of 4</p>
+        </div>
+        <div class="ua-track-header-info">
+          <h2>Ummah Cubs Kids Programme</h2>
+          <p class="ua-track-header-desc">Complete Islamic education for children ages 5–14. Qur'an, Arabic, and Islamic values through games and visuals.</p>
+          <ul class="ua-track-features">
+            <li>Qur'an reading using Noor Al-Bayan</li>
+            <li>Islamic studies through stories and games</li>
+            <li>30-minute sessions matched to attention span</li>
+            <li>Monthly achievement badges</li>
+          </ul>
+          <a href="/contact.html" class="ua-btn ua-btn-primary">Enroll My Child Free</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ua-track-divider" aria-hidden="true"></div>
+
+    <!-- ISLAMIC STUDIES -->
+    <div class="ua-track-section" id="ua-track-islamic">
+      <div class="ua-track-header ua-track-header--reverse">
+        <div class="ua-track-header-info">
+          <h2>Islamic Studies Track</h2>
+          <p class="ua-track-header-desc">Deep understanding of your deen — Aqeedah, Fiqh, Tafseer, and Seerah for adults.</p>
+          <ul class="ua-track-features">
+            <li>Aqeedah — the six pillars with Qur'anic evidence</li>
+            <li>Fiqh — practical worship rulings</li>
+            <li>Tafseer — verse understanding and life lessons</li>
+            <li>Seerah — the Prophet's ﷺ biography and guidance</li>
+          </ul>
+          <a href="/contact.html" class="ua-btn ua-btn-primary">Start Free Trial in Islamic Studies</a>
+        </div>
+        <div class="ua-track-header-img">
+          <img src="https://ummahacademy.net/wp-content/uploads/2025/02/img_20201024_051456_771-e1775759687602.jpg" alt="Islamic Studies course" loading="lazy">
+          <p class="ua-track-header-badge">Track 4 of 4</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="ua-courses-page-cta">
+  <div class="ua-wrap ua-courses-page-cta-inner">
+    <p class="ua-eyebrow ua-eyebrow--on-dark">Not Sure Where to Start?</p>
+    <h2>Take Our Free Placement Test First</h2>
+    <p>Answer 8 quick questions and our teachers will tell you exactly which course and level is right for you.</p>
+    <div class="ua-courses-page-cta-actions">
+      <a href="/contact.html" class="ua-btn ua-btn-primary ua-btn-large ua-btn--on-dark">Take Free Placement Test</a>
+      <a href="/pricing.html" class="ua-btn ua-btn-ghost ua-btn-large ua-btn--on-dark">View Pricing Plans</a>
+    </div>
+  </div>
+</section>
