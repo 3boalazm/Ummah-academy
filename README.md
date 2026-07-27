@@ -25,6 +25,28 @@ courses/      One detail page per individual course, linked from pages/courses.h
 
 Every file is a self-contained fragment (no `<html>`/`<head>`/`<style>` wrapper) — that's intentional, so each pastes cleanly into its own Elementor HTML widget.
 
+## Deploying as a plain static site (Vercel)
+
+Because the source files are fragments, serving this repo directly gives a 404 — there is no `index.html` and nothing links `styles.css`. `build.js` closes that gap: it composes the fragments into complete documents under `dist/`, without modifying anything in `shared/`, `homepage/`, `pages/`, or `courses/`. Both deployment targets stay valid from one source.
+
+```bash
+npm run build      # -> dist/
+npx serve dist     # preview at http://localhost:3000
+```
+
+What the build does:
+
+- **`dist/index.html`** — every file in `homepage/` concatenated in filename order.
+- **`dist/<page>.html`** — one per file in `pages/` (`/about.html`, `/courses.html`, …), flat at the root, matching the URL scheme `shared/footer.html` already links to.
+- **`dist/courses/<slug>.html`** — one per file in `courses/`.
+- Each page is wrapped in a real `<!DOCTYPE html>` document with `<meta charset>`, a viewport tag, a `<title>` taken from the page's `<h1>`, and `<body class="ua-homepage">` — that class is what activates the scoped reset in `styles.css`, and standalone there's no Elementor Container to carry it.
+- `shared/header.html` and `shared/footer.html` are injected around the content, and `shared/styles.css` / `shared/script.js` are copied to `dist/shared/`.
+- The header's nav links point at `https://ummahacademy.net/...` (absolute, for the live WordPress site); the build rewrites just those `href`s to the local `/*.html` equivalents so the deployment is browsable. Source is untouched, and the `wp-content` image URLs on the same host are left alone.
+
+`vercel.json` sets `buildCommand: node build.js` and `outputDirectory: dist`. No dependencies, no framework — Node's stdlib only.
+
+**Still 404 on the deployed site:** `/pricing.html`, `/privacy.html`, `/terms.html`. All three are linked from the footer/header but have no page built yet (Pricing is in the "received but not reconciled" queue below; Privacy and Terms were never in scope). The build prints this list on every run.
+
 ## What's built vs. what's still open
 
 **Global chrome:** Header ✅ and Footer ✅ (both `shared/`) — the site finally has a real footer.

@@ -1,0 +1,9 @@
+{
+  "name": "ummah-academy-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ummah Academy website — Elementor HTML fragments, composable into a standalone static site",
+  "scripts": {
+    "build": "node build.js"
+  }
+}
