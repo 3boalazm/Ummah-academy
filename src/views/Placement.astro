@@ -1,0 +1,365 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Icon from '@/components/Icon.astro';
+import { getTests } from '@/data/placement';
+import { SITE } from '@/data/site';
+import type { Lang } from '@/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const tests = getTests(lang);
+const C = ar
+  ? {
+      meta: { title: 'اختبار تحديد المستوى المجاني | أكاديمية الأمة', desc: 'اعرف مستواك في القرآن أو العربية أو الدراسات الإسلامية — أو مستوى طفلك — في نحو ٣ دقائق، مع نتيجة فورية وترشيح لنقطة البداية.' },
+      eyebrow: 'تقييم مجاني للمستوى',
+      title: 'اعرف مستواك في <span class="accent">٣ دقائق</span>',
+      lede: 'ثمانية أسئلة سريعة، ونتيجة فورية: مستواك، ونقاط قوتك، وما تحتاج إلى التركيز عليه، ومن أين تبدأ. بلا تسجيل.',
+      chips: ['٨ أسئلة', 'نتيجة فورية', 'بلا تسجيل'],
+      pick: 'اختر المسار',
+      back: 'رجوع',
+      next: 'التالي',
+      strengths: 'نقاط القوة',
+      focus: 'ما يحتاج تركيزًا',
+      recKicker: 'نقطة البداية المقترحة',
+      book: 'احجز حصتيّ المجانيتين بهذا الترشيح',
+      see: 'تفاصيل الدورة',
+      share: 'أرسل النتيجة عبر واتساب لتصلك خطة دراسة',
+      voice: 'اختياري: أرسل تسجيلًا صوتيًا قصيرًا لتلاوتك في المحادثة نفسها ليستمع إليه معلم.',
+      restart: 'أعد الاختبار أو جرّب مسارًا آخر',
+      disclaimer: 'هذا تقييم سريع يقترح نقطة بداية، ويحدد معلمك مستواك بدقة في أول حصة مجانية.',
+      review: 'أسئلة الاختبار قيد المراجعة الأكاديمية من قسم التجويد.',
+    }
+  : {
+      meta: { title: 'Free Placement Test — Find Your Level | Ummah Academy', desc: 'Find your Qur’an, Arabic or Islamic Studies level — or your child’s — in about 3 minutes. Instant result with strengths, focus areas and a recommended starting course.' },
+      eyebrow: 'Free level check',
+      title: 'Find your level in <span class="accent">3 minutes</span>',
+      lede: 'Eight quick questions, instant result: your level, your strengths, what to focus on and where to start. No sign-up.',
+      chips: ['8 questions', 'Instant result', 'No sign-up'],
+      pick: 'Choose a track',
+      back: 'Back',
+      next: 'Next',
+      strengths: 'Strengths',
+      focus: 'Focus areas',
+      recKicker: 'Recommended starting point',
+      book: 'Book 2 free sessions with this plan',
+      see: 'See the course',
+      share: 'Send my result on WhatsApp for a study plan',
+      voice: 'Optional: send a short voice note of your recitation in the same chat for a teacher to review.',
+      restart: 'Retake the test / try another track',
+      disclaimer: 'This quick check suggests a starting point. Your teacher confirms your exact level in your first free session.',
+      review: 'Question bank pending academic review by the Tajweed department.',
+    };
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang}>
+    <ul role="list" class="cluster pt-chips">{C.chips.map((c) => <li class="chip"><Icon name="check-circle" weight="fill" /> {c}</li>)}</ul>
+  </PageHero>
+
+  <section class="section section--tight">
+    <div class="container--narrow">
+      <div class="glass glass--strong pt" data-pt data-wa={SITE.whatsapp.number} data-lang={lang}>
+        <div class="pt__step" data-step="track">
+          <h2 class="pt__title pt__focus">{C.pick}</h2>
+          <div class="choices pt__tracks" role="radiogroup" aria-label={C.pick}>
+            {
+              tests.map((tt) => (
+                <label class="choice">
+                  <input type="radio" name="pt-track" value={tt.key} />
+                  <span class="choice__box">
+                    <Icon name={tt.icon} />
+                    <span>{tt.label}</span>
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="pt__step" data-step="quiz" hidden>
+          <div class="pt__meta">
+            <span class="chip chip--accent" data-q-track></span>
+            <span class="pt__count" data-q-count></span>
+          </div>
+          <div class="pt__bar"><span data-q-bar></span></div>
+          <fieldset class="pt__q">
+            <legend class="pt__prompt pt__focus" data-q-prompt></legend>
+            <div class="choices pt__options" data-q-options></div>
+          </fieldset>
+          <div class="pt__nav">
+            <button class="btn btn--glass" type="button" data-back><Icon name="arrow-left" weight="bold" class="icon-arrow-back" /> {C.back}</button>
+            <button class="btn btn--primary" type="button" data-next disabled>{C.next} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></button>
+          </div>
+        </div>
+
+        <div class="pt__step pt__result" data-step="result" hidden aria-live="polite">
+          <span class="pt__level" data-r-level></span>
+          <h2 class="pt__headline pt__focus" data-r-headline></h2>
+          <p class="pt__score" data-r-score></p>
+          <div class="pt__cols">
+            <div class="pt__col">
+              <h3><Icon name="sparkle" weight="fill" /> {C.strengths}</h3>
+              <ul class="checklist" data-r-strengths></ul>
+            </div>
+            <div class="pt__col">
+              <h3><Icon name="target" weight="fill" /> {C.focus}</h3>
+              <ul class="pt__focuslist" data-r-focus></ul>
+            </div>
+          </div>
+          <div class="pt__rec">
+            <p class="pt__rec-kicker">{C.recKicker}</p>
+            <p class="pt__rec-title" data-r-course></p>
+            <p class="muted" data-r-why></p>
+            <div class="cluster">
+              <a class="btn btn--primary" href="#" data-r-book>{C.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+              <a class="btn btn--glass" href="#" data-r-link>{C.see}</a>
+            </div>
+          </div>
+          <div class="pt__share">
+            <a class="btn btn--glass" href="#" target="_blank" rel="noopener" data-r-wa><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.share}</a>
+            <p class="muted pt__voice">{C.voice}</p>
+          </div>
+          <button class="btn btn--link" type="button" data-restart>{C.restart}</button>
+        </div>
+      </div>
+      <p class="pt__disclaimer muted">{C.disclaimer}</p>
+    </div>
+  </section>
+
+  <script type="application/json" id="pt-data" set:html={JSON.stringify(tests)} />
+</BaseLayout>
+
+<script>
+  import { initPlacement } from '@/scripts/placement';
+  initPlacement();
+</script>
+
+<style>
+  .pt-chips {
+    justify-content: center;
+  }
+
+  .pt-chips :global(svg) {
+    color: var(--success);
+  }
+
+  .pt {
+    --radius: var(--r-xl);
+    padding: clamp(22px, 4vw, 48px);
+    min-height: 360px;
+  }
+
+  .pt__step {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .pt__title {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    outline: none;
+  }
+
+  .pt__tracks {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+
+  .pt__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pt__count {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pt__bar {
+    height: 6px;
+    border-radius: 99px;
+    background: rgb(46 29 70 / 0.08);
+    overflow: hidden;
+    margin-top: -10px;
+  }
+
+  .pt__bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--grad-accent);
+    transition: width 0.5s var(--ease-out);
+  }
+
+  .pt__q {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .pt__prompt {
+    padding: 0;
+    font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.8rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    margin-bottom: 18px;
+    outline: none;
+  }
+
+  :global([dir='rtl']) .pt__prompt,
+  :global([dir='rtl']) .pt__title {
+    letter-spacing: 0;
+  }
+
+  .pt__options {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .pt__options {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .pt__options :global(.choice__box) {
+    font-size: 1.02rem;
+    min-height: 60px;
+  }
+
+  .pt__options :global(.ar-opt) {
+    font-family: var(--font-quran);
+    font-size: 1.4rem;
+    line-height: 1.6;
+  }
+
+  .pt__nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  :global([dir='rtl']) .pt :global(.icon-arrow-back) {
+    transform: scaleX(-1);
+  }
+
+  .pt__result {
+    align-items: flex-start;
+  }
+
+  .pt__level {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    font-weight: 650;
+    color: #fff;
+    background: var(--grad-accent);
+  }
+
+  .pt__headline {
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+    outline: none;
+  }
+
+  .pt__score {
+    color: var(--ink-2);
+    margin-top: -10px;
+  }
+
+  .pt__cols {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .pt__cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .pt__col h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+  }
+
+  .pt__col h3 :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-ink);
+  }
+
+  .pt__focuslist {
+    display: grid;
+    gap: 8px;
+    padding-inline-start: 1.1em;
+    color: var(--ink-2);
+  }
+
+  .pt__rec {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px;
+    border-radius: 24px;
+    background:
+      radial-gradient(120% 100% at 100% 0%, rgb(175 204 234 / 0.5), transparent 60%),
+      radial-gradient(100% 100% at 0% 100%, rgb(241 205 220 / 0.6), transparent 60%),
+      rgb(255 255 255 / 0.7);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.07);
+  }
+
+  .pt__rec-kicker {
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  :global([dir='rtl']) .pt__rec-kicker {
+    letter-spacing: 0;
+    font-size: 0.9rem;
+  }
+
+  .pt__rec-title {
+    font-size: 1.5rem;
+    font-weight: 620;
+    letter-spacing: -0.03em;
+  }
+
+  .pt__share {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pt__voice {
+    font-size: 0.86rem;
+  }
+
+  .pt__disclaimer {
+    text-align: center;
+    font-size: 0.88rem;
+    margin-top: 16px;
+  }
+</style>

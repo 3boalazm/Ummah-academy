@@ -1,0 +1,164 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Faq from '@/components/Faq.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import { lp, type Lang } from '@/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+type Group = { id: string; title: string; items: { q: string; a: string }[] };
+const groups: Group[] = ar
+  ? [
+      { id: 'start', title: 'البداية والتجربة', items: [
+        { q: 'متى ستردّون عليّ؟', a: 'نرد عبر واتساب غالبًا خلال دقائق، وخلال ساعتين على الأكثر، في كل المناطق الزمنية.' },
+        { q: 'هل الحصتان التجريبيتان مجانيتان فعلًا؟', a: 'نعم، بالكامل — بدون بطاقة دفع وبدون التزام.' },
+        { q: 'ماذا يحدث بعد الحصتين؟', a: 'إن رغبت في الاستمرار تختار خطة شهرية تناسبك، وإن لم ترغب فلا شيء عليك.' },
+        { q: 'هل يمكنني طلب معلم بعينه؟', a: 'نعم، اذكر اسمه عند الحجز وسنبذل وسعنا.' },
+      ] },
+      { id: 'method', title: 'الدورات والمنهج', items: [
+        { q: 'لا أتحدث العربية، فهل سأفهم؟', a: 'نعم، المعلمون يتقنون العربية والإنجليزية، وكثير من طلابنا بدؤوا من الصفر.' },
+        { q: 'ما الذي يميز طريقتكم؟', a: 'منهج الإتقان: الإحكام والتدبّر لا مجرد التلاوة — تجميع موضوعي للآيات وتصحيح مباشر بدل الحفظ الآلي.' },
+        { q: 'هل أحصل على شهادة أو إجازة؟', a: 'يحصل كل طالب على شهادة إتمام لكل مستوى، ويمكن لطلاب التلاوة والحفظ السعي نحو إجازة رسمية بسند متصل إلى النبي ﷺ.' },
+      ] },
+      { id: 'teachers', title: 'المعلمون', items: [
+        { q: 'من هم معلموكم؟', a: 'خريجو جامعة الأزهر من حاملي الإجازات، ولهم خبرة في تعليم العرب وغير الناطقين بالعربية.' },
+        { q: 'هل يمكنني طلب معلمة لابنتي أو زوجتي؟', a: 'نعم، لدينا معلمات للنساء والأطفال في بيئة خاصة تراعي القيم.' },
+      ] },
+      { id: 'schedule', title: 'المواعيد والتقنية', items: [
+        { q: 'على أي منصة تكون الحصص؟', a: 'Zoom أو Google Meet مع سبورة تفاعلية لتصحيح التلاوة.' },
+        { q: 'ماذا لو فاتتني حصة؟', a: 'غيّر موعدها مجانًا بإشعار قبلها بـ ٢٤ ساعة، فلا تضيع الحصة.' },
+        { q: 'هل تناسب المواعيد توقيتي؟', a: 'نعم، الحصص على مدار الساعة، فتختار الوقت الذي يناسبك أنت.' },
+      ] },
+      { id: 'family', title: 'الأسرة والأطفال', items: [
+        { q: 'طفلي عمره ٥ سنوات، هل هو صغير؟', a: 'لا، يقبل برنامج أشبال الأمة الأطفال من سن الخامسة بحصص قصيرة مرحة مدتها ٣٠ دقيقة.' },
+        { q: 'كيف أتابع تقدّم طفلي؟', a: 'تقرير بعد كل حصة وأوسمة شهرية، مع حساب واحد في بوابة الأسرة لكل أطفالك؛ ولوحة التقدم ومكتبة التسجيلات قيد الإطلاق.' },
+      ] },
+      { id: 'pricing', title: 'الأسعار والدفع', items: [
+        { q: 'كم التكلفة؟', a: 'من ٤٠ إلى ١٢٨ دولارًا شهريًا حسب مدة الحصة وعددها، وكل خطة تبدأ بحصتين مجانيتين.' },
+        { q: 'هل يمكنني الإلغاء أو الإيقاف؟', a: 'نعم، الإلغاء في أي وقت ويسري بنهاية الشهر المدفوع، ويمكنك تجميد الاشتراك مؤقتًا.' },
+        { q: 'ما طرق الدفع؟', a: 'فيزا، وماستركارد، وباي بال، والتحويل البنكي، وويسترن يونيون، وموني جرام.' },
+      ] },
+    ]
+  : [
+      { id: 'start', title: 'Getting started', items: [
+        { q: 'How quickly will you reply?', a: 'On WhatsApp, usually within minutes — always within 2 hours, in every time zone.' },
+        { q: 'Are the 2 trial sessions really free?', a: 'Yes — completely free, no card and no commitment.' },
+        { q: 'What happens after the trial?', a: 'If you’d like to continue, you choose a monthly plan. If not, there’s nothing to cancel.' },
+        { q: 'Can I request a specific teacher?', a: 'Yes — mention their name when you book and we’ll do our best to match you.' },
+      ] },
+      { id: 'method', title: 'Courses & method', items: [
+        { q: 'What if I don’t speak Arabic?', a: 'Every teacher is fully bilingual in Arabic and English, and many students start from zero.' },
+        { q: 'What makes your approach different?', a: 'The Itqan method: mastery and reflection (Tadabbur), not just recitation — thematic verse grouping and real-time correction instead of rote repetition.' },
+        { q: 'Do I get a certificate or Ijazah?', a: 'Every student receives a certificate per level. Recitation and Hifz students can work toward a formal Ijazah with a documented chain back to the Prophet ﷺ.' },
+      ] },
+      { id: 'teachers', title: 'Teachers', items: [
+        { q: 'Who are your teachers?', a: 'Al-Azhar University graduates holding Ijazahs, experienced with both Arabic and non-Arabic speakers.' },
+        { q: 'Can I request a female teacher for my daughter or wife?', a: 'Yes — dedicated female teachers for women and children, in a private, faith-conscious setting.' },
+      ] },
+      { id: 'schedule', title: 'Scheduling & technology', items: [
+        { q: 'What platform are sessions on?', a: 'Zoom or Google Meet, with an interactive whiteboard for marking up Tajweed.' },
+        { q: 'What if I miss a session?', a: 'Reschedule free with 24 hours’ notice, so a missed session isn’t a lost one.' },
+        { q: 'Do you cover my time zone?', a: 'Yes — lessons run around the clock, so you book the time that genuinely suits you.' },
+      ] },
+      { id: 'family', title: 'Family & kids', items: [
+        { q: 'My child is 5 — is that too young?', a: 'Not at all — Ummah Cubs welcomes children from age 5 with short, game-based 30-minute lessons.' },
+        { q: 'Can I track my child’s progress?', a: 'A report after every lesson and monthly badges, with one Family Portal account for all your children; the live dashboard and recording library are rolling out.' },
+      ] },
+      { id: 'pricing', title: 'Pricing & payment', items: [
+        { q: 'How much does it cost?', a: `From $40 to $128 a month depending on session length and frequency — every plan starts with 2 free sessions. See <a href="${lp(lang, '/pricing/')}">pricing</a>.` },
+        { q: 'Can I cancel or pause?', a: 'Yes — cancel anytime (effective at the end of your billing month) or freeze your subscription temporarily.' },
+        { q: 'Which payment methods do you accept?', a: 'Visa, Mastercard, PayPal, bank transfer, Western Union and MoneyGram.' },
+      ] },
+    ];
+const all = groups.flatMap((g) => g.items);
+const ld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: all.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a.replace(/<[^>]+>/g, '') } })) };
+const C = ar
+  ? { meta: { title: 'الأسئلة الشائعة | أكاديمية الأمة', desc: 'إجابات عن أكثر ما تسأل عنه الأسر: التجربة المجانية، والمعلمون، والمعلمات، والمواعيد، والأطفال من سن الخامسة، والشهادات، والأسعار.' }, eyebrow: 'المساعدة', title: 'الأسئلة <span class="accent">الشائعة</span>', lede: 'كل ما تحتاج معرفته قبل البدء — وبعده.', topics: 'موضوعات الأسئلة', ctaTitle: 'لديك سؤال آخر؟ <span class="accent">اسألنا عبر واتساب.</span>', ctaLede: 'أشخاص حقيقيون وردود سريعة — بالعربية أو الإنجليزية.' }
+  : { meta: { title: 'Quran Classes FAQ | Ummah Academy', desc: 'Answers to what families ask most: the free trial, teachers, female tutors, time zones, kids from age 5, certificates, pricing and payment.' }, eyebrow: 'Help', title: 'Frequently asked <span class="accent">questions</span>', lede: 'Everything you need to know before — and after — you start.', topics: 'FAQ topics', ctaTitle: 'Still have a question? <span class="accent">Ask us on WhatsApp.</span>', ctaLede: 'Real people, fast replies — in English or Arabic.' };
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang} />
+
+  <section class="section section--tight">
+    <div class="container faq-page">
+      <nav class="faq-page__nav glass" aria-label={C.topics}>
+        {groups.map((g) => <a href={`#${g.id}`}>{g.title}</a>)}
+      </nav>
+      <div class="faq-page__groups">
+        {
+          groups.map((g) => (
+            <section id={g.id} class="faq-page__group" aria-labelledby={`${g.id}-h`}>
+              <h2 id={`${g.id}-h`}>{g.title}</h2>
+              <Faq items={g.items} schema={false} />
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} title={C.ctaTitle} lede={C.ctaLede} />
+</BaseLayout>
+
+<style>
+  .faq-page {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .faq-page {
+      grid-template-columns: 260px 1fr;
+    }
+  }
+
+  .faq-page__nav {
+    --radius: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px;
+  }
+
+  @media (min-width: 960px) {
+    .faq-page__nav {
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      flex-direction: column;
+    }
+  }
+
+  .faq-page__nav a {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 540;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .faq-page__nav a:hover {
+    background: rgb(255 255 255 / 0.8);
+    color: var(--ink);
+  }
+
+  .faq-page__groups {
+    display: grid;
+    gap: 48px;
+  }
+
+  .faq-page__group {
+    scroll-margin-top: calc(var(--header-h) + 24px);
+  }
+
+  .faq-page__group h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+</style>

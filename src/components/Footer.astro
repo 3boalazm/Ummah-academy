@@ -1,8 +1,16 @@
 ---
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
-import { NAV, SITE, waLink } from '@/data/site';
+import { FOOTER_LINKS, SITE, waLink } from '@/data/site';
+import { ui, counterpart, type Lang } from '@/i18n';
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const t = ui(lang);
+const cols = FOOTER_LINKS(lang);
 const year = new Date().getFullYear();
+const other = counterpart(Astro.url.pathname);
 ---
 
 <footer class="site-footer">
@@ -10,15 +18,12 @@ const year = new Date().getFullYear();
     <div class="stars"></div>
     <div class="container site-footer__inner">
       <div class="site-footer__brand">
-        <Logo tone="light" showArabic />
-        <p class="site-footer__mission">
-          Bridging 1,000 years of Al-Azhar scholarship with modern, flexible 1-on-1 live learning for Muslims in 50+
-          countries.
-        </p>
+        <Logo tone="light" showSecondary lang={lang} />
+        <p class="site-footer__mission">{t.footerMission}</p>
         <div class="site-footer__contact">
-          <a class="btn btn--sm btn--glass" href={waLink()} target="_blank" rel="noopener">
+          <a class="btn btn--sm btn--glass" href={waLink()} target="_blank" rel="noopener" data-track="footer">
             <Icon name="whatsapp-logo" weight="fill" class="icon-wa" />
-            {SITE.whatsapp.display}
+            <span dir="ltr">{SITE.whatsapp.display}</span>
           </a>
           <a class="btn btn--sm btn--glass" href={`mailto:${SITE.email}`}>
             <Icon name="envelope-simple" weight="regular" />
@@ -27,13 +32,13 @@ const year = new Date().getFullYear();
         </div>
       </div>
 
-      <nav class="site-footer__cols" aria-label="Footer">
+      <nav class="site-footer__cols" aria-label={lang === 'ar' ? 'روابط التذييل' : 'Footer'}>
         {
-          Object.entries(NAV.footer).map(([heading, links]) => (
+          (['learn', 'academy', 'resources'] as const).map((k) => (
             <div class="site-footer__col">
-              <p class="site-footer__heading">{heading}</p>
+              <p class="site-footer__heading">{t.footerCols[k]}</p>
               <ul role="list">
-                {links.map((l) => (
+                {cols[k].map((l) => (
                   <li>
                     <a href={l.href}>{l.label}</a>
                   </li>
@@ -46,17 +51,13 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="container site-footer__base">
-      <p>© {year} {SITE.name}. All rights reserved.</p>
+      <p>© {year} {lang === 'ar' ? SITE.nameAr : SITE.name}. {t.rights}</p>
       <ul role="list" class="site-footer__legal">
-        {
-          NAV.legal.map((l) => (
-            <li>
-              <a href={l.href}>{l.label}</a>
-            </li>
-          ))
-        }
+        <li><a href="/privacy-policy/">{t.privacy}</a></li>
+        <li><a href="/terms-of-service/">{t.terms}</a></li>
+        <li><a href={other.href} hreflang={other.lang} lang={other.lang}>{t.langSwitch}</a></li>
       </ul>
-      <p class="site-footer__note">Serving 50+ countries · Live sessions around the clock</p>
+      <p class="site-footer__note">{t.footerNote}</p>
     </div>
   </div>
 </footer>
@@ -90,7 +91,7 @@ const year = new Date().getFullYear();
   }
 
   .site-footer__mission {
-    max-width: 40ch;
+    max-width: 44ch;
     color: var(--ink-2);
   }
 
@@ -102,7 +103,7 @@ const year = new Date().getFullYear();
 
   .site-footer__cols {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 32px;
   }
 
@@ -113,6 +114,11 @@ const year = new Date().getFullYear();
     text-transform: uppercase;
     color: var(--ink-3);
     margin-bottom: 14px;
+  }
+
+  [dir='rtl'] .site-footer__heading {
+    letter-spacing: 0;
+    font-size: 0.9rem;
   }
 
   .site-footer__col ul {
@@ -145,6 +151,7 @@ const year = new Date().getFullYear();
 
   .site-footer__legal {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
   }
 

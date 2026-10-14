@@ -1,124 +1,83 @@
-/** Pricing exactly as published on ummahacademy.net/pricing/ (USD / month). */
+import type { Lang } from '@/i18n';
 
+/**
+ * Published prices (ummahacademy.net/pricing, Oct 2026), USD per month.
+ * v2 change: "Deen" ($59, 4×30 min) was identical to "Consistent" and is
+ * presented as Consistent with any subject (incl. Ummah Cubs Islamic studies).
+ */
 export interface Plan {
-  id: string;
-  name: string;
-  track: 'A' | 'B';
+  id: 'launch' | 'consistent' | 'elite' | 'starter' | 'gold' | 'diamond';
   minutes: 30 | 60;
-  price: number;
   perWeek: number;
-  sessionsLabel: string;
   sessionsPerMonth: number;
-  blurb: string;
-  features: string[];
+  price: number;
+  name: string;
+  /** canonical English plan name used in lead messages */
+  canonical: string;
+  bestFor: string;
+  sessionsLabel: string;
   badge?: string;
 }
 
-export const PLANS: Plan[] = [
-  {
-    id: 'diamond',
-    name: 'Diamond',
-    track: 'A',
-    minutes: 60,
-    price: 128,
-    perWeek: 3,
-    sessionsPerMonth: 12,
-    sessionsLabel: '12 sessions/month · 3/week · 60 min',
-    blurb: '3 sessions/week for rapid mastery.',
-    features: ['2 Free Trials', 'Al-Azhar Scholar 1-on-1', 'Post-session Reports', 'Session Recordings', 'Certificates'],
-  },
-  {
-    id: 'gold',
-    name: 'Gold',
-    track: 'A',
-    minutes: 60,
-    price: 96,
-    perWeek: 2,
-    sessionsPerMonth: 8,
-    sessionsLabel: '8 sessions/month · 2/week · 60 min',
-    blurb: 'The perfect balance — 2 sessions/week.',
-    features: ['2 Free Trials', 'Al-Azhar Scholar 1-on-1', 'Post-session Reports', 'Session Recordings', 'Family Portal Access'],
-    badge: 'Most Popular',
-  },
-  {
-    id: 'starter',
-    name: 'Starter',
-    track: 'A',
-    minutes: 60,
-    price: 64,
-    perWeek: 1,
-    sessionsPerMonth: 4,
-    sessionsLabel: '4–5 sessions/month · 1/week · 60 min',
-    blurb: 'One focused session per week at your pace.',
-    features: ['2 Free Trials', 'Al-Azhar Scholar 1-on-1', 'Post-session Reports', 'Session Recordings', 'Certificates'],
-  },
-  {
-    id: 'elite',
-    name: 'Elite',
-    track: 'B',
-    minutes: 30,
-    price: 74,
-    perWeek: 5,
-    sessionsPerMonth: 20,
-    sessionsLabel: '20 sessions · 5/week',
-    blurb: 'Daily 5/week immersion.',
-    features: ['2 Free Trials', '1-on-1 Certified'],
-  },
-  {
-    id: 'consistent',
-    name: 'Consistent',
-    track: 'B',
-    minutes: 30,
-    price: 59,
-    perWeek: 4,
-    sessionsPerMonth: 16,
-    sessionsLabel: '16 sessions · 4/week',
-    blurb: '4/week — sweet spot for kids.',
-    features: ['2 Free Trials', 'Gamified Sessions'],
-    badge: 'Kids Fav',
-  },
-  {
-    id: 'deen',
-    name: 'Deen',
-    track: 'B',
-    minutes: 30,
-    price: 59,
-    perWeek: 4,
-    sessionsPerMonth: 16,
-    sessionsLabel: '16 sessions · 4/week',
-    blurb: 'Ummah Cubs Aqeedah & morals.',
-    features: ['Kids Specialist', 'Achievement Rewards'],
-  },
-  {
-    id: 'launch',
-    name: 'Launch',
-    track: 'B',
-    minutes: 30,
-    price: 40,
-    perWeek: 2,
-    sessionsPerMonth: 8,
-    sessionsLabel: '8 sessions · 2/week',
-    blurb: 'Gentle 2/week for beginners.',
-    features: ['2 Free Trials', 'Recordings Saved'],
-  },
-];
+const base = [
+  { id: 'launch', minutes: 30, perWeek: 2, sessionsPerMonth: 8, price: 40, canonical: 'Launch' },
+  { id: 'consistent', minutes: 30, perWeek: 4, sessionsPerMonth: 16, price: 59, canonical: 'Consistent' },
+  { id: 'elite', minutes: 30, perWeek: 5, sessionsPerMonth: 20, price: 74, canonical: 'Elite' },
+  { id: 'starter', minutes: 60, perWeek: 1, sessionsPerMonth: 4, price: 64, canonical: 'Starter' },
+  { id: 'gold', minutes: 60, perWeek: 2, sessionsPerMonth: 8, price: 96, canonical: 'Gold' },
+  { id: 'diamond', minutes: 60, perWeek: 3, sessionsPerMonth: 12, price: 128, canonical: 'Diamond' },
+] as const;
 
-export const INCLUDED = [
-  { icon: 'gift', title: '2 Free Trials', desc: 'Test quality before paying.' },
-  { icon: 'clipboard-text', title: 'Session Reports', desc: 'Detailed feedback after every class.' },
-  { icon: 'video-camera', title: 'Recordings', desc: 'Sessions auto-saved for review.' },
-  { icon: 'certificate', title: 'Certificates', desc: 'Official certificate per level.' },
-  { icon: 'calendar-check', title: 'Rescheduling', desc: '24h advance notice — no penalties.' },
-  { icon: 'users-three', title: 'Family Portal', desc: 'Monitor all children from one dashboard.' },
-  { icon: 'chat-circle-dots', title: 'WhatsApp Alerts', desc: '15-min session reminders.' },
-  { icon: 'snowflake', title: 'Subscription Freeze', desc: 'Pause without losing balance.' },
-];
+const COPY = {
+  en: {
+    launch: { name: 'Launch', bestFor: 'A gentle start for beginners and young children.', label: '8 sessions · 2 per week' },
+    consistent: { name: 'Consistent', bestFor: 'The sweet spot for kids — any subject, including Ummah Cubs Islamic studies.', label: '16 sessions · 4 per week', badge: 'Kids’ favourite' },
+    elite: { name: 'Elite', bestFor: 'Daily immersion, five days a week.', label: '20 sessions · 5 per week' },
+    starter: { name: 'Starter', bestFor: 'One focused weekly session at your own pace.', label: '4–5 sessions · 1 per week' },
+    gold: { name: 'Gold', bestFor: 'The balance most adults choose for Tajweed and Arabic.', label: '8 sessions · 2 per week', badge: 'Most popular' },
+    diamond: { name: 'Diamond', bestFor: 'Rapid progress — ideal for Hifz and Ijazah.', label: '12 sessions · 3 per week' },
+  },
+  ar: {
+    launch: { name: 'الانطلاقة', bestFor: 'بداية هادئة للمبتدئين والأطفال الصغار.', label: '٨ حصص · حصتان أسبوعيًا' },
+    consistent: { name: 'المواظبة', bestFor: 'الخيار الأمثل للأطفال — لأي مادة، بما فيها الدراسات الإسلامية لأشبال الأمة.', label: '١٦ حصة · ٤ حصص أسبوعيًا', badge: 'المفضّلة للأطفال' },
+    elite: { name: 'النخبة', bestFor: 'انغماس يومي، خمسة أيام في الأسبوع.', label: '٢٠ حصة · ٥ حصص أسبوعيًا' },
+    starter: { name: 'البداية', bestFor: 'حصة أسبوعية مركّزة بالسرعة التي تناسبك.', label: '٤–٥ حصص · حصة أسبوعيًا' },
+    gold: { name: 'الذهبية', bestFor: 'التوازن الذي يختاره أغلب الكبار للتجويد والعربية.', label: '٨ حصص · حصتان أسبوعيًا', badge: 'الأكثر طلبًا' },
+    diamond: { name: 'الماسية', bestFor: 'تقدّم سريع — مثالية للحفظ والإجازة.', label: '١٢ حصة · ٣ حصص أسبوعيًا' },
+  },
+} as const;
 
-export const PAYMENT_METHODS = [
-  { icon: 'credit-card', title: 'Visa Card', desc: 'Credit & Debit · Secure' },
-  { icon: 'credit-card', title: 'Mastercard', desc: 'Credit & Debit · Global' },
-  { icon: 'paypal-logo', title: 'PayPal', desc: 'Buyer protection · Fast' },
-  { icon: 'bank', title: 'Bank Transfer', desc: 'Direct · Secure' },
-  { icon: 'globe-hemisphere-west', title: 'Western Union', desc: '200+ countries' },
-  { icon: 'money', title: 'MoneyGram', desc: 'Fast · Worldwide' },
-];
+export const getPlans = (lang: Lang = 'en'): Plan[] =>
+  base.map((b) => {
+    const c = COPY[lang][b.id] as { name: string; bestFor: string; label: string; badge?: string };
+    return { ...b, name: c.name, bestFor: c.bestFor, sessionsLabel: c.label, badge: c.badge } as Plan;
+  });
+
+export const perSession = (p: Plan) => Math.round((p.price / p.sessionsPerMonth) * 100) / 100;
+
+const INCLUDED = {
+  en: [
+    { icon: 'gift', title: '2 free sessions', desc: 'Full lessons with your matched teacher before you pay anything.' },
+    { icon: 'clipboard-text', title: 'Post-session reports', desc: 'What you covered, homework and next steps.' },
+    { icon: 'certificate', title: 'Level certificates', desc: 'A certificate for every level you complete.' },
+    { icon: 'calendar-check', title: 'Free rescheduling', desc: 'Move a session with 24 hours’ notice.' },
+    { icon: 'snowflake', title: 'Pause anytime', desc: 'Freeze your subscription without losing paid sessions.' },
+    { icon: 'bell-ringing', title: 'WhatsApp reminders', desc: '15 minutes before every session.' },
+    { icon: 'users-three', title: 'Family Portal', desc: 'One account for every learner in the family.' },
+    { icon: 'video-camera', title: 'Session recordings', desc: 'Available on request; library rolling out in the portal.' },
+  ],
+  ar: [
+    { icon: 'gift', title: 'حصتان مجانيتان', desc: 'حصتان كاملتان مع معلمك قبل أن تدفع أي شيء.' },
+    { icon: 'clipboard-text', title: 'تقرير بعد كل حصة', desc: 'ما تم إنجازه، والواجب، والخطوة التالية.' },
+    { icon: 'certificate', title: 'شهادة لكل مستوى', desc: 'شهادة إتمام عند إنهاء كل مستوى.' },
+    { icon: 'calendar-check', title: 'تغيير الموعد مجانًا', desc: 'غيّر موعد الحصة بإشعار قبلها بـ ٢٤ ساعة.' },
+    { icon: 'snowflake', title: 'إيقاف مؤقت', desc: 'جمّد اشتراكك دون أن تخسر حصصك المدفوعة.' },
+    { icon: 'bell-ringing', title: 'تذكير عبر واتساب', desc: 'قبل كل حصة بـ ١٥ دقيقة.' },
+    { icon: 'users-three', title: 'بوابة الأسرة', desc: 'حساب واحد لكل المتعلمين في الأسرة.' },
+    { icon: 'video-camera', title: 'تسجيلات الحصص', desc: 'متاحة عند الطلب، والمكتبة تُطلق تدريجيًا في البوابة.' },
+  ],
+};
+export const getIncluded = (lang: Lang = 'en') => INCLUDED[lang];
+
+export const PAYMENT_METHODS = ['Visa', 'Mastercard', 'PayPal', 'Bank transfer', 'Western Union', 'MoneyGram'];
+export const PAYMENT_METHODS_AR = ['فيزا', 'ماستركارد', 'باي بال', 'تحويل بنكي', 'ويسترن يونيون', 'موني جرام'];

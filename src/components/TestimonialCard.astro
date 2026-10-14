@@ -1,30 +1,25 @@
 ---
 import Icon from './Icon.astro';
 import type { Testimonial } from '@/data/people';
+import type { Lang } from '@/i18n';
 interface Props {
   t: Testimonial;
-  compact?: boolean;
+  lang?: Lang;
 }
-const { t, compact = false } = Astro.props;
+const { t, lang = 'en' } = Astro.props;
 ---
 
-<figure class:list={['tcard', 'glass', { 'tcard--compact': compact }]}>
-  <div class="tcard__stars" aria-label="5 out of 5 stars">
+<figure class="tcard glass">
+  <div class="tcard__stars" role="img" aria-label={lang === 'ar' ? 'تقييم ٥ من ٥' : '5 out of 5 stars'}>
     {Array.from({ length: 5 }).map(() => <Icon name="star" weight="fill" />)}
   </div>
   <blockquote>
     <p>“{t.quote}”</p>
   </blockquote>
-  {
-    !compact && (
-      <p class="tcard__result">
-        <Icon name="check-circle" weight="fill" />
-        <span>
-          <strong>Result:</strong> {t.result}
-        </span>
-      </p>
-    )
-  }
+  <p class="tcard__result">
+    <Icon name="check-circle" weight="fill" />
+    <span>{t.result}</span>
+  </p>
   <figcaption>
     <span class="tcard__avatar" aria-hidden="true">{t.initials}</span>
     <span>
@@ -73,6 +68,7 @@ const { t, compact = false } = Astro.props;
     background: rgb(31 122 77 / 0.07);
     color: #1d5e3f;
     font-size: 0.88rem;
+    font-weight: 540;
   }
 
   .tcard__result :global(svg) {

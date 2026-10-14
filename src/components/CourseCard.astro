@@ -2,26 +2,30 @@
 import Icon from './Icon.astro';
 import type { Course } from '@/data/tracks';
 import { trialLink } from '@/data/site';
+import { ui, lp, price, type Lang } from '@/i18n';
 interface Props {
   course: Course;
+  lang?: Lang;
   delay?: number;
+  showLink?: boolean;
 }
-const { course, delay = 0 } = Astro.props;
+const { course, lang = 'en', delay = 0, showLink = true } = Astro.props;
+const t = ui(lang);
 ---
 
 <article class="course-card glass glass--interactive" data-reveal style={`--reveal-delay:${delay}s`}>
   <span class="chip chip--accent">{course.badge}</span>
   <h3>
-    {course.href ? <a href={course.href}>{course.title}</a> : course.title}
+    {course.href && showLink ? <a href={lp(lang, course.href)}>{course.title}</a> : course.title}
   </h3>
   <div class="cluster course-card__tags">
-    {course.tags.map((t) => <span class="chip">{t}</span>)}
+    {course.tags.map((tag) => <span class="chip">{tag}</span>)}
   </div>
   <p>{course.desc}</p>
   <div class="course-card__foot">
-    <span class="course-card__price"><small>From</small> ${course.from}<small>/mo</small></span>
-    <a class="btn btn--sm btn--primary" href={trialLink({ course: course.trial })}>
-      Enroll free <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+    <span class="course-card__price"><small>{t.from}</small> {price(lang, course.from)}<small>{t.perMonth}</small></span>
+    <a class="btn btn--sm btn--primary" href={trialLink({ course: course.trial }, lang)}>
+      {lang === 'ar' ? 'جرّبها مجانًا' : 'Try it free'} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
     </a>
   </div>
 </article>

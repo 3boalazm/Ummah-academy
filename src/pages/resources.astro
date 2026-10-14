@@ -27,11 +27,11 @@ const request = (t: string) => waLink(`Assalamu alaikum, please send me the free
 ---
 
 <BaseLayout title="Free Islamic Resources | Ummah Academy" description="Free e-books, worksheets and children's resources for Quran, Tajweed, Arabic and Islamic Studies — the same texts our Al-Azhar teachers use.">
-  <PageHero align="center" eyebrow="Free Resources" eyebrowAr="مصادر مجانية" title='The <span class="accent">Free</span> Islamic Library' sub="المكتبة الإسلامية المجانية" lede="Free e-books, audio recitations, worksheets, and children’s resources — all completely free." />
+  <PageHero align="center" eyebrow="Free Resources" title='The <span class="accent">Free</span> Islamic Library' lede="Free e-books, audio recitations, worksheets, and children’s resources — all completely free." />
 
   <section class="section section--tight" aria-labelledby="books">
     <div class="container">
-      <SectionHead id="books" eyebrow="Foundation Texts" eyebrowAr="كتب أساسية" title='Free E-Books &amp; <span class="accent">Learning Materials</span>' lede="Download the same texts our Al-Azhar teachers use. Free, no signup required." />
+      <SectionHead id="books" eyebrow="Foundation Texts" title='Free E-Books &amp; <span class="accent">Learning Materials</span>' lede="Download the same texts our Al-Azhar teachers use. Free, no signup required." />
       <div class="grid grid-4">
         {
           books.map((b, i) => (
@@ -62,7 +62,7 @@ const request = (t: string) => waLink(`Assalamu alaikum, please send me the free
 
   <section class="section" aria-labelledby="sheets">
     <div class="container">
-      <SectionHead id="sheets" eyebrow="Worksheets" eyebrowAr="أوراق عمل" title='Interactive <span class="accent">Practice Sheets</span>' lede="Printable worksheets for Arabic practice, Tajweed exercises, and Islamic studies revision." />
+      <SectionHead id="sheets" eyebrow="Worksheets" title='Interactive <span class="accent">Practice Sheets</span>' lede="Printable worksheets for Arabic practice, Tajweed exercises, and Islamic studies revision." />
       <div class="grid grid-3">
         {
           sheets.map((s, i) => (
@@ -73,7 +73,7 @@ const request = (t: string) => waLink(`Assalamu alaikum, please send me the free
               <h3>{s.title}</h3>
               <p>{s.text}</p>
               <a class="btn btn--link" href={request(s.title)} target="_blank" rel="noopener">
-                Get the PDF →
+                Get the PDF <Icon name="arrow-right" weight="bold" class="icon-arrow" />
               </a>
             </article>
           ))
@@ -82,23 +82,8 @@ const request = (t: string) => waLink(`Assalamu alaikum, please send me the free
     </div>
   </section>
 
-  <section class="section section--tight">
-    <div class="container--narrow seo-copy" data-reveal>
-      <span class="eyebrow">Resources</span>
-      <h2>Free Islamic Resources</h2>
-      <p>
-        Our free Islamic resources library includes e-books, audio recitations, and worksheets to support your Quran, Arabic, and
-        Islamic Studies learning journey, available to everyone whether or not you are currently enrolled in a class.
-      </p>
-      <p>
-        Browse recitation audio to practice listening and repetition, printable worksheets for children learning Arabic letters and
-        Islamic Studies basics, and short e-books covering Tajweed rules and core beliefs, all free to download and use at your own
-        pace.
-      </p>
-    </div>
-  </section>
 
-  <CtaPanel eyebrow="Next step · الخطوة التالية" title='Free Resources Are Just <span class="accent">the Beginning</span>' lede="Pair these resources with live 1-on-1 sessions from our Al-Azhar teachers." primary={{ label: 'Book 2 Free Live Sessions', href: '/contact/#book' }} />
+  <CtaPanel eyebrow="Next step" title='Free Resources Are Just <span class="accent">the Beginning</span>' lede="Pair these resources with live 1-on-1 sessions from our Al-Azhar teachers." primary={{ label: 'Book 2 Free Live Sessions', href: '/contact/#book' }} />
 </BaseLayout>
 
 <style>

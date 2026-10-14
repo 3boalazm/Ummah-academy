@@ -1,18 +1,28 @@
 ---
 /** Visualises an Ijazah chain of transmission (Sanad). */
+import type { Lang } from '@/i18n';
 interface Props {
   dark?: boolean;
+  lang?: Lang;
 }
-const { dark = false } = Astro.props;
-const nodes = [
-  { label: 'You', sub: 'The student' },
-  { label: 'Your teacher', sub: 'Ijazah holder' },
-  { label: 'Their teacher', sub: '…generation after generation' },
-  { label: 'The Prophet ﷺ', sub: 'Source of the recitation' },
-];
+const { dark = false, lang = 'en' } = Astro.props;
+const nodes =
+  lang === 'ar'
+    ? [
+        { label: 'أنت', sub: 'الطالب' },
+        { label: 'معلمك', sub: 'حامل الإجازة' },
+        { label: 'شيخه', sub: 'جيلًا بعد جيل…' },
+        { label: 'النبي ﷺ', sub: 'مصدر التلاوة' },
+      ]
+    : [
+        { label: 'You', sub: 'The student' },
+        { label: 'Your teacher', sub: 'Ijazah holder' },
+        { label: 'Their teacher', sub: 'generation after generation…' },
+        { label: 'The Prophet ﷺ', sub: 'Source of the recitation' },
+      ];
 ---
 
-<ol role="list" class:list={['sanad', { 'sanad--dark': dark }]} aria-label="Chain of transmission">
+<ol role="list" class:list={['sanad', { 'sanad--dark': dark }]} aria-label={lang === 'ar' ? 'سلسلة السند' : 'Chain of transmission'}>
   {
     nodes.map((n, i) => (
       <li class="sanad__node" style={`--i:${i}`}>
@@ -39,10 +49,9 @@ const nodes = [
     content: '';
     position: absolute;
     top: 13px;
-    left: 12.5%;
-    right: 12.5%;
+    inset-inline: 12.5%;
     height: 2px;
-    background: linear-gradient(90deg, rgb(143 47 158 / 0.25), rgb(143 47 158 / 0.7), rgb(29 95 168 / 0.7));
+    background: linear-gradient(90deg, rgb(143 47 158 / 0.25), rgb(143 47 158 / 0.75), rgb(29 95 168 / 0.75), rgb(143 47 158 / 0.25));
     background-size: 200% 100%;
     animation: sanad-flow 4s linear infinite;
     border-radius: 2px;
@@ -109,8 +118,8 @@ const nodes = [
     .sanad::before {
       top: 14px;
       bottom: 14px;
-      left: 13px;
-      right: auto;
+      inset-inline-start: 13px;
+      inset-inline-end: auto;
       width: 2px;
       height: auto;
       background: linear-gradient(180deg, rgb(143 47 158 / 0.3), rgb(29 95 168 / 0.7));

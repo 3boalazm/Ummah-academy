@@ -1,10 +1,12 @@
 ---
 import { SITE } from '@/data/site';
+import { ui, lp, type Lang } from '@/i18n';
 interface Props {
   items: { label: string; href?: string }[];
+  lang?: Lang;
 }
-const { items } = Astro.props;
-const all = [{ label: 'Home', href: '/' }, ...items];
+const { items, lang = 'en' } = Astro.props;
+const all = [{ label: ui(lang).home, href: lp(lang, '/') }, ...items];
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -17,7 +19,7 @@ const ld = {
 };
 ---
 
-<nav class="breadcrumbs" aria-label="Breadcrumb">
+<nav class="breadcrumbs" aria-label={lang === 'ar' ? 'مسار التنقل' : 'Breadcrumb'}>
   <ol>
     {
       all.map((it, i) =>

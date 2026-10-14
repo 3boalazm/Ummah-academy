@@ -2,18 +2,24 @@
 import { getCollection } from 'astro:content';
 import Icon from './Icon.astro';
 import PostCover from './PostCover.astro';
+import type { Lang } from '@/i18n';
 interface Props {
   slugs?: string[];
   track?: string;
   limit?: number;
   title?: string;
+  lang?: Lang;
+  exclude?: string;
 }
-const { slugs, track, limit = 3, title = 'Related articles' } = Astro.props;
+const { slugs, track, limit = 3, lang = 'en', exclude } = Astro.props;
+const { title = lang === 'ar' ? 'مقالات ذات صلة (بالإنجليزية)' : 'Related articles' } = Astro.props;
 const all = await getCollection('blog');
 let posts = slugs
   ? slugs.map((s) => all.find((p) => p.id === s)).filter((p): p is (typeof all)[number] => Boolean(p))
-  : all.filter((p) => !track || p.data.track === track);
-posts = posts.sort((a, b) => (slugs ? 0 : b.data.date.getTime() - a.data.date.getTime())).slice(0, limit);
+  : all.filter((p) => (!track || p.data.track === track) && p.id !== exclude);
+if (!slugs) posts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+posts = posts.slice(0, limit);
+const L = lang === 'ar' ? { kicker: 'من المدونة', read: 'اقرأ المقال' } : { kicker: 'From our blog', read: 'Read article' };
 ---
 
 {
@@ -21,18 +27,18 @@ posts = posts.sort((a, b) => (slugs ? 0 : b.data.date.getTime() - a.data.date.ge
     <section class="section section--tight" aria-labelledby="related-title">
       <div class="container">
         <div class="related__head" data-reveal>
-          <span class="eyebrow">From our blog</span>
+          <span class="eyebrow">{L.kicker}</span>
           <h2 id="related-title">{title}</h2>
         </div>
         <div class="grid grid-3">
           {posts.map((p, i) => (
-            <a class="related__card glass glass--interactive" href={`/${p.id}/`} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+            <a class="related__card glass glass--interactive" href={`/${p.id}/`} hreflang="en" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
               <PostCover title={p.data.title} track={p.data.track} small />
-              <span class="related__body">
+              <span class="related__body" lang="en" dir="ltr">
                 <span class="chip chip--accent">{p.data.category}</span>
                 <span class="related__title">{p.data.title}</span>
                 <span class="related__more">
-                  Read article <Icon name="arrow-right" weight="bold" />
+                  {L.read} <Icon name="arrow-right" weight="bold" />
                 </span>
               </span>
             </a>

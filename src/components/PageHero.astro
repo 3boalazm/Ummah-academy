@@ -1,6 +1,8 @@
 ---
 import Breadcrumbs from './Breadcrumbs.astro';
+import type { Lang } from '@/i18n';
 interface Props {
+  lang?: Lang;
   eyebrow?: string;
   eyebrowAr?: string;
   title: string;
@@ -10,14 +12,14 @@ interface Props {
   align?: 'start' | 'center';
   compact?: boolean;
 }
-const { eyebrow, eyebrowAr, title, sub, lede, crumbs, align = 'start', compact = false } = Astro.props;
+const { eyebrow, eyebrowAr, title, sub, lede, crumbs, align = 'start', compact = false, lang = 'en' } = Astro.props;
 const hasVisual = Astro.slots.has('visual');
 ---
 
 <section class:list={['page-hero', { 'page-hero--center': align === 'center', 'page-hero--compact': compact }]}>
   <div class:list={['container', 'page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
     <div class="page-hero__copy" data-reveal>
-      {crumbs && <Breadcrumbs items={crumbs} />}
+      {crumbs && <Breadcrumbs items={crumbs} lang={lang} />}
       {
         eyebrow && (
           <span class="eyebrow">
@@ -54,6 +56,7 @@ const hasVisual = Astro.slots.has('visual');
 
 <style>
   .page-hero {
+    overflow-x: clip;
     padding-block: clamp(40px, 6vw, 88px) clamp(32px, 5vw, 72px);
   }
 

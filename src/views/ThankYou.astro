@@ -1,0 +1,202 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { SITE, waLink } from '@/data/site';
+import { lp, type Lang } from '@/i18n';
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const C = ar
+  ? {
+      meta: 'خطوة أخيرة — أكّد تجربتك المجانية | أكاديمية الأمة',
+      title: 'طلبك جاهز — أرسله عبر واتساب للتأكيد',
+      lede: 'اضغط الزر لإرسال بياناتك إلى فريق القبول. يتم حجز تجربتك عندما نؤكد معك المعلم والموعد عبر واتساب.',
+      send: 'أرسل عبر واتساب',
+      preview: 'معاينة الرسالة',
+      copy: 'نسخ الرسالة',
+      copied: 'تم النسخ',
+      steps: ['نؤكد معلمك وموعدًا يناسب توقيتك.', 'يصلك رابط الحصة (Zoom أو Google Meet) وتذكير قبلها بـ ١٥ دقيقة.', 'تحضر حصتين مجانيتين — ثم تقرر بلا أي التزام.'],
+      alt: 'لا تستخدم واتساب؟ راسلنا على',
+      wait: 'خذ اختبار تحديد المستوى أثناء الانتظار',
+      titleReceived: (n: string) => `شكرًا يا ${n} — وصلنا طلبك`,
+      ledeReceived: 'سيراسلك فريق القبول عبر واتساب قريبًا لتأكيد المعلم والموعد. تريد ردًا أسرع؟ أرسل الملخص أدناه عبر واتساب.',
+      titlePending: (n: string) => `خطوة أخيرة يا ${n} — أرسل طلبك عبر واتساب`,
+    }
+  : {
+      meta: 'Almost there — confirm your free trial | Ummah Academy',
+      title: 'Your request is ready — send it on WhatsApp to confirm',
+      lede: 'Tap the button to send your details to our admissions team. Your trial is booked once we confirm your teacher and time with you on WhatsApp.',
+      send: 'Send on WhatsApp',
+      preview: 'Preview the message',
+      copy: 'Copy message',
+      copied: 'Copied',
+      steps: ['We confirm your teacher and a time that suits your timezone.', 'You receive a lesson link (Zoom or Google Meet) and a reminder 15 minutes before.', 'You attend two free lessons — then decide, with no obligation.'],
+      alt: 'No WhatsApp? Email us at',
+      wait: 'Take the placement test while you wait',
+      titleReceived: (n: string) => `Thank you, ${n} — we’ve received your request`,
+      ledeReceived: 'Our admissions team will WhatsApp you shortly to confirm your teacher and time. Want it even faster? Send the summary below on WhatsApp.',
+      titlePending: (n: string) => `Almost there, ${n} — send your request on WhatsApp`,
+    };
+const i18n = { titleReceived: C.titleReceived('{name}'), ledeReceived: C.ledeReceived, titlePending: C.titlePending('{name}'), copied: C.copied };
+---
+
+<BaseLayout title={C.meta} lang={lang} noindex sticky={false}>
+  <section class="section">
+    <div class="container--narrow">
+      <div class="glass glass--strong ty" data-ty>
+        <span class="ty__icon"><Icon name="paper-plane-tilt" weight="duotone" /></span>
+        <h1 data-ty-title>{C.title}</h1>
+        <p class="lead" data-ty-lede>{C.lede}</p>
+        <a class="btn btn--lg btn--primary" href={waLink()} target="_blank" rel="noopener" data-ty-wa>
+          <Icon name="whatsapp-logo" weight="fill" /> {C.send}
+        </a>
+        <details class="ty__preview" data-ty-preview hidden>
+          <summary>{C.preview}</summary>
+          <pre data-ty-msg></pre>
+          <button class="btn btn--sm btn--glass" type="button" data-ty-copy><Icon name="copy" /> {C.copy}</button>
+        </details>
+        <ol role="list" class="ty__steps">
+          {C.steps.map((s, i) => <li><span>{ar ? ['١', '٢', '٣'][i] : i + 1}</span> {s}</li>)}
+        </ol>
+        <p class="muted ty__alt">{C.alt} <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+      </div>
+      <div class="ty__next">
+        <a class="btn btn--glass" href={lp(lang, '/placement-test/')}><Icon name="compass" /> {C.wait}</a>
+      </div>
+    </div>
+  </section>
+  <script type="application/json" id="ty-i18n" set:html={JSON.stringify(i18n)} />
+</BaseLayout>
+
+<script>
+  import { LEAD_KEY } from '@/scripts/booking';
+  import { track } from '@/scripts/analytics';
+  const raw = sessionStorage.getItem(LEAD_KEY);
+  const root = document.querySelector('[data-ty]');
+  const i18n = JSON.parse(document.getElementById('ty-i18n')?.textContent || '{}');
+  if (raw && root) {
+    try {
+      const { firstName, received, message } = JSON.parse(raw) as { firstName: string; received: boolean; message: string };
+      const wa = root.querySelector<HTMLAnchorElement>('[data-ty-wa]');
+      const number = wa?.href.match(/wa\.me\/(\d+)/)?.[1];
+      if (wa && number) wa.href = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+      const title = root.querySelector('[data-ty-title]');
+      const lede = root.querySelector('[data-ty-lede]');
+      const name = (firstName || '').slice(0, 40);
+      if (received) {
+        if (title) title.textContent = i18n.titleReceived.replace('{name}', name);
+        if (lede) lede.textContent = i18n.ledeReceived;
+      } else if (title && name) {
+        title.textContent = i18n.titlePending.replace('{name}', name);
+      }
+      const preview = root.querySelector<HTMLDetailsElement>('[data-ty-preview]');
+      const pre = root.querySelector('[data-ty-msg]');
+      if (preview && pre) {
+        pre.textContent = message;
+        preview.hidden = false;
+      }
+      root.querySelector('[data-ty-copy]')?.addEventListener('click', async (e) => {
+        await navigator.clipboard?.writeText(message);
+        (e.currentTarget as HTMLButtonElement).textContent = i18n.copied;
+      });
+      wa?.addEventListener('click', () => track('trial_whatsapp_handoff', { received }));
+    } catch {
+      /* ignore */
+    }
+  }
+</script>
+
+<style>
+  .ty {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: clamp(28px, 5vw, 60px);
+  }
+
+  .ty__icon {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 24px;
+    color: var(--accent-ink);
+    background: linear-gradient(150deg, #fff, var(--blush-100));
+    box-shadow: var(--shadow-glass);
+  }
+
+  .ty__icon :global(svg) {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ty h1 {
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem);
+  }
+
+  .ty__preview {
+    width: 100%;
+    text-align: start;
+    border-radius: 18px;
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+    padding: 12px 16px;
+  }
+
+  .ty__preview summary {
+    cursor: pointer;
+    font-weight: 560;
+  }
+
+  .ty__preview pre {
+    white-space: pre-wrap;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+
+  .ty__steps {
+    display: grid;
+    gap: 12px;
+    text-align: start;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .ty__steps li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    color: var(--ink-2);
+  }
+
+  .ty__steps span {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 650;
+    background: var(--grad-accent);
+  }
+
+  .ty__alt a {
+    color: var(--accent-ink);
+  }
+
+  .ty__next {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+  }
+</style>

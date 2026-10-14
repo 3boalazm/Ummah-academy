@@ -2,18 +2,23 @@
 import Icon from './Icon.astro';
 import type { Teacher } from '@/data/people';
 import { trialLink } from '@/data/site';
+import type { Lang } from '@/i18n';
 interface Props {
   teacher: Teacher;
   variant?: 'full' | 'compact';
+  lang?: Lang;
   delay?: number;
 }
-const { teacher: t, variant = 'full', delay = 0 } = Astro.props;
+const { teacher: t, variant = 'full', lang = 'en', delay = 0 } = Astro.props;
+const L = lang === 'ar'
+  ? { verified: 'إجازة موثّقة', bestFor: 'الأنسب لـ', creds: 'المؤهلات', book: `احجز مع ${t.name.split(' ')[0]}` }
+  : { verified: 'Ijazah verified', bestFor: 'Best for', creds: 'Credentials', book: `Book with ${t.name.split(' ')[0]}` };
 ---
 
-<article class:list={['teacher', 'glass', `teacher--${variant}`]} data-reveal style={`--reveal-delay:${delay}s`}>
+<article class:list={['teacher', 'glass', `teacher--${variant}`, `teacher--${t.hue}`]} data-reveal style={`--reveal-delay:${delay}s`}>
   <div class="teacher__portrait" aria-hidden="true">
     <span class="teacher__monogram">{t.initials}</span>
-    <span class="teacher__verified"><Icon name="seal-check" weight="fill" /> Ijazah verified</span>
+    <span class="teacher__verified"><Icon name="seal-check" weight="fill" /> {L.verified}</span>
   </div>
   <div class="teacher__body">
     <p class="teacher__role">{t.role}</p>
@@ -22,20 +27,26 @@ const { teacher: t, variant = 'full', delay = 0 } = Astro.props;
     {variant === 'full' && <p class="teacher__bio">{t.bio}</p>}
     <div class="teacher__lists">
       <div>
-        <p class="teacher__label">Best for</p>
+        <p class="teacher__label">{L.bestFor}</p>
         <ul role="list" class="cluster">
           {t.bestFor.map((b) => <li class="chip chip--accent">{b}</li>)}
         </ul>
       </div>
-      <div>
-        <p class="teacher__label">Credentials</p>
-        <ul role="list" class="cluster">
-          {t.credentials.map((c) => <li class="chip">{c}</li>)}
-        </ul>
-      </div>
+      {
+        variant === 'full' && (
+          <div>
+            <p class="teacher__label">{L.creds}</p>
+            <ul role="list" class="cluster">
+              {t.credentials.map((c) => (
+                <li class="chip">{c}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
     </div>
-    <a class="btn btn--sm btn--primary" href={trialLink({ teacher: t.name })}>
-      Book with {t.name.split(' ')[0]} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+    <a class="btn btn--sm btn--primary" href={trialLink({ teacher: t.canonical }, lang)}>
+      {L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
     </a>
   </div>
 </article>
@@ -43,10 +54,22 @@ const { teacher: t, variant = 'full', delay = 0 } = Astro.props;
 <style>
   .teacher {
     --radius: 30px;
+    --tint-a: rgb(175 204 234 / 0.9);
+    --tint-b: rgb(241 205 220 / 0.95);
     display: grid;
     gap: 22px;
     padding: 10px;
     align-items: stretch;
+  }
+
+  .teacher--sky {
+    --tint-a: rgb(173 167 201 / 0.85);
+    --tint-b: rgb(175 204 234 / 0.95);
+  }
+
+  .teacher--rose {
+    --tint-a: rgb(241 205 220 / 0.95);
+    --tint-b: rgb(206 179 193 / 0.9);
   }
 
   @media (min-width: 820px) {
@@ -59,18 +82,19 @@ const { teacher: t, variant = 'full', delay = 0 } = Astro.props;
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 240px;
-    border-radius: 24px 24px 22px 22px;
+    min-height: 220px;
+    border-radius: 24px;
     overflow: hidden;
     background:
       radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.9), transparent 60%),
-      radial-gradient(80% 70% at 80% 90%, rgb(175 204 234 / 0.9), transparent 65%),
-      radial-gradient(90% 80% at 10% 100%, rgb(241 205 220 / 0.95), transparent 70%),
-      linear-gradient(160deg, #e9e2f4, #dcd4ee);
+      radial-gradient(80% 70% at 80% 90%, var(--tint-a), transparent 65%),
+      radial-gradient(90% 80% at 10% 100%, var(--tint-b), transparent 70%),
+      linear-gradient(160deg, #ece6f6, #dfd8ef);
   }
 
   .teacher--full .teacher__portrait {
     border-radius: 150px 150px 22px 22px;
+    min-height: 300px;
   }
 
   .teacher__monogram {
@@ -123,6 +147,11 @@ const { teacher: t, variant = 'full', delay = 0 } = Astro.props;
     color: var(--accent-ink);
   }
 
+  [dir='rtl'] .teacher__role {
+    letter-spacing: 0;
+    font-size: 0.88rem;
+  }
+
   .teacher h3 {
     font-size: 1.7rem;
     letter-spacing: -0.03em;
@@ -154,5 +183,9 @@ const { teacher: t, variant = 'full', delay = 0 } = Astro.props;
     font-weight: 600;
     color: var(--ink-3);
     margin-bottom: 6px;
+  }
+
+  .teacher .btn {
+    margin-top: auto;
   }
 </style>

@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { waLink } from '@/data/site';
+import { ui, lp, type Lang } from '@/i18n';
 interface Props {
   eyebrow?: string;
   title: string;
@@ -8,14 +9,18 @@ interface Props {
   primary?: { label: string; href: string };
   secondary?: { label: string; href: string } | false;
   ticks?: string[];
+  lang?: Lang;
 }
+const { lang = 'en' } = Astro.props;
+const t = ui(lang);
+const ar = lang === 'ar';
 const {
-  eyebrow = 'Begin today — 100% free',
+  eyebrow = ar ? 'ابدأ اليوم — مجانًا' : 'Begin today — free',
   title,
   lede,
-  primary = { label: 'Book your free trial', href: '/contact/#book' },
-  secondary = { label: 'Chat on WhatsApp', href: waLink() },
-  ticks = ['No credit card required', 'Reply within 2 hours', 'Cancel anytime'],
+  primary = { label: t.book2, href: lp(lang, '/contact/') + '#book' },
+  secondary = { label: t.whatsapp, href: waLink() },
+  ticks = ar ? ['بدون بطاقة دفع', 'نرد خلال دقائق عبر واتساب', 'إلغاء أو إيقاف في أي وقت'] : ['No card required', 'Replies on WhatsApp within minutes', 'Cancel or pause anytime'],
 } = Astro.props;
 ---
 
@@ -50,9 +55,9 @@ const {
       {
         ticks.length > 0 && (
           <ul role="list" class="cta-panel__ticks">
-            {ticks.map((t) => (
+            {ticks.map((tick) => (
               <li>
-                <Icon name="check-circle" weight="fill" /> {t}
+                <Icon name="check-circle" weight="fill" /> {tick}
               </li>
             ))}
           </ul>

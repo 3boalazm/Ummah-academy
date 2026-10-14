@@ -2,33 +2,39 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import type { Track } from '@/data/tracks';
+import { ui, lp, price, type Lang } from '@/i18n';
 interface Props {
   track: Track;
-  href?: string;
+  lang?: Lang;
   delay?: number;
+  compact?: boolean;
 }
-const { track, href = track.href, delay = 0 } = Astro.props;
+const { track, lang = 'en', delay = 0, compact = false } = Astro.props;
+const t = ui(lang);
+const href = lp(lang, track.href);
 ---
 
-<article class="track-card glass glass--interactive" data-reveal style={`--reveal-delay:${delay}s`}>
-  <a class="track-card__media" href={href} tabindex="-1" aria-hidden="true">
+<article class:list={['track-card', 'glass', 'glass--interactive', { 'track-card--compact': compact }]} data-reveal style={`--reveal-delay:${delay}s`}>
+  <div class="track-card__media" aria-hidden="true">
     <Image src={track.image} alt="" widths={[360, 560, 720]} sizes="(min-width: 1100px) 290px, (min-width: 700px) 45vw, 92vw" />
-  </a>
+    <span class="icon-badge track-card__badge"><Icon name={track.icon} /></span>
+  </div>
   <div class="track-card__body">
-    <div class="track-card__head">
-      <span class="icon-badge"><Icon name={track.icon} /></span>
-      <span class="track-card__ar" lang="ar">{track.titleAr}</span>
-    </div>
-    <h3><a href={href}>{track.title}</a></h3>
     <p class="track-card__sub">{track.subtitle}</p>
-    <ul class="checklist">
-      {track.homePoints.map((p) => <li>{p}</li>)}
-    </ul>
+    <h3><a href={href}>{track.title}</a></h3>
+    <p class="track-card__intro">{track.intro}</p>
+    {
+      !compact && (
+        <ul class="checklist">
+          {track.points.slice(0, 3).map((p) => (
+            <li>{p}</li>
+          ))}
+        </ul>
+      )
+    }
     <div class="track-card__foot">
-      <span class="track-card__price"><small>From</small> ${track.from}<small>/mo</small></span>
-      <a class="btn btn--sm btn--glass" href={href}>
-        Explore <Icon name="arrow-right" weight="bold" class="icon-arrow" />
-      </a>
+      <span class="track-card__price"><small>{t.from}</small> {price(lang, track.from)}<small>{t.perMonth}</small></span>
+      <span class="track-card__go" aria-hidden="true"><Icon name="arrow-right" weight="bold" class="icon-arrow" /></span>
     </div>
   </div>
 </article>
@@ -42,11 +48,15 @@ const { track, href = track.href, delay = 0 } = Astro.props;
   }
 
   .track-card__media {
-    display: block;
+    position: relative;
     aspect-ratio: 16 / 11;
     margin: 8px 8px 0;
     border-radius: 22px;
     overflow: hidden;
+  }
+
+  .track-card--compact .track-card__media {
+    aspect-ratio: 16 / 10;
   }
 
   .track-card__media :global(img) {
@@ -60,30 +70,28 @@ const { track, href = track.href, delay = 0 } = Astro.props;
     transform: scale(1.05);
   }
 
+  .track-card__badge {
+    position: absolute;
+    inset-inline-start: 14px;
+    bottom: 14px;
+  }
+
   .track-card__body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     padding: 20px 22px 22px;
     flex: 1;
   }
 
-  .track-card__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: -46px;
-  }
-
-  .track-card__ar {
-    font-family: var(--font-arabic);
-    font-size: 0.9rem;
-    color: var(--ink-3);
-    margin-top: 30px;
+  .track-card__sub {
+    font-size: 0.82rem;
+    color: var(--accent-ink);
+    font-weight: 560;
   }
 
   .track-card h3 {
-    font-size: 1.4rem;
+    font-size: 1.45rem;
   }
 
   .track-card h3 a {
@@ -97,15 +105,22 @@ const { track, href = track.href, delay = 0 } = Astro.props;
     border-radius: inherit;
   }
 
-  .track-card__sub {
-    font-size: 0.86rem;
-    color: var(--accent-ink);
-    font-weight: 540;
-    margin-top: -6px;
+  .track-card h3 a:focus-visible {
+    outline: none;
+  }
+
+  .track-card:has(h3 a:focus-visible) {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .track-card__intro {
+    color: var(--ink-2);
+    font-size: 0.96rem;
   }
 
   .track-card .checklist {
-    font-size: 0.94rem;
+    font-size: 0.92rem;
     gap: 8px;
   }
 
@@ -119,13 +134,8 @@ const { track, href = track.href, delay = 0 } = Astro.props;
     border-top: 1px solid var(--line);
   }
 
-  .track-card__foot .btn {
-    position: relative;
-    z-index: 1;
-  }
-
   .track-card__price {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
     font-weight: 620;
     letter-spacing: -0.03em;
   }
@@ -135,5 +145,33 @@ const { track, href = track.href, delay = 0 } = Astro.props;
     font-weight: 450;
     color: var(--ink-3);
     letter-spacing: 0;
+  }
+
+  .track-card__go {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--aubergine-800);
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .track-card__go :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  [dir='rtl'] .track-card__go :global(svg) {
+    transform: scaleX(-1);
+  }
+
+  .track-card:hover .track-card__go {
+    transform: translateX(3px);
+  }
+
+  [dir='rtl'] .track-card:hover .track-card__go {
+    transform: translateX(-3px);
   }
 </style>

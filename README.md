@@ -4,7 +4,8 @@ Live 1-on-1 Qur'an, Tajweed, Arabic and Islamic Studies with Al-Azhar scholars.
 This repository is the **native-code** replacement for the WordPress/Elementor site at ummahacademy.net.
 
 - **Stack:** [Astro](https://astro.build) (static output) · hand-written CSS design system ("Sakinah Glass") · vanilla TypeScript islands · self-hosted fonts · Phosphor icons inlined at build time.
-- **Zero runtime framework**, roughly 5 KB of JS on most pages, and every URL identical to WordPress.
+- **Zero runtime framework**, roughly 2–7 KB of JS per page, and every URL identical to WordPress.
+- **Bilingual**: English at the root and a full Arabic (RTL) version of the 15 core routes under `/ar/`, with `hreflang` tags and sitemap alternates.
 
 ## Quick start
 
@@ -22,12 +23,15 @@ Node ≥ 20.19.
 
 ```
 src/
-  pages/            routes (URLs mirror WordPress, e.g. /quran-memorization-hifz/)
+  pages/            routes (URLs mirror WordPress, e.g. /quran-memorization-hifz/); pages/ar/ = Arabic
+  views/            page templates shared by both languages (Home, TrackPage, Pricing, Contact…)
+  content-i18n/     bilingual copy for the course template (tracks.ts)
   content/blog/     migrated articles (Markdown) → served at /<slug>/
-  components/       design-system components (Header, PageHero, PlanCard, TrialForm…)
-  data/             single source of truth: site/contact, tracks, pricing, people, placement test
+  i18n/             locale helpers (lp(), counterpart(), UI strings)
+  components/       design-system components (Header, BookingWizard, TrackCard, SanadChain…)
+  data/             single source of truth: site/contact, tracks, pricing, people, placement test (EN/AR)
   layouts/          BaseLayout (SEO head, JSON-LD, fonts, aurora, header/footer)
-  scripts/          client islands: site.ts, trial-form.ts, placement.ts, analytics.ts
+  scripts/          client islands: site.ts, booking.ts, placement.ts, attribution.ts, analytics.ts
   styles/global.css design tokens + glass system
   assets/art/       art-directed renders (optimised to AVIF/WebP at build)
 public/             favicon, OG image, robots.txt
@@ -39,7 +43,7 @@ scripts/            check-links.mjs
 
 | Variable | Purpose |
 |---|---|
-| `PUBLIC_LEAD_ENDPOINT` | Optional HTTPS endpoint that receives trial requests as JSON (Google Apps Script, Zapier, Make, CRM). Without it, requests are handed off to WhatsApp. |
+| `PUBLIC_LEAD_ENDPOINT` | Optional HTTPS endpoint that receives trial requests as JSON, including first-touch UTM attribution (Google Apps Script, Zapier, Make, CRM). Without it, requests are handed off to WhatsApp, and the thank-you page says so. |
 | `PUBLIC_PORTAL_URL` | Base URL of the student/family portal (currently WordPress). Set it before DNS cut-over, e.g. `https://portal.ummahacademy.net`. |
 
 ## Deploy
@@ -49,3 +53,10 @@ Vercel (`vercel.json`): the framework preset is Astro, the output goes to `dist/
 ## Documentation
 
 Start with [`docs/README.md`](docs/README.md).
+
+## Adding or editing content
+
+- **Prices, tracks, teachers, testimonials, placement questions:** edit `src/data/*.ts`. Each file has an English and an Arabic version side by side.
+- **Course pages:** `src/content-i18n/tracks.ts` (one object per course page per language).
+- **Page copy:** the `C = ar ? {...} : {...}` block at the top of each file in `src/views/`.
+- **Blog:** add a Markdown file to `src/content/blog/`. The file name is the URL slug.
