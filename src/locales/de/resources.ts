@@ -1,0 +1,46 @@
+/** Resources — Deutsch. */
+export default {
+  C: {
+    meta: {
+      title: 'Kostenlose islamische Materialien – Arbeitsblätter & Bücher | Ummah Academy',
+      desc: 'Kostenlose Arbeitsblätter zum Ausdrucken für Tajweed, Hifz, arabische Buchstaben, Nahw und Kinderaktivitäten – dazu die Grundlagentexte, mit denen unsere Al-Azhar-Lehrkräfte arbeiten.',
+    },
+    crumb: 'Kostenlose Bibliothek',
+    eyebrow: 'Kostenlose Materialien',
+    title: 'Die <span class="accent">kostenlose</span> islamische Bibliothek',
+    lede: 'Arbeitsblätter zum Ausdrucken, von unserem Team gestaltet, dazu die Grundlagentexte unserer Lehrkräfte. Alles kostenlos, ohne Anmeldung.',
+    sheetsEyebrow: 'Arbeitsblätter',
+    sheetsTitle: 'Herunterladen &amp; <span class="accent">heute ausdrucken</span>',
+    sheetsLede: 'A4-PDFs, zweisprachig Englisch–Arabisch, zum Üben zu Hause zwischen den Stunden.',
+    booksEyebrow: 'Grundlagentexte',
+    booksTitle: 'Die Bücher, mit denen <span class="accent">unsere Lehrkräfte arbeiten</span>',
+    booksLede: 'Wir schicken Ihnen genau die Ausgabe, die Ihre Lehrkraft verwendet – kostenlos, per WhatsApp.',
+    download: 'PDF herunterladen',
+    request: 'Per WhatsApp anfordern',
+    requestShort: 'PDF anfordern',
+    pages: (n: number) => `${n} ${n === 1 ? 'Seite' : 'Seiten'}`,
+    free: 'Kostenlos',
+    langs: 'Englisch · Arabisch',
+    waText: (t: string) => `Assalamu alaikum, bitte schicken Sie mir das kostenlose Material: ${t}`,
+    cta: {
+      eyebrow: 'Nächster Schritt',
+      title: 'Kostenlose Materialien sind erst <span class="accent">der Anfang</span>',
+      lede: 'Kombinieren Sie diese Materialien mit Live-Einzelunterricht bei unseren Al-Azhar-Lehrkräften.',
+      label: '2 kostenlose Live-Stunden buchen',
+    },
+    sheets: [
+      { id: 'tajweed-rules-summary', icon: 'list-checks', title: 'Tajweed-Regeln auf einen Blick', text: 'Eine farbcodierte Seite: Nun und Mim Sakina, die Madd-Familie und Qalqala – mit Beispielen aus dem Koran.' },
+      { id: 'arabic-letter-tracing', icon: 'pencil-line', title: 'Arabische Buchstaben nachspuren', text: 'Punktierte Spurblätter für alle 28 Buchstaben – in Anfangs-, Mittel- und Endform.' },
+      { id: 'daily-wird-tracker', icon: 'calendar-check', title: 'Täglicher Wird-Tracker', text: 'Ein 30-Tage-Plan für Rezitation, neues Auswendiglernen und Wiederholung – mit Spalte zum Abzeichnen durch die Eltern.' },
+      { id: 'hifz-schedule-template', icon: 'brain', title: 'Hifz-Wochenplan', text: 'Ein Wochenplan, aufgeteilt in neue Lektion, frische Wiederholung und langfristige Wiederholung.' },
+      { id: 'nahw-exercises', icon: 'brackets-curly', title: 'Nahw-Übungen', text: 'Kurze Übungen zu Nominal- und Verbalsätzen, Präpositionen und Kasusendungen – mit Lösungsschlüssel.' },
+      { id: 'ummah-cubs-activity-pack', icon: 'star', title: 'Ummah Cubs Aktivitätspaket', text: 'Zuordnungsspiel zu den fünf Säulen, ein Suchrätsel zu den Propheten, eine Tabelle für gute Taten und eine geometrische Malvorlage.' },
+    ],
+    books: [
+      { icon: 'book-open-text', title: 'Noor Al-Bayan', text: 'Das bewährteste Grundlagenbuch, um Arabisch von Grund auf lesen zu lernen.', lang: 'Arabisch · Englisch' },
+      { icon: 'text-aa', title: 'Al-Ajrumiyya', text: 'Ibn Ajurrums knappe Grammatik-Fibel – seit sieben Jahrhunderten der erste Nahw-Text für Lernende.', lang: 'Arabisch · kommentiert' },
+      { icon: 'music-notes-simple', title: 'Al-Jazariyya', text: 'Das Tajweed-Lehrgedicht von Ibn al-Jazari – der Grundtext für alle drei Tajweed-Stufen.', lang: 'Arabisch · mit Vokalzeichen' },
+      { icon: 'moon-stars', title: 'Adhkar für Kinder', text: 'Ein illustrierter Leitfaden zu islamischen Umgangsformen und täglichen Adhkar für Kinder.', lang: 'Arabisch · Englisch' },
+    ],
+  },
+};

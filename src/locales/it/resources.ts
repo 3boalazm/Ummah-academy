@@ -1,0 +1,46 @@
+/** Resources — italiano. */
+export default {
+  C: {
+    meta: {
+      title: 'Risorse islamiche gratuite — Schede e libri | Ummah Academy',
+      desc: 'Schede gratuite da stampare per Tajweed, hifz, lettere arabe, nahw e attività per bambini, più i testi di base che usano i nostri insegnanti di al-Azhar.',
+    },
+    crumb: 'Biblioteca gratuita',
+    eyebrow: 'Risorse gratuite',
+    title: 'La biblioteca islamica <span class="accent">gratuita</span>',
+    lede: 'Schede da stampare create dal nostro team, più i testi di base usati dai nostri insegnanti. Tutto gratuito, senza registrazione.',
+    sheetsEyebrow: 'Schede',
+    sheetsTitle: 'Scarica &amp; <span class="accent">stampa oggi stesso</span>',
+    sheetsLede: 'PDF in formato A4, bilingui inglese–arabo, per esercitarti a casa tra una lezione e l’altra.',
+    booksEyebrow: 'Testi di base',
+    booksTitle: 'I libri che usano <span class="accent">i nostri insegnanti</span>',
+    booksLede: 'Ti inviamo gratuitamente su WhatsApp l’edizione esatta usata dal tuo insegnante.',
+    download: 'Scarica il PDF',
+    request: 'Richiedi su WhatsApp',
+    requestShort: 'Richiedi il PDF',
+    pages: (n: number) => `${n} ${n === 1 ? 'pagina' : 'pagine'}`,
+    free: 'Gratis',
+    langs: 'Inglese · Arabo',
+    waText: (t: string) => `Assalamu alaikum, potreste inviarmi la risorsa gratuita: ${t}`,
+    cta: {
+      eyebrow: 'Prossimo passo',
+      title: 'Le risorse gratuite sono solo <span class="accent">l’inizio</span>',
+      lede: 'Abbina queste risorse a lezioni individuali dal vivo con i nostri insegnanti di al-Azhar.',
+      label: 'Prenota 2 lezioni gratuite dal vivo',
+    },
+    sheets: [
+      { id: 'tajweed-rules-summary', icon: 'list-checks', title: 'Riepilogo delle regole del Tajweed', text: 'Una pagina a colori: nun e mim sakina, la famiglia del madd e la qalqala — con esempi dal Corano.' },
+      { id: 'arabic-letter-tracing', icon: 'pencil-line', title: 'Ricalco delle lettere arabe', text: 'Schede tratteggiate per tutte le 28 lettere, nelle forme iniziale, mediana e finale.' },
+      { id: 'daily-wird-tracker', icon: 'calendar-check', title: 'Diario quotidiano del wird', text: 'Una tabella di 30 giorni per recitazione, nuova memorizzazione e ripasso — con una colonna per la firma dei genitori.' },
+      { id: 'hifz-schedule-template', icon: 'brain', title: 'Programma settimanale di hifz', text: 'Un piano settimanale diviso in nuova lezione, ripasso recente e ripasso a lungo termine.' },
+      { id: 'nahw-exercises', icon: 'brackets-curly', title: 'Esercizi di nahw', text: 'Brevi esercizi su frasi nominali e verbali, preposizioni e desinenze dei casi — con soluzioni.' },
+      { id: 'ummah-cubs-activity-pack', icon: 'star', title: 'Pacchetto attività Ummah Cubs', text: 'Un gioco di abbinamento sui cinque pilastri, un cercaparole sui profeti, una tabella delle buone azioni e un disegno geometrico da colorare.' },
+    ],
+    books: [
+      { icon: 'book-open-text', title: 'Noor Al-Bayan', text: 'Il libro di base più apprezzato per imparare a leggere l’arabo partendo da zero.', lang: 'Arabo · Inglese' },
+      { icon: 'text-aa', title: 'Al-Ajrumiyya', text: 'Il conciso manuale di grammatica di Ibn Ajurrum — da sette secoli il primo testo di nahw per gli studenti.', lang: 'Arabo · Commentato' },
+      { icon: 'music-notes-simple', title: 'Al-Jazariyya', text: 'Il poema sul Tajweed di Ibn al-Jazari — il testo di riferimento per tutti e tre i livelli di Tajweed.', lang: 'Arabo · Vocalizzato' },
+      { icon: 'moon-stars', title: 'Adhkar per bambini', text: 'Una guida illustrata alle buone maniere islamiche e agli adhkar quotidiani per bambini.', lang: 'Arabo · Inglese' },
+    ],
+  },
+};
