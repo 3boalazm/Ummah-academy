@@ -4,6 +4,9 @@
  */
 import type { Lang } from '@/i18n';
 import type { Plan } from '@/data/pricing';
+import pagesDe from '@/locales/de/data/trackPages';
+import pagesFr from '@/locales/fr/data/trackPages';
+import pagesIt from '@/locales/it/data/trackPages';
 
 export type TrackPageKey = 'recitation' | 'hifz' | 'arabic' | 'kids' | 'islamic';
 
@@ -463,4 +466,32 @@ const AR: Record<TrackPageKey, TrackPageContent> = {
   },
 };
 
-export const getTrackPage = (key: TrackPageKey, lang: Lang = 'en') => (lang === 'ar' ? AR[key] : EN[key]);
+/** Text-only overlay for German, French and Italian; structure (paths, plans, teacher, icons) comes from EN. */
+export interface TrackPageText {
+  meta: { title: string; desc: string };
+  crumb: string;
+  eyebrow: string;
+  title: string;
+  lede: string;
+  glance: [string, string][];
+  learnTitle: string;
+  learnLede: string;
+  learn?: { title: string; text: string }[];
+  methodTitle: string;
+  method: { title: string; text: string }[];
+  plansNote: string;
+  faq: { q: string; a: string }[];
+  cta: { title: string; lede: string };
+  schemaName: string;
+}
+const OVERLAY: Partial<Record<Lang, Record<TrackPageKey, TrackPageText>>> = { de: pagesDe, fr: pagesFr, it: pagesIt };
+
+export const getTrackPage = (key: TrackPageKey, lang: Lang = 'en'): TrackPageContent => {
+  if (lang === 'en') return EN[key];
+  if (lang === 'ar') return AR[key];
+  const x = OVERLAY[lang]?.[key];
+  if (!x) return EN[key];
+  const base = EN[key];
+  if (x.method.length !== base.method.length || (base.learn?.length ?? 0) !== (x.learn?.length ?? 0)) throw new Error(`[trackPages] ${lang}/${key}: list lengths differ from English`);
+  return { ...base, ...x, method: base.method.map((m, i) => ({ ...m, ...x.method[i] })) };
+};

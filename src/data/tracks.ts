@@ -3,6 +3,9 @@ import arabicImg from '@/assets/art/track-arabic.jpg';
 import kidsImg from '@/assets/art/track-kids.jpg';
 import islamicImg from '@/assets/art/track-islamic.jpg';
 import type { Lang } from '@/i18n';
+import tracksDe from '@/locales/de/data/tracks';
+import tracksFr from '@/locales/fr/data/tracks';
+import tracksIt from '@/locales/it/data/tracks';
 
 export type TrackId = 'quran' | 'arabic' | 'kids' | 'islamic';
 
@@ -196,7 +199,45 @@ const AR: Track[] = [
   },
 ];
 
-export const getTracks = (lang: Lang = 'en'): Track[] => (lang === 'ar' ? AR : EN);
+/** Text-only overlay for German, French and Italian — ids, prices, links and images stay in EN above. */
+export interface TrackText {
+  title: string;
+  subtitle: string;
+  intro: string;
+  points: string[];
+  ctaLabel: string;
+  courses: Record<string, { title: string; badge: string; tags: string[]; desc: string }>;
+}
+export type TracksText = Record<TrackId, TrackText>;
+const OVERLAY: Partial<Record<Lang, TracksText>> = { de: tracksDe, fr: tracksFr, it: tracksIt };
+
+const merged = new Map<Lang, Track[]>();
+function overlay(lang: Lang, text: TracksText): Track[] {
+  return EN.map((t) => {
+    const x = text[t.id];
+    if (!x) throw new Error(`[tracks] ${lang} is missing track "${t.id}"`);
+    return {
+      ...t,
+      title: x.title,
+      subtitle: x.subtitle,
+      intro: x.intro,
+      points: x.points,
+      ctaLabel: x.ctaLabel,
+      courses: t.courses.map((c) => {
+        const cx = x.courses[c.id];
+        if (!cx) throw new Error(`[tracks] ${lang} is missing course "${t.id}/${c.id}"`);
+        return { ...c, ...cx };
+      }),
+    };
+  });
+}
+
+export const getTracks = (lang: Lang = 'en'): Track[] => {
+  if (lang === 'en') return EN;
+  if (lang === 'ar') return AR;
+  if (!merged.has(lang)) merged.set(lang, OVERLAY[lang] ? overlay(lang, OVERLAY[lang]!) : EN);
+  return merged.get(lang)!;
+};
 export const trackById = (id: TrackId, lang: Lang = 'en') => getTracks(lang).find((t) => t.id === id)!;
 /** Backwards-compatible default export for English-only templates. */
 export const TRACKS = EN;

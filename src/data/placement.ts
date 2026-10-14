@@ -7,6 +7,11 @@
  *  - 'quiz'  → knowledge check, one correct answer (index `answer`)
  *  - 'info'  → used for the recommendation only (not scored)
  */
+import type { Lang } from '@/i18n';
+import testsDe from '@/locales/de/data/placement';
+import testsFr from '@/locales/fr/data/placement';
+import testsIt from '@/locales/it/data/placement';
+
 export type TrackKey = 'quran' | 'arabic' | 'kids' | 'islamic';
 
 export interface Question {
@@ -161,5 +166,23 @@ const TESTS_AR: TrackTest[] = [
   },
 ];
 
-export const getTests = (lang: 'en' | 'ar' = 'en'): TrackTest[] => (lang === 'ar' ? TESTS_AR : TESTS_EN);
+/** Text-only overlay for German, French and Italian (ids, kinds, answers and icons stay in EN). */
+export type TestsText = Record<TrackKey, { label: string; questions: Record<string, { skill: string; prompt: string; options: string[] }> }>;
+const OVERLAY: Partial<Record<Lang, TestsText>> = { de: testsDe, fr: testsFr, it: testsIt };
+
+export const getTests = (lang: Lang = 'en'): TrackTest[] => {
+  if (lang === 'en') return TESTS_EN;
+  if (lang === 'ar') return TESTS_AR;
+  const x = OVERLAY[lang];
+  if (!x) return TESTS_EN;
+  return TESTS_EN.map((t) => ({
+    ...t,
+    label: x[t.key].label,
+    questions: t.questions.map((q) => {
+      const qx = x[t.key].questions[q.id];
+      if (!qx || qx.options.length !== q.options.length) throw new Error(`[placement] ${lang}/${t.key}/${q.id}: missing or option count differs`);
+      return { ...q, ...qx };
+    }),
+  }));
+};
 export const TESTS = TESTS_EN;

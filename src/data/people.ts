@@ -3,6 +3,9 @@
  * consent, photos and credentials to be confirmed before launch).
  */
 import type { Lang } from '@/i18n';
+import peopleDe from '@/locales/de/data/people';
+import peopleFr from '@/locales/fr/data/people';
+import peopleIt from '@/locales/it/data/people';
 
 export interface Teacher {
   id: string;
@@ -105,7 +108,33 @@ const TEACHERS_AR: Teacher[] = [
   },
 ];
 
-export const getTeachers = (lang: Lang = 'en') => (lang === 'ar' ? TEACHERS_AR : TEACHERS_EN);
+/** Text-only overlay (German/French/Italian): ids, names, credentials data and flags stay in EN. */
+export type TeacherText = Pick<Teacher, 'role' | 'specialty' | 'bio' | 'bestFor' | 'credentials'>;
+export type TestimonialText = Pick<Testimonial, 'quote' | 'result' | 'location' | 'program'>;
+export interface PeopleText {
+  teachers: Record<string, TeacherText>;
+  testimonials: TestimonialText[];
+}
+const OVERLAY: Partial<Record<Lang, PeopleText>> = { de: peopleDe, fr: peopleFr, it: peopleIt };
+
+const teachersFor = new Map<Lang, Teacher[]>();
+export const getTeachers = (lang: Lang = 'en'): Teacher[] => {
+  if (lang === 'en') return TEACHERS_EN;
+  if (lang === 'ar') return TEACHERS_AR;
+  if (!teachersFor.has(lang)) {
+    const x = OVERLAY[lang];
+    teachersFor.set(
+      lang,
+      x
+        ? TEACHERS_EN.map((t) => {
+            if (!x.teachers[t.id]) throw new Error(`[people] ${lang} is missing teacher "${t.id}"`);
+            return { ...t, ...x.teachers[t.id] };
+          })
+        : TEACHERS_EN,
+    );
+  }
+  return teachersFor.get(lang)!;
+};
 export const teacherById = (id: string, lang: Lang = 'en') => getTeachers(lang).find((t) => t.id === id);
 export const TEACHERS = TEACHERS_EN;
 
@@ -137,5 +166,12 @@ const T_AR: Testimonial[] = [
   { ...T_EN[4], quote: 'انتقلت من الصفر تمامًا في العربية إلى قراءة القرآن خلال ستة أشهر فقط بمنهج نور البيان. منهج الإتقان استثنائي حقًا.', result: 'تقرأ القرآن خلال ٦ أشهر', name: 'ياسمين دوبوا', location: 'باريس، فرنسا', program: 'العربية' },
 ];
 
-export const getTestimonials = (lang: Lang = 'en') => (lang === 'ar' ? T_AR : T_EN);
+export const getTestimonials = (lang: Lang = 'en'): Testimonial[] => {
+  if (lang === 'en') return T_EN;
+  if (lang === 'ar') return T_AR;
+  const x = OVERLAY[lang];
+  if (!x) return T_EN;
+  if (x.testimonials.length !== T_EN.length) throw new Error(`[people] ${lang} testimonials: expected ${T_EN.length}`);
+  return T_EN.map((t, i) => ({ ...t, ...x.testimonials[i] }));
+};
 export const TESTIMONIALS = T_EN;
