@@ -1,50 +1,39 @@
 ---
 /**
- * One static 404 serves every missing path on Vercel, so it speaks both
- * languages. On /ar/… paths an inline script puts the Arabic panel first.
+ * One static 404 serves every missing path on Vercel, so it speaks every language.
+ * Default (and without JS): English + Arabic. On /ar/ /de/ /fr/ /it/ paths an inline
+ * script shows that language first, next to English.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { waLink } from '@/data/site';
+import { LANGS, LOCALE, PREFIXED, lp, type Lang } from '@/i18n';
 
-const panels = [
-  {
-    lang: 'en',
-    dir: 'ltr',
-    eyebrow: 'Page not found',
-    title: 'We couldn’t find that page',
-    lede: 'It may have moved or no longer exists. These are the pages families visit most:',
-    home: { href: '/', label: 'Back to Home' },
-    links: [
-      { href: '/courses/', label: 'All courses', icon: 'books' },
-      { href: '/pricing/', label: 'Pricing', icon: 'tag' },
-      { href: '/placement-test/', label: 'Placement test', icon: 'compass' },
-      { href: '/blog/', label: 'Blog', icon: 'article' },
-    ],
-    wa: 'Message us on WhatsApp',
-  },
-  {
-    lang: 'ar',
-    dir: 'rtl',
-    eyebrow: 'الصفحة غير موجودة',
-    title: 'لم نعثر على هذه الصفحة',
-    lede: 'ربما نُقلت أو لم تعد موجودة. هذه أكثر الصفحات التي تزورها الأسر:',
-    home: { href: '/ar/', label: 'العودة إلى الرئيسية' },
-    links: [
-      { href: '/ar/courses/', label: 'كل الدورات', icon: 'books' },
-      { href: '/ar/pricing/', label: 'الأسعار', icon: 'tag' },
-      { href: '/ar/placement-test/', label: 'اختبار تحديد المستوى', icon: 'compass' },
-      { href: '/ar/blog/', label: 'المدونة', icon: 'article' },
-    ],
-    wa: 'راسلنا عبر واتساب',
-  },
-];
+const T: Record<Lang, { eyebrow: string; title: string; lede: string; home: string; links: [string, string, string, string]; wa: string }> = {
+  en: { eyebrow: 'Page not found', title: 'We couldn’t find that page', lede: 'It may have moved or no longer exists. These are the pages families visit most:', home: 'Back to Home', links: ['All courses', 'Pricing', 'Placement test', 'Blog'], wa: 'Message us on WhatsApp' },
+  ar: { eyebrow: 'الصفحة غير موجودة', title: 'لم نعثر على هذه الصفحة', lede: 'ربما نُقلت أو لم تعد موجودة. هذه أكثر الصفحات التي تزورها الأسر:', home: 'العودة إلى الرئيسية', links: ['كل الدورات', 'الأسعار', 'اختبار تحديد المستوى', 'المدونة'], wa: 'راسلنا عبر واتساب' },
+  de: { eyebrow: 'Seite nicht gefunden', title: 'Diese Seite konnten wir nicht finden', lede: 'Vielleicht wurde sie verschoben oder existiert nicht mehr. Diese Seiten besuchen Familien am häufigsten:', home: 'Zur Startseite', links: ['Alle Kurse', 'Preise', 'Einstufungstest', 'Blog'], wa: 'Per WhatsApp schreiben' },
+  fr: { eyebrow: 'Page introuvable', title: 'Nous n’avons pas trouvé cette page', lede: 'Elle a peut-être été déplacée ou n’existe plus. Voici les pages que les familles consultent le plus :', home: 'Retour à l’accueil', links: ['Tous les cours', 'Tarifs', 'Test de niveau', 'Blog'], wa: 'Écrire sur WhatsApp' },
+  it: { eyebrow: 'Pagina non trovata', title: 'Non abbiamo trovato questa pagina', lede: 'Potrebbe essere stata spostata o non esistere più. Ecco le pagine che le famiglie visitano di più:', home: 'Torna alla home', links: ['Tutti i corsi', 'Prezzi', 'Test di livello', 'Blog'], wa: 'Scrivici su WhatsApp' },
+};
+const ROUTES = [
+  ['/courses/', 'books'],
+  ['/pricing/', 'tag'],
+  ['/placement-test/', 'compass'],
+  ['/blog/', 'article'],
+] as const;
+const panels = LANGS.map((lang) => ({
+  lang,
+  dir: LOCALE[lang].dir,
+  ...T[lang],
+  home: { href: lp(lang, '/'), label: T[lang].home },
+  links: ROUTES.map(([href, icon], i) => ({ href: lp(lang, href), label: T[lang].links[i], icon })),
+}));
+const detect = `var m=location.pathname.match(/^\\/(${PREFIXED.join('|')})(\\/|$)/);if(m)document.documentElement.classList.add('nf-'+m[1]);`;
 ---
 
 <BaseLayout title="Page not found · الصفحة غير موجودة | Ummah Academy" description="The page you're looking for may have moved." noindex>
-  <script is:inline slot="head">
-    if (/^\/ar(\/|$)/.test(location.pathname)) document.documentElement.classList.add('nf-ar');
-  </script>
+  <script is:inline slot="head" set:html={detect} />
   <section class="section">
     <div class="container nf">
       <p class="nf__code quranic" aria-hidden="true">٤٠٤</p>
@@ -118,8 +107,25 @@ const panels = [
     padding: clamp(22px, 3vw, 36px);
   }
 
-  :global(html.nf-ar) .nf__panel--ar {
+  /* default: English + Arabic; on a /de/ /fr/ /it/ path: that language first, then English */
+  .nf__panel--de,
+  .nf__panel--fr,
+  .nf__panel--it {
+    display: none;
+  }
+
+  :global(html.nf-ar) .nf__panel--ar,
+  :global(html.nf-de) .nf__panel--de,
+  :global(html.nf-fr) .nf__panel--fr,
+  :global(html.nf-it) .nf__panel--it {
+    display: flex;
     order: -1;
+  }
+
+  :global(html.nf-de) .nf__panel--ar,
+  :global(html.nf-fr) .nf__panel--ar,
+  :global(html.nf-it) .nf__panel--ar {
+    display: none;
   }
 
   .nf__title {

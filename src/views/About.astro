@@ -192,6 +192,17 @@ const C = COPY.C;
     animation-delay: -4s;
   }
 
+  @media (max-width: 480px) {
+    /* phones: keep the floating glass inside the screen edge */
+    .a-card--a {
+      inset-inline-start: -10px;
+    }
+
+    .a-card--b {
+      inset-inline-end: -10px;
+    }
+  }
+
   .rail {
     overflow-x: auto;
     scroll-snap-type: x mandatory;

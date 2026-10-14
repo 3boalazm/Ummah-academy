@@ -90,8 +90,8 @@ const isActive = (href: string) => path.startsWith(href);
     <div class="site-header__actions">
       <LangMenu lang={lang} targets={targets} />
       <a class="nav__signin hide-mobile" href={portalLinks.login}>{t.signIn}</a>
-      <a class="btn btn--sm btn--primary" href={lp(lang, '/contact/') + '#book'} data-track="header">
-        <span class="hide-mobile">{t.bookTrial}</span><span class="hide-desktop">{t.bookTrialShort}</span>
+      <a class="btn btn--sm btn--primary site-header__cta" href={lp(lang, '/contact/') + '#book'} data-track="header">
+        <span class="cta-long">{t.bookTrial}</span><span class="cta-short">{t.bookTrialShort}</span>
       </a>
       <button class="menu-btn" type="button" aria-label={t.menuOpen} aria-haspopup="dialog" data-menu-open>
         <Icon name="list" weight="bold" />
@@ -589,8 +589,74 @@ const isActive = (href: string) => path.startsWith(href);
     }
   }
 
-  @media (max-width: 420px) {
+  /* CTA label: short until there is room for the long one (German/French/Italian run ~30% longer) */
+  .site-header__cta .cta-long {
+    display: none;
+  }
+
+  @media (min-width: 1100px) {
+    .site-header__cta .cta-long {
+      display: inline;
+    }
+
+    .site-header__cta .cta-short {
+      display: none;
+    }
+  }
+
+  /* 860–1099: the desktop nav has just appeared — tighten spacing so five languages fit */
+  @media (min-width: 860px) and (max-width: 1099px) {
+    .site-header__bar {
+      gap: 10px;
+      padding-inline: 16px 8px;
+    }
+
+    .nav__link,
+    .nav__signin {
+      padding: 0 10px;
+    }
+  }
+
+  @media (min-width: 860px) and (max-width: 979px) {
+    .site-header__brand :global(.logo__soft) {
+      display: none;
+    }
+  }
+
+  /* phones: the language pill becomes a globe (the code stays for screen readers) */
+  @media (max-width: 459px) {
+    .site-header__actions :global(.langmenu__btn) {
+      padding: 0 11px;
+      gap: 0;
+    }
+
+    .site-header__actions :global(.langmenu__code) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
     .site-header__actions :global(.langmenu__caret) {
+      display: none;
+    }
+
+    .site-header__actions .btn--sm {
+      padding-inline: 0.8em;
+      font-size: 0.86rem;
+    }
+  }
+
+  @media (max-width: 379px) {
+    .site-header__brand :global(.logo__soft) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 339px) {
+    .site-header__cta {
       display: none;
     }
   }

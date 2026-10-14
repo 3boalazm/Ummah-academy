@@ -6,10 +6,13 @@
  * `{email}` and `{pricing}` are replaced at render time.
  */
 import type { Lang } from '@/i18n';
+import legalDe from '@/locales/de/data/legal';
+import legalFr from '@/locales/fr/data/legal';
+import legalIt from '@/locales/it/data/legal';
 
 export type LegalDoc = 'privacy' | 'terms';
 
-interface Section {
+export interface Section {
   h: string;
   /** trusted HTML (authored here, never user input) */
   html: string;
@@ -136,7 +139,12 @@ const TERMS: Partial<Record<Lang, LegalContent>> & { en: LegalContent } = {
   },
 };
 
+// German, French and Italian convenience translations (the English text prevails — stated on the page).
+const TRANSLATED: Partial<Record<Lang, { privacy: LegalContent; terms: LegalContent }>> = { de: legalDe, fr: legalFr, it: legalIt };
+
 export const getLegal = (doc: LegalDoc, lang: Lang): LegalContent => {
+  const tr = TRANSLATED[lang];
+  if (tr) return tr[doc];
   const all = doc === 'privacy' ? PRIVACY : TERMS;
   return all[lang] ?? all.en;
 };
