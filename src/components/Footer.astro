@@ -9,6 +9,7 @@ interface Props {
 }
 const { lang = 'en', switchTo } = Astro.props;
 const t = ui(lang);
+const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '').trim());
 const cols = FOOTER_LINKS(lang);
 const year = new Date().getFullYear();
 const other = counterpart(Astro.url.pathname, switchTo);
@@ -56,6 +57,15 @@ const other = counterpart(Astro.url.pathname, switchTo);
       <ul role="list" class="site-footer__legal">
         <li><a href={lp(lang, '/privacy-policy/')}>{t.privacy}</a></li>
         <li><a href={lp(lang, '/terms-of-service/')}>{t.terms}</a></li>
+        {
+          consent && (
+            <li>
+              <button type="button" class="site-footer__choices" data-consent-open>
+                {lang === 'ar' ? 'خيارات الخصوصية' : 'Privacy choices'}
+              </button>
+            </li>
+          )
+        }
         <li><a href={other.href} hreflang={other.lang} lang={other.lang}>{t.langSwitch}</a></li>
       </ul>
       <p class="site-footer__note">{t.footerNote}</p>
@@ -158,5 +168,18 @@ const other = counterpart(Astro.url.pathname, switchTo);
 
   .site-footer__note {
     margin-inline-start: auto;
+  }
+
+  .site-footer__choices {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .site-footer__choices:hover {
+    color: var(--ink);
   }
 </style>

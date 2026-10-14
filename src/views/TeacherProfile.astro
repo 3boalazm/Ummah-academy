@@ -122,7 +122,7 @@ const ld = {
     alternateName: ar ? en.name : undefined,
     jobTitle: t.role,
     description: t.bio,
-    knowsAbout: [t.specialty, ...t.bestFor],
+    knowsAbout: [...new Set([t.specialty, ...track.courses.map((c) => c.title)])],
     knowsLanguage: ['ar', 'en'],
     worksFor: { '@id': `${SITE.url}/#organization` },
     ...(en.alumniOf ? { alumniOf: { '@type': 'CollegeOrUniversity', name: en.alumniOf } } : {}),
@@ -235,7 +235,7 @@ const meta = ar
           <div class="grid grid-2 tprof__stories">
             {stories.map((s) => (
               <div data-reveal>
-                <TestimonialCard t={s} lang={lang} />
+                <TestimonialCard t={s} lang={lang} showTeacher={false} />
               </div>
             ))}
           </div>

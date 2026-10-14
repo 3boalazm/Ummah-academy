@@ -16,6 +16,8 @@ import Aurora from '@/components/Aurora.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import StickyCta from '@/components/StickyCta.astro';
+import Analytics from '@/components/Analytics.astro';
+import ConsentBanner from '@/components/ConsentBanner.astro';
 import { SITE } from '@/data/site';
 import { dirOf, hasArabic, basePath, ui, type Lang, type Alternates, type LangSwitch } from '@/i18n';
 
@@ -83,6 +85,8 @@ const org = {
 const switchTo: LangSwitch | undefined = pair ? (lang === 'ar' ? { lang: 'en', href: pair.en } : { lang: 'ar', href: pair.ar }) : Astro.props.switchTo;
 const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
+// the consent banner exists only when cookie-based analytics (GTM) is configured
+const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '').trim());
 ---
 
 <!doctype html>
@@ -118,6 +122,7 @@ const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
 
     <style is:inline set:html={`@font-face{font-family:'UA Honorific';src:url(${amiriArabic}) format('woff2');unicode-range:U+FDFA,U+FDFD;size-adjust:125%;font-display:swap}`}></style>
     <script type="application/ld+json" set:html={JSON.stringify(graph.length === 1 ? graph[0] : graph)} />
+    <Analytics />
     <slot name="head" />
   </head>
   <body class:list={[`lang-${lang}`]}>
@@ -129,6 +134,7 @@ const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
     </main>
     <Footer lang={lang} switchTo={switchTo} />
     {sticky && <StickyCta lang={lang} />}
+    {consent && <ConsentBanner lang={lang} />}
     <script>
       import '@/scripts/site';
     </script>

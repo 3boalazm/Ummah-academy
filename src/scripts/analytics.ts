@@ -1,7 +1,8 @@
 /**
  * Vendor-neutral analytics shim. Pushes events to window.dataLayer (GTM/GA4)
  * and forwards to Plausible if present. Never send names, phone numbers or
- * free-text notes — only categorical values. See docs/04-strategy/measurement-plan.md
+ * free-text notes — only categorical values. Event dictionary: docs/03-audit/analytics.md.
+ * Loaders (Plausible / GTM + consent) live in src/components/Analytics.astro.
  */
 type Props = Record<string, string | number | boolean | undefined>;
 

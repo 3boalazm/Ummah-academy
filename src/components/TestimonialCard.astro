@@ -1,12 +1,15 @@
 ---
 import Icon from './Icon.astro';
-import type { Testimonial } from '@/data/people';
-import type { Lang } from '@/i18n';
+import { teacherById, type Testimonial } from '@/data/people';
+import { lp, type Lang } from '@/i18n';
 interface Props {
   t: Testimonial;
   lang?: Lang;
+  /** link the named teacher's profile (off on that teacher's own page) */
+  showTeacher?: boolean;
 }
-const { t, lang = 'en' } = Astro.props;
+const { t, lang = 'en', showTeacher = true } = Astro.props;
+const teacher = showTeacher && t.teacher ? teacherById(t.teacher, lang) : undefined;
 ---
 
 <figure class="tcard glass">
@@ -25,11 +28,26 @@ const { t, lang = 'en' } = Astro.props;
     <span>
       <strong>{t.name}</strong>
       <small>{t.location} · {t.program}</small>
+      {
+        teacher && (
+          <a class="tcard__teacher" href={lp(lang, `/teachers/${t.teacher}/`)}>
+            {lang === 'ar' ? `مع ${teacher.name}` : `with ${teacher.name}`}
+          </a>
+        )
+      }
     </span>
   </figcaption>
 </figure>
 
 <style>
+  .tcard__teacher {
+    display: block;
+    width: fit-content;
+    font-size: 0.84rem;
+    font-weight: 560;
+    color: var(--accent-ink);
+  }
+
   .tcard {
     --radius: 26px;
     margin: 0;

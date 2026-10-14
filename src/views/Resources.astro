@@ -128,7 +128,10 @@ const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id) }));
               {s.pdf ? (
                 <>
                   <p class="res__lang">
-                    <Icon name="file-pdf" weight="bold" /> {C.pages(s.pdf.pages)} · <span dir="ltr">{size(s.pdf.bytes)}</span> · {C.langs}
+                    <Icon name="file-pdf" weight="bold" />
+                    <span>
+                      {C.pages(s.pdf.pages)} · <span dir="ltr">{size(s.pdf.bytes)}</span> · {C.langs}
+                    </span>
                   </p>
                   <a class="btn btn--sm btn--primary" href={s.pdf.file} download data-download={s.id}>
                     <Icon name="download-simple" weight="bold" /> {C.download}

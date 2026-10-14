@@ -9,7 +9,8 @@
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0",
     "check:links": "node scripts/check-links.mjs",
-    "qa": "npm run build && npm run check:links"
+    "qa": "npm run build && npm run check:links",
+    "pdfs": "node scripts/build-pdfs.mjs"
   },
   "engines": {
     "node": ">=20.19"
@@ -24,5 +25,8 @@
     "@phosphor-icons/core": "^2.1.1",
     "astro": "^7.3.8",
     "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.14.0"
   }
 }
