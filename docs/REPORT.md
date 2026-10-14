@@ -144,7 +144,11 @@
   - قائمة الإطلاق.
   - سجل التغييرات.
 - **التشغيل:** `npm install` ثم `npm run dev`، والبناء بـ `npm run build`، والفحص بـ `npm run qa`.
-- **Google Doc وLinear:** الروابط في الرد النهائي داخل المحادثة.
+- **Google Doc** (التقرير مع الملاحق): https://docs.google.com/document/d/1LQ7JepUGqHIPm9HgSDipF4GmAwWauEwqp5b8y55tWnc/edit
+- **Linear** (مشروع «Ummah Academy — Glass Website v2»): https://linear.app/aboalazm/project/ummah-academy-glass-website-v2-astro-enar-ee3ca142028d
+  - ٦ مهام منجزة: ABO-31 إلى ABO-36.
+  - ١٠ بوابات إطلاق: ABO-37 إلى ABO-46.
+  - ٣ مهام لاحقة: ABO-47 إلى ABO-49.
 
 ---
 
