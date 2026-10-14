@@ -16,3 +16,5 @@
 | 05 | [05-qa-report.md](05-qa-report.md) | Build, links, axe, overflow, flows, performance, limitations |
 | 06 | [06-launch-checklist.md](06-launch-checklist.md) | Business confirmations and technical cut-over steps |
 | 07 | [07-v2-changelog.md](07-v2-changelog.md) | Every v2 change mapped to an audit finding |
+| 08 | [08-phase3-plan.md](08-phase3-plan.md) | Phase 3 plan (after "كمل"): close every gap that doesn't need a business decision |
+| 09 | [09-phase3-changelog.md](09-phase3-changelog.md) | Phase 3 delivery: Arabic blog and parity, teacher profiles, 6 PDFs, analytics switch, Lighthouse |

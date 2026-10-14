@@ -35,6 +35,8 @@
 | `plan_finder_change` | `minutes`, `per_week` |
 | `language_switch` | `to` |
 | `blog_filter` | `topic` |
+| `resource_download` *(Phase 3)* | `resource` = worksheet id |
+| `consent_update` *(Phase 3, GTM only)* | `analytics` = granted |
 
 **Attribution:** on the first page view, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `gclid`/`fbclid` presence, the referrer and the landing path are stored in `localStorage` (`ua:attr`, first-touch) and attached to the lead webhook payload. They are never added to the WhatsApp text.
 
