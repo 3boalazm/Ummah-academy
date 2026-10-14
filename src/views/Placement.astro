@@ -5,6 +5,7 @@ import Icon from '@/components/Icon.astro';
 import { getTests } from '@/data/placement';
 import { SITE } from '@/data/site';
 import type { Lang } from '@/i18n';
+import { copy } from '@/locales';
 
 interface Props {
   lang?: Lang;
@@ -12,47 +13,8 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
 const tests = getTests(lang);
-const C = ar
-  ? {
-      meta: { title: 'اختبار تحديد المستوى المجاني | أكاديمية الأمة', desc: 'اعرف مستواك في القرآن أو العربية أو الدراسات الإسلامية — أو مستوى طفلك — في نحو ٣ دقائق، مع نتيجة فورية وترشيح لنقطة البداية.' },
-      eyebrow: 'تقييم مجاني للمستوى',
-      title: 'اعرف مستواك في <span class="accent">٣ دقائق</span>',
-      lede: 'ثمانية أسئلة سريعة، ونتيجة فورية: مستواك، ونقاط قوتك، وما تحتاج إلى التركيز عليه، ومن أين تبدأ. بلا تسجيل.',
-      chips: ['٨ أسئلة', 'نتيجة فورية', 'بلا تسجيل'],
-      pick: 'اختر المسار',
-      back: 'رجوع',
-      next: 'التالي',
-      strengths: 'نقاط القوة',
-      focus: 'ما يحتاج تركيزًا',
-      recKicker: 'نقطة البداية المقترحة',
-      book: 'احجز حصتيّ المجانيتين بهذا الترشيح',
-      see: 'تفاصيل الدورة',
-      share: 'أرسل النتيجة عبر واتساب لتصلك خطة دراسة',
-      voice: 'اختياري: أرسل تسجيلًا صوتيًا قصيرًا لتلاوتك في المحادثة نفسها ليستمع إليه معلم.',
-      restart: 'أعد الاختبار أو جرّب مسارًا آخر',
-      disclaimer: 'هذا تقييم سريع يقترح نقطة بداية، ويحدد معلمك مستواك بدقة في أول حصة مجانية.',
-      review: 'أسئلة الاختبار قيد المراجعة الأكاديمية من قسم التجويد.',
-    }
-  : {
-      meta: { title: 'Free Placement Test — Find Your Level | Ummah Academy', desc: 'Find your Qur’an, Arabic or Islamic Studies level — or your child’s — in about 3 minutes. Instant result with strengths, focus areas and a recommended starting course.' },
-      eyebrow: 'Free level check',
-      title: 'Find your level in <span class="accent">3 minutes</span>',
-      lede: 'Eight quick questions, instant result: your level, your strengths, what to focus on and where to start. No sign-up.',
-      chips: ['8 questions', 'Instant result', 'No sign-up'],
-      pick: 'Choose a track',
-      back: 'Back',
-      next: 'Next',
-      strengths: 'Strengths',
-      focus: 'Focus areas',
-      recKicker: 'Recommended starting point',
-      book: 'Book 2 free sessions with this plan',
-      see: 'See the course',
-      share: 'Send my result on WhatsApp for a study plan',
-      voice: 'Optional: send a short voice note of your recitation in the same chat for a teacher to review.',
-      restart: 'Retake the test / try another track',
-      disclaimer: 'This quick check suggests a starting point. Your teacher confirms your exact level in your first free session.',
-      review: 'Question bank pending academic review by the Tajweed department.',
-    };
+const COPY = copy(lang).placement;
+const C = COPY.C;
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>

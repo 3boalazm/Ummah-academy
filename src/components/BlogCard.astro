@@ -1,7 +1,8 @@
 ---
 import PostCover from './PostCover.astro';
 import Icon from './Icon.astro';
-import type { Lang } from '@/i18n';
+import { LOCALE, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 interface Props {
   href: string;
   title: string;
@@ -17,13 +18,13 @@ interface Props {
 }
 const { href, title, description, category, date, track, lang, pageLang = lang, lead = false } = Astro.props;
 const foreign = lang !== pageLang;
-const fmt = (d: Date) => d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const fmt = (d: Date) => d.toLocaleDateString(LOCALE[lang].intl, { day: 'numeric', month: 'short', year: 'numeric' });
 ---
 
 <li data-track={track} class:list={['blog-card', { 'blog-card--lead': lead }]}>
   <a class="glass glass--interactive blog-card__link" href={href} hreflang={foreign ? lang : undefined}>
     <PostCover title={title} track={track} small={!lead} />
-    <span class="blog-card__body" lang={foreign ? lang : undefined} dir={foreign ? (lang === 'ar' ? 'rtl' : 'ltr') : undefined}>
+    <span class="blog-card__body" lang={foreign ? lang : undefined} dir={foreign ? LOCALE[lang].dir : undefined}>
       <span class="blog-card__meta">
         <span class="chip chip--accent">{category}</span>
         <time datetime={date.toISOString()}>{fmt(date)}</time>
@@ -31,7 +32,7 @@ const fmt = (d: Date) => d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB',
       <span class="blog-card__title">{title}</span>
       <span class="blog-card__excerpt">{description}</span>
       <span class="blog-card__more">
-        {lang === 'ar' ? 'اقرأ المقال' : 'Read more'} <Icon name="arrow-right" weight="bold" />
+        {ui(lang).readArticle} <Icon name="arrow-right" weight="bold" />
       </span>
     </span>
   </a>

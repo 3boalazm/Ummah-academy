@@ -2,7 +2,8 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import type { Track } from '@/data/tracks';
-import { ui, lp, price, type Lang } from '@/i18n';
+import { lp, price, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 interface Props {
   track: Track;
   lang?: Lang;

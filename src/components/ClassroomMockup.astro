@@ -1,14 +1,14 @@
 ---
 import Icon from './Icon.astro';
 import type { Lang } from '@/i18n';
+import { copy } from '@/locales';
 /** A live 1-on-1 session rendered in HTML/CSS (crisp at any size, no stock photo). */
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const L = lang === 'ar'
-  ? { aria: 'رسم توضيحي لحصة قرآن مباشرة فردية مع سبورة تفاعلية', title: 'التجويد · المستوى ٢ · مباشر', t1: 'تفخيم', t2: 'مدّ عارض', t3: 'المعلمة تكتب على السبورة', teacher: 'المعلمة', you: 'أنت', reciting: 'يقرأ الآن…' }
-  : { aria: 'Illustration of a live 1-on-1 Quran session with an interactive smart board', title: 'Tajweed · Level 2 · Live', t1: 'Tafkhim', t2: 'Madd ʿĀriḍ', t3: 'Teacher annotating', teacher: 'Ustadha · Teacher', you: 'You', reciting: 'Reciting…' };
+const COPY = copy(lang).mockup;
+const L = COPY.L;
 ---
 
 <div class="classroom glass" role="img" aria-label={L.aria}>

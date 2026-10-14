@@ -2,6 +2,7 @@
 import Icon from './Icon.astro';
 import { teacherById, type Testimonial } from '@/data/people';
 import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 interface Props {
   t: Testimonial;
   lang?: Lang;
@@ -13,7 +14,7 @@ const teacher = showTeacher && t.teacher ? teacherById(t.teacher, lang) : undefi
 ---
 
 <figure class="tcard glass">
-  <div class="tcard__stars" role="img" aria-label={lang === 'ar' ? 'تقييم ٥ من ٥' : '5 out of 5 stars'}>
+  <div class="tcard__stars" role="img" aria-label={ui(lang).stars}>
     {Array.from({ length: 5 }).map(() => <Icon name="star" weight="fill" />)}
   </div>
   <blockquote>
@@ -31,7 +32,7 @@ const teacher = showTeacher && t.teacher ? teacherById(t.teacher, lang) : undefi
       {
         teacher && (
           <a class="tcard__teacher" href={lp(lang, `/teachers/${t.teacher}/`)}>
-            {lang === 'ar' ? `مع ${teacher.name}` : `with ${teacher.name}`}
+            {ui(lang).withTeacher(teacher.name)}
           </a>
         )
       }

@@ -1,0 +1,20 @@
+---
+import Article from '@/views/Article.astro';
+import { postsIn, clusterOf, neighbours } from '@/data/blog';
+import { PREFIXED } from '@/i18n';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const locale of PREFIXED) {
+    const list = await postsIn(locale);
+    for (const [i, post] of list.entries()) {
+      paths.push({ params: { locale, slug: post.slug }, props: { post, ...neighbours(list, i), alternates: await clusterOf(post) } });
+    }
+  }
+  return paths;
+}
+
+const { post, prev, next, alternates } = Astro.props;
+---
+
+<Article lang={post.lang} post={post} prev={prev} next={next} alternates={alternates} />

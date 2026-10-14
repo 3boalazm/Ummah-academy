@@ -1,25 +1,14 @@
 ---
 /** Visualises an Ijazah chain of transmission (Sanad). */
 import type { Lang } from '@/i18n';
+import { copy } from '@/locales';
 interface Props {
   dark?: boolean;
   lang?: Lang;
 }
 const { dark = false, lang = 'en' } = Astro.props;
-const nodes =
-  lang === 'ar'
-    ? [
-        { label: 'أنت', sub: 'الطالب' },
-        { label: 'معلمك', sub: 'حامل الإجازة' },
-        { label: 'شيخه', sub: 'جيلًا بعد جيل…' },
-        { label: 'النبي ﷺ', sub: 'مصدر التلاوة' },
-      ]
-    : [
-        { label: 'You', sub: 'The student' },
-        { label: 'Your teacher', sub: 'Ijazah holder' },
-        { label: 'Their teacher', sub: 'generation after generation…' },
-        { label: 'The Prophet ﷺ', sub: 'Source of the recitation' },
-      ];
+const COPY = copy(lang).sanad;
+const nodes = COPY.nodes;
 ---
 
 <ol role="list" class:list={['sanad', { 'sanad--dark': dark }]} aria-label={lang === 'ar' ? 'سلسلة السند' : 'Chain of transmission'}>

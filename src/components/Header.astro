@@ -2,19 +2,20 @@
 import { Image } from 'astro:assets';
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
+import LangMenu from './LangMenu.astro';
 import { portalLinks, waLink } from '@/data/site';
 import { getTracks } from '@/data/tracks';
-import { ui, lp, counterpart, basePath, price, type Lang, type LangSwitch } from '@/i18n';
+import { lp, basePath, price, type Lang, type LangTarget } from '@/i18n';
+import { ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
-  switchTo?: LangSwitch;
+  targets: LangTarget[];
 }
-const { lang = 'en', switchTo } = Astro.props;
+const { lang = 'en', targets } = Astro.props;
 const t = ui(lang);
 const tracks = getTracks(lang);
 const path = basePath(Astro.url.pathname);
-const other = counterpart(Astro.url.pathname, switchTo);
 const courseRoutes = ['/courses/', ...tracks.map((tr) => tr.href)];
 const coursesActive = courseRoutes.some((r) => path.startsWith(r));
 const links = [
@@ -28,11 +29,11 @@ const isActive = (href: string) => path.startsWith(href);
 
 <header class="site-header" data-header>
   <div class="site-header__bar glass">
-    <a class="site-header__brand" href={lp(lang, '/')} aria-label={lang === 'ar' ? 'أكاديمية الأمة — الرئيسية' : 'Ummah Academy — home'}>
+    <a class="site-header__brand" href={lp(lang, '/')} aria-label={t.homeLabel}>
       <Logo lang={lang} />
     </a>
 
-    <nav class="nav hide-mobile" aria-label={lang === 'ar' ? 'القائمة الرئيسية' : 'Primary'}>
+    <nav class="nav hide-mobile" aria-label={t.primaryNav}>
       <ul role="list" class="nav__list">
         <li class="nav__item nav__item--mega" data-mega>
           <button class:list={['nav__link', { 'is-active': coursesActive }]} type="button" aria-expanded="false" aria-controls="mega-courses" data-mega-toggle>
@@ -87,10 +88,7 @@ const isActive = (href: string) => path.startsWith(href);
     </nav>
 
     <div class="site-header__actions">
-      <a class="lang-switch" href={other.href} hreflang={other.lang} lang={other.lang} aria-label={t.langSwitchLabel} data-lang-switch={other.lang}>
-        <Icon name="translate" weight="bold" />
-        <span>{t.langSwitch}</span>
-      </a>
+      <LangMenu lang={lang} targets={targets} />
       <a class="nav__signin hide-mobile" href={portalLinks.login}>{t.signIn}</a>
       <a class="btn btn--sm btn--primary" href={lp(lang, '/contact/') + '#book'} data-track="header">
         <span class="hide-mobile">{t.bookTrial}</span><span class="hide-desktop">{t.bookTrialShort}</span>
@@ -101,7 +99,7 @@ const isActive = (href: string) => path.startsWith(href);
     </div>
   </div>
 
-  <dialog class="mobile-menu" aria-label={lang === 'ar' ? 'القائمة' : 'Menu'} data-menu>
+  <dialog class="mobile-menu" aria-label={t.menu} data-menu>
     <div class="mobile-menu__sheet glass glass--strong">
       <div class="mobile-menu__top">
         <Logo lang={lang} />
@@ -138,9 +136,9 @@ const isActive = (href: string) => path.startsWith(href);
         <a class="btn btn--glass btn--block" href={waLink()} target="_blank" rel="noopener">
           <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {t.whatsapp}
         </a>
+        <LangMenu lang={lang} targets={targets} variant="sheet" />
         <div class="mobile-menu__foot">
           <a href={portalLinks.login}>{t.signIn}</a>
-          <a href={other.href} hreflang={other.lang} lang={other.lang}>{t.langSwitch}</a>
         </div>
       </div>
     </div>
@@ -249,38 +247,6 @@ const isActive = (href: string) => path.startsWith(href);
   @media (min-width: 860px) {
     .site-header__actions {
       margin-inline-start: 0;
-    }
-  }
-
-  .lang-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 40px;
-    padding: 0 12px;
-    border-radius: var(--r-pill);
-    color: var(--ink-2);
-    font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
-    font-size: 0.92rem;
-    font-weight: 600;
-    text-decoration: none;
-    background: rgb(255 255 255 / 0.6);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
-  }
-
-  .lang-switch:hover {
-    color: var(--ink);
-    background: #fff;
-  }
-
-  .lang-switch :global(svg) {
-    width: 16px;
-    height: 16px;
-  }
-
-  @media (max-width: 420px) {
-    .lang-switch span {
-      display: none;
     }
   }
 
@@ -618,8 +584,14 @@ const isActive = (href: string) => path.startsWith(href);
       height: 40px;
     }
 
-    .lang-switch {
-      padding: 0 10px;
+    .site-header__actions :global(.langmenu__btn) {
+      padding: 0 8px 0 10px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .site-header__actions :global(.langmenu__caret) {
+      display: none;
     }
   }
 

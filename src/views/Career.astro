@@ -8,115 +8,15 @@ import Icon from '@/components/Icon.astro';
 import art from '@/assets/art/track-arabic.jpg';
 import { SITE, waLink } from '@/data/site';
 import type { Lang } from '@/i18n';
+import { copy } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
-const C = ar
-  ? {
-      meta: { title: 'وظائف تدريس أونلاين لخريجي الأزهر | أكاديمية الأمة', desc: 'خريج أزهري تحمل إجازة؟ علّم القرآن والعربية والدراسات الإسلامية لأسر في أكثر من ٥٠ دولة — بمواعيد مرنة ودعم إداري كامل وطلاب منتظمين.' },
-      eyebrow: 'انضم إلى فريق التدريس',
-      title: 'علّم <span class="accent">الأمة</span> من بيتك.',
-      lede: 'هل أنت خريج أزهري تحمل إجازة؟ انضم إلى أسرة من العلماء يغيّرون حياة مسلمين في أكثر من ٥٠ دولة.',
-      apply: 'قدّم الآن',
-      ask: 'اسأل عبر واتساب',
-      askMsg: 'السلام عليكم، لدي سؤال عن التدريس في أكاديمية الأمة.',
-      whyTitle: 'لماذا تدرّس معنا؟',
-      why: [
-        { icon: 'coins', title: 'دخل ثابت', text: 'دخل شهري منتظم من بيتك — بلا تنقّل ولا تقلبات العمل الحر.' },
-        { icon: 'globe-hemisphere-west', title: 'طلاب من العالم', text: 'أسر مسلمة من بريطانيا وأمريكا وكندا وأستراليا وألمانيا وغيرها.' },
-        { icon: 'calendar-dots', title: 'مواعيد مرنة', text: 'حدّد ساعاتك وأيامك — دوام كامل أو جزئي.' },
-        { icon: 'lifebuoy', title: 'دعم إداري كامل', text: 'نتولى الجدولة والتحصيل والدعم الفني، وتتفرغ أنت للتدريس.' },
-        { icon: 'trend-up', title: 'تطوّر مهني', text: 'مراجعات أداء شهرية وفرص لقيادة برامج متخصصة.' },
-        { icon: 'medal', title: 'منصة تقدّر علمك', text: 'مؤهلاتك وإجازتك معروضة بوضوح — لتبني سمعتك عالميًا.' },
-      ],
-      reqTitle: 'ما الذي نبحث عنه',
-      reqs: [
-        { icon: 'mosque', title: 'خريج أزهري', text: 'شهادة موثّقة من إحدى كليات الأزهر ذات الصلة.' },
-        { icon: 'scroll', title: 'إجازة سارية', text: 'إجازة موثّقة بسند متصل.' },
-        { icon: 'translate', title: 'إنجليزية جيدة', text: 'القدرة على شرح المفاهيم بالإنجليزية لطلاب الغرب.' },
-        { icon: 'wifi-high', title: 'إنترنت مستقر', text: 'اتصال جيد ومكان هادئ ومهارات حاسوب أساسية.' },
-        { icon: 'heart', title: 'شغف بالتعليم', text: 'حب حقيقي للتدريس — خاصة للمبتدئين والأطفال.' },
-      ],
-      rolesTitle: 'الوظائف المتاحة',
-      roles: [['متخصص تجويد', 'المستويات الثلاثة · إجازة مطلوبة'], ['معلم تحفيظ', 'حافظ للقرآن كاملًا · إجازة مطلوبة'], ['معلم لغة عربية', 'نور البيان والنحو والمحادثة'], ['معلم/ة أشبال الأمة', 'خبرة في تعليم الأطفال · نرحب بالمعلمات'], ['معلم دراسات إسلامية', 'عقيدة وفقه وتفسير وسيرة']],
-      processTitle: 'خطوات التقديم',
-      processLede: 'نراجع أغلب الطلبات خلال ٧٢ ساعة، ويبدأ المقبولون خلال أسبوعين.',
-      process: [
-        { icon: 'note-pencil', title: 'قدّم طلبك', text: 'املأ النموذج بمؤهلاتك وتفاصيل إجازتك وتخصصك.' },
-        { icon: 'scroll', title: 'التحقق من المؤهلات', text: 'نتحقق من شهادتك الأزهرية وإجازتك خلال ٤٨–٧٢ ساعة.' },
-        { icon: 'video-camera', title: 'حصة تقييمية', text: 'عرض مباشر قصير يحضره كبار المعلمين لتقييم الأسلوب والدقة.' },
-        { icon: 'rocket-launch', title: 'أهلًا بك!', text: 'نطابقك مع الطلاب، وندرّبك على المنصة، وتبدأ خلال أسبوعين.' },
-      ],
-      formTitle: 'نموذج التقديم',
-      formLede: 'سيراجع المنسق طلبك ويتواصل معك خلال ٧٢ ساعة.',
-      f: { name: 'الاسم الكامل', email: 'البريد الإلكتروني', wa: 'رقم واتساب', country: 'الدولة', faculty: 'الكلية الأزهرية', year: 'سنة التخرج', ijazah: 'الإجازة', exp: 'سنوات الخبرة', spec: 'التخصص', eng: 'مستوى الإنجليزية', msg: 'رسالة (اختياري)', select: 'اختر…' },
-      faculties: ['كلية الشريعة والقانون', 'كلية اللغة العربية', 'كلية القرآن الكريم', 'كلية الدراسات الإسلامية', 'كلية التربية', 'أخرى'],
-      ijazahs: ['نعم — حفص عن عاصم', 'نعم — رواية أخرى', 'لا — عربية/دراسات إسلامية فقط'],
-      exps: ['٠–٢ سنوات', '٢–٥ سنوات', '٥–١٠ سنوات', 'أكثر من ١٠ سنوات'],
-      specs: ['التجويد', 'التحفيظ', 'برنامج الإجازة', 'نور البيان', 'النحو', 'المحادثة', 'الدراسات الإسلامية', 'الأطفال (أشبال الأمة)', 'أكثر من تخصص'],
-      engs: ['ممتاز', 'جيد', 'مبتدئ', 'العربية فقط'],
-      attach: 'السيرة الذاتية والإجازة والشهادة: أرفقها في البريد الذي سيُفتح بعد الإرسال (PDF أو JPG أو PNG).',
-      byEmail: 'أرسل عبر البريد',
-      byWa: 'أرسل عبر واتساب',
-      err: 'هذا الحقل مطلوب.',
-      subject: 'طلب انضمام كمعلم',
-      head: 'طلب انضمام كمعلم — أكاديمية الأمة',
-      attachNote: '(برجاء إرفاق السيرة الذاتية والإجازة والشهادة الأزهرية.)',
-    }
-  : {
-      meta: { title: 'Online Teaching Jobs for Al-Azhar Graduates | Ummah Academy Careers', desc: 'Al-Azhar graduate with an Ijazah? Teach Qur’an, Arabic and Islamic Studies to families in 50+ countries — flexible hours, full admin support, steady students.' },
-      eyebrow: 'Teach with us',
-      title: 'Teach the <span class="accent">Ummah</span> from home.',
-      lede: 'Are you an Al-Azhar graduate with an Ijazah? Join a family of scholars changing lives for Muslims in 50+ countries.',
-      apply: 'Apply now',
-      ask: 'Ask on WhatsApp',
-      askMsg: 'Assalamu alaikum, I have a question about teaching at Ummah Academy.',
-      whyTitle: 'Why teach with us',
-      why: [
-        { icon: 'coins', title: 'Steady income', text: 'A consistent monthly income from home — no commuting, no freelance uncertainty.' },
-        { icon: 'globe-hemisphere-west', title: 'Students worldwide', text: 'Muslim families from the UK, USA, Canada, Australia, Germany and beyond.' },
-        { icon: 'calendar-dots', title: 'Flexible schedule', text: 'Set your own hours and days — full-time or part-time.' },
-        { icon: 'lifebuoy', title: 'Full admin support', text: 'We handle scheduling, billing and tech support; you focus on teaching.' },
-        { icon: 'trend-up', title: 'Professional growth', text: 'Monthly performance reviews and chances to lead specialised programmes.' },
-        { icon: 'medal', title: 'A platform that values you', text: 'Your credentials and Ijazah featured prominently — building your reputation globally.' },
-      ],
-      reqTitle: 'What we look for',
-      reqs: [
-        { icon: 'mosque', title: 'Al-Azhar graduate', text: 'A verified degree from a relevant Al-Azhar faculty.' },
-        { icon: 'scroll', title: 'Valid Ijazah', text: 'A documented Ijazah with chain of transmission.' },
-        { icon: 'translate', title: 'Good English', text: 'Able to explain concepts in English for Western students.' },
-        { icon: 'wifi-high', title: 'Stable internet', text: 'A reliable connection, a quiet space and basic computer skills.' },
-        { icon: 'heart', title: 'Love of teaching', text: 'Genuine joy in teaching — especially beginners and children.' },
-      ],
-      rolesTitle: 'Open positions',
-      roles: [['Tajweed Specialist', 'All 3 levels · Ijazah required'], ['Hifz Teacher', 'Full Qur’an Hafiz · Ijazah required'], ['Arabic Language Teacher', 'Noor Al-Bayan, grammar, conversation'], ['Ummah Cubs Teacher', 'Child education background · female teachers welcome'], ['Islamic Studies Teacher', 'Aqeedah, Fiqh, Tafseer, Seerah']],
-      processTitle: 'How applying works',
-      processLede: 'Most applications are reviewed within 72 hours; successful candidates start within 2 weeks.',
-      process: [
-        { icon: 'note-pencil', title: 'Apply', text: 'Share your credentials, Ijazah details and specialisation.' },
-        { icon: 'scroll', title: 'Credential check', text: 'We verify your Al-Azhar degree and Ijazah — 48–72 hours.' },
-        { icon: 'video-camera', title: 'Teaching audit', text: 'A short live demo observed by senior scholars for method and accuracy.' },
-        { icon: 'rocket-launch', title: 'Welcome aboard', text: 'Student matching, platform training and first lessons within 2 weeks.' },
-      ],
-      formTitle: 'Teacher application',
-      formLede: 'Our coordinator will review it and contact you within 72 hours.',
-      f: { name: 'Full name', email: 'Email', wa: 'WhatsApp', country: 'Country', faculty: 'Al-Azhar faculty', year: 'Graduation year', ijazah: 'Ijazah', exp: 'Experience', spec: 'Specialisation', eng: 'English level', msg: 'Message (optional)', select: 'Select…' },
-      faculties: ['Faculty of Sharia & Law', 'Faculty of Arabic Language', 'Faculty of Qur’an Sciences', 'Faculty of Islamic Studies', 'Faculty of Education', 'Other'],
-      ijazahs: ['Yes — Hafs ’an ’Asim', 'Yes — other riwayah', 'No — Arabic / Islamic Studies only'],
-      exps: ['0–2 years', '2–5 years', '5–10 years', '10+ years'],
-      specs: ['Tajweed', 'Qur’an memorisation', 'Ijazah programme', 'Noor Al-Bayan', 'Arabic grammar', 'Arabic conversation', 'Islamic Studies', 'Kids (Ummah Cubs)', 'Multiple'],
-      engs: ['Fluent', 'Good', 'Basic', 'Arabic only'],
-      attach: 'CV, Ijazah and degree: attach them to the email that opens after you submit (PDF, JPG or PNG).',
-      byEmail: 'Submit by email',
-      byWa: 'Submit on WhatsApp',
-      err: 'This field is required.',
-      subject: 'Teacher application',
-      head: 'Teacher application — Ummah Academy',
-      attachNote: '(Please attach your CV, Ijazah and Al-Azhar degree.)',
-    };
+const COPY = copy(lang).career;
+const C = COPY.C;
 const fields: { id: string; label: string; type?: string; options?: string[] }[] = [
   { id: 'name', label: C.f.name },
   { id: 'email', label: C.f.email, type: 'email' },

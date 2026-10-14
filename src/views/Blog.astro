@@ -1,64 +1,35 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHero from '@/components/PageHero.astro';
 import SectionHead from '@/components/SectionHead.astro';
 import BlogCard from '@/components/BlogCard.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import { SITE } from '@/data/site';
+import { postsIn, type Post } from '@/data/blog';
 import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
-const byDate = <T extends { data: { date: Date } }>(a: T, b: T) => b.data.date.getTime() - a.data.date.getTime();
-const posts = (await getCollection('blog')).sort(byDate);
-const arPosts = (await getCollection('blogAr')).sort(byDate);
+const posts = await postsIn('en');
+const arPosts = ar ? await postsIn('ar') : [];
+// German/French/Italian: the translated library (falls back to English while a locale is incomplete)
+const own = lang === 'en' || ar ? posts : await postsIn(lang);
+const grid: Post[] = own.length ? own : posts;
+// German/French/Italian posts keep the English category key → localised label (foreign-language cards stay as written)
+const label = (p: Post) => (p.lang === 'ar' || p.lang !== lang ? p.entry.data.category : ((C.categories as Record<string, string>)[p.entry.data.category] ?? p.entry.data.category));
 
-const C = ar
-  ? {
-      meta: { title: 'المدونة — معرفة إسلامية عملية للأسرة | أكاديمية الأمة', desc: 'مقالات عملية بالعربية عن تعليم القرآن والتجويد والحفظ والإجازة، كُتبت للأسر المسلمة في الغربة، إلى جانب مكتبتنا الإنجليزية كاملة.' },
-      eyebrow: 'المدونة',
-      title: 'معرفة <span class="accent">عملية</span> للأسرة المسلمة',
-      lede: 'مقالات بالعربية كُتبت للأسر المسلمة خارج البلاد العربية، ثم مكتبتنا الإنجليزية كاملة لمن يقرأ بها هو أو أبناؤه.',
-      arHead: { eyebrow: 'بالعربية', title: 'أحدث <span class="accent">المقالات</span>', lede: 'دليلك العملي لاختيار المعلم، وتحفيظ الأطفال، وفهم الإجازة والسند.' },
-      enHead: { eyebrow: 'المكتبة الإنجليزية', title: 'مقالات <span class="accent">بالإنجليزية</span>', lede: 'أكثر من ١٩ مقالًا مفصّلًا. مناسبة لأبنائك الذين يقرؤون بالإنجليزية، أو لمشاركتها مع أصدقائك.' },
-      filtersLabel: 'تصفية المقالات حسب الموضوع',
-      filters: [
-        { key: 'all', label: 'الكل' },
-        { key: 'quran', label: 'القرآن' },
-        { key: 'arabic', label: 'العربية' },
-        { key: 'kids', label: 'الأطفال والأسرة' },
-        { key: 'islamic', label: 'الدراسات الإسلامية' },
-        { key: 'general', label: 'البداية' },
-      ],
-      empty: 'لا توجد مقالات في هذا الموضوع بعد.',
-      cta: { eyebrow: 'الخطوة التالية', title: 'القراءة بداية — <span class="accent">والتلقّي تمام.</span>', lede: 'طبّق ما قرأته مع معلم مُجاز. أول حصتين مجانًا، بدون بطاقة دفع.', label: 'احجز حصتين مجانًا' },
-    }
-  : {
-      meta: { title: 'Blog — Practical Islamic Knowledge | Ummah Academy', desc: 'Clear, practical guides on Quran, Tajweed, Hifz, Arabic and Islamic studies — for students and parents alike.' },
-      eyebrow: 'From the Blog',
-      title: 'Practical Islamic Knowledge for the <span class="accent">Modern Muslim</span>',
-      lede: 'Qur’an, Arabic, and Islamic studies — explained clearly, for students and parents alike.',
-      filtersLabel: 'Filter articles',
-      filters: [
-        { key: 'all', label: 'All' },
-        { key: 'quran', label: 'Qur’an' },
-        { key: 'arabic', label: 'Arabic' },
-        { key: 'kids', label: 'Kids & Parents' },
-        { key: 'islamic', label: 'Islamic Studies' },
-        { key: 'general', label: 'Getting Started' },
-      ],
-      empty: 'No articles in this topic yet.',
-    };
+const COPY = copy(lang).blog;
+const C = COPY.C;
 
-const listed = ar ? arPosts.map((p) => ({ url: `/ar/blog/${p.id}/`, title: p.data.title, date: p.data.date })) : posts.map((p) => ({ url: `/${p.id}/`, title: p.data.title, date: p.data.date }));
+const listed = (ar ? arPosts : grid).map((p) => ({ url: p.url, title: p.entry.data.title, date: p.entry.data.date }));
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'Blog',
-  name: ar ? 'مدونة أكاديمية الأمة' : 'Ummah Academy Blog',
+  name: C.ldName,
   url: new URL(lp(lang, '/blog/'), SITE.url).href,
   blogPost: listed.slice(0, 12).map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: new URL(p.url, SITE.url).href, datePublished: p.date.toISOString() })),
 };
@@ -74,7 +45,7 @@ const ld = {
           <SectionHead id="ar-posts" eyebrow={C.arHead.eyebrow} title={C.arHead.title} lede={C.arHead.lede} />
           <ul role="list" class="blog-grid">
             {arPosts.map((p, i) => (
-              <BlogCard href={`/ar/blog/${p.id}/`} title={p.data.title} description={p.data.description} category={p.data.category} date={p.data.date} track={p.data.track} lang="ar" pageLang="ar" lead={i === 0 && (arPosts.length + 1) % 3 === 0} />
+              <BlogCard href={p.url} title={p.entry.data.title} description={p.entry.data.description} category={p.entry.data.category} date={p.entry.data.date} track={p.entry.data.track} lang="ar" pageLang="ar" lead={i === 0 && (arPosts.length + 1) % 3 === 0} />
             ))}
           </ul>
         </div>
@@ -89,7 +60,7 @@ const ld = {
         {C.filters.map((f, i) => <button type="button" class:list={['blog-filter', { 'is-active': i === 0 }]} data-filter={f.key} aria-pressed={i === 0 ? 'true' : 'false'}>{f.label}</button>)}
       </div>
       <ul role="list" class="blog-grid" data-blog-grid>
-        {posts.map((p, i) => <BlogCard href={`/${p.id}/`} title={p.data.title} description={p.data.description} category={p.data.category} date={p.data.date} track={p.data.track} lang="en" pageLang={lang} lead={!ar && i === 0} />)}
+        {grid.map((p, i) => <BlogCard href={p.url} title={p.entry.data.title} description={p.entry.data.description} category={label(p)} date={p.entry.data.date} track={p.entry.data.track} lang={p.lang} pageLang={lang} lead={!ar && i === 0} />)}
       </ul>
       <p class="blog-empty muted" hidden data-blog-empty>{C.empty}</p>
     </div>

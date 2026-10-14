@@ -1,27 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
 import Article from '@/views/Article.astro';
+import { postsIn, clusterOf, neighbours } from '@/data/blog';
 
+// English articles live at the site root — exactly like the WordPress permalinks.
 export async function getStaticPaths() {
-  const posts = (await getCollection('blog')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-  const arPosts = await getCollection('blogAr');
-  return posts.map((post, i) => {
-    const prev = posts[i + 1];
-    const next = posts[i - 1];
-    const twin = arPosts.find((a) => a.data.translationOf === post.id);
-    return {
-      params: { slug: post.id },
-      props: {
-        post,
-        prev: prev ? { href: `/${prev.id}/`, title: prev.data.title } : null,
-        next: next ? { href: `/${next.id}/`, title: next.data.title } : null,
-        alternates: twin ? { en: `/${post.id}/`, ar: `/ar/blog/${twin.id}/` } : undefined,
-      },
-    };
-  });
+  const list = await postsIn('en');
+  return Promise.all(list.map(async (post, i) => ({ params: { slug: post.slug }, props: { post, ...neighbours(list, i), alternates: await clusterOf(post) } })));
 }
 
 const { post, prev, next, alternates } = Astro.props;
 ---
 
-<Article lang="en" entry={post} path={`/${post.id}/`} prev={prev} next={next} alternates={alternates} switchTo={{ lang: 'ar', href: '/ar/blog/' }} exclude={[post.id, ...(alternates ? [`ar:${alternates.ar.split('/').at(-2)}`] : [])]} />
+<Article lang="en" post={post} prev={prev} next={next} alternates={alternates} />

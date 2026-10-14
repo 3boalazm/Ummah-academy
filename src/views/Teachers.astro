@@ -9,7 +9,8 @@ import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import art from '@/assets/art/track-islamic.jpg';
 import { getTeachers } from '@/data/people';
-import { ui, lp, type Lang } from '@/i18n';
+import { lp, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
@@ -18,79 +19,8 @@ const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
 const t = ui(lang);
 const teachers = getTeachers(lang);
-const C = ar
-  ? {
-      meta: { title: 'معلمونا — علماء من الأزهر بإجازة موثّقة | أكاديمية الأمة', desc: 'تعرّف على معلمينا من خريجي الأزهر حاملي الإجازة، وكيف نختارهم عبر أربع مراحل تحقق تشمل السند وحصة تدريسية مباشرة.' },
-      crumb: 'المعلمون',
-      eyebrow: 'معلمونا',
-      title: 'علماء <span class="accent">ساروا في هذا الطريق.</span>',
-      lede: 'كل معلم لدينا خريج من الأزهر يحمل إجازة موثّقة — اخترناه للعلم، ولما يتطلبه تعليم القرآن من صبر ودفء أيضًا.',
-      how: 'كيف نختار المعلمين',
-      chips: ['خريجو الأزهر', 'إجازة وسند موثّقان', 'معلمات متاحات', 'العربية والإنجليزية'],
-      badgeA: ['موثّقة', 'إجازة بسند'],
-      badgeB: ['الأزهر', 'خريجو الكليات'],
-      sanadKicker: 'السند',
-      sanadTitle: 'ماذا تعني «الإجازة» حقًا؟',
-      sanadText: 'الإجازة إذنٌ رسمي بتعليم تلاوة القرآن، يحمل سلسلة موثّقة من المعلمين — كل معلم أخذ عن شيخه — حتى النبي ﷺ. إنها ليست شهادة حضور، بل مكان مُتحقَّق منه في هذه السلسلة.',
-      sanadNote: 'نتحقق من سند كل معلم مباشرة، ولا نكتفي بقوله.',
-      leadsTitle: 'تعرّف على رؤساء الأقسام',
-      leadsLede: 'العلماء الذين يقودون برامج التجويد والعربية وأشبال الأمة.',
-      processTitle: 'كيف يحصل المعلم على مكانه عندنا',
-      processLede: 'طريق ضيق عن قصد — وأغلب المتقدمين لا يجتازونه.',
-      process: [
-        { icon: 'files', title: 'مراجعة الطلب', text: 'نتحقق من المؤهلات والانتساب للأزهر قبل تحديد أي مقابلة.' },
-        { icon: 'scroll', title: 'التحقق من الإجازة والسند', text: 'نراجع سلسلة السند مباشرة، لا نأخذها بالكلام.' },
-        { icon: 'chalkboard-teacher', title: 'حصة تدريسية مباشرة', text: 'العلم وحده لا يكفي — يقدم المتقدم حصة حقيقية قبل اعتماده.' },
-        { icon: 'chart-line-up', title: 'تقييم مستمر', text: 'لا تتوقف المعايير عند التعيين — تُراجع جودة التدريس باستمرار.' },
-      ],
-      result: 'النتيجة: كل معلم ستقابله اجتاز المعايير الأربعة نفسها — بلا استثناء.',
-      principlesTitle: 'كيف ندرّس',
-      principles: [
-        ['طالب واحد في كل مرة', 'تسير الدروس بسرعة الطالب، لا وفق موعد منهج لا يخصه.'],
-        ['الإتقان قبل السرعة', 'التجويد الصحيح أولًا، والطلاقة والثقة تأتيان بعد أن يستقيم الأساس.'],
-        ['مناهج معتمدة', 'نور البيان والقاعدة النورانية والآجرومية — متون مجرّبة لا خطط مرتجلة.'],
-      ],
-      quote: '«طلب العلم سيرٌ إلى الله — وكلما ازداد العلم ازداد الإيمان.»',
-      quoteBy: 'الأستاذة أمنية علي، رئيسة قسم التجويد',
-      ctaTitle: 'تعلّم على يد <span class="accent">عالِم معتمد.</span>',
-      ctaLede: 'احجز حصتين مجانيتين، ونختار لك المعلم المناسب لهدفك.',
-    }
-  : {
-      meta: { title: 'Al-Azhar Certified Online Quran Teachers | Ummah Academy', desc: 'Meet our Al-Azhar graduate, Ijazah-holding teachers and see how we choose them: a four-stage process including Sanad verification and a live teaching demo.' },
-      crumb: 'Teachers',
-      eyebrow: 'Our teachers',
-      title: 'Scholars who’ve <span class="accent">walked this path.</span>',
-      lede: 'Every teacher is an Al-Azhar graduate with a verified Ijazah — chosen not only for scholarship, but for the patience and warmth it takes to teach the Qur’an well.',
-      how: 'How we choose teachers',
-      chips: ['Al-Azhar graduates', 'Ijazah & Sanad verified', 'Female teachers available', 'Arabic & English'],
-      badgeA: ['Verified', 'Ijazah with Sanad'],
-      badgeB: ['Al-Azhar', 'Faculty graduates'],
-      sanadKicker: 'The Sanad',
-      sanadTitle: 'What “Ijazah” really means',
-      sanadText: 'An Ijazah is formal authorisation to teach Qur’anic recitation, carrying a documented chain of teachers — each taught by the one before — back to the Prophet ﷺ. Not a certificate of attendance: a verified place in that chain.',
-      sanadNote: 'We check every teacher’s chain directly — never on their word alone.',
-      leadsTitle: 'Meet our department leads',
-      leadsLede: 'The scholars who lead our Tajweed, Arabic and Ummah Cubs programmes.',
-      processTitle: 'How a teacher earns a place here',
-      processLede: 'A deliberately narrow path — most applicants don’t make it through.',
-      process: [
-        { icon: 'files', title: 'Application review', text: 'Credentials and Al-Azhar affiliation are verified before any interview.' },
-        { icon: 'scroll', title: 'Ijazah & Sanad verification', text: 'Each teacher’s chain of transmission is checked directly, not taken on trust.' },
-        { icon: 'chalkboard-teacher', title: 'Live teaching demonstration', text: 'Knowledge isn’t enough — candidates teach a real lesson before approval.' },
-        { icon: 'chart-line-up', title: 'Ongoing evaluation', text: 'Standards don’t stop at hiring — teaching quality is reviewed continuously.' },
-      ],
-      result: 'The result: every teacher you meet has passed the same four-stage standard — no exceptions.',
-      principlesTitle: 'How we teach',
-      principles: [
-        ['One student at a time', 'Lessons move at the student’s pace, never rushed toward a deadline that isn’t theirs.'],
-        ['Precision before speed', 'Correct Tajweed first; fluency and confidence follow once the foundation is right.'],
-        ['Approved curricula', 'Noor Al-Bayan, Al-Qaida Al-Nooraniyyah and Al-Ajrumiyyah — proven texts, not improvised plans.'],
-      ],
-      quote: '“Seeking knowledge is a pursuit towards Allah — and as knowledge grows, faith increases.”',
-      quoteBy: 'Ustadha Omneya Ali, Head of Tajweed',
-      ctaTitle: 'Learn from a <span class="accent">certified scholar.</span>',
-      ctaLede: 'Book two free sessions and we’ll match you with the right teacher for your goal.',
-    };
+const COPY = copy(lang).teachers;
+const C = COPY.C;
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>

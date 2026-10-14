@@ -7,6 +7,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: 'Ummah Academy — Blog',
     description: 'Practical guides on Quran, Tajweed, Hifz, Arabic and Islamic studies.',
+    customData: '<language>en</language>',
     site: context.site ?? 'https://ummahacademy.net',
     items: posts.map((p) => ({
       title: p.data.title,

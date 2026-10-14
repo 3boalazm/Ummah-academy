@@ -1,6 +1,5 @@
 ---
 import { render } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import PostCover from '@/components/PostCover.astro';
@@ -8,7 +7,9 @@ import RelatedPosts from '@/components/RelatedPosts.astro';
 import Icon from '@/components/Icon.astro';
 import { trackById, type TrackId } from '@/data/tracks';
 import { SITE, trialLink } from '@/data/site';
-import { lp, num, type Lang, type Alternates, type LangSwitch } from '@/i18n';
+import type { Post } from '@/data/blog';
+import { LANGS, LOCALE, lp, fmtDate, type Lang, type Alternates } from '@/i18n';
+import { copy, ui } from '@/locales';
 
 interface Link {
   href: string;
@@ -16,29 +17,27 @@ interface Link {
 }
 interface Props {
   lang: Lang;
-  entry: CollectionEntry<'blog'> | CollectionEntry<'blogAr'>;
-  /** canonical path of this article */
-  path: string;
+  post: Post;
   prev: Link | null;
   next: Link | null;
+  /** full translation cluster (undefined when the article exists in one language only) */
   alternates?: Alternates;
-  switchTo?: LangSwitch;
-  /** ids for RelatedPosts to skip (Arabic ids prefixed `ar:`) */
-  exclude: string[];
 }
-const { lang, entry, path, prev, next, alternates, switchTo, exclude } = Astro.props;
-const ar = lang === 'ar';
+const { lang, post, prev, next, alternates } = Astro.props;
+const entry = post.entry;
+const path = post.url;
 const d = entry.data;
 const { Content } = await render(entry);
+const COPY = copy(lang).article;
+const L = COPY.L;
 const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
-const minutes = Math.max(2, Math.round(words / (ar ? 170 : 220)));
-const fmt = (date: Date) => date.toLocaleDateString(ar ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const minutes = Math.max(2, Math.round(words / COPY.wpm));
 const track = d.track !== 'general' ? trackById(d.track as TrackId, lang) : null;
-const readTime = ar ? `${num('ar', minutes)} ${minutes === 2 ? 'دقيقتان' : minutes <= 10 ? 'دقائق' : 'دقيقة'} قراءة` : `${minutes} min read`;
-const twin = alternates ? (ar ? { href: alternates.en, label: 'Read the English article', lang: 'en' } : { href: alternates.ar, label: 'اقرأ المقال بالعربية', lang: 'ar' }) : null;
-const L = ar
-  ? { blog: 'المدونة', kicker: track ? track.title : 'ابدأ التعلّم', cta: 'تعلّم هذا مع معلم حقيقي — أول حصتين مجانًا.', book: 'احجز تجربة مجانية', about: 'عن الدورة', prev: 'السابق', next: 'التالي', more: 'مقالات أخرى', start: 'ابدأ التعلّم', keep: 'تابع القراءة' }
-  : { blog: 'Blog', kicker: track ? track.title : 'Start learning', cta: 'Learn this with a real teacher — your first 2 live sessions are free.', book: 'Book free trial', about: 'About the course', prev: 'Previous', next: 'Next', more: 'More articles', start: 'Start learning', keep: 'Keep reading' };
+const readTime = COPY.readTime(minutes);
+// German/French/Italian articles keep the English category key → localised label
+const category = post.lang === 'ar' ? d.category : ((copy(lang).blog.C.categories as Record<string, string>)[d.category] ?? d.category);
+const twins = alternates ? LANGS.filter((l) => l !== lang && alternates[l]).map((l) => ({ lang: l, href: alternates[l]!, label: LOCALE[l].name })) : [];
+const exclude = [path, ...Object.values(alternates ?? {})];
 const url = new URL(path, SITE.url).href;
 const ld = {
   '@context': 'https://schema.org',
@@ -51,23 +50,36 @@ const ld = {
   publisher: { '@id': `${SITE.url}/#organization` },
   mainEntityOfPage: url,
   wordCount: words,
+  ...(alternates?.en && lang !== 'en' ? { translationOfWork: { '@id': new URL(alternates.en, SITE.url).href } } : {}),
 };
 ---
 
-<BaseLayout title={`${d.title} | ${ar ? SITE.nameAr : SITE.name}`} description={d.description} type="article" jsonLd={ld} lang={lang} alternates={alternates} switchTo={switchTo}>
+<BaseLayout title={`${d.title} | ${ui(lang).siteName}`} description={d.description} type="article" jsonLd={ld} lang={lang} alternates={alternates} fallback="/blog/">
   <article class="post">
     <header class="container--narrow post__head" data-reveal>
       <Breadcrumbs items={[{ label: L.blog, href: lp(lang, '/blog/') }, { label: d.title }]} lang={lang} />
       <span class="cluster" style="--cluster:8px">
-        <span class="chip chip--accent">{d.category}</span>
-        {twin && <a class="chip post__twin" href={twin.href} hreflang={twin.lang} lang={twin.lang}><Icon name="translate" weight="bold" /> {twin.label}</a>}
+        <span class="chip chip--accent">{category}</span>
       </span>
       <h1>{d.title}</h1>
       <p class="post__meta">
-        <span><Icon name="calendar-blank" weight="bold" /> <time datetime={d.date.toISOString()}>{fmt(d.date)}</time></span>
+        <span><Icon name="calendar-blank" weight="bold" /> <time datetime={d.date.toISOString()}>{fmtDate(lang, d.date)}</time></span>
         <span><Icon name="clock" weight="bold" /> {readTime}</span>
         <span><Icon name="pen-nib" weight="bold" /> {d.author}</span>
       </p>
+      {
+        twins.length > 0 && (
+          <p class="post__twins">
+            <Icon name="translate" weight="bold" />
+            <span>{L.alsoIn}</span>
+            {twins.map((x) => (
+              <a class="chip post__twin" href={x.href} hreflang={x.lang} lang={x.lang} dir={LOCALE[x.lang].dir} data-lang-choice={x.lang}>
+                {x.label}
+              </a>
+            ))}
+          </p>
+        )
+      }
     </header>
     <div class="container post__cover" data-reveal>
       <PostCover title={d.title} track={d.track} />
@@ -79,7 +91,7 @@ const ld = {
 
       <aside class="glass post__cta" aria-label={L.start}>
         <div>
-          <p class="post__cta-kicker">{L.kicker}</p>
+          <p class="post__cta-kicker">{(track ? track.title : L.start)}</p>
           <p class="post__cta-title">{L.cta}</p>
         </div>
         <div class="cluster">
@@ -219,14 +231,26 @@ const ld = {
     text-align: end;
   }
 
+  .post__twins {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-3);
+    font-size: 0.88rem;
+  }
+
+  .post__twins > :global(svg) {
+    width: 15px;
+    height: 15px;
+  }
+
   .post__twin {
-    gap: 6px;
     text-decoration: none;
   }
 
-  .post__twin :global(svg) {
-    width: 14px;
-    height: 14px;
+  .post__twin:lang(ar) {
+    font-family: var(--font-arabic);
   }
 
   :global([dir='rtl']) .post__head h1 {

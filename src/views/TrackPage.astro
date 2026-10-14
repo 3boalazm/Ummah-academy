@@ -16,7 +16,8 @@ import { getTracks } from '@/data/tracks';
 import { getTeachers, getTestimonials } from '@/data/people';
 import { getPlans, perSession } from '@/data/pricing';
 import { trialLink } from '@/data/site';
-import { ui, lp, price, num, type Lang } from '@/i18n';
+import { lp, price, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
 
 interface Props {
   page: TrackPageKey;
@@ -34,9 +35,8 @@ const teacher = C.teacher ? getTeachers(lang).find((x) => x.id === C.teacher) : 
 const story = C.testimonial !== undefined ? getTestimonials(lang)[C.testimonial] : undefined;
 const plans = getPlans(lang);
 const recPlans = C.plans.map((id) => plans.find((p) => p.id === id)!).filter(Boolean);
-const L = ar
-  ? { glance: 'نظرة سريعة', from: 'تبدأ من', teacherTitle: 'تعرّف على معلمتك', sanadNote: 'كل معلم في هذا المسار يحمل إجازة بسند متصل إلى النبي ﷺ.', plansTitle: 'خطط مقترحة', allPlans: 'كل الخطط', perSession: 'للحصة تقريبًا', choose: 'اختر', faq: 'أسئلة شائعة', related: 'مقالات ذات صلة', storyTitle: 'من طلابنا' }
-  : { glance: 'At a glance', from: 'From', teacherTitle: 'Meet your teacher', sanadNote: 'Every teacher in this track holds an Ijazah with a chain back to the Prophet ﷺ.', plansTitle: 'Recommended plans', allPlans: 'All plans', perSession: 'per session', choose: 'Choose', faq: 'Questions', related: 'Related reading', storyTitle: 'From our students' };
+const COPY = copy(lang).trackPage;
+const L = COPY.L;
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'Course',

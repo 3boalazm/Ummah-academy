@@ -6,6 +6,7 @@ import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import { portalLinks, waLink } from '@/data/site';
 import { num, type Lang } from '@/i18n';
+import { copy } from '@/locales';
 
 interface Props {
   lang?: Lang;
@@ -13,93 +14,8 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
 
-const C = ar
-  ? {
-      meta: { title: 'بوابة الأسرة — تابع تعلّم أبنائك من مكان واحد | أكاديمية الأمة', desc: 'حساب واحد للأسرة كلها: تنقّل بين ملفات أبنائك، واقرأ تقرير المعلم بعد كل حصة، واستقبل التنبيهات عبر واتساب. لوحات التقدّم ومكتبة التسجيلات والفوترة الموحّدة قريبًا.' },
-      crumb: 'بوابة الأسرة',
-      eyebrow: 'بوابة الأسرة',
-      title: 'تعلّم أسرتك كلها <span class="accent">في مكان واحد</span>',
-      lede: 'حساب عائلي واحد: تنقّل بين أبنائك، واقرأ تقريرًا بعد كل حصة، واستقبل التنبيهات عبر واتساب. أما لوحات التقدّم المباشرة ومكتبة التسجيلات والفوترة الموحّدة فهي في طريقها إليك.',
-      create: 'أنشئ حساب الأسرة مجانًا',
-      signIn: 'الدخول إلى البوابة',
-      mock: {
-        aria: 'معاينة للوحة بوابة الأسرة',
-        brand: 'أكاديمية الأمة',
-        parent: 'أحمد الراشد',
-        initials: 'أر',
-        kidsLabel: 'أبنائي',
-        kids: [
-          { i: 'ع', name: 'عمر', sub: 'التجويد ٢' },
-          { i: 'س', name: 'سارة', sub: 'نور البيان' },
-          { i: 'خ', name: 'خالد', sub: 'أشبال الأمة' },
-        ],
-        nextLabel: 'حصة عمر القادمة',
-        nextWhen: 'اليوم · ١٠:٠٠ ص بتوقيت لندن',
-        nextWho: 'المعلمة أمنية · التجويد المستوى ٢',
-        join: 'ادخل غرفة الحصة',
-        progress: 'تقدّم عمر',
-        alerts: ['تقرير سارة جاهز', 'حصة خالد غدًا ١١ ص', 'يتجدد الاشتراك خلال ١٤ يومًا'],
-      },
-      featuresEyebrow: 'مزايا ذكية',
-      featuresTitle: 'كل ما يحتاجه الوالدان <span class="accent">في مكان واحد</span>',
-      featuresLede: 'صُممت للآباء والأمهات الذين يريدون وضوحًا ومتابعة وطمأنينة.',
-      soon: 'قريبًا',
-      features: [
-        { icon: 'users-three', title: 'حساب عائلي موحّد', text: 'تسجيل دخول واحد، وتنقّل بين ملفات أبنائك بلمسة.', soon: false },
-        { icon: 'chart-bar', title: 'لوحة تقدّم مباشرة', text: 'مؤشرات تقدّم ومحطات إنجاز ورسوم بيانية لكل طفل.', soon: true },
-        { icon: 'clipboard-text', title: 'تقرير بعد كل حصة', text: 'تقرير مفصّل من المعلم بعد كل حصة، مع الواجب والخطوة التالية.', soon: false },
-        { icon: 'film-strip', title: 'مكتبة التسجيلات', text: 'كل حصة مسجّلة تلقائيًا، فتراجعها متى شئت.', soon: true },
-        { icon: 'bell-ringing', title: 'تنبيهات واتساب', text: 'تذكير بالحصص، وإشعار بالتقارير، وتنبيه قبل التجديد.', soon: false },
-        { icon: 'credit-card', title: 'فوترة موحّدة', text: 'أدر اشتراكات جميع أبنائك من لوحة واحدة.', soon: true },
-      ],
-      ctaEyebrow: 'للأسر المسلمة حول العالم',
-      ctaTitle: 'أنشئ <span class="accent">حساب أسرتك</span> مجانًا اليوم',
-      ctaLede: 'ابدأ بحصتين تجريبيتين مجانيتين لكل طفل، دون أي دفع.',
-      ask: 'اسأل عبر واتساب',
-    }
-  : {
-      meta: { title: "Family Portal | Manage Your Family's Classes | Ummah Academy", desc: 'One account for the whole family: switch between children, read post-session reports, get WhatsApp alerts — with dashboards, recordings and unified billing coming soon.' },
-      crumb: 'Family Portal',
-      eyebrow: 'Family Portal',
-      title: 'Manage Your Family’s <span class="accent">Deen</span> in One Place',
-      lede: 'One family account — switch between your children, read a report after every lesson and get WhatsApp alerts. Live dashboards, a recording library and unified billing are rolling out next.',
-      create: 'Create Family Account Free',
-      signIn: 'Sign In to Portal',
-      mock: {
-        aria: 'Preview of the Family Portal dashboard',
-        brand: 'Ummah Academy',
-        parent: 'Ahmad Al-Rashid',
-        initials: 'AR',
-        kidsLabel: 'My Children',
-        kids: [
-          { i: 'O', name: 'Omar', sub: 'Tajweed L2' },
-          { i: 'S', name: 'Sara', sub: 'Noor Al-Bayan' },
-          { i: 'K', name: 'Khalid', sub: 'Ummah Cubs' },
-        ],
-        nextLabel: 'Omar’s Next Session',
-        nextWhen: 'Today · 10:00 AM BST',
-        nextWho: 'Teacher Omneya · Tajweed Level 2',
-        join: 'Join Session Room',
-        progress: 'Omar’s Progress',
-        alerts: ['Sara’s report is ready', 'Khalid’s session tomorrow 11 AM', 'Subscription renews in 14 days'],
-      },
-      featuresEyebrow: 'Smart Features',
-      featuresTitle: 'Everything a Parent Needs in <span class="accent">One Place</span>',
-      featuresLede: 'Built for Muslim parents who want visibility, control, and peace of mind.',
-      soon: 'Coming soon',
-      features: [
-        { icon: 'users-three', title: 'Unified Family Account', text: 'One login — switch between children’s profiles with a single tap.', soon: false },
-        { icon: 'chart-bar', title: 'Live Progress Dashboard', text: 'Visual progress bars, milestones, and performance charts for every child.', soon: true },
-        { icon: 'clipboard-text', title: 'Post-Session Reports', text: 'Detailed teacher report after every session with homework and next steps.', soon: false },
-        { icon: 'film-strip', title: 'Recording Library', text: 'Every session auto-recorded. Review any class at any time.', soon: true },
-        { icon: 'bell-ringing', title: 'WhatsApp Alerts', text: 'Session reminders, report notifications, and renewal alerts.', soon: false },
-        { icon: 'credit-card', title: 'Unified Billing', text: 'Manage all children’s subscriptions from one dashboard.', soon: true },
-      ],
-      ctaEyebrow: 'For Muslim families worldwide',
-      ctaTitle: 'Create Your Free <span class="accent">Family Account</span> Today',
-      ctaLede: 'Start with 2 free trials for each child. No payment required.',
-      ask: 'Ask on WhatsApp',
-    };
+const COPY = copy(lang).familyPortal;
+const C = COPY.C;
 const M = C.mock;
 ---
 

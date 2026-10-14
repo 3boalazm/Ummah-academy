@@ -15,7 +15,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) => !page.includes('/thank-you/') && !page.includes('/404'),
-      i18n: { defaultLocale: 'en', locales: { en: 'en', ar: 'ar' } },
+      i18n: { defaultLocale: 'en', locales: { en: 'en', ar: 'ar', de: 'de', fr: 'fr', it: 'it' } },
     }),
   ],
   server: {

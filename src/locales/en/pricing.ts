@@ -1,0 +1,47 @@
+/** Pricing — English (reference locale) copy. */
+export default {
+  C: {
+    meta: {
+      title: 'Quran Classes Pricing — Plans from $40/month | Ummah Academy',
+      desc: 'Transparent monthly plans from $40 to $128 for live 1-on-1 Qur’an, Arabic and Islamic Studies lessons. Every plan starts with 2 free sessions.',
+    },
+    eyebrow: 'Pricing',
+    title: 'Simple, <span class="accent">transparent</span> pricing',
+    lede: 'Every plan starts with two free sessions. No card, no contract — cancel or pause anytime.',
+    chips: ['2 free sessions', 'No card', 'Cancel anytime'],
+    finderTitle: 'Find your plan in seconds',
+    q1: 'How long should each session be?',
+    len: [
+      ['30', '30 minutes', 'Children & focused practice'],
+      ['60', '60 minutes', 'Adults, Tajweed & Hifz'],
+    ],
+    q2: 'How many sessions a week?',
+    perWeek: (n: number) => `${n} × week`,
+    result: 'Your plan',
+    perSession: 'per session',
+    start: 'Start with 2 free sessions',
+    compare: 'or compare every plan below',
+    g30: '30-minute sessions',
+    g30s: 'Ideal for children (Ummah Cubs) and focused review.',
+    g60: '60-minute sessions',
+    g60s: 'More depth for adults, Tajweed, Hifz and Ijazah.',
+    choose: 'Choose this plan',
+    incl: 'Every plan includes',
+    pay: 'Payment methods',
+    payNote: 'Serving 50+ countries with secure, flexible payment options.',
+    faqTitle: 'Pricing questions',
+    faq: [
+      { q: 'Can I change plans later?', a: 'Yes. Move between plans from your next billing month — just tell us on WhatsApp.' },
+      { q: 'Can I pause?', a: 'Yes. A subscription freeze pauses your plan without losing sessions you’ve already paid for.' },
+      { q: 'How does cancelling work?', a: 'Cancel anytime; it takes effect at the end of your current billing month. Partial months aren’t refunded unless required by law.' },
+      { q: 'What if I miss a session?', a: 'Reschedule for free with at least 24 hours’ notice.' },
+      {
+        q: 'I have more than one child.',
+        a: 'Each learner has their own plan and teacher, and you manage everyone from one Family Portal account. Ask us on WhatsApp about scheduling siblings back-to-back.',
+      },
+      { q: 'Which payment methods do you accept?', a: 'Visa, Mastercard, PayPal, bank transfer, Western Union and MoneyGram.' },
+    ],
+    ctaTitle: 'Try before you <span class="accent">choose.</span>',
+    ctaLede: 'Book two free sessions first — your teacher will recommend the plan that fits your goal.',
+  },
+};

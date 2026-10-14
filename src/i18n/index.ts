@@ -1,13 +1,51 @@
 /**
- * Minimal, type-safe i18n for a two-locale static site.
- * English lives at the root (URL parity with WordPress); Arabic at /ar/.
+ * i18n engine for a five-locale static site.
+ *
+ * - English lives at the root (URL parity with the WordPress site).
+ * - Every other locale lives at /<code>/ with the *same* page slugs (/de/pricing/).
+ * - Blog articles are the exception: each locale has its own slugs, so their
+ *   translation clusters are passed explicitly as `Alternates`.
+ *
+ * Strings never live here — they live in src/locales/<code>/. This module is
+ * dependency-free so locale files can import its helpers without cycles.
  */
-export type Lang = 'en' | 'ar';
-export const LANGS: Lang[] = ['en', 'ar'];
-export const dirOf = (l: Lang) => (l === 'ar' ? 'rtl' : 'ltr');
+export type Lang = 'en' | 'ar' | 'de' | 'fr' | 'it';
 
-/** English routes that also exist in Arabic. */
-export const BILINGUAL_ROUTES = [
+export interface LocaleInfo {
+  code: Lang;
+  /** native name, shown in the language menu */
+  name: string;
+  /** English name (analytics, docs) */
+  english: string;
+  dir: 'ltr' | 'rtl';
+  /** BCP-47 tag for Intl (dates, numbers) */
+  intl: string;
+  /** Open Graph locale */
+  og: string;
+  /** URL prefix ('' for the default locale) */
+  prefix: string;
+  /** compact label for the header pill */
+  short: string;
+}
+
+export const LOCALE: Record<Lang, LocaleInfo> = {
+  en: { code: 'en', name: 'English', english: 'English', dir: 'ltr', intl: 'en-GB', og: 'en_US', prefix: '', short: 'EN' },
+  ar: { code: 'ar', name: 'العربية', english: 'Arabic', dir: 'rtl', intl: 'ar-EG', og: 'ar_AR', prefix: '/ar', short: 'AR' },
+  de: { code: 'de', name: 'Deutsch', english: 'German', dir: 'ltr', intl: 'de-DE', og: 'de_DE', prefix: '/de', short: 'DE' },
+  fr: { code: 'fr', name: 'Français', english: 'French', dir: 'ltr', intl: 'fr-FR', og: 'fr_FR', prefix: '/fr', short: 'FR' },
+  it: { code: 'it', name: 'Italiano', english: 'Italian', dir: 'ltr', intl: 'it-IT', og: 'it_IT', prefix: '/it', short: 'IT' },
+};
+
+/** Menu order: the site's two original languages first, then the European locales. */
+export const LANGS: Lang[] = ['en', 'ar', 'de', 'fr', 'it'];
+export const DEFAULT_LANG: Lang = 'en';
+/** Locales served under a /<code>/ prefix — the `[locale]` routes generate these. */
+export const PREFIXED: Exclude<Lang, 'en'>[] = ['ar', 'de', 'fr', 'it'];
+export const isLang = (v: unknown): v is Lang => typeof v === 'string' && (LANGS as string[]).includes(v);
+export const dirOf = (l: Lang) => LOCALE[l].dir;
+
+/** English page paths that exist in every locale (mirrored slugs). */
+export const TRANSLATED_ROUTES = [
   '/',
   '/courses/',
   '/pricing/',
@@ -23,7 +61,6 @@ export const BILINGUAL_ROUTES = [
   '/online-arabic-classes/',
   '/ummah-cubs-kids-islamic-studies/',
   '/online-islamic-studies-classes/',
-  // Phase 3: the last English-only corners
   '/blog/',
   '/resources/',
   '/family-portal/',
@@ -34,126 +71,84 @@ export const BILINGUAL_ROUTES = [
   '/teachers/sara-ahmed/',
   '/teachers/nour-hassan/',
 ] as const;
+const ROUTES = TRANSLATED_ROUTES as readonly string[];
 
-/** A page's twin in the other language, when the paths are not mirror images (e.g. blog articles). */
-export interface Alternates {
-  en: string;
-  ar: string;
-}
-export interface LangSwitch {
+/** A page's translations: locale → path. Only locales that really have the page. */
+export type Alternates = Partial<Record<Lang, string>>;
+
+/** One entry of the language menu. `exact` = a true translation of this page (else a fallback). */
+export interface LangTarget {
   lang: Lang;
   href: string;
+  exact: boolean;
 }
 
-export const langFromPath = (pathname: string): Lang => (pathname === '/ar' || pathname.startsWith('/ar/') ? 'ar' : 'en');
+const PREFIX_RE = new RegExp(`^/(${PREFIXED.join('|')})(?=/|$)`);
+
+export const langFromPath = (pathname: string): Lang => {
+  const m = pathname.match(PREFIX_RE);
+  return m ? (m[1] as Lang) : 'en';
+};
 
 /** Strip the locale prefix → the canonical English path. */
-export const basePath = (pathname: string) => (langFromPath(pathname) === 'ar' ? pathname.replace(/^\/ar/, '') || '/' : pathname);
+export const basePath = (pathname: string) => pathname.replace(PREFIX_RE, '') || '/';
 
-/** Build a path in a given locale from an English path. */
+export const isTranslated = (pathname: string) => ROUTES.includes(basePath(pathname));
+
+/** Build a path in a given locale from an English path (untranslated paths stay English). */
 export const lp = (lang: Lang, path: string) => {
   if (lang === 'en') return path;
   if (/^(https?:|mailto:|tel:|#)/.test(path)) return path;
   const [p, rest = ''] = path.split(/(?=[?#])/);
-  const has = (BILINGUAL_ROUTES as readonly string[]).includes(p);
-  return has ? `/ar${p}${rest}` : path;
+  return ROUTES.includes(p) ? `${LOCALE[lang].prefix}${p}${rest}` : path;
+};
+
+/** Mirrored translations of a page (empty when the page is not a translated route). */
+export const mirrorAlternates = (pathname: string): Alternates => {
+  const base = basePath(pathname);
+  if (!ROUTES.includes(base)) return {};
+  return Object.fromEntries(LANGS.map((l) => [l, lp(l, base)]));
 };
 
 /**
- * Counterpart of the current page in the other language. Pages whose twin is not a
- * mirror path (blog articles) pass an explicit override; otherwise we fall back to
- * the other language's home so the switch can never 404.
+ * Where each language in the menu should go from this page: the true translation
+ * when it exists, otherwise `fallback` (an English path, e.g. '/blog/') in that
+ * language — so the switch can never 404.
  */
-export const counterpart = (pathname: string, override?: LangSwitch): LangSwitch => {
-  if (override) return override;
-  const lang = langFromPath(pathname);
-  const base = basePath(pathname);
-  const exists = (BILINGUAL_ROUTES as readonly string[]).includes(base);
-  if (lang === 'en') return { lang: 'ar', href: exists ? `/ar${base}` : '/ar/' };
-  return { lang: 'en', href: exists ? base : '/' };
+export const langTargets = (pathname: string, alternates?: Alternates, fallback = '/'): LangTarget[] => {
+  const alt = alternates && Object.keys(alternates).length ? alternates : mirrorAlternates(pathname);
+  return LANGS.map((l) => (alt[l] ? { lang: l, href: alt[l]!, exact: true } : { lang: l, href: lp(l, fallback), exact: false }));
 };
 
-export const hasArabic = (pathname: string) => (BILINGUAL_ROUTES as readonly string[]).includes(basePath(pathname));
+/* ── Formatting ─────────────────────────────────────────────────────────── */
 
+const NBSP = '\u00a0';
 const toArabicDigits = (s: string) => s.replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]);
+
+/** Digits only (copy already carries locale-specific separators). */
 export const num = (lang: Lang, v: string | number) => (lang === 'ar' ? toArabicDigits(String(v)) : String(v));
-export const price = (lang: Lang, v: number) => (lang === 'ar' ? `${toArabicDigits(String(v))} $` : `$${v}`);
 
-/** Shared UI strings. Page copy lives next to each view in src/content-i18n. */
-export const UI = {
-  en: {
-    nav: { courses: 'Courses', teachers: 'Teachers', pricing: 'Pricing', about: 'About', blog: 'Blog', faq: 'FAQ', contact: 'Contact', portal: 'Family Portal' },
-    signIn: 'Sign in',
-    bookTrial: 'Book free trial',
-    bookTrialShort: 'Free trial',
-    book2: 'Book 2 free sessions',
-    findLevel: 'Find my level',
-    whatsapp: 'Chat on WhatsApp',
-    from: 'From',
-    perMonth: '/mo',
-    perMonthLong: 'per month',
-    explore: 'Explore',
-    learnMore: 'Learn more',
-    readMore: 'Read more',
-    menuOpen: 'Open menu',
-    menuClose: 'Close menu',
-    skip: 'Skip to content',
-    home: 'Home',
-    allCourses: 'All courses',
-    compareCourses: 'Compare all courses',
-    placementTest: 'Placement test',
-    notSure: 'Not sure where to start?',
-    takeTest: 'Take the free 3-minute placement test',
-    langSwitch: 'العربية',
-    langSwitchLabel: 'اقرأ الموقع بالعربية',
-    footerMission: 'Live 1-on-1 Qur’an, Arabic and Islamic studies with Al-Azhar scholars who hold a verified chain of transmission — for families in 50+ countries.',
-    footerCols: { learn: 'Learn', academy: 'Academy', resources: 'Resources' },
-    rights: 'All rights reserved.',
-    footerNote: 'Serving 50+ countries · Lessons around the clock',
-    privacy: 'Privacy Policy',
-    terms: 'Terms of Service',
-    careers: 'Careers',
-    library: 'Free library',
-    sticky: { book: 'Book free trial', wa: 'WhatsApp' },
-    noCard: 'No card · Cancel anytime',
-  },
-  ar: {
-    nav: { courses: 'الدورات', teachers: 'المعلمون', pricing: 'الأسعار', about: 'من نحن', blog: 'المدونة', faq: 'الأسئلة الشائعة', contact: 'تواصل معنا', portal: 'بوابة الأسرة' },
-    signIn: 'تسجيل الدخول',
-    bookTrial: 'احجز تجربة مجانية',
-    bookTrialShort: 'تجربة مجانية',
-    book2: 'احجز حصتين مجانًا',
-    findLevel: 'اعرف مستواك',
-    whatsapp: 'تواصل عبر واتساب',
-    from: 'تبدأ من',
-    perMonth: '/شهريًا',
-    perMonthLong: 'شهريًا',
-    explore: 'استكشف',
-    learnMore: 'اعرف المزيد',
-    readMore: 'اقرأ المزيد',
-    menuOpen: 'فتح القائمة',
-    menuClose: 'إغلاق القائمة',
-    skip: 'تخطَّ إلى المحتوى',
-    home: 'الرئيسية',
-    allCourses: 'كل الدورات',
-    compareCourses: 'قارن بين الدورات',
-    placementTest: 'اختبار تحديد المستوى',
-    notSure: 'لست متأكدًا من أين تبدأ؟',
-    takeTest: 'خذ اختبار تحديد المستوى المجاني (٣ دقائق)',
-    langSwitch: 'English',
-    langSwitchLabel: 'Read this page in English',
-    footerMission: 'حصص مباشرة فردية في القرآن والعربية والعلوم الإسلامية مع علماء من الأزهر يحملون سندًا متصلًا موثقًا — لأسر في أكثر من ٥٠ دولة.',
-    footerCols: { learn: 'تعلَّم', academy: 'الأكاديمية', resources: 'مصادر' },
-    rights: 'جميع الحقوق محفوظة.',
-    footerNote: 'نخدم أكثر من ٥٠ دولة · حصص على مدار الساعة',
-    privacy: 'سياسة الخصوصية',
-    terms: 'شروط الخدمة',
-    careers: 'الوظائف',
-    library: 'المكتبة المجانية',
-    sticky: { book: 'احجز تجربة مجانية', wa: 'واتساب' },
-    noCard: 'بدون بطاقة دفع · إلغاء في أي وقت',
-  },
-} as const;
+/** Whole-dollar USD price in the locale's convention: $40 · ٤٠ $ · 40 $. */
+export const price = (lang: Lang, v: number) => {
+  if (lang === 'en') return `$${v}`;
+  if (lang === 'ar') return `${toArabicDigits(String(v))} $`;
+  return `${String(v).replace('.', ',')}${NBSP}$`;
+};
 
-export type UIStrings = (typeof UI)['en'];
-export const ui = (lang: Lang): UIStrings => UI[lang] as unknown as UIStrings;
+/** Percentage: 65% · ٦٥٪ · 65 % (DE/FR) · 65% (IT). */
+export const pct = (lang: Lang, v: number) => {
+  if (lang === 'ar') return `${toArabicDigits(String(v))}٪`;
+  if (lang === 'de' || lang === 'fr') return `${v}${NBSP}%`;
+  return `${v}%`;
+};
+
+export const fmtDate = (lang: Lang, d: Date, month: 'long' | 'short' = 'long') => d.toLocaleDateString(LOCALE[lang].intl, { day: 'numeric', month, year: 'numeric' });
+
+/** Language names rendered in a given locale ("Arabisch und Englisch"). */
+export const listLanguages = (lang: Lang, codes: readonly string[]) => {
+  const names = new Intl.DisplayNames([LOCALE[lang].intl], { type: 'language' });
+  return new Intl.ListFormat(LOCALE[lang].intl, { type: 'conjunction' }).format(codes.map((c) => names.of(c) ?? c));
+};
+
+/** getStaticPaths for the `[locale]` page wrappers. */
+export const localePaths = () => PREFIXED.map((locale) => ({ params: { locale } }));

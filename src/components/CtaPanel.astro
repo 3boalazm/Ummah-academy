@@ -1,7 +1,8 @@
 ---
 import Icon from './Icon.astro';
 import { waLink } from '@/data/site';
-import { ui, lp, type Lang } from '@/i18n';
+import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 interface Props {
   eyebrow?: string;
   title: string;
@@ -13,14 +14,13 @@ interface Props {
 }
 const { lang = 'en' } = Astro.props;
 const t = ui(lang);
-const ar = lang === 'ar';
 const {
-  eyebrow = ar ? 'ابدأ اليوم — مجانًا' : 'Begin today — free',
+  eyebrow = t.ctaEyebrow,
   title,
   lede,
   primary = { label: t.book2, href: lp(lang, '/contact/') + '#book' },
   secondary = { label: t.whatsapp, href: waLink() },
-  ticks = ar ? ['بدون بطاقة دفع', 'نرد خلال دقائق عبر واتساب', 'إلغاء أو إيقاف في أي وقت'] : ['No card required', 'Replies on WhatsApp within minutes', 'Cancel or pause anytime'],
+  ticks = t.ctaTicks,
 } = Astro.props;
 ---
 

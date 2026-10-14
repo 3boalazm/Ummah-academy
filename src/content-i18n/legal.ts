@@ -26,7 +26,7 @@ export interface LegalContent {
 
 const EMAIL = '<a href="mailto:{email}">{email}</a>';
 
-const PRIVACY: Record<Lang, LegalContent> = {
+const PRIVACY: Partial<Record<Lang, LegalContent>> & { en: LegalContent } = {
   en: {
     meta: { title: 'Privacy Policy | Ummah Academy', desc: "How Ummah Academy collects, uses and protects your information — including children's privacy, recordings, payments and your rights." },
     title: 'Privacy Policy',
@@ -85,7 +85,7 @@ const PRIVACY: Record<Lang, LegalContent> = {
   },
 };
 
-const TERMS: Record<Lang, LegalContent> = {
+const TERMS: Partial<Record<Lang, LegalContent>> & { en: LegalContent } = {
   en: {
     meta: { title: 'Terms of Service | Ummah Academy', desc: "The terms that govern Ummah Academy's website and live online classes: free trial, subscriptions, cancellation, rescheduling, recordings and conduct." },
     title: 'Terms of Service',
@@ -136,4 +136,7 @@ const TERMS: Record<Lang, LegalContent> = {
   },
 };
 
-export const getLegal = (doc: LegalDoc, lang: Lang): LegalContent => (doc === 'privacy' ? PRIVACY : TERMS)[lang];
+export const getLegal = (doc: LegalDoc, lang: Lang): LegalContent => {
+  const all = doc === 'privacy' ? PRIVACY : TERMS;
+  return all[lang] ?? all.en;
+};

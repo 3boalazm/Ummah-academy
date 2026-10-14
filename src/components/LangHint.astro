@@ -1,0 +1,119 @@
+---
+/**
+ * A soft, dismissible hint for visitors whose browser prefers another language
+ * that *this page* exists in — written in that language ("Diese Seite gibt es
+ * auch auf Deutsch"). Never redirects (search engines and shared links stay
+ * stable); remembers the choice. Logic: src/scripts/site.ts → initLangHint().
+ */
+import { LOCALE, type Lang, type LangTarget } from '@/i18n';
+import { ui } from '@/locales';
+interface Props {
+  lang: Lang;
+  targets: LangTarget[];
+}
+const { lang, targets } = Astro.props;
+const offers = targets
+  .filter((x) => x.exact && x.lang !== lang)
+  .map((x) => ({ lang: x.lang, dir: LOCALE[x.lang].dir, href: x.href, ...ui(x.lang).langHint }));
+---
+
+{
+  offers.length > 0 && (
+    <>
+      <script type="application/json" id="lang-hint-data" set:html={JSON.stringify({ current: lang, offers })} />
+      <div class="langhint glass glass--strong" role="region" data-lang-hint hidden>
+        <p class="langhint__text" data-lang-hint-text />
+        <a class="btn btn--sm btn--primary langhint__cta" data-lang-hint-cta />
+        <button type="button" class="langhint__close" data-lang-hint-close>
+          <svg viewBox="0 0 256 256" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z" />
+          </svg>
+        </button>
+      </div>
+    </>
+  )
+}
+
+<style>
+  .langhint {
+    --radius: 22px;
+    position: fixed;
+    z-index: 45;
+    inset: 88px 12px auto;
+    margin-inline: auto;
+    width: min(100% - 24px, 520px);
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px 12px;
+    padding: 12px 12px 12px 18px;
+    padding-inline: 18px 12px;
+    background: linear-gradient(155deg, rgb(255 255 255 / 0.99), rgb(255 255 255 / 0.95));
+    animation: langhint-in 0.5s var(--ease-out);
+  }
+
+  .langhint[hidden] {
+    display: none;
+  }
+
+  .langhint__text {
+    margin: 0;
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-weight: 540;
+  }
+
+  .langhint:lang(ar) .langhint__text {
+    font-family: var(--font-arabic);
+  }
+
+  .langhint__close {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink-2);
+    background: rgb(46 29 70 / 0.06);
+    cursor: pointer;
+  }
+
+  .langhint__close:hover {
+    color: var(--ink);
+    background: rgb(46 29 70 / 0.1);
+  }
+
+  @keyframes langhint-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  @media (max-width: 859px) {
+    .langhint {
+      inset-block-start: 80px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .langhint {
+      grid-template-columns: 1fr auto;
+    }
+
+    .langhint__text {
+      grid-column: 1 / -1;
+    }
+
+    .langhint__cta {
+      justify-self: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .langhint {
+      animation: none;
+    }
+  }
+</style>

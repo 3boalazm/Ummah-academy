@@ -49,7 +49,7 @@ const COPY = {
 
 export const getPlans = (lang: Lang = 'en'): Plan[] =>
   base.map((b) => {
-    const c = COPY[lang][b.id] as { name: string; bestFor: string; label: string; badge?: string };
+    const c = ((COPY as Record<string, (typeof COPY)['en']>)[lang] ?? COPY.en)[b.id] as { name: string; bestFor: string; label: string; badge?: string };
     return { ...b, name: c.name, bestFor: c.bestFor, sessionsLabel: c.label, badge: c.badge } as Plan;
   });
 
@@ -77,7 +77,9 @@ const INCLUDED = {
     { icon: 'video-camera', title: 'تسجيلات الحصص', desc: 'متاحة عند الطلب، والمكتبة تُطلق تدريجيًا في البوابة.' },
   ],
 };
-export const getIncluded = (lang: Lang = 'en') => INCLUDED[lang];
+export const getIncluded = (lang: Lang = 'en') => (INCLUDED as Record<string, (typeof INCLUDED)['en']>)[lang] ?? INCLUDED.en;
 
 export const PAYMENT_METHODS = ['Visa', 'Mastercard', 'PayPal', 'Bank transfer', 'Western Union', 'MoneyGram'];
 export const PAYMENT_METHODS_AR = ['فيزا', 'ماستركارد', 'باي بال', 'تحويل بنكي', 'ويسترن يونيون', 'موني جرام'];
+const PAYMENT: Partial<Record<Lang, string[]>> = { en: PAYMENT_METHODS, ar: PAYMENT_METHODS_AR };
+export const paymentMethods = (lang: Lang) => PAYMENT[lang] ?? PAYMENT_METHODS;

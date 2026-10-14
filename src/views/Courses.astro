@@ -8,7 +8,8 @@ import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import { getTracks } from '@/data/tracks';
 import { trialLink } from '@/data/site';
-import { ui, lp, num, type Lang } from '@/i18n';
+import { lp, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
@@ -17,51 +18,8 @@ const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
 const t = ui(lang);
 const tracks = getTracks(lang);
-const C = ar
-  ? {
-      meta: { title: 'دورات القرآن والعربية والدراسات الإسلامية أونلاين | أكاديمية الأمة', desc: 'أربعة مسارات — القرآن والتجويد، والعربية، وأشبال الأمة، والدراسات الإسلامية — في حصص مباشرة فردية مع معلمين من الأزهر. تبدأ من ٤٠ دولارًا شهريًا.' },
-      eyebrow: 'الدورات',
-      title: 'كل الدورات، <span class="accent">ومسار واضح.</span>',
-      lede: 'أربعة مسارات — القرآن والتجويد، والعربية، وأشبال الأمة، والدراسات الإسلامية — في حصص مباشرة فردية مع معلمين من الأزهر. ابدأ بحصتين مجانيتين.',
-      chooserTitle: 'أي برنامج يناسبني؟',
-      chooserLede: 'مقارنة سريعة — أو خذ اختبار تحديد المستوى لترشيح شخصي.',
-      cols: ['البرنامج', 'الأنسب لـ', 'للمبتدئين؟', 'الهدف'],
-      rows: [
-        ['التلاوة والتجويد', '/quran-recitation-course/', 'من يريد تلاوة القرآن تلاوة صحيحة', 'نعم', 'النطق الصحيح وأحكام التجويد'],
-        ['الحفظ والإجازة', '/quran-memorization-hifz/', 'من يريد الحفظ بإجازة موثّقة', 'يُفضّل أساس في التجويد', 'حفظ متقن بسند حقيقي'],
-        ['اللغة العربية', '/online-arabic-classes/', 'من يريد قراءة عربية القرآن وفهمها', 'نعم', 'القراءة والنحو والفهم'],
-        ['أشبال الأمة', '/ummah-cubs-kids-islamic-studies/', 'الأطفال من ٥ إلى ١٤ عامًا', 'نعم', 'القرآن والعربية والقيم باللعب'],
-        ['الدراسات الإسلامية', '/online-islamic-studies-classes/', 'الكبار الراغبون في العقيدة والفقه والتفسير والسيرة', 'نعم', 'فهم أعمق للدين'],
-      ],
-      track: (i: number) => `المسار ${num('ar', i)} من ٤`,
-      details: 'تفاصيل المسار',
-      kidsTest: 'لست متأكدًا؟ خذ اختبار الأطفال المجاني',
-      ctaTitle: 'لا تعرف من أين تبدأ؟ <span class="accent">دعنا نساعدك.</span>',
-      ctaLede: 'خذ اختبار تحديد المستوى في ٣ دقائق، أو احجز حصتين مجانيتين ويحدد معلمك نقطة البداية.',
-      ctaSecondary: 'اختبار تحديد المستوى',
-    }
-  : {
-      meta: { title: 'Online Quran Courses | Tajweed, Hifz, Arabic & Islamic Studies | Ummah Academy', desc: 'Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs for kids and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. From $40/month, 2 free sessions.' },
-      eyebrow: 'Courses',
-      title: 'Every course, <span class="accent">one clear path.</span>',
-      lede: 'Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. Start with two free sessions.',
-      chooserTitle: 'Which programme is right for me?',
-      chooserLede: 'A quick comparison — or take the placement test for a personal recommendation.',
-      cols: ['Programme', 'Best for', 'Beginner friendly', 'Main goal'],
-      rows: [
-        ['Quran Recitation & Tajweed', '/quran-recitation-course/', 'Anyone who wants to recite correctly', 'Yes', 'Correct pronunciation and Tajweed rules'],
-        ['Hifz & Ijazah', '/quran-memorization-hifz/', 'Memorising with a documented Ijazah', 'Basic Tajweed helps', 'Lasting memorisation with a real Sanad'],
-        ['Arabic Language', '/online-arabic-classes/', 'Reading and understanding Qur’anic Arabic', 'Yes', 'Reading, grammar and comprehension'],
-        ['Ummah Cubs', '/ummah-cubs-kids-islamic-studies/', 'Children aged 5–14', 'Yes', 'Qur’an, Arabic and values through play'],
-        ['Islamic Studies', '/online-islamic-studies-classes/', 'Adults wanting Aqeedah, Fiqh, Tafseer or Seerah', 'Yes', 'A deeper understanding of the deen'],
-      ],
-      track: (i: number) => `Track ${i} of 4`,
-      details: 'Track details',
-      kidsTest: 'Not sure yet? Take the free kids placement test',
-      ctaTitle: 'Not sure where to start? <span class="accent">We’ll help.</span>',
-      ctaLede: 'Take the 3-minute placement test, or book two free sessions and your teacher will find your starting point.',
-      ctaSecondary: 'Placement test',
-    };
+const COPY = copy(lang).courses;
+const C = COPY.C;
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',

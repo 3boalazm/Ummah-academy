@@ -2,7 +2,8 @@
 import Icon from './Icon.astro';
 import type { Course } from '@/data/tracks';
 import { trialLink } from '@/data/site';
-import { ui, lp, price, type Lang } from '@/i18n';
+import { lp, price, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 interface Props {
   course: Course;
   lang?: Lang;
@@ -25,7 +26,7 @@ const t = ui(lang);
   <div class="course-card__foot">
     <span class="course-card__price"><small>{t.from}</small> {price(lang, course.from)}<small>{t.perMonth}</small></span>
     <a class="btn btn--sm btn--primary" href={trialLink({ course: course.trial }, lang)}>
-      {lang === 'ar' ? 'جرّبها مجانًا' : 'Try it free'} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+      {ui(lang).tryFree} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
     </a>
   </div>
 </article>

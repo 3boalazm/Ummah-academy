@@ -1,6 +1,7 @@
 ---
 import { SITE } from '@/data/site';
-import { ui, lp, type Lang } from '@/i18n';
+import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 interface Props {
   items: { label: string; href?: string }[];
   lang?: Lang;
@@ -19,7 +20,7 @@ const ld = {
 };
 ---
 
-<nav class="breadcrumbs" aria-label={lang === 'ar' ? 'مسار التنقل' : 'Breadcrumb'}>
+<nav class="breadcrumbs" aria-label={ui(lang).breadcrumb}>
   <ol>
     {
       all.map((it, i) =>

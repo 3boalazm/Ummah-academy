@@ -122,18 +122,88 @@ if (tiltRoot && matchMedia('(hover: hover) and (prefers-reduced-motion: no-prefe
   });
 }
 
+/* Language menu (<details>): one open at a time, outside click / Escape close it */
+const langMenus = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-langmenu]'));
+langMenus.forEach((d) => {
+  d.addEventListener('toggle', () => {
+    if (d.open) langMenus.forEach((o) => o !== d && (o.open = false));
+  });
+  d.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && d.open) {
+      d.open = false;
+      d.querySelector('summary')?.focus();
+    }
+  });
+});
+document.addEventListener('click', (e) => {
+  langMenus.forEach((d) => d.open && !d.contains(e.target as Node) && (d.open = false));
+});
+
+/* Remember an explicit language choice (menu or hint) — the hint never shows again after one */
+const LANG_KEY = 'ua:lang';
+const remember = (v: string) => {
+  try {
+    localStorage.setItem(LANG_KEY, v);
+  } catch {
+    /* private mode */
+  }
+};
+const recalled = () => {
+  try {
+    return localStorage.getItem(LANG_KEY);
+  } catch {
+    return 'unknown';
+  }
+};
+
+/* Language hint: offer this page in the visitor's preferred language (never redirects) */
+const hintData = document.getElementById('lang-hint-data');
+const hint = document.querySelector<HTMLElement>('[data-lang-hint]');
+if (hintData && hint && !recalled()) {
+  type Offer = { lang: string; dir: string; href: string; text: string; cta: string; close: string };
+  const { current, offers } = JSON.parse(hintData.textContent || '{}') as { current: string; offers: Offer[] };
+  const preferred = (navigator.languages?.length ? navigator.languages : [navigator.language]).map((l) => l.slice(0, 2).toLowerCase());
+  const first = preferred.find((l) => l === current || offers.some((o) => o.lang === l));
+  const offer = first && first !== current ? offers.find((o) => o.lang === first) : undefined;
+  if (offer) {
+    hint.lang = offer.lang;
+    hint.dir = offer.dir;
+    hint.setAttribute('aria-label', offer.text);
+    hint.querySelector('[data-lang-hint-text]')!.textContent = offer.text;
+    const cta = hint.querySelector<HTMLAnchorElement>('[data-lang-hint-cta]')!;
+    cta.textContent = offer.cta;
+    cta.href = offer.href;
+    cta.hreflang = offer.lang;
+    cta.addEventListener('click', () => {
+      remember(offer.lang);
+      track('language_hint', { action: 'accept', to: offer.lang });
+    });
+    const close = hint.querySelector<HTMLButtonElement>('[data-lang-hint-close]')!;
+    close.setAttribute('aria-label', offer.close);
+    close.addEventListener('click', () => {
+      hint.hidden = true;
+      remember(current);
+      track('language_hint', { action: 'dismiss', to: offer.lang });
+    });
+    setTimeout(() => (hint.hidden = false), 900);
+  }
+}
+
 /* Analytics: CTA, WhatsApp, router, language (no PII) */
 document.addEventListener('click', (e) => {
   const el = e.target as HTMLElement;
   const router = el.closest<HTMLElement>('[data-router]');
   if (router) track('router_select', { audience: router.dataset.router, goal: router.dataset.goal });
-  const ls = el.closest<HTMLElement>('[data-lang-switch]');
-  if (ls) track('language_switch', { to: ls.dataset.langSwitch });
+  const ls = el.closest<HTMLElement>('[data-lang-choice]');
+  if (ls) {
+    remember(ls.dataset.langChoice!);
+    track('language_switch', { to: ls.dataset.langChoice });
+  }
   const a = el.closest('a');
   if (!a) return;
   const href = a.getAttribute('href') || '';
   const location = a.dataset.track || window.location.pathname;
   if (href.includes('wa.me/')) track('whatsapp_click', { location });
-  else if (/^(\/ar)?\/contact\//.test(href)) track('trial_cta_click', { location });
-  else if (/^(\/ar)?\/placement-test\//.test(href)) track('placement_cta_click', { location });
+  else if (/^(\/(ar|de|fr|it))?\/contact\//.test(href)) track('trial_cta_click', { location });
+  else if (/^(\/(ar|de|fr|it))?\/placement-test\//.test(href)) track('placement_cta_click', { location });
 });

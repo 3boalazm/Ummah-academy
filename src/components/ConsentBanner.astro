@@ -6,28 +6,14 @@
  * footer's "Privacy choices" button ([data-consent-open]).
  */
 import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
-const L = ar
-  ? {
-      label: 'خيارات الخصوصية',
-      title: 'هل تسمح لنا بقياس الزيارات؟',
-      text: 'نستخدم ملفات تعريف الارتباط من Google Analytics لنعرف أي الصفحات تفيد الأسر، ولا نستخدمها للإعلانات أبدًا.',
-      more: 'سياسة الخصوصية',
-      allow: 'السماح',
-      deny: 'لا، شكرًا',
-    }
-  : {
-      label: 'Privacy choices',
-      title: 'Can we measure visits?',
-      text: 'We use Google Analytics cookies to learn which pages help families — never for ads.',
-      more: 'Privacy policy',
-      allow: 'Allow',
-      deny: 'No thanks',
-    };
+const COPY = copy(lang).consent;
+const L = COPY.L;
 ---
 
 <section class="consent glass glass--strong" aria-label={L.label} data-consent hidden>

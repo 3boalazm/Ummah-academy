@@ -48,4 +48,25 @@ const blogAr = defineCollection({
   }),
 });
 
-export const collections = { blog, blogAr };
+/**
+ * Phase 4 — German, French and Italian translations of the English articles.
+ * src/content/blog-tr/<lang>/<localised-slug>.md → /<lang>/blog/<localised-slug>/.
+ * `translationOf` (the English slug) is required: it builds the hreflang cluster.
+ * `category` keeps the English key; the label is localised at render time.
+ */
+const blogTr = defineCollection({
+  loader: glob({ pattern: '{de,fr,it}/*.md', base: './src/content/blog-tr' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.coerce.date(),
+    updated: z.coerce.date().optional(),
+    category: z.enum(['Getting Started', 'Tajweed', 'Hifz & Memorization', 'Arabic Language', 'Kids & Parents', 'Certification', 'Islamic Studies']),
+    track: z.enum(['quran', 'arabic', 'kids', 'islamic', 'general']),
+    author: z.string(),
+    translationOf: z.string(),
+    featured: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog, blogAr, blogTr };

@@ -4,7 +4,8 @@
 
 ## A. Business confirmations (P0)
 
-- [ ] **Canonical contact.** WhatsApp **+971 50 276 0242** and **info@ummahacademy.net** are used everywhere. The live site also shows +20 115 464 4519, a tel link to +20 101 807 2869, info@ummahacademy.com and "Cairo, Egypt". Confirm the right ones (`src/data/site.ts`).
+- [x] **WhatsApp number.** **+971 50 276 0242** was confirmed by the business on 2026-10-15. It is the only number on the site (`src/data/site.ts`). The +20 numbers from the old site stay retired.
+- [ ] **E-mail and address.** **info@ummahacademy.net** is used everywhere. The live site also shows info@ummahacademy.com and "Cairo, Egypt". Confirm the right domain and whether an address should be published. An address is required for the German Impressum, see section F.
 - [ ] **Figures shown in the proof strip and About:** 50+ countries, 1,000+ students, 100+ teachers, 12+ Ijazahs, 95% continue after month one, 400+ hours/month, plus timeline facts (2022–2026). Provide evidence or adjust.
 - [ ] **Teachers:** confirm the three department leads' credentials and consent to be named. Each now has a full profile page (`/teachers/<id>/`, EN and AR), so this matters more. Provide real portraits (replacing the monograms) if desired.
 - [ ] **Testimonials:** written consent from the 5 named families. Note the Arabic versions are translations and are labelled as such.

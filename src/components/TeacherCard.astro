@@ -3,6 +3,7 @@ import Icon from './Icon.astro';
 import type { Teacher } from '@/data/people';
 import { trialLink } from '@/data/site';
 import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
 interface Props {
   teacher: Teacher;
   variant?: 'full' | 'compact';
@@ -10,9 +11,8 @@ interface Props {
   delay?: number;
 }
 const { teacher: t, variant = 'full', lang = 'en', delay = 0 } = Astro.props;
-const L = lang === 'ar'
-  ? { verified: t.ijazah ? 'إجازة موثّقة' : 'مؤهلات موثّقة', bestFor: 'الأنسب لـ', creds: 'المؤهلات', book: `احجز مع ${t.name.split(' ')[0]}`, profile: 'الملف الكامل' }
-  : { verified: t.ijazah ? 'Ijazah verified' : 'Credentials verified', bestFor: 'Best for', creds: 'Credentials', book: `Book with ${t.name.split(' ')[0]}`, profile: 'Full profile' };
+const COPY = copy(lang).teacherCard;
+const L = COPY.L(t);
 const profile = lp(lang, `/teachers/${t.id}/`);
 ---
 

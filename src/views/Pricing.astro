@@ -5,9 +5,10 @@ import FeatureGrid from '@/components/FeatureGrid.astro';
 import Faq from '@/components/Faq.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
-import { getPlans, getIncluded, perSession, PAYMENT_METHODS, PAYMENT_METHODS_AR } from '@/data/pricing';
+import { getPlans, getIncluded, perSession, paymentMethods } from '@/data/pricing';
 import { trialLink } from '@/data/site';
-import { ui, price, num, type Lang } from '@/i18n';
+import { price, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
@@ -17,83 +18,8 @@ const ar = lang === 'ar';
 const t = ui(lang);
 const plans = getPlans(lang);
 const included = getIncluded(lang);
-const C = ar
-  ? {
-      meta: { title: 'الأسعار | أكاديمية الأمة — خطط شهرية من ٤٠ دولارًا', desc: 'خطط شهرية واضحة من ٤٠ إلى ١٢٨ دولارًا لحصص القرآن والعربية والدراسات الإسلامية المباشرة الفردية. كل خطة تبدأ بحصتين مجانيتين.' },
-      eyebrow: 'الأسعار',
-      title: 'أسعار <span class="accent">واضحة</span> وبسيطة',
-      lede: 'كل خطة تبدأ بحصتين مجانيتين. بدون بطاقة دفع وبدون عقد — ألغِ أو أوقف اشتراكك في أي وقت.',
-      chips: ['حصتان مجانيتان', 'بدون بطاقة', 'إلغاء في أي وقت'],
-      finderTitle: 'اعثر على خطتك في ثوانٍ',
-      q1: 'كم مدة الحصة؟',
-      len: [
-        ['30', '٣٠ دقيقة', 'للأطفال والتدريب المركّز'],
-        ['60', '٦٠ دقيقة', 'للكبار والتجويد والحفظ'],
-      ],
-      q2: 'كم حصة في الأسبوع؟',
-      perWeek: (n: number) => (n === 1 ? 'حصة واحدة' : n === 2 ? 'حصتان' : `${num('ar', n)} حصص`),
-      result: 'خطتك',
-      perSession: 'للحصة تقريبًا',
-      start: 'ابدأ بحصتين مجانيتين',
-      compare: 'أو قارن كل الخطط بالأسفل',
-      g30: 'حصص ٣٠ دقيقة',
-      g30s: 'مثالية للأطفال (أشبال الأمة) ولمراجعة مركّزة.',
-      g60: 'حصص ٦٠ دقيقة',
-      g60s: 'عمق أكبر للكبار، والتجويد، والحفظ والإجازة.',
-      choose: 'اختر هذه الخطة',
-      incl: 'كل الخطط تشمل',
-      pay: 'طرق الدفع',
-      payNote: 'نخدم أكثر من ٥٠ دولة بطرق دفع آمنة ومتعددة.',
-      faqTitle: 'أسئلة عن الأسعار',
-      faq: [
-        { q: 'هل يمكنني تغيير الخطة لاحقًا؟', a: 'نعم، يمكنك الانتقال بين الخطط بدءًا من الشهر التالي — فقط أخبرنا عبر واتساب.' },
-        { q: 'هل يمكنني إيقاف الاشتراك مؤقتًا؟', a: 'نعم، يوقف تجميد الاشتراك خطتك دون أن تخسر الحصص التي دفعت ثمنها.' },
-        { q: 'كيف يتم الإلغاء؟', a: 'ألغِ في أي وقت، ويسري الإلغاء بنهاية الشهر المدفوع. لا نسترد قيمة الأشهر الجزئية إلا إذا اقتضى القانون ذلك.' },
-        { q: 'ماذا لو فاتتني حصة؟', a: 'غيّر موعدها مجانًا بإشعار قبلها بـ ٢٤ ساعة على الأقل.' },
-        { q: 'لدي أكثر من طفل.', a: 'لكل متعلم خطته ومعلمه، وتديرون الجميع من حساب واحد في بوابة الأسرة. راسلنا عبر واتساب لترتيب حصص الإخوة متتالية.' },
-        { q: 'ما طرق الدفع المتاحة؟', a: 'فيزا، وماستركارد، وباي بال، والتحويل البنكي، وويسترن يونيون، وموني جرام.' },
-      ],
-      ctaTitle: 'جرّب قبل أن <span class="accent">تختار.</span>',
-      ctaLede: 'احجز حصتين مجانيتين أولًا — وسيقترح معلمك الخطة الأنسب لهدفك.',
-    }
-  : {
-      meta: { title: 'Quran Classes Pricing — Plans from $40/month | Ummah Academy', desc: 'Transparent monthly plans from $40 to $128 for live 1-on-1 Qur’an, Arabic and Islamic Studies lessons. Every plan starts with 2 free sessions.' },
-      eyebrow: 'Pricing',
-      title: 'Simple, <span class="accent">transparent</span> pricing',
-      lede: 'Every plan starts with two free sessions. No card, no contract — cancel or pause anytime.',
-      chips: ['2 free sessions', 'No card', 'Cancel anytime'],
-      finderTitle: 'Find your plan in seconds',
-      q1: 'How long should each session be?',
-      len: [
-        ['30', '30 minutes', 'Children & focused practice'],
-        ['60', '60 minutes', 'Adults, Tajweed & Hifz'],
-      ],
-      q2: 'How many sessions a week?',
-      perWeek: (n: number) => `${n} × week`,
-      result: 'Your plan',
-      perSession: 'per session',
-      start: 'Start with 2 free sessions',
-      compare: 'or compare every plan below',
-      g30: '30-minute sessions',
-      g30s: 'Ideal for children (Ummah Cubs) and focused review.',
-      g60: '60-minute sessions',
-      g60s: 'More depth for adults, Tajweed, Hifz and Ijazah.',
-      choose: 'Choose this plan',
-      incl: 'Every plan includes',
-      pay: 'Payment methods',
-      payNote: 'Serving 50+ countries with secure, flexible payment options.',
-      faqTitle: 'Pricing questions',
-      faq: [
-        { q: 'Can I change plans later?', a: 'Yes. Move between plans from your next billing month — just tell us on WhatsApp.' },
-        { q: 'Can I pause?', a: 'Yes. A subscription freeze pauses your plan without losing sessions you’ve already paid for.' },
-        { q: 'How does cancelling work?', a: 'Cancel anytime; it takes effect at the end of your current billing month. Partial months aren’t refunded unless required by law.' },
-        { q: 'What if I miss a session?', a: 'Reschedule for free with at least 24 hours’ notice.' },
-        { q: 'I have more than one child.', a: 'Each learner has their own plan and teacher, and you manage everyone from one Family Portal account. Ask us on WhatsApp about scheduling siblings back-to-back.' },
-        { q: 'Which payment methods do you accept?', a: 'Visa, Mastercard, PayPal, bank transfer, Western Union and MoneyGram.' },
-      ],
-      ctaTitle: 'Try before you <span class="accent">choose.</span>',
-      ctaLede: 'Book two free sessions first — your teacher will recommend the plan that fits your goal.',
-    };
+const COPY = copy(lang).pricing;
+const C = COPY.C;
 
 const groups = [
   { minutes: 30 as const, title: C.g30, sub: C.g30s, list: plans.filter((p) => p.minutes === 30) },
@@ -233,7 +159,7 @@ const ld = {
           <p class="pay__title">{C.pay}</p>
           <p class="muted">{C.payNote}</p>
         </div>
-        <ul role="list" class="cluster">{(ar ? PAYMENT_METHODS_AR : PAYMENT_METHODS).map((m) => <li class="chip">{m}</li>)}</ul>
+        <ul role="list" class="cluster">{paymentMethods(lang).map((m) => <li class="chip">{m}</li>)}</ul>
       </div>
     </div>
   </section>

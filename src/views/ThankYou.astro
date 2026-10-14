@@ -3,42 +3,14 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { SITE, waLink } from '@/data/site';
 import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
-const C = ar
-  ? {
-      meta: 'خطوة أخيرة — أكّد تجربتك المجانية | أكاديمية الأمة',
-      title: 'طلبك جاهز — أرسله عبر واتساب للتأكيد',
-      lede: 'اضغط الزر لإرسال بياناتك إلى فريق القبول. يتم حجز تجربتك عندما نؤكد معك المعلم والموعد عبر واتساب.',
-      send: 'أرسل عبر واتساب',
-      preview: 'معاينة الرسالة',
-      copy: 'نسخ الرسالة',
-      copied: 'تم النسخ',
-      steps: ['نؤكد معلمك وموعدًا يناسب توقيتك.', 'يصلك رابط الحصة (Zoom أو Google Meet) وتذكير قبلها بـ ١٥ دقيقة.', 'تحضر حصتين مجانيتين — ثم تقرر بلا أي التزام.'],
-      alt: 'لا تستخدم واتساب؟ راسلنا على',
-      wait: 'خذ اختبار تحديد المستوى أثناء الانتظار',
-      titleReceived: (n: string) => `شكرًا يا ${n} — وصلنا طلبك`,
-      ledeReceived: 'سيراسلك فريق القبول عبر واتساب قريبًا لتأكيد المعلم والموعد. تريد ردًا أسرع؟ أرسل الملخص أدناه عبر واتساب.',
-      titlePending: (n: string) => `خطوة أخيرة يا ${n} — أرسل طلبك عبر واتساب`,
-    }
-  : {
-      meta: 'Almost there — confirm your free trial | Ummah Academy',
-      title: 'Your request is ready — send it on WhatsApp to confirm',
-      lede: 'Tap the button to send your details to our admissions team. Your trial is booked once we confirm your teacher and time with you on WhatsApp.',
-      send: 'Send on WhatsApp',
-      preview: 'Preview the message',
-      copy: 'Copy message',
-      copied: 'Copied',
-      steps: ['We confirm your teacher and a time that suits your timezone.', 'You receive a lesson link (Zoom or Google Meet) and a reminder 15 minutes before.', 'You attend two free lessons — then decide, with no obligation.'],
-      alt: 'No WhatsApp? Email us at',
-      wait: 'Take the placement test while you wait',
-      titleReceived: (n: string) => `Thank you, ${n} — we’ve received your request`,
-      ledeReceived: 'Our admissions team will WhatsApp you shortly to confirm your teacher and time. Want it even faster? Send the summary below on WhatsApp.',
-      titlePending: (n: string) => `Almost there, ${n} — send your request on WhatsApp`,
-    };
+const COPY = copy(lang).thankYou;
+const C = COPY.C;
 const i18n = { titleReceived: C.titleReceived('{name}'), ledeReceived: C.ledeReceived, titlePending: C.titlePending('{name}'), copied: C.copied };
 ---
 
