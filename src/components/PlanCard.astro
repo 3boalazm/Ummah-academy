@@ -1,0 +1,136 @@
+---
+import Icon from './Icon.astro';
+import type { Plan } from '@/data/pricing';
+import { trialLink } from '@/data/site';
+interface Props {
+  plan: Plan;
+  delay?: number;
+  cta?: string;
+}
+const { plan, delay = 0, cta = 'Start free trial' } = Astro.props;
+const featured = plan.badge === 'Most Popular';
+const perSession = (plan.price / plan.sessionsPerMonth).toFixed(2).replace(/\.00$/, '');
+---
+
+<article
+  class:list={['plan', 'glass', { 'plan--featured': featured }]}
+  data-reveal
+  style={`--reveal-delay:${delay}s`}
+>
+  <div class="plan__top">
+    <span class="chip">Track {plan.track} · {plan.minutes} min</span>
+    {plan.badge && <span class="plan__badge">{plan.badge}</span>}
+  </div>
+  <h3 class="plan__name">{plan.name}</h3>
+  <p class="plan__blurb">{plan.blurb}</p>
+  <p class="plan__price"><span class="plan__cur">$</span>{plan.price}<span class="plan__per">/ month</span></p>
+  <p class="plan__meta"><Icon name="calendar-blank" weight="bold" /> {plan.sessionsLabel}</p>
+  <p class="plan__unit">≈ ${perSession} per session</p>
+  <ul class="checklist plan__features">
+    {plan.features.map((f) => <li>{f}</li>)}
+  </ul>
+  <a class:list={['btn', 'btn--block', featured ? 'btn--primary' : 'btn--glass']} href={trialLink({ plan: plan.name })}>
+    {cta} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+  </a>
+</article>
+
+<style>
+  .plan {
+    --radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px;
+  }
+
+  .plan--featured {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgb(175 204 234 / 0.55), transparent 55%),
+      radial-gradient(120% 80% at 0% 100%, rgb(241 205 220 / 0.6), transparent 55%),
+      var(--glass-fill-strong);
+    box-shadow:
+      0 0 0 2px rgb(107 63 160 / 0.5),
+      var(--shadow-lift);
+  }
+
+  .plan__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .plan__badge {
+    padding: 5px 11px;
+    border-radius: var(--r-pill);
+    font-size: 0.75rem;
+    font-weight: 650;
+    color: #fff;
+    background: var(--grad-accent);
+  }
+
+  .plan__name {
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    margin-top: 6px;
+  }
+
+  .plan__blurb {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+    min-height: 2.8em;
+  }
+
+  .plan__price {
+    font-size: 3.2rem;
+    font-weight: 640;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .plan__cur {
+    font-size: 1.5rem;
+    vertical-align: 0.9em;
+    margin-inline-end: 2px;
+    font-weight: 560;
+  }
+
+  .plan__per {
+    font-size: 0.95rem;
+    font-weight: 450;
+    letter-spacing: 0;
+    color: var(--ink-3);
+    margin-inline-start: 6px;
+  }
+
+  .plan__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 540;
+    color: var(--ink-2);
+  }
+
+  .plan__meta :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-ink);
+  }
+
+  .plan__unit {
+    font-size: 0.82rem;
+    color: var(--ink-3);
+    margin-top: -6px;
+  }
+
+  .plan__features {
+    margin-block: 6px 10px;
+    font-size: 0.95rem;
+  }
+
+  .plan .btn {
+    margin-top: auto;
+  }
+</style>

@@ -1,0 +1,132 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import TeachingBlock from '@/components/TeachingBlock.astro';
+import Faq from '@/components/Faq.astro';
+import MiniCta from '@/components/MiniCta.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/track-kids.jpg';
+import { trialLink } from '@/data/site';
+
+const why = [
+  { icon: 'book-open-text', title: 'Noor Al-Bayan Reading', text: 'The trusted method for learning to read Arabic and the Quran, paced to your child.' },
+  { icon: 'puzzle-piece', title: 'Stories & Games', text: 'Islamic studies taught through Prophet stories and interactive games, not lectures.' },
+  { icon: 'medal', title: 'Monthly Achievement Badges', text: 'Real progress your child can see and feel proud of, every single month.' },
+  { icon: 'users-three', title: 'Family Portal Access', text: 'Track your child’s progress, review session recordings, and get WhatsApp updates.' },
+];
+const ages = [
+  { age: '5–7', title: 'Little Beginners', text: 'Shorter, highly gamified sessions focused on letters, sounds, and simple stories.' },
+  { age: '8–10', title: 'Building Habits', text: 'A balanced mix of reading practice, early memorization, and Islamic stories.' },
+  { age: '11–14', title: 'Ready for More', text: 'A more structured pace, introducing Tajweed basics and deeper Islamic studies.' },
+];
+const faqs = [
+  { q: 'What age range is Ummah Cubs suitable for?', a: 'Ages 5 to 14, with content and pacing adjusted across that range through our Little Explorers, Growing Learners, and older tiers.' },
+  { q: 'How long are class sessions?', a: '30 minutes — matched to a child’s natural focus span.' },
+  { q: 'Do you use games and visuals, or a traditional classroom format?', a: 'Ummah Cubs is built around games, stories, and visuals rather than a formal classroom format, while still teaching real Quran reading and Islamic studies.' },
+  { q: 'Can my child join with zero prior Quran or Arabic knowledge?', a: 'Yes — Little Explorers starts from the very first Arabic letters.' },
+  { q: 'Is the teacher trained specifically in teaching children?', a: 'Yes — our Ummah Cubs programme lead holds certification in Early Islamic Education and specializes in ages 5–14.' },
+  { q: 'How do I track my child’s progress?', a: 'Teachers share updates directly with parents, and monthly achievement badges mark milestones along the way.' },
+  { q: 'What happens if my child misses a class?', a: 'Just message the teacher on WhatsApp to reschedule.' },
+  { q: 'Not sure which level is right for my child?', a: 'Take the free <a href="/placement-test/?track=kids">Kids Placement Test</a> — a quick skill snapshot with a recommended starting point, in a few minutes.' },
+  { q: 'Can I request a female teacher for my daughter?', a: 'Yes — we have dedicated female teachers for children, in a fully private, faith-conscious setting.' },
+  { q: 'How much does Ummah Cubs cost?', a: 'Plans start from $40/month, with 2 free trial sessions first — no credit card required.' },
+];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Ummah Cubs — Online Quran & Islamic Studies for Kids',
+  description: 'Gamified 30-minute 1-on-1 sessions for children aged 5–14: Quran reading, Arabic and Islamic values with Al-Azhar certified teachers.',
+  provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' },
+  offers: { '@type': 'Offer', price: 40, priceCurrency: 'USD', category: 'subscription' },
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online', courseWorkload: 'PT30M' },
+};
+---
+
+<BaseLayout title="Online Islamic Studies & Quran for Kids | Ummah Cubs | Ummah Academy" description="Ummah Cubs: gamified 30-minute 1-on-1 Quran, Arabic and Islamic studies sessions for kids aged 5–14, with patient Al-Azhar teachers. From $40/month." jsonLd={ld}>
+  <PageHero
+    crumbs={[{ label: 'Courses', href: '/courses/' }, { label: 'Ummah Cubs' }]}
+    eyebrow="Ummah Cubs — Ages 5 to 14"
+    title='Online Islamic Studies <span class="accent">for Kids</span>'
+    lede="Quran reading, Arabic, and Islamic values through games and stories — short, gamified 30-minute sessions with Al-Azhar certified teachers your child will actually look forward to."
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={trialLink({ course: 'Ummah Cubs (Kids)' })}>Enroll My Child Free <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href="/teachers/">Meet the Teachers</a>
+    </Fragment>
+    <ul role="list" class="hero-stats">
+      <li><strong>5–14</strong><span>Ages welcome</span></li>
+      <li><strong>30 min</strong><span>Focused sessions</span></li>
+      <li><strong>1:1</strong><span>Live, not recorded</span></li>
+    </ul>
+    <Fragment slot="visual">
+      <div class="frame frame--arch tp-art"><Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" /></div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--tight" aria-labelledby="whyp">
+    <div class="container">
+      <SectionHead id="whyp" eyebrow="Why Parents Choose Ummah Cubs" title='Built Around How <span class="accent">Kids Actually Learn</span>' />
+      <FeatureGrid items={why} cols={4} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="paced">
+    <div class="container">
+      <SectionHead id="paced" eyebrow="Paced By Age" title='Sessions Matched to Their <span class="accent">Attention Span</span>' />
+      <div class="grid grid-3">
+        {
+          ages.map((a, i) => (
+            <article class="card glass age" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="age__num">{a.age}</span>
+              <h3>{a.title}</h3>
+              <p>{a.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <TeachingBlock
+    eyebrow="Who’s Teaching Your Child"
+    title='Teachers Who Know How to <span class="accent">Talk to Kids</span>'
+    text="Every Ummah Cubs teacher is an Al-Azhar certified graduate experienced specifically in teaching children — patient, engaging, and fluent in both Arabic and English, so nothing gets lost in translation."
+    bullets={['Al-Azhar University graduates', 'Dedicated female teachers available for girls', 'Experienced specifically with children ages 5–14', 'Fully private, faith-conscious setting']}
+    stat="50+"
+    statLabel="Countries, One Classroom at a Time"
+  />
+
+  <MiniCta title='Give Your Child a <span class="accent">Head Start</span>' text="Book 2 free trial sessions — no credit card, no commitment. Let them meet their teacher first." label="Enroll my child free" href={trialLink({ course: 'Ummah Cubs (Kids)' })} />
+
+  <section class="section" aria-labelledby="kfaq">
+    <div class="container--narrow">
+      <SectionHead id="kfaq" eyebrow="FAQ" title="Ummah Cubs — Frequently Asked Questions" lede="What parents ask most before enrolling their child." />
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <RelatedPosts slugs={['5-signs-your-child-is-ready-for-online-quran-classes', 'online-quran-classes-for-kids-a-complete-guide-for-parents', 'how-to-choose-the-right-quran-teacher-for-your-child']} />
+</BaseLayout>
+
+<style>
+  .tp-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+
+  .age__num {
+    font-size: 2.6rem;
+    font-weight: 640;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>

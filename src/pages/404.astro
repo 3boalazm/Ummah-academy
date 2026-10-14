@@ -1,0 +1,65 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { waLink } from '@/data/site';
+const links = [
+  { href: '/courses/', label: 'All courses', icon: 'books' },
+  { href: '/pricing/', label: 'Pricing', icon: 'tag' },
+  { href: '/placement-test/', label: 'Placement test', icon: 'compass' },
+  { href: '/blog/', label: 'Blog', icon: 'article' },
+];
+---
+
+<BaseLayout title="Page not found | Ummah Academy" description="The page you're looking for may have moved." noindex>
+  <section class="section">
+    <div class="container--narrow nf">
+      <p class="nf__code quranic" aria-hidden="true">٤٠٤</p>
+      <span class="eyebrow">Page not found</span>
+      <h1>We couldn’t find that page</h1>
+      <p class="lead">The page you’re looking for may have moved or no longer exists. Jump back to one of our most-visited pages below.</p>
+      <ul role="list" class="nf__links">
+        {links.map((l) => <li><a class="btn btn--glass" href={l.href}><Icon name={l.icon} /> {l.label}</a></li>)}
+      </ul>
+      <div class="cluster nf__cta">
+        <a class="btn btn--primary" href="/">Back to Home</a>
+        <a class="btn btn--glass" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> Message us on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+    padding-block: 40px;
+  }
+
+  .nf__code {
+    font-size: clamp(6rem, 18vw, 11rem);
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .nf h1 {
+    font-size: var(--fs-h1);
+  }
+
+  .nf__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .nf__cta {
+    justify-content: center;
+    margin-top: 8px;
+  }
+</style>

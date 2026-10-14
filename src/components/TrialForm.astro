@@ -1,0 +1,277 @@
+---
+import Icon from './Icon.astro';
+import { TRIAL_COURSES } from '@/data/tracks';
+import { SITE } from '@/data/site';
+
+const countries = [
+  'United Kingdom', 'United States', 'Canada', 'Australia', 'New Zealand', 'Ireland', 'Germany', 'France', 'Netherlands',
+  'Sweden', 'Norway', 'Denmark', 'Spain', 'Italy', 'Saudi Arabia', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Bahrain',
+  'Oman', 'Egypt', 'Jordan', 'Morocco', 'Algeria', 'Tunisia', 'Turkey', 'Pakistan', 'India', 'Bangladesh', 'Malaysia',
+  'Indonesia', 'Singapore', 'South Africa', 'Nigeria', 'Kenya', 'Other',
+];
+---
+
+<form class="trial-form glass glass--strong" id="trial-form" novalidate data-trial-form data-endpoint={SITE.leadEndpoint} data-wa={SITE.whatsapp.number}>
+  <div class="trial-form__progress" aria-live="polite">
+    <span class="trial-form__bar"><span data-progress-bar></span></span>
+    <span data-progress-text>0 of 5 completed</span>
+  </div>
+
+  <fieldset class="trial-form__group">
+    <legend>About you</legend>
+    <div class="trial-form__row">
+      <div class="field">
+        <label for="tf-first">First name <span aria-hidden="true">*</span></label>
+        <input class="input" id="tf-first" name="firstName" autocomplete="given-name" required data-req />
+        <p class="error" id="tf-first-err">Please enter your first name.</p>
+      </div>
+      <div class="field">
+        <label for="tf-wa">WhatsApp number <span aria-hidden="true">*</span></label>
+        <input class="input" id="tf-wa" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+44 7700 900123" required data-req aria-describedby="tf-wa-hint" />
+        <p class="hint" id="tf-wa-hint">We’ll message you here to confirm your trial — nowhere else.</p>
+        <p class="error">Please enter your WhatsApp number with country code.</p>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="trial-form__group">
+    <legend>Learning</legend>
+    <div class="trial-form__row trial-form__row--3">
+      <div class="field">
+        <label for="tf-country">Country <span aria-hidden="true">*</span></label>
+        <select class="select" id="tf-country" name="country" required data-req>
+          <option value="">Select…</option>
+          {countries.map((c) => <option>{c}</option>)}
+        </select>
+        <p class="error">Please select your country.</p>
+      </div>
+      <div class="field">
+        <label for="tf-age">Age group <span aria-hidden="true">*</span></label>
+        <select class="select" id="tf-age" name="ageGroup" required data-req>
+          <option value="">Select age group…</option>
+          <option>Child (5–12)</option>
+          <option>Teen (13–17)</option>
+          <option>Adult (18+)</option>
+          <option>Senior (55+)</option>
+        </select>
+        <p class="error">Please select an age group.</p>
+      </div>
+      <div class="field">
+        <label for="tf-course">Course track <span aria-hidden="true">*</span></label>
+        <select class="select" id="tf-course" name="course" required data-req>
+          <option value="">What would you like to learn?</option>
+          {TRIAL_COURSES.map((c) => <option>{c}</option>)}
+        </select>
+        <p class="error">Please choose a course.</p>
+      </div>
+    </div>
+  </fieldset>
+
+  <details class="trial-form__more">
+    <summary><Icon name="plus-circle" weight="bold" /> Add more details (optional) — helps us match your teacher faster</summary>
+    <div class="trial-form__more-body">
+      <div class="trial-form__row">
+        <div class="field">
+          <label for="tf-last">Last name (optional)</label>
+          <input class="input" id="tf-last" name="lastName" autocomplete="family-name" />
+        </div>
+        <div class="field">
+          <label for="tf-email">Email (optional)</label>
+          <input class="input" id="tf-email" name="email" type="email" autocomplete="email" />
+        </div>
+      </div>
+      <div class="trial-form__row trial-form__row--3">
+        <div class="field">
+          <label for="tf-gender">Teacher preference</label>
+          <select class="select" id="tf-gender" name="teacherGender">
+            <option>No preference</option>
+            <option>Female teacher only</option>
+            <option>Male teacher only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tf-days">Preferred days</label>
+          <select class="select" id="tf-days" name="days">
+            <option>Any day — flexible</option>
+            <option>Weekdays</option>
+            <option>Weekends</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tf-time">Preferred time</label>
+          <select class="select" id="tf-time" name="time">
+            <option>Any time</option>
+            <option>Morning — 6 AM–12 PM</option>
+            <option>Afternoon — 12–5 PM</option>
+            <option>Evening — 5–10 PM</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint trial-form__tz"><Icon name="globe-simple" weight="bold" /> Times are in your local timezone: <strong data-tz>—</strong></p>
+      <div class="field">
+        <label for="tf-notes">Anything else? (optional)</label>
+        <textarea class="textarea" id="tf-notes" name="notes" placeholder="e.g. a specific teacher, siblings joining, prior study…"></textarea>
+      </div>
+    </div>
+  </details>
+
+  <input type="hidden" name="teacher" />
+  <input type="hidden" name="plan" />
+  <input type="hidden" name="timezone" />
+
+  <button class="btn btn--lg btn--primary btn--block" type="submit">
+    Start my free trial <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+  </button>
+  <p class="trial-form__note">2 free sessions · No payment · No commitment</p>
+  <p class="trial-form__privacy"><Icon name="lock-simple" weight="fill" /> Your information is only used to arrange your trial. <a href="/privacy-policy/">Privacy</a></p>
+</form>
+
+<script>
+  import { initTrialForm } from '@/scripts/trial-form';
+  initTrialForm();
+</script>
+
+<style>
+  .trial-form {
+    --radius: 32px;
+    display: grid;
+    gap: 22px;
+    padding: clamp(22px, 3.5vw, 40px);
+  }
+
+  .trial-form__progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-weight: 560;
+    color: var(--ink-3);
+  }
+
+  .trial-form__bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 99px;
+    background: rgb(46 29 70 / 0.08);
+    overflow: hidden;
+  }
+
+  .trial-form__bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--grad-accent);
+    transition: width 0.5s var(--ease-out);
+  }
+
+  .trial-form__group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+
+  .trial-form__group legend {
+    padding: 0;
+    margin-bottom: 12px;
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  .trial-form__row {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .trial-form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .trial-form__row--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .trial-form__more {
+    border-radius: 20px;
+    background: rgb(255 255 255 / 0.5);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+  }
+
+  .trial-form__more summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    font-weight: 560;
+    font-size: 0.95rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .trial-form__more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .trial-form__more summary :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--accent-ink);
+    flex: none;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .trial-form__more[open] summary :global(svg) {
+    transform: rotate(45deg);
+  }
+
+  .trial-form__more-body {
+    display: grid;
+    gap: 14px;
+    padding: 0 18px 18px;
+  }
+
+  .trial-form__tz {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .trial-form__tz :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .trial-form__note {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 540;
+    color: var(--ink-2);
+    margin-top: -8px;
+  }
+
+  .trial-form__privacy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--ink-3);
+    margin-top: -12px;
+  }
+
+  .trial-form__privacy :global(svg) {
+    width: 13px;
+    height: 13px;
+  }
+
+  label span[aria-hidden] {
+    color: var(--magenta-600);
+  }
+</style>

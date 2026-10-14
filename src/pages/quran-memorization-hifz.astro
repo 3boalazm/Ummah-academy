@@ -1,0 +1,141 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import CourseCard from '@/components/CourseCard.astro';
+import Steps from '@/components/Steps.astro';
+import Faq from '@/components/Faq.astro';
+import MiniCta from '@/components/MiniCta.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/hero-arch.jpg';
+import { trialLink } from '@/data/site';
+import { trackById } from '@/data/tracks';
+
+const hifz = trackById('quran').courses.find((c) => c.id === 'hifz')!;
+const steps = [
+  { icon: 'compass', title: 'Placement & Goals', text: 'Your teacher assesses your current level and Tajweed foundation to set a realistic memorization pace.' },
+  { icon: 'book-open-text', title: 'Hifz Jadeed', text: 'Learn new verses in thematically-grouped sets using the Itqan method, with live Tajweed correction.' },
+  { icon: 'arrows-clockwise', title: 'Muraja’ah (Review)', text: 'Structured daily and weekly review keeps previously memorized portions strong and permanent.' },
+  { icon: 'scroll', title: 'Ijazah with Sanad', text: 'On completion, receive a formal Ijazah documenting an unbroken chain of transmission back to the Prophet ﷺ.' },
+];
+const faqA = [
+  { q: 'What is the Itqan method?', a: 'Itqan means “perfection.” Instead of memorizing verses in isolation, related verses are grouped thematically so the meaning and sequence reinforce each other — leading to more durable, easier-to-recall memorization.' },
+  { q: 'What exactly is an Ijazah, and why does it matter?', a: 'An Ijazah is a formal certification that you’ve memorized and can correctly recite a portion of (or the entire) Quran, with a documented Sanad — an unbroken chain of teachers going back to the Prophet ﷺ. It’s the traditional, scholarly standard of certification in Quran memorization.' },
+  { q: 'Do I need to already know Tajweed before starting Hifz?', a: 'A basic Tajweed foundation helps, but it’s not required — your teacher will correct pronunciation and Tajweed as part of every memorization session, so mistakes don’t get locked in.' },
+  { q: 'How much of the Quran can I realistically memorize?', a: 'Pace is fully personalized — some students focus on a Juz’ or a set of surahs for daily prayer, others pursue full Hifz over several years. Your teacher builds a realistic plan around your goals and available time.' },
+  { q: 'Is this program only for adults?', a: 'No — Hifz & Ijazah suits committed learners of any age. For younger children just starting out, our <a href="/ummah-cubs-kids-islamic-studies/">Ummah Cubs program</a> is a gentler starting point.' },
+  { q: 'What if I’ve already memorized some Quran elsewhere?', a: 'Your teacher will assess what you’ve already memorized in your first sessions and continue from there — you won’t restart from zero.' },
+  { q: 'What platform do sessions run on?', a: 'Zoom or Google Meet, with interactive tools for real-time Tajweed correction during recitation.' },
+];
+const faqB = [
+  { q: 'How long does Quran memorization (Hifz) take?', a: 'It varies by student, but most learners memorizing consistently with the Itqan thematic method make steady, measurable progress within the first year, with full memorization typically taking several years depending on age, prior Quran reading ability, and how many sessions per week.' },
+  { q: 'Do I need to know Tajweed before starting Hifz?', a: 'Basic Tajweed and confident Quran reading are recommended first. Your teacher assesses this in your free trial session and can build foundational Tajweed alongside memorization if needed.' },
+  { q: 'Are Hifz classes one-on-one?', a: 'Yes — every Hifz student learns 1-on-1 with a dedicated Al-Azhar certified teacher, never in a group.' },
+  { q: 'How often are Hifz classes held?', a: 'Most students take 2–4 sessions per week. Your schedule is flexible and arranged directly with your teacher.' },
+  { q: 'What happens if I miss a class?', a: 'Missed sessions can be rescheduled with your teacher — just message them directly on WhatsApp.' },
+  { q: 'Can children join the Hifz program?', a: 'Yes — children as young as 7 can begin, with pacing and session length adjusted to their age.' },
+  { q: 'Do your teachers hold a real, documented Ijazah and Sanad?', a: 'Yes — every Hifz teacher’s Ijazah and Sanad (chain of transmission) is verified before they teach, as part of our teacher vetting process.' },
+  { q: 'What is the Itqan method?', a: 'A thematic memorization approach that groups verses by meaning and theme rather than pure repetition, helping retention and understanding reinforce each other.' },
+];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Online Quran Memorization (Hifz) & Ijazah Program',
+  description: 'Memorize the Quran with the Itqan thematic method and earn a documented Ijazah with Sanad — live 1-on-1 with Al-Azhar certified teachers.',
+  provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' },
+  offers: { '@type': 'Offer', price: 96, priceCurrency: 'USD', category: 'subscription' },
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online' },
+};
+---
+
+<BaseLayout title="Online Quran Memorization (Hifz) Program | Ummah Academy" description="Memorize the Quran with the Itqan thematic method and earn a real Ijazah with Sanad — live 1-on-1 with Al-Azhar certified teachers, at your own pace." jsonLd={ld}>
+  <PageHero
+    crumbs={[{ label: 'Courses', href: '/courses/' }, { label: 'Hifz & Ijazah' }]}
+    eyebrow="Hifz & Ijazah Program"
+    title='Online Quran Memorization <span class="accent">(Hifz)</span> Program'
+    lede="Memorize the Quran with the Itqan method and earn a real, documented Ijazah with an unbroken chain of transmission (Sanad) — 1-on-1, online, at your own pace."
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={trialLink({ course: 'Quran Memorization (Hifz)' })}>Start 2 Free Trial Sessions <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+    </Fragment>
+    <Fragment slot="visual">
+      <div class="frame frame--arch tp-art"><Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" /></div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--tight" aria-labelledby="last">
+    <div class="container split">
+      <div class="stack" style="--stack:16px" data-reveal>
+        <h2 id="last" class="h2">Memorization That’s <span class="accent">Built to Last</span></h2>
+        <p class="lead">Memorizing the Quran isn’t just about repetition — it’s about how the memorization is structured. Our Hifz program uses the <strong>Itqan (Perfection) method</strong>, grouping verses thematically so they connect logically in memory, rather than being memorized as disconnected lines.</p>
+        <p class="muted">Every student is paired with an Al-Azhar certified teacher for real, 1-on-1 live sessions — reviewing previous memorization (Muraja’ah), learning new verses (Hifz Jadeed), and correcting Tajweed as you go, so mistakes never get memorized alongside the verse.</p>
+        <p class="muted">Teachers are matched to your needs: dedicated female teachers are available, and every teacher has experience teaching both Arabic speakers and non-Arabic speakers.</p>
+        <ul role="list" class="cluster badges">
+          <li class="chip"><Icon name="graduation-cap" /> Al-Azhar Certified Teachers</li>
+          <li class="chip"><Icon name="scroll" /> Formal Ijazah with Sanad</li>
+          <li class="chip"><Icon name="brain" /> Itqan Thematic Method</li>
+          <li class="chip"><Icon name="arrows-clockwise" /> Structured Daily Review</li>
+        </ul>
+      </div>
+      <div data-reveal style="--reveal-delay:.08s">
+        <p class="eyebrow program-kicker">Your Program</p>
+        <CourseCard course={hifz} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how">
+    <div class="container">
+      <SectionHead id="how" eyebrow="How It Works" title='From First Verse to <span class="accent">Ijazah</span>' />
+      <Steps items={steps} />
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="hfaq">
+    <div class="container--narrow">
+      <SectionHead id="hfaq" eyebrow="Common Questions" title="Hifz Program FAQs" />
+      <Faq items={faqA} schema={false} />
+    </div>
+  </section>
+
+  <MiniCta title='Begin Your <span class="accent">Hifz Journey</span>' text="Two free trial sessions with a real Al-Azhar certified teacher — no pressure, no credit card required." href={trialLink({ course: 'Quran Memorization (Hifz)' })}>
+    <p class="mini-links">Not ready for full Hifz yet? Start with <a href="/quran-recitation-course/">Quran Recitation &amp; Tajweed</a>, explore classes for <a href="/ummah-cubs-kids-islamic-studies/">kids</a>, or see all <a href="/courses/">course tracks</a>. Meet our <a href="/teachers/">Al-Azhar certified teachers</a> or view <a href="/pricing/">pricing plans</a>.</p>
+  </MiniCta>
+
+  <section class="section" aria-labelledby="hfaq2">
+    <div class="container--narrow">
+      <SectionHead id="hfaq2" eyebrow="FAQ" title="Hifz &amp; Ijazah — Frequently Asked Questions" lede="Everything parents and students ask before starting the memorization program." />
+      <Faq items={faqB} />
+    </div>
+  </section>
+
+  <RelatedPosts limit={4} slugs={['how-long-does-it-take-to-memorize-the-quran-a-realistic-timeline', 'what-is-an-ijazah-understanding-quran-certification-and-sanad', 'the-itqan-method-explained-how-thematic-memorization-makes-hifz-easier', 'the-complete-guide-to-quran-memorization-hifz-how-the-program-actually-works']} />
+</BaseLayout>
+
+<style>
+  .tp-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+
+  .h2 {
+    font-size: var(--fs-h2);
+  }
+
+  .badges {
+    --cluster: 8px;
+    margin-top: 6px;
+  }
+
+  .program-kicker {
+    margin-bottom: 14px;
+  }
+
+  .mini-links {
+    margin-top: 12px;
+    font-size: 0.95rem;
+  }
+</style>

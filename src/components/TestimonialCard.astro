@@ -1,0 +1,116 @@
+---
+import Icon from './Icon.astro';
+import type { Testimonial } from '@/data/people';
+interface Props {
+  t: Testimonial;
+  compact?: boolean;
+}
+const { t, compact = false } = Astro.props;
+---
+
+<figure class:list={['tcard', 'glass', { 'tcard--compact': compact }]}>
+  <div class="tcard__stars" aria-label="5 out of 5 stars">
+    {Array.from({ length: 5 }).map(() => <Icon name="star" weight="fill" />)}
+  </div>
+  <blockquote>
+    <p>“{t.quote}”</p>
+  </blockquote>
+  {
+    !compact && (
+      <p class="tcard__result">
+        <Icon name="check-circle" weight="fill" />
+        <span>
+          <strong>Result:</strong> {t.result}
+        </span>
+      </p>
+    )
+  }
+  <figcaption>
+    <span class="tcard__avatar" aria-hidden="true">{t.initials}</span>
+    <span>
+      <strong>{t.name}</strong>
+      <small>{t.location} · {t.program}</small>
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .tcard {
+    --radius: 26px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 26px;
+    height: 100%;
+  }
+
+  .tcard__stars {
+    display: flex;
+    gap: 2px;
+    color: var(--gold-400);
+  }
+
+  .tcard__stars :global(svg) {
+    width: 17px;
+    height: 17px;
+  }
+
+  .tcard blockquote {
+    margin: 0;
+    font-size: 1.06rem;
+    line-height: 1.6;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+
+  .tcard__result {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgb(31 122 77 / 0.07);
+    color: #1d5e3f;
+    font-size: 0.88rem;
+  }
+
+  .tcard__result :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    margin-top: 2px;
+  }
+
+  .tcard figcaption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+  }
+
+  .tcard figcaption strong {
+    display: block;
+    font-weight: 600;
+    font-size: 0.97rem;
+  }
+
+  .tcard figcaption small {
+    color: var(--ink-3);
+    font-size: 0.84rem;
+  }
+
+  .tcard__avatar {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 650;
+    color: #fff;
+    background: var(--grad-accent);
+    box-shadow: 0 6px 14px -6px rgb(91 58 142 / 0.7);
+  }
+</style>

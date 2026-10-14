@@ -1,0 +1,122 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import TeachingBlock from '@/components/TeachingBlock.astro';
+import Faq from '@/components/Faq.astro';
+import MiniCta from '@/components/MiniCta.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/track-islamic.jpg';
+import { trialLink } from '@/data/site';
+
+const why = [
+  { icon: 'books', title: 'A Real Curriculum', text: 'Structured study across Aqeedah, Fiqh, Tafseer, and Seerah — not a random mix of topics, but a coherent path you can actually follow.' },
+  { icon: 'graduation-cap', title: 'Al-Azhar Certified Scholars', text: 'Every teacher is an Al-Azhar University graduate, trained in the classical Islamic sciences and able to explain sources, not just conclusions.' },
+  { icon: 'chat-centered-dots', title: 'Ask Your Actual Questions', text: 'Live 1-on-1 sessions mean you can push back, ask “but why,” and get a real answer — something a pre-recorded lecture can’t give you.' },
+];
+const subjects = [
+  { icon: 'sun-horizon', tag: 'Creed & Belief', title: 'Aqeedah', text: 'The 6 pillars of faith, explained with direct Quranic evidence — building a clear, confident understanding of what you believe and why.' },
+  { icon: 'hands-praying', tag: 'Daily Worship', title: 'Fiqh', text: 'Practical rulings for how you actually live — prayer, purification, fasting, and the everyday questions that come up in real life.' },
+  { icon: 'book-open-text', tag: 'Quranic Meaning', title: 'Tafseer', text: 'Understanding what the verses you read actually mean — context, meaning, and the life lessons behind the words.' },
+  { icon: 'path', tag: 'The Prophet’s ﷺ Life', title: 'Seerah', text: 'The Prophet’s ﷺ biography and guidance, studied chronologically — not just stories, but the reasoning and character behind them.' },
+];
+const faqA = [
+  { q: 'Do I have to study all four subjects?', a: 'No — pick one subject to focus on, or take a rotating overview across Aqeedah, Fiqh, Tafseer, and Seerah. Your teacher helps you decide in your first free session.' },
+  { q: 'I’m new to structured Islamic study — is this too advanced?', a: 'Not at all. Your teacher paces the material to your starting point, whether you’re completely new to structured learning or already know the basics and want real depth.' },
+  { q: 'Is this lecture-style or can I ask questions?', a: 'You choose — a structured curriculum, discussion-based sessions built around your questions, or a mix of both.' },
+  { q: 'What platform do sessions run on?', a: 'Zoom or Google Meet, with your teacher available live to answer follow-up questions in real time — not a pre-recorded video.' },
+];
+const faqB = [
+  { q: 'What topics are covered?', a: 'Aqeedah (creed), Fiqh (jurisprudence), Tafsir (Quran interpretation), and Seerah (life of the Prophet ﷺ).' },
+  { q: 'Is this suitable for adults with no prior background?', a: 'Yes — courses start from foundational level and build up from there.' },
+  { q: 'Are classes one-on-one?', a: 'Yes — every student learns 1-on-1 with a certified teacher.' },
+  { q: 'Can I focus on just one topic, like only Fiqh?', a: 'Yes — you can focus on a single subject or combine several based on your goals.' },
+  { q: 'How long is a typical course?', a: 'Pacing is flexible and set with your teacher based on the topic and your availability.' },
+  { q: 'How often are classes?', a: 'Typically 2–3 sessions per week.' },
+  { q: 'What happens if I miss a class?', a: 'Message your teacher on WhatsApp to reschedule.' },
+  { q: 'Do teachers follow a specific school of thought?', a: 'Teachers are Al-Azhar trained and teach according to mainstream Sunni scholarship; specific preferences can be discussed directly with your teacher.' },
+];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Online Islamic Studies for Adults',
+  description: 'Aqeedah, Fiqh, Tafseer and Seerah taught live 1-on-1 by Al-Azhar certified scholars.',
+  provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' },
+  offers: { '@type': 'Offer', price: 64, priceCurrency: 'USD', category: 'subscription' },
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online' },
+};
+---
+
+<BaseLayout title="Online Islamic Studies Classes | Aqeedah, Fiqh & Seerah | Ummah Academy" description="A real curriculum in Aqeedah, Fiqh, Tafseer and Seerah — taught live 1-on-1 by Al-Azhar certified scholars who answer your actual questions. 2 free trial sessions." jsonLd={ld}>
+  <PageHero
+    crumbs={[{ label: 'Courses', href: '/courses/' }, { label: 'Islamic Studies' }]}
+    eyebrow="Islamic Studies Track"
+    title='Online Islamic Studies <span class="accent">for Adults</span>'
+    lede="Aqeedah, Fiqh, Tafseer, and Seerah — a real curriculum for understanding your deen deeply, taught 1-on-1 by Al-Azhar certified scholars, not a generic lecture series."
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={trialLink({ course: 'Islamic Studies' })}>Start 2 Free Trial Sessions <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href="/teachers/">Meet the Teachers</a>
+    </Fragment>
+    <ul role="list" class="hero-stats">
+      <li><strong>4</strong><span>Subjects, one track</span></li>
+      <li><strong>1:1</strong><span>Live sessions</span></li>
+      <li><strong>50+</strong><span>Countries served</span></li>
+    </ul>
+    <Fragment slot="visual">
+      <div class="frame frame--arch tp-art"><Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" /></div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--tight" aria-labelledby="depth">
+    <div class="container">
+      <SectionHead id="depth" eyebrow="Why This Track" title='Depth, Not Just <span class="accent">Definitions</span>' lede="It’s easy to find a lecture online. It’s harder to find a teacher who answers your actual questions — that’s the difference here." />
+      <FeatureGrid items={why} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="subjects">
+    <div class="container">
+      <SectionHead id="subjects" eyebrow="Four Subjects, One Track" title='Choose Where to <span class="accent">Start</span>' lede="Your teacher helps you pick a starting point in your first free session — study one subject in depth or move through all four." />
+      <FeatureGrid items={subjects} cols={4} />
+    </div>
+  </section>
+
+  <TeachingBlock
+    eyebrow="Who’s Teaching You"
+    title='Scholars, Not Just <span class="accent">Speakers</span>'
+    text="Every Ummah Academy Islamic Studies teacher is a graduate of Al-Azhar University — trained in the classical texts and methodology, and fully bilingual so nothing gets lost in translation between Arabic sources and your questions."
+    bullets={['Al-Azhar University graduates', 'Fully bilingual — Arabic and English', 'Dedicated female teachers available', 'Structured curriculum or discussion-led — your choice']}
+    stat="1,000+"
+    statLabel="Years of Al-Azhar Scholarship, Taught Live"
+  />
+
+  <section class="section section--tight" aria-labelledby="ifaq">
+    <div class="container--narrow">
+      <SectionHead id="ifaq" eyebrow="Common Questions" title="Islamic Studies FAQ" />
+      <Faq items={faqA} schema={false} />
+    </div>
+  </section>
+
+  <MiniCta title='Start Understanding Your <span class="accent">Deen Deeply</span>' text="Book your first 2 sessions free — no credit card, no commitment." href={trialLink({ course: 'Islamic Studies' })} />
+
+  <section class="section" aria-labelledby="ifaq2">
+    <div class="container--narrow">
+      <SectionHead id="ifaq2" eyebrow="FAQ" title="Islamic Studies — Frequently Asked Questions" lede="What students ask most before starting Aqeedah, Fiqh, Tafsir, or Seerah." />
+      <Faq items={faqB} />
+    </div>
+  </section>
+
+  <RelatedPosts slugs={['how-to-learn-quran-online-a-complete-beginners-guide-2026', 'what-is-an-ijazah-understanding-quran-certification-and-sanad', 'online-quran-classes-across-time-zones-how-scheduling-actually-works']} />
+</BaseLayout>
+
+<style>
+  .tp-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+</style>

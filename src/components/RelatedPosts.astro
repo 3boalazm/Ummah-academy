@@ -1,0 +1,97 @@
+---
+import { getCollection } from 'astro:content';
+import Icon from './Icon.astro';
+import PostCover from './PostCover.astro';
+interface Props {
+  slugs?: string[];
+  track?: string;
+  limit?: number;
+  title?: string;
+}
+const { slugs, track, limit = 3, title = 'Related articles' } = Astro.props;
+const all = await getCollection('blog');
+let posts = slugs
+  ? slugs.map((s) => all.find((p) => p.id === s)).filter((p): p is (typeof all)[number] => Boolean(p))
+  : all.filter((p) => !track || p.data.track === track);
+posts = posts.sort((a, b) => (slugs ? 0 : b.data.date.getTime() - a.data.date.getTime())).slice(0, limit);
+---
+
+{
+  posts.length > 0 && (
+    <section class="section section--tight" aria-labelledby="related-title">
+      <div class="container">
+        <div class="related__head" data-reveal>
+          <span class="eyebrow">From our blog</span>
+          <h2 id="related-title">{title}</h2>
+        </div>
+        <div class="grid grid-3">
+          {posts.map((p, i) => (
+            <a class="related__card glass glass--interactive" href={`/${p.id}/`} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <PostCover title={p.data.title} track={p.data.track} small />
+              <span class="related__body">
+                <span class="chip chip--accent">{p.data.category}</span>
+                <span class="related__title">{p.data.title}</span>
+                <span class="related__more">
+                  Read article <Icon name="arrow-right" weight="bold" />
+                </span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .related__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .related__head h2 {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+  }
+
+  .related__card {
+    --radius: 26px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    text-decoration: none;
+  }
+
+  .related__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 14px 14px;
+    flex: 1;
+  }
+
+  .related__title {
+    font-weight: 600;
+    font-size: 1.08rem;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
+  }
+
+  .related__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    font-size: 0.88rem;
+    font-weight: 560;
+    color: var(--accent-ink);
+  }
+
+  .related__more :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+</style>

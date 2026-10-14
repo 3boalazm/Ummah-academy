@@ -1,0 +1,114 @@
+---
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import '@fontsource/instrument-serif/latin-400.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
+import '@fontsource/amiri/arabic-400.css';
+import '@fontsource/amiri/arabic-700.css';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import amiriArabic from '@fontsource/amiri/files/amiri-arabic-400-normal.woff2?url';
+import '@/styles/global.css';
+
+import Aurora from '@/components/Aurora.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import { SITE } from '@/data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  lang?: 'en' | 'ar';
+  alternates?: { lang: string; href: string }[];
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = '/og/default.png',
+  type = 'website',
+  noindex = false,
+  jsonLd,
+  lang = 'en',
+  alternates = [],
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
+const dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  '@id': `${SITE.url}/#organization`,
+  name: SITE.name,
+  alternateName: SITE.nameAr,
+  url: SITE.url,
+  logo: `${SITE.url}/favicon.svg`,
+  email: SITE.email,
+  description: SITE.description,
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      contactType: 'admissions',
+      telephone: `+${SITE.whatsapp.number}`,
+      email: SITE.email,
+      availableLanguage: ['English', 'Arabic'],
+    },
+  ],
+};
+const graph = [org, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
+---
+
+<!doctype html>
+<html lang={lang} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={new URL(a.href, Astro.site).href} />)}
+
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_AR' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#f4f1f8" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+
+    <style is:inline set:html={`@font-face{font-family:'UA Honorific';src:url(${amiriArabic}) format('woff2');unicode-range:U+FDFA,U+FDFD;size-adjust:125%;font-display:swap}`}></style>
+    <script type="application/ld+json" set:html={JSON.stringify(graph.length === 1 ? graph[0] : graph)} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Aurora />
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '@/scripts/site';
+    </script>
+  </body>
+</html>

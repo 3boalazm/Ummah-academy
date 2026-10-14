@@ -1,0 +1,139 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import type { Track } from '@/data/tracks';
+interface Props {
+  track: Track;
+  href?: string;
+  delay?: number;
+}
+const { track, href = track.href, delay = 0 } = Astro.props;
+---
+
+<article class="track-card glass glass--interactive" data-reveal style={`--reveal-delay:${delay}s`}>
+  <a class="track-card__media" href={href} tabindex="-1" aria-hidden="true">
+    <Image src={track.image} alt="" widths={[360, 560, 720]} sizes="(min-width: 1100px) 290px, (min-width: 700px) 45vw, 92vw" />
+  </a>
+  <div class="track-card__body">
+    <div class="track-card__head">
+      <span class="icon-badge"><Icon name={track.icon} /></span>
+      <span class="track-card__ar" lang="ar">{track.titleAr}</span>
+    </div>
+    <h3><a href={href}>{track.title}</a></h3>
+    <p class="track-card__sub">{track.subtitle}</p>
+    <ul class="checklist">
+      {track.homePoints.map((p) => <li>{p}</li>)}
+    </ul>
+    <div class="track-card__foot">
+      <span class="track-card__price"><small>From</small> ${track.from}<small>/mo</small></span>
+      <a class="btn btn--sm btn--glass" href={href}>
+        Explore <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .track-card {
+    --radius: var(--r-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .track-card__media {
+    display: block;
+    aspect-ratio: 16 / 11;
+    margin: 8px 8px 0;
+    border-radius: 22px;
+    overflow: hidden;
+  }
+
+  .track-card__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--ease-out);
+  }
+
+  .track-card:hover .track-card__media :global(img) {
+    transform: scale(1.05);
+  }
+
+  .track-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 22px 22px;
+    flex: 1;
+  }
+
+  .track-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -46px;
+  }
+
+  .track-card__ar {
+    font-family: var(--font-arabic);
+    font-size: 0.9rem;
+    color: var(--ink-3);
+    margin-top: 30px;
+  }
+
+  .track-card h3 {
+    font-size: 1.4rem;
+  }
+
+  .track-card h3 a {
+    text-decoration: none;
+  }
+
+  .track-card h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .track-card__sub {
+    font-size: 0.86rem;
+    color: var(--accent-ink);
+    font-weight: 540;
+    margin-top: -6px;
+  }
+
+  .track-card .checklist {
+    font-size: 0.94rem;
+    gap: 8px;
+  }
+
+  .track-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+
+  .track-card__foot .btn {
+    position: relative;
+    z-index: 1;
+  }
+
+  .track-card__price {
+    font-size: 1.5rem;
+    font-weight: 620;
+    letter-spacing: -0.03em;
+  }
+
+  .track-card__price small {
+    font-size: 0.8rem;
+    font-weight: 450;
+    color: var(--ink-3);
+    letter-spacing: 0;
+  }
+</style>

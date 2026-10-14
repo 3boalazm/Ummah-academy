@@ -1,0 +1,133 @@
+---
+/** Visualises an Ijazah chain of transmission (Sanad). */
+interface Props {
+  dark?: boolean;
+}
+const { dark = false } = Astro.props;
+const nodes = [
+  { label: 'You', sub: 'The student' },
+  { label: 'Your teacher', sub: 'Ijazah holder' },
+  { label: 'Their teacher', sub: '…generation after generation' },
+  { label: 'The Prophet ﷺ', sub: 'Source of the recitation' },
+];
+---
+
+<ol role="list" class:list={['sanad', { 'sanad--dark': dark }]} aria-label="Chain of transmission">
+  {
+    nodes.map((n, i) => (
+      <li class="sanad__node" style={`--i:${i}`}>
+        <span class="sanad__dot" aria-hidden="true" />
+        <span class="sanad__label">{n.label}</span>
+        <span class="sanad__sub">{n.sub}</span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .sanad {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .sanad::before {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 2px;
+    background: linear-gradient(90deg, rgb(143 47 158 / 0.25), rgb(143 47 158 / 0.7), rgb(29 95 168 / 0.7));
+    background-size: 200% 100%;
+    animation: sanad-flow 4s linear infinite;
+    border-radius: 2px;
+  }
+
+  @keyframes sanad-flow {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  .sanad__node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+
+  .sanad__dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #e9dcf8 60%, #c9b5ea);
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.7),
+      0 0 0 5px rgb(143 47 158 / 0.2),
+      0 8px 20px -6px rgb(91 58 142 / 0.6);
+  }
+
+  .sanad__node:last-child .sanad__dot {
+    background: radial-gradient(circle at 35% 35%, #fff7e6, #f0d9a6 60%, #d9b26a);
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.7),
+      0 0 24px 4px rgb(217 178 106 / 0.55);
+  }
+
+  .sanad__label {
+    font-weight: 620;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+  }
+
+  .sanad__sub {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+    line-height: 1.35;
+  }
+
+  .sanad--dark .sanad__dot {
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.1),
+      0 0 18px 2px rgb(201 160 255 / 0.45);
+  }
+
+  @media (max-width: 560px) {
+    .sanad {
+      grid-template-columns: 1fr;
+      gap: 18px;
+      justify-items: start;
+    }
+
+    .sanad::before {
+      top: 14px;
+      bottom: 14px;
+      left: 13px;
+      right: auto;
+      width: 2px;
+      height: auto;
+      background: linear-gradient(180deg, rgb(143 47 158 / 0.3), rgb(29 95 168 / 0.7));
+    }
+
+    .sanad__node {
+      flex-direction: row;
+      align-items: center;
+      text-align: start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sanad__sub {
+      flex-basis: 100%;
+      padding-inline-start: 40px;
+      margin-top: -10px;
+    }
+  }
+</style>

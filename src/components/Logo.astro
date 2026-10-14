@@ -1,0 +1,78 @@
+---
+/**
+ * Proposed refreshed identity: an eight-point star (Rub el Hizb — the marker
+ * used inside the Mushaf) holding an open arch — "a doorway into the Qur'an".
+ * Swap for the legacy logo by replacing this single component.
+ */
+interface Props {
+  tone?: 'ink' | 'light';
+  showArabic?: boolean;
+  class?: string;
+}
+const { tone = 'ink', showArabic = false, class: className } = Astro.props;
+const id = `ua-g-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<span class:list={['logo', `logo--${tone}`, className]}>
+  <svg class="logo__mark" viewBox="0 0 40 40" width="34" height="34" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id={id} x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#8f2f9e"></stop>
+        <stop offset="0.5" stop-color="#4a2f72"></stop>
+        <stop offset="1" stop-color="#1d5fa8"></stop>
+      </linearGradient>
+    </defs>
+    <rect x="8.5" y="8.5" width="23" height="23" rx="5.5" fill={`url(#${id})`}></rect>
+    <rect x="8.5" y="8.5" width="23" height="23" rx="5.5" fill={`url(#${id})`} transform="rotate(45 20 20)"></rect>
+    <path d="M15.6 27.2v-6.1a4.4 4.4 0 0 1 8.8 0v6.1z" fill="#fff" fill-opacity="0.95"></path>
+    <circle cx="20" cy="17.2" r="1.25" fill={`url(#${id})`}></circle>
+  </svg>
+  <span class="logo__type">
+    <span class="logo__name">Ummah<span class="logo__soft"> Academy</span></span>
+    {showArabic && <span class="logo__ar" lang="ar">أكاديمية الأمة</span>}
+  </span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .logo__mark {
+    flex: none;
+    filter: drop-shadow(0 6px 10px rgb(91 58 142 / 0.35));
+  }
+  .logo__type {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .logo__name {
+    font-weight: 650;
+    font-size: 1.12rem;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  .logo__soft {
+    font-weight: 450;
+    color: var(--ink-2);
+  }
+  .logo__ar {
+    font-family: var(--font-arabic);
+    font-size: 0.78rem;
+    color: var(--ink-3);
+    letter-spacing: 0;
+  }
+  .logo--light {
+    color: #fff;
+  }
+  .logo--light .logo__soft {
+    color: rgb(255 255 255 / 0.72);
+  }
+  .logo--light .logo__ar {
+    color: rgb(255 255 255 / 0.6);
+  }
+</style>

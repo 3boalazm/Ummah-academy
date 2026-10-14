@@ -1,0 +1,158 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Faq from '@/components/Faq.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+
+const groups = [
+  {
+    title: 'Getting Started',
+    items: [
+      { q: 'How quickly will you respond?', a: 'We reply via WhatsApp within 2 hours — usually much faster, across all timezones.' },
+      { q: 'Are the 2 free trial sessions really free?', a: 'Yes — completely free, no credit card, no commitment.' },
+      { q: 'Can I request a specific teacher?', a: 'Yes — mention their name when you book. We’ll do our best to match you.' },
+    ],
+  },
+  {
+    title: 'Courses & Methodology',
+    items: [
+      { q: 'What if I don’t speak Arabic?', a: 'Many of our students start with zero Arabic. Every teacher is fully bilingual — Arabic and English.' },
+      { q: 'What makes your teaching approach different?', a: 'Our Itqan Methodology focuses on mastery and Tadabbur (contemplation), not just recitation — thematic verse grouping and real-time correction, rather than rote memorization.' },
+      { q: 'Do I get a certificate or Ijazah?', a: 'Yes. Every student receives a completion certificate per level. Students pursuing recitation/Hifz tracks can work toward a formal Ijazah, with a documented chain of transmission back to the Prophet ﷺ.' },
+    ],
+  },
+  {
+    title: 'Teachers',
+    items: [
+      { q: 'Who are your teachers?', a: 'All Al-Azhar University graduates holding Ijazah certificates, experienced in teaching both Arabic and non-Arabic speakers.' },
+      { q: 'Can I request a female teacher for my daughter or wife?', a: 'Yes. We have dedicated female teachers for women and children, in a fully private, faith-conscious setting.' },
+    ],
+  },
+  {
+    title: 'Scheduling & Technology',
+    items: [
+      { q: 'What platform do sessions run on?', a: 'Zoom or Google Meet, with interactive whiteboard tools for marking up Tajweed.' },
+      { q: 'What if I need to miss a session?', a: 'Let us know with as much notice as you can — our packages include a flexible rescheduling policy (24-hour notice) so a missed session isn’t a lost one.' },
+      { q: 'Do you cover my timezone?', a: 'Yes — sessions run around the clock, so you book whatever time genuinely fits your schedule, not ours.' },
+    ],
+  },
+  {
+    title: 'Family & Kids',
+    items: [
+      { q: 'My child is 5 — is that too young?', a: 'Not at all — Ummah Cubs accepts children from age 5, with short, gamified 30-minute sessions.' },
+      { q: 'Can I track my child’s progress?', a: 'Yes, through the Family Portal — one account covering live progress tracking, session recordings, and WhatsApp notifications for every linked child.' },
+    ],
+  },
+  {
+    title: 'Pricing & Payment',
+    items: [
+      { q: 'How much does it cost?', a: 'Packages range from $40 to $128 per month depending on track and session frequency — every plan starts with 2 free trial sessions first. See <a href="/pricing/">pricing</a>.' },
+      { q: 'What payment methods do you accept?', a: 'Visa, MasterCard, PayPal, and Western Union / MoneyGram.' },
+    ],
+  },
+];
+const all = groups.flatMap((g) => g.items);
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: all.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a.replace(/<[^>]+>/g, '') } })),
+};
+---
+
+<BaseLayout title="Quran Classes FAQ | Ummah Academy" description="Answers to the questions families ask most: free trial, teachers, female tutors, timezones, kids from age 5, certificates, pricing and payment." jsonLd={ld}>
+  <PageHero align="center" eyebrow="Support" title='Frequently Asked <span class="accent">Questions</span>' lede="Everything you need to know before — and after — you start." compact />
+
+  <section class="section section--tight">
+    <div class="container faq-page">
+      <nav class="faq-page__nav glass" aria-label="FAQ topics">
+        {groups.map((g) => <a href={`#${g.title.toLowerCase().replace(/[^a-z]+/g, '-')}`}>{g.title}</a>)}
+      </nav>
+      <div class="faq-page__groups">
+        {
+          groups.map((g) => (
+            <section id={g.title.toLowerCase().replace(/[^a-z]+/g, '-')} class="faq-page__group">
+              <h2>{g.title}</h2>
+              <Faq items={g.items} schema={false} />
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container--narrow seo-copy" data-reveal>
+      <span class="eyebrow">FAQ</span>
+      <h2>Quran Classes FAQ</h2>
+      <p>
+        This FAQ answers the most common questions families ask before joining Ummah Academy, from how our free trial works, to
+        how we match students with certified teachers, to pricing and scheduling across time zones.
+      </p>
+      <p>
+        New students often ask how the 2 free trial classes work, what happens after the trial, how flexible scheduling is for
+        different time zones, and how we verify that our teachers are genuinely Al-Azhar certified. The questions above cover
+        pricing plans, cancellations, and what to expect in a typical class.
+      </p>
+    </div>
+  </section>
+
+  <CtaPanel title='Still have a question? <span class="accent">Ask us on WhatsApp.</span>' lede="Real people, fast replies — in English or Arabic." />
+</BaseLayout>
+
+<style>
+  .faq-page {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .faq-page {
+      grid-template-columns: 260px 1fr;
+    }
+  }
+
+  .faq-page__nav {
+    --radius: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px;
+  }
+
+  @media (min-width: 960px) {
+    .faq-page__nav {
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      flex-direction: column;
+    }
+  }
+
+  .faq-page__nav a {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 540;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .faq-page__nav a:hover {
+    background: rgb(255 255 255 / 0.8);
+    color: var(--ink);
+  }
+
+  .faq-page__groups {
+    display: grid;
+    gap: 48px;
+  }
+
+  .faq-page__group {
+    scroll-margin-top: calc(var(--header-h) + 24px);
+  }
+
+  .faq-page__group h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+</style>

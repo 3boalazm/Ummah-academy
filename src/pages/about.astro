@@ -1,0 +1,418 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/hero-arch.jpg';
+
+const values = [
+  { icon: 'diamond', title: 'Itqan (Perfection)', text: 'We teach for deep mastery and retention, not surface-level display of knowledge.' },
+  { icon: 'lightbulb', title: 'Tadabbur (Contemplation)', text: 'Every session connects the student to the deeper meaning of what they’re learning.' },
+  { icon: 'globe-hemisphere-east', title: 'Accessibility for the Ummah', text: 'Our name says it all — we serve the entire Muslim Ummah, regardless of location.' },
+];
+const journey = [
+  { year: '2022', tag: 'The Seed', title: 'A Problem We Couldn’t Ignore', text: 'Our founder noticed Muslim families in the West struggled to find qualified, authentic Qur’an teachers — relying on uncertified volunteers or expensive local schools with inflexible schedules.' },
+  { year: '2023', tag: 'The Solution', title: 'Building the Al-Azhar Connection', text: 'We began recruiting directly from Al-Azhar University — focusing on scholars holding Ijazah certificates with documented chains to the Prophet ﷺ.' },
+  { year: '2024', tag: 'Launch', title: 'Ummah Academy Goes Live', text: 'We officially launched with 20 teachers and 150 students across 12 countries. Our first Ijazah was granted to a student in the UK within our first year.' },
+  { year: '2025', tag: 'Growth', title: 'Expanding the Family', text: 'Expanded to 100+ scholars, 1,000+ students, 50+ countries, and introduced the Ummah Cubs program for children age 5+.' },
+  { year: '2026', tag: 'Today', title: 'A Platform for the Ummah', text: 'Today we deliver 400+ live teaching hours monthly, with 12+ Ijazah certificates issued, 95% student retention, and a complete Family Portal.' },
+];
+const family = [
+  { initials: 'OA', tag: 'Featured Scholar', name: 'Omneya Ali', role: 'Head of Tajweed Department', points: ['Al-Azhar University — Faculty of Sharia', 'Ijazah in Hafs ’an ’Asim', 'Specialist in Al-Ajrumiyyah & Al-Jazariyyah', '10+ years teaching experience'], langs: 'Arabic · English · Qur’an · Tajweed · Arabic' },
+  { initials: 'SA', tag: 'Noor Al-Bayan', name: 'Sara Ahmed', role: 'Arabic Foundation Specialist', points: ['Al-Azhar — Arabic Language Faculty', 'Certified in Noor Al-Bayan', 'Specialist in beginners & children', '8 years online education'], langs: 'Arabic · English · Noor Al-Bayan · Grammar' },
+  { initials: 'NH', tag: 'Kids Specialist', name: 'Nour Hassan', role: 'Ummah Cubs Programme Lead', points: ['Al-Azhar — Islamic Education', 'Certified Early Islamic Education', 'Expert in gamified Qur’an learning', '7 years teaching children ages 5–14'], langs: 'Arabic · English · Ummah Cubs · Qur’an' },
+];
+const method = [
+  { icon: 'squares-four', title: 'Thematic Verse Grouping', text: 'We group verses by theme and meaning — allowing students to understand context.' },
+  { icon: 'waveform', title: 'Real-Time Makhraj Correction', text: 'Live 1-on-1 sessions let teachers instantly correct articulation points.' },
+  { icon: 'steps', title: 'Progressive Level System', text: 'Three clearly defined levels with measurable milestones per track.' },
+  { icon: 'link-simple', title: 'Chain of Transmission (Sanad)', text: 'Ijazah graduates receive a documented chain tracing back to the Prophet ﷺ.' },
+];
+---
+
+<BaseLayout title="About Ummah Academy | Our Mission & Story" description="Founded on one conviction: every Muslim deserves authentic Qur'anic education wherever they live. Our story, vision, scholars and the Itqan methodology.">
+  <PageHero
+    eyebrow="Our Story & Mission"
+    title='About <span class="accent">Ummah Academy</span>'
+    lede="We were founded with a single conviction: every Muslim deserves access to authentic Qur’anic education — regardless of where they live. We bridge the 1,000-year legacy of Al-Azhar with the flexibility modern Muslim families need."
+  >
+    <Fragment slot="visual">
+      <div class="a-visual">
+        <div class="frame frame--arch a-visual__frame">
+          <Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" />
+        </div>
+        <div class="glass a-card a-card--a">
+          <small>Our Teaching Family</small>
+          <strong>100+ Al-Azhar certified scholars worldwide</strong>
+        </div>
+        <div class="glass a-card a-card--b">
+          <strong class="a-card__big">1,000+</strong>
+          <small>Years of Al-Azhar scholarship tradition</small>
+        </div>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section" aria-labelledby="vision-title">
+    <div class="container split">
+      <div class="stack" style="--stack:18px" data-reveal>
+        <span class="eyebrow" style="align-self:flex-start">Our Vision</span>
+        <h2 id="vision-title" class="h2">Empowering every Muslim to return to <span class="accent">Allah’s Book</span></h2>
+        <p class="lead">
+          Our vision is to create a comprehensive, integrated program that motivates Muslims worldwide to return to the Qur’an —
+          not merely for display recitation, but for genuine mastery (Itqan), deep contemplation (Tadabbur), and a heartfelt
+          connection to Allah’s words.
+        </p>
+        <p class="muted">
+          We believe authentic Islamic knowledge should never be a privilege of geography. Whether you’re in London, Toronto,
+          Sydney, or Dubai — you deserve the same quality of teaching Al-Azhar has maintained for over a millennium.
+        </p>
+      </div>
+      <FeatureGrid items={values} cols={2} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="journey-title">
+    <div class="container">
+      <SectionHead id="journey-title" eyebrow="Our Journey" title='How Ummah Academy <span class="accent">Began</span>' />
+      <ol role="list" class="timeline">
+        {
+          journey.map((j, i) => (
+            <li class="glass timeline__item" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="timeline__year">{j.year}</span>
+              <span class="chip chip--accent">{j.tag}</span>
+              <h3>{j.title}</h3>
+              <p>{j.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ummah-title">
+    <div class="night-panel theme-night meaning">
+      <div class="stars"></div>
+      <div class="container meaning__inner">
+        <div class="stack" style="--stack:16px" data-reveal>
+          <span class="eyebrow" style="align-self:flex-start">Our Name, Our Mission</span>
+          <h2 id="ummah-title" class="h2">What Does “Ummah” Mean?</h2>
+          <p class="lead">
+            In the Qur’an, “Ummah” (<span lang="ar" class="arabic">أمة</span>) refers to the global Muslim community — a united
+            body of believers bound by faith. Our name is our promise: this academy exists to serve every member of that community.
+          </p>
+        </div>
+        <ul role="list" class="meaning__stats">
+          <li class="glass"><strong>50+</strong><span>Countries</span></li>
+          <li class="glass"><strong>1K+</strong><span>Students</span></li>
+          <li class="glass"><strong>100+</strong><span>Scholars</span></li>
+          <li class="glass"><strong>12+</strong><span>Ijazahs</span></li>
+        </ul>
+        <span class="meaning__word quranic" aria-hidden="true">أُمَّة</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="family-title">
+    <div class="container">
+      <SectionHead
+        id="family-title"
+        eyebrow="The Teaching Family"
+        title='Meet Our Certified <span class="accent">Al-Azhar Scholars</span>'
+        lede="Every teacher is personally vetted — verified Al-Azhar graduate, Ijazah holder, and experienced in teaching both Arabs and non-Arabic speakers."
+      />
+      <div class="grid grid-3">
+        {
+          family.map((f, i) => (
+            <article class="card glass fam" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <div class="fam__top">
+                <span class="fam__avatar">{f.initials}</span>
+                <span class="chip chip--accent">{f.tag}</span>
+              </div>
+              <h3>{f.name}</h3>
+              <p class="fam__role">{f.role}</p>
+              <ul class="checklist">
+                {f.points.map((p) => (
+                  <li>{p}</li>
+                ))}
+              </ul>
+              <p class="fam__langs">{f.langs}</p>
+            </article>
+          ))
+        }
+      </div>
+      <div class="text-center mt-l">
+        <a class="btn btn--glass" href="/teachers/">Meet All Our Teachers <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="method-title">
+    <div class="container">
+      <SectionHead
+        id="method-title"
+        eyebrow="Our Teaching Philosophy"
+        title='The Itqan Methodology — <span class="accent">Perfection Over Display</span>'
+        lede="Most platforms teach memorization as performance. We fundamentally reject this. Our “Itqan” (perfection) method insists on mastery, precision, and Tadabbur at every stage."
+      />
+      <FeatureGrid items={method} cols={4} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="azhar-title">
+    <div class="container split">
+      <div class="glass azhar" data-reveal>
+        <p class="azhar__big">1,000+</p>
+        <h2 id="azhar-title">Years of Al-Azhar Academic Tradition</h2>
+        <p>
+          Founded in 970 CE, Al-Azhar University is the oldest university in the world and the global authority on Qur’anic
+          sciences. Every Ummah Academy teacher carries this living tradition into your home.
+        </p>
+        <ul class="checklist">
+          <li>Ijazah with Sanad — documented chain to the Prophet ﷺ</li>
+          <li>Al-Azhar University degree verification on request</li>
+          <li>Bilingual teaching — Arabic &amp; English available</li>
+          <li>Female teachers for women &amp; children — fully vetted</li>
+        </ul>
+      </div>
+      <div class="card glass cert" data-reveal style="--reveal-delay:.08s">
+        <span class="icon-badge"><Icon name="certificate" /></span>
+        <h3>Official Completion Certificates</h3>
+        <p>
+          Every student receives a formal certificate upon finishing each level — recognized and verifiable. Advanced students
+          pursuing Ijazah receive a documented chain of transmission.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container--narrow seo-copy" data-reveal>
+      <span class="eyebrow">About Ummah Academy</span>
+      <h2>About Ummah Academy: Our Mission &amp; Story</h2>
+      <p>
+        About Ummah Academy: we are an online academy dedicated to making authentic, certified Islamic education accessible to
+        every Muslim, wherever they live. Our certified Al-Azhar teachers deliver live, 1-on-1 Quran, Tajweed, Arabic, and Islamic
+        Studies classes to students of all ages in over 50 countries, combining traditional scholarship with the convenience of
+        modern online learning.
+      </p>
+    </div>
+  </section>
+
+  <CtaPanel
+    eyebrow="Join Our Family"
+    title='Ready to Begin Your <span class="accent">Islamic Education Journey?</span>'
+    lede="Your first 2 sessions are completely free. Experience the Ummah Academy difference — authentic, certified, and personalized for you."
+    primary={{ label: 'Book Your Free Trial', href: '/contact/#book' }}
+    secondary={{ label: 'Meet Our Teachers', href: '/teachers/' }}
+    ticks={[]}
+  />
+</BaseLayout>
+
+<style>
+  .h2 {
+    font-size: var(--fs-h2);
+  }
+
+  .a-visual {
+    position: relative;
+    width: min(100%, 420px);
+    margin-inline: auto;
+    padding: 20px 30px 40px;
+  }
+
+  .a-visual__frame {
+    aspect-ratio: 4 / 5;
+  }
+
+  .a-card {
+    --radius: 20px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    max-width: 230px;
+    animation: float-y 8s ease-in-out infinite;
+  }
+
+  .a-card small {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+  }
+
+  .a-card strong {
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .a-card__big {
+    font-size: 2rem;
+    letter-spacing: -0.04em;
+  }
+
+  .a-card--a {
+    top: 12%;
+    left: -6%;
+  }
+
+  .a-card--b {
+    bottom: 8%;
+    right: -6%;
+    animation-delay: -4s;
+  }
+
+  .timeline {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+
+  .timeline__item {
+    --radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 24px;
+  }
+
+  .timeline__year {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2.4rem;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .timeline__item h3 {
+    font-size: 1.12rem;
+  }
+
+  .timeline__item p {
+    color: var(--ink-2);
+    font-size: 0.94rem;
+  }
+
+  .meaning {
+    position: relative;
+    padding-block: clamp(56px, 8vw, 104px);
+  }
+
+  .meaning__inner {
+    position: relative;
+    display: grid;
+    gap: 36px;
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .meaning__inner {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+
+  .meaning__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .meaning__stats li {
+    --radius: 22px;
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .meaning__stats strong {
+    font-size: 2.4rem;
+    font-weight: 620;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+
+  .meaning__stats span {
+    color: var(--ink-2);
+    margin-top: 6px;
+  }
+
+  .meaning__word {
+    position: absolute;
+    right: 2%;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: -1;
+    font-size: clamp(8rem, 18vw, 16rem);
+    line-height: 1;
+    color: rgb(255 255 255 / 0.05);
+    pointer-events: none;
+  }
+
+  .fam__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fam__avatar {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-weight: 650;
+    color: #fff;
+    background: var(--grad-accent);
+  }
+
+  .fam__role {
+    margin-top: -8px;
+    color: var(--accent-ink) !important;
+    font-weight: 540;
+  }
+
+  .fam .checklist {
+    font-size: 0.93rem;
+  }
+
+  .fam__langs {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+  }
+
+  .azhar {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(26px, 3.5vw, 44px);
+  }
+
+  .azhar__big {
+    font-size: clamp(3rem, 2rem + 4vw, 5rem);
+    font-weight: 620;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .azhar h2 {
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  }
+
+  .azhar > p {
+    color: var(--ink-2);
+  }
+</style>

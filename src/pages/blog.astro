@@ -1,0 +1,207 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import PostCover from '@/components/PostCover.astro';
+import Icon from '@/components/Icon.astro';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const filters = [
+  { key: 'all', label: 'All' },
+  { key: 'quran', label: 'Qur’an' },
+  { key: 'arabic', label: 'Arabic' },
+  { key: 'kids', label: 'Kids & Parents' },
+  { key: 'islamic', label: 'Islamic Studies' },
+  { key: 'general', label: 'Getting Started' },
+];
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Ummah Academy Blog',
+  url: 'https://ummahacademy.net/blog/',
+  blogPost: posts.slice(0, 12).map((p) => ({ '@type': 'BlogPosting', headline: p.data.title, url: `https://ummahacademy.net/${p.id}/`, datePublished: p.data.date.toISOString() })),
+};
+---
+
+<BaseLayout title="Blog — Practical Islamic Knowledge | Ummah Academy" description="Clear, practical guides on Quran, Tajweed, Hifz, Arabic and Islamic studies — for students and parents alike." jsonLd={ld}>
+  <PageHero
+    align="center"
+    eyebrow="From the Blog"
+    title='Practical Islamic Knowledge for the <span class="accent">Modern Muslim</span>'
+    lede="Qur’an, Arabic, and Islamic studies — explained clearly, for students and parents alike."
+    compact
+  />
+
+  <section class="section section--tight">
+    <div class="container">
+      <div class="blog-filters glass" role="toolbar" aria-label="Filter articles">
+        {filters.map((f, i) => <button type="button" class:list={['blog-filter', { 'is-active': i === 0 }]} data-filter={f.key} aria-pressed={i === 0 ? 'true' : 'false'}>{f.label}</button>)}
+      </div>
+      <ul role="list" class="blog-grid" data-blog-grid>
+        {
+          posts.map((p, i) => (
+            <li data-track={p.data.track} class:list={['blog-card', { 'blog-card--lead': i === 0 }]}>
+              <a class="glass glass--interactive blog-card__link" href={`/${p.id}/`}>
+                <PostCover title={p.data.title} track={p.data.track} small={i !== 0} />
+                <span class="blog-card__body">
+                  <span class="blog-card__meta">
+                    <span class="chip chip--accent">{p.data.category}</span>
+                    <time datetime={p.data.date.toISOString()}>{fmt(p.data.date)}</time>
+                  </span>
+                  <span class="blog-card__title">{p.data.title}</span>
+                  <span class="blog-card__excerpt">{p.data.description}</span>
+                  <span class="blog-card__more">
+                    Read more <Icon name="arrow-right" weight="bold" />
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="blog-empty muted" hidden data-blog-empty>No articles in this topic yet.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const cards = document.querySelectorAll<HTMLElement>('[data-blog-grid] > li');
+  const empty = document.querySelector<HTMLElement>('[data-blog-empty]');
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const key = b.dataset.filter;
+      buttons.forEach((x) => {
+        x.classList.toggle('is-active', x === b);
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      let shown = 0;
+      cards.forEach((c) => {
+        const on = key === 'all' || c.dataset.track === key;
+        c.hidden = !on;
+        if (on) shown++;
+      });
+      if (empty) empty.hidden = shown > 0;
+      track('blog_filter', { topic: key });
+    })
+  );
+</script>
+
+<style>
+  .blog-filters {
+    --radius: var(--r-pill);
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .blog-filter {
+    border: 0;
+    background: transparent;
+    padding: 10px 16px;
+    border-radius: var(--r-pill);
+    font-weight: 540;
+    font-size: 0.93rem;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  .blog-filter:hover {
+    background: rgb(255 255 255 / 0.7);
+  }
+
+  .blog-filter.is-active {
+    color: #fff;
+    background: var(--aubergine-800);
+  }
+
+  .blog-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  }
+
+  .blog-card[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 1000px) {
+    .blog-card--lead {
+      grid-column: span 2;
+    }
+
+    .blog-card--lead .blog-card__link {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      align-items: stretch;
+    }
+
+    .blog-card--lead .blog-card__title {
+      font-size: 1.7rem;
+    }
+  }
+
+  .blog-card__link {
+    --radius: 28px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 8px;
+    text-decoration: none;
+  }
+
+  .blog-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 14px 14px;
+    flex: 1;
+  }
+
+  .blog-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.84rem;
+    color: var(--ink-3);
+  }
+
+  .blog-card__title {
+    font-weight: 620;
+    font-size: 1.18rem;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .blog-card__excerpt {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .blog-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    font-weight: 560;
+    font-size: 0.9rem;
+    color: var(--accent-ink);
+  }
+
+  .blog-card__more :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+</style>

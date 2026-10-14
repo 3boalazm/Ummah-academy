@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+export interface Step {
+  icon?: string;
+  title: string;
+  ar?: string;
+  text: string;
+}
+interface Props {
+  items: Step[];
+}
+const { items } = Astro.props;
+---
+
+<ol role="list" class="steps">
+  {
+    items.map((s, i) => (
+      <li class="glass step" data-reveal style={`--reveal-delay:${i * 0.07}s`}>
+        <span class="step__num">{String(i + 1).padStart(2, '0')}</span>
+        {s.icon && (
+          <span class="icon-badge">
+            <Icon name={s.icon} />
+          </span>
+        )}
+        <h3>{s.title}</h3>
+        {s.ar && (
+          <p class="step__ar" lang="ar">
+            {s.ar}
+          </p>
+        )}
+        <p set:html={s.text} />
+      </li>
+    ))
+  }
+</ol>

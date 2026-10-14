@@ -1,0 +1,159 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import Faq from '@/components/Faq.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/track-quran.jpg';
+import { trialLink } from '@/data/site';
+
+const learn = [
+  { icon: 'waveform', title: 'Proper Tajweed', text: 'Master the rules of Tajweed to recite the Quran with accuracy and beauty.' },
+  { icon: 'microphone-stage', title: 'Fluent Recitation', text: 'Enhance your recitation skills with expert guidance, ensuring correct pronunciation and articulation.' },
+  { icon: 'chats-circle', title: 'Personalized Feedback', text: 'Receive one-on-one coaching from experienced tutors to refine your recitation.' },
+  { icon: 'gauge', title: 'Progress at Your Own Pace', text: 'Our course is suitable for learners at any level, offering a flexible learning experience tailored to your needs.' },
+];
+const info = [
+  { icon: 'books', title: 'Programs', text: 'Discover a wide range of comprehensive programs in Arabic language and Islamic sciences designed for non-Arabic speakers. <a href="/courses/">View our courses</a>' },
+  { icon: 'chart-line-up', title: 'Recitation Levels', text: 'From absolute beginners to advanced Tajweed mastery, sessions are paced to your current level.' },
+  { icon: 'laptop', title: 'Online Education', text: 'Learn from anywhere in the world with our expertly crafted online courses delivered via audio and video. <a href="/pricing/">View pricing</a>' },
+  { icon: 'video-conference', title: 'How Classes Work', text: 'Live 1-on-1 sessions with a certified teacher, fully interactive with screen sharing and real-time correction.' },
+  { icon: 'trophy', title: 'Awards', text: 'Receive certifications and recognition for your achievements and progress in mastering Arabic and Islamic studies. <a href="/teachers/">Meet our teachers</a>' },
+  { icon: 'scroll', title: 'Ijazah Certification', text: 'Qualifying students receive a certified ijazah with an authentic chain of transmission.' },
+  { icon: 'users-four', title: 'Activities', text: 'Engage in interactive activities and community events to deepen your understanding and application of Islamic knowledge. <a href="/family-portal/">Visit family portal</a>' },
+  { icon: 'bell-ringing', title: 'Stay Connected', text: 'Track progress and access session recordings anytime through your Family Portal.' },
+];
+const faqs = [
+  { q: 'Do I need to already know Arabic to start Tajweed lessons?', a: 'No — Tajweed lessons focus on correct pronunciation and recitation rules, and can start alongside basic Arabic reading. Complete beginners are welcome.' },
+  { q: 'How long does it take to master Tajweed rules?', a: 'Most students build strong, correct recitation habits within the first few months of regular practice — though refining Tajweed is an ongoing process even for advanced reciters.' },
+  { q: 'Are classes one-on-one or in groups?', a: 'One-on-one — every student learns individually with a dedicated teacher.' },
+  { q: 'What curriculum do you use for Tajweed?', a: 'Teachers use established, approved curricula — including Noor Al-Bayan for early reading — alongside classical Tajweed rule-books, adapted to each student’s level.' },
+  { q: 'Can adults start from complete beginner level?', a: 'Yes — many adult students start with zero prior Quran reading experience.' },
+  { q: 'How often are classes held?', a: 'Typically 2–3 sessions per week, scheduled flexibly around your timezone.' },
+  { q: 'Do teachers hold a real Ijazah in Qira’at?', a: 'Yes — our teachers’ Ijazah and chain of transmission (Sanad) are verified before they teach.' },
+  { q: 'What happens if I miss a class?', a: 'Message your teacher directly on WhatsApp to reschedule.' },
+];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Online Quran Recitation & Tajweed Course',
+  description: 'Live 1-on-1 Quran recitation and Tajweed lessons for kids and adults with Al-Azhar certified teachers.',
+  provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' },
+  offers: { '@type': 'Offer', price: 64, priceCurrency: 'USD', category: 'subscription' },
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online', courseWorkload: 'PT1H' },
+};
+---
+
+<BaseLayout title="Online Tajweed & Quran Recitation Course | Ummah Academy" description="Learn Quran recitation with proper Tajweed, 1-on-1 and live, from Alif-Ba to fluency. Al-Azhar certified tutors for kids and adults. 2 free trial classes." jsonLd={ld}>
+  <PageHero
+    crumbs={[{ label: 'Courses', href: '/courses/' }, { label: 'Quran Recitation & Tajweed' }]}
+    eyebrow="Quran & Tajweed"
+    title='Learn Quran Recitation &amp; <span class="accent">Tajweed</span> Online'
+    lede="Master Qur’an recitation with proper pronunciation and fluency, guided by expert tutors."
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={trialLink({ course: 'Quran Recitation' })}>Book Your Course <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href="/pricing/">Fair Pricing</a>
+    </Fragment>
+    <Fragment slot="visual">
+      <div class="frame frame--arch tp-art"><Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" /></div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--tight" aria-labelledby="learn">
+    <div class="container">
+      <SectionHead id="learn" eyebrow="What You’ll Learn" title='A complete path to <span class="accent">beautiful recitation</span>' lede="At Ummah Academy, we offer a comprehensive Online Quran Recitation Course for males, females, kids, and adults of all ages and levels. Whether you’re a beginner or an advanced learner, this course is designed to help you develop fluency in reading the Quran and perfect your recitation with Tajweed, just like a skilled Imam or Qari’." />
+      <FeatureGrid items={learn} cols={4} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="beauty">
+    <div class="container split">
+      <div class="stack" style="--stack:18px" data-reveal>
+        <span class="eyebrow" style="align-self:flex-start">Unlock the Beauty of the Quran</span>
+        <h2 id="beauty" class="h2">Recite with <span class="accent">confidence</span></h2>
+        <p class="lead">Experience the spiritual joy of reciting the Quran beautifully with the correct Tajweed. Join Ummah Academy’s Online Quran Recitation Course today and take the first step towards mastering Quran recitation with ease and confidence!</p>
+        <h3>Why choose this course?</h3>
+        <ul class="checklist">
+          <li><strong>Expert Tutors:</strong> Our experienced teachers are dedicated to helping you perfect your recitation.</li>
+          <li><strong>Engaging Learning:</strong> Interactive lessons that keep you motivated and progressing.</li>
+          <li><strong>All Ages Welcome:</strong> Whether you’re starting from scratch or looking to refine your skills, this course is for everyone.</li>
+        </ul>
+      </div>
+      <div class="glass summary" data-reveal style="--reveal-delay:.08s">
+        <h3>Summary of the Online Quran Recitation Course</h3>
+        <p>The Online Quran Recitation Course at Ummah Academy is designed to teach students of all ages and levels the correct pronunciation and recitation of the Quran with proper Tajweed. Whether you’re a beginner or an advanced learner, the course offers personalized lessons with expert tutors to help you improve your fluency and ensure your recitation is accurate and melodious.</p>
+        <p class="summary__k">Key features</p>
+        <ul class="checklist">
+          <li>Learn Quran recitation with Tajweed</li>
+          <li>Personalized feedback from expert tutors</li>
+          <li>Suitable for all ages and levels</li>
+          <li>Flexible, self-paced learning</li>
+        </ul>
+        <p class="muted">Every Quran Recitation Course begins with 2 free trial classes, so you can experience your teacher’s style and pace before enrolling. Lessons are scheduled live, one-on-one, around your own time zone.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container">
+      <FeatureGrid items={info} cols={4} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="rfaq">
+    <div class="container--narrow">
+      <SectionHead id="rfaq" eyebrow="FAQ" title="Quran Recitation &amp; Tajweed — Frequently Asked Questions" lede="What students ask most before starting Tajweed lessons." />
+      <Faq items={faqs} />
+    </div>
+  </section>
+
+  <RelatedPosts slugs={['tajweed-rules-for-beginners-a-simple-introduction-to-reciting-the-quran-correctly', 'why-tajweed-matters-5-real-benefits-of-reciting-the-quran-correctly', 'noon-sakinah-and-tanween-rules-explained-simply']} />
+
+  <CtaPanel title='Start reciting <span class="accent">beautifully.</span>' lede="Two free live sessions with a certified teacher — no card, no commitment." primary={{ label: 'Book your free trial', href: trialLink({ course: 'Quran Recitation' }) }} />
+</BaseLayout>
+
+<style>
+  .tp-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+
+  .h2 {
+    font-size: var(--fs-h2);
+  }
+
+  .summary {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: clamp(24px, 3vw, 40px);
+  }
+
+  .summary h3 {
+    font-size: 1.35rem;
+  }
+
+  .summary > p:not(.muted) {
+    color: var(--ink-2);
+  }
+
+  .summary__k {
+    font-weight: 650;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink) !important;
+  }
+
+  :global(.feature-card a) {
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+</style>

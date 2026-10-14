@@ -1,0 +1,146 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import CourseCard from '@/components/CourseCard.astro';
+import TeachingBlock from '@/components/TeachingBlock.astro';
+import Faq from '@/components/Faq.astro';
+import MiniCta from '@/components/MiniCta.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/track-arabic.jpg';
+import { trackById } from '@/data/tracks';
+import { trialLink } from '@/data/site';
+
+const arabic = trackById('arabic');
+const why = [
+  { icon: 'book-bookmark', title: 'Noor Al-Bayan Foundation', text: 'The most trusted method for reading Arabic and the Quran from scratch — used worldwide as a first step for kids and adult beginners alike.' },
+  { icon: 'scroll', title: 'Classical Grammar, Taught Properly', text: 'Nahw and Sarf through the classical Al-Ajrumiyyah text — the same foundation students at Al-Azhar itself begin with.' },
+  { icon: 'chats-teardrop', title: 'Real Conversation Practice', text: 'Modern Standard Arabic speaking practice for daily life, lectures, and reading contemporary Islamic material with confidence.' },
+];
+const faqA = [
+  { q: 'I don’t know a single Arabic letter — can I still join?', a: 'Yes — Noor Al-Bayan is designed for exactly this. Many of our students start with zero Arabic, and every teacher is fully bilingual so instructions are never a barrier.' },
+  { q: 'Is this Modern Standard Arabic or Quranic Arabic?', a: 'Both, depending on your track — Noor Al-Bayan and Grammar focus on the Arabic of the Quran and classical texts, while the Conversation track teaches Modern Standard Arabic for everyday speaking.' },
+  { q: 'Can my 5-year-old join?', a: 'Yes — Noor Al-Bayan is designed for children from age 5, or consider our Ummah Cubs program which blends Arabic reading with Islamic studies through games and stories.' },
+  { q: 'How much does it cost?', a: 'Plans range from $40 to $64 per month depending on the track and session frequency — every plan starts with 2 free trial sessions.' },
+];
+const faqB = [
+  { q: 'Do I need any prior Arabic knowledge to start?', a: 'No — our Noor Al-Bayan track starts from the very first letter, for complete beginners of any age.' },
+  { q: 'What’s the difference between this and general conversational Arabic courses?', a: 'Our focus is Quranic Arabic — reading, grammar, and vocabulary geared specifically toward understanding and reciting the Quran, not tourist or travel Arabic.' },
+  { q: 'How long until I can read the Quran fluently?', a: 'Most beginners following Noor Al-Bayan consistently reach confident, independent reading within several months of regular study — pace depends on session frequency and practice.' },
+  { q: 'Can children join the Arabic program?', a: 'Yes — Noor Al-Bayan is taught to children as well as adults, at an age-appropriate pace.' },
+  { q: 'Do you teach grammar as well as reading?', a: 'Yes — beyond initial reading fluency, students progress into Arabic grammar and conversation.' },
+  { q: 'Are classes one-on-one?', a: 'Yes — every Arabic student learns 1-on-1 with a certified teacher.' },
+  { q: 'How often are classes?', a: 'Typically 2–3 sessions per week, scheduled flexibly around your timezone.' },
+  { q: 'What happens if I miss a class?', a: 'Message your teacher directly on WhatsApp to reschedule.' },
+];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Online Quranic Arabic Classes',
+  description: 'Live 1-on-1 Arabic classes: Noor Al-Bayan reading, Al-Ajrumiyyah grammar and conversation, with Al-Azhar certified teachers.',
+  provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' },
+  offers: { '@type': 'Offer', price: 40, priceCurrency: 'USD', category: 'subscription' },
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online' },
+};
+---
+
+<BaseLayout title="Online Arabic Classes for Muslims | Noor Al-Bayan | Ummah Academy" description="Learn Quranic Arabic online, 1-on-1: Noor Al-Bayan reading from zero, Al-Ajrumiyyah grammar and conversation with bilingual Al-Azhar teachers. From $40/month." jsonLd={ld}>
+  <PageHero
+    crumbs={[{ label: 'Courses', href: '/courses/' }, { label: 'Arabic Language' }]}
+    eyebrow="Arabic Language Track"
+    title='Learn <span class="accent">Quranic Arabic</span> Online'
+    lede="From reading the Mushaf correctly to conversational fluency and classical grammar — 1-on-1 live Arabic classes with Al-Azhar certified teachers, for absolute beginners and beyond."
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={trialLink({ course: 'Noor Al-Bayan' })}>Start 2 Free Trial Sessions <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href="/teachers/">Meet the Teachers</a>
+    </Fragment>
+    <ul role="list" class="hero-stats">
+      <li><strong>Age 5+</strong><span>Zero Arabic welcome</span></li>
+      <li><strong>1:1</strong><span>Live sessions</span></li>
+      <li><strong>50+</strong><span>Countries served</span></li>
+    </ul>
+    <Fragment slot="visual">
+      <div class="frame frame--arch tp-art"><Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" /></div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--tight" aria-labelledby="whyar">
+    <div class="container--narrow">
+      <SectionHead id="whyar" align="start" eyebrow="Why Learn Arabic" title='Why Learn Arabic — <span class="accent">And Why Learn It This Way</span>' />
+      <div class="stack" style="--stack:16px" data-reveal>
+        <p class="lead">Arabic is the language of the Quran, and understanding even its basics unlocks a level of connection that translation alone can’t give you. But most Arabic courses either move too slowly for adults or skip straight to grammar without ever building real reading confidence first.</p>
+        <p class="muted">Our Arabic track is structured in three real stages — reading foundations, classical grammar, and spoken fluency — so you always know exactly where you are and what’s next, taught 1-on-1 by Al-Azhar certified tutors.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="built">
+    <div class="container">
+      <SectionHead id="built" eyebrow="Why This Track" title='Built for Muslims Learning Arabic, <span class="accent">Specifically</span>' lede="Not a generic language app. Every lesson is built around understanding the Quran and classical Islamic texts, not just ordering coffee in Cairo." />
+      <FeatureGrid items={why} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="levels">
+    <div class="container">
+      <SectionHead id="levels" eyebrow="Choose Your Starting Point" title='Three Levels, <span class="accent">One Track</span>' lede="Not sure where to start? Your teacher places you correctly in your first free session." />
+      <div class="grid grid-3">
+        {arabic.courses.map((c, i) => <CourseCard course={c} delay={i * 0.06} />)}
+      </div>
+    </div>
+  </section>
+
+  <TeachingBlock
+    eyebrow="Who’s Teaching You"
+    title='Fully Bilingual, <span class="accent">Al-Azhar Certified</span>'
+    text="Every teacher is a native or near-native Arabic speaker and an Al-Azhar University graduate, fluent in both Arabic and English — so you’re never lost mid-lesson, whether you’re 5 years old or 50."
+    bullets={['Al-Azhar University graduates', 'Fully bilingual — Arabic and English', 'Dedicated female teachers available', 'Experienced with zero-Arabic beginners']}
+    stat="0 → Fluent"
+    statLabel="A Real Path, Not Just an App"
+  />
+
+  <section class="section section--tight" aria-labelledby="progress">
+    <div class="container">
+      <SectionHead id="progress" eyebrow="Real Progress" title='Real Progress, Not Just <span class="accent">Vocabulary Lists</span>' />
+      <FeatureGrid
+        cols={4}
+        items={[
+          { icon: 'path', title: 'A Clear 3-Stage Path', text: 'No guessing what to study next: Noor Al-Bayan, then grammar, then conversation, each building directly on the last.' },
+          { icon: 'user-focus', title: '1-on-1, Fully Personal', text: 'Every lesson is live and 1-on-1, your pace, your questions, no waiting for a group to catch up.' },
+          { icon: 'clock-countdown', title: 'Flexible Scheduling', text: 'Sessions available across time zones, so you can fit real Arabic study around your existing schedule.' },
+          { icon: 'book-open-text', title: 'Built Around the Quran', text: 'Unlike generic language apps, every stage connects back to reading and understanding the Quran and Islamic texts.' },
+        ]}
+      />
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="afaq">
+    <div class="container--narrow">
+      <SectionHead id="afaq" eyebrow="Common Questions" title="Arabic Classes FAQ" />
+      <Faq items={faqA} schema={false} />
+    </div>
+  </section>
+
+  <MiniCta title='Start Learning <span class="accent">Arabic Today</span>' text="Book your first 2 sessions free — no credit card, no commitment." href={trialLink({ course: 'Noor Al-Bayan' })} />
+
+  <section class="section" aria-labelledby="afaq2">
+    <div class="container--narrow">
+      <SectionHead id="afaq2" eyebrow="FAQ" title="Arabic Language — Frequently Asked Questions" lede="What new and returning students ask most before starting." />
+      <Faq items={faqB} />
+    </div>
+  </section>
+
+  <RelatedPosts slugs={['how-to-learn-arabic-as-a-muslim-a-complete-beginners-guide', 'arabic-grammar-for-quran-nahw-and-sarf-explained-for-beginners', 'how-long-does-it-take-to-learn-quranic-arabic-a-realistic-timeline']} />
+</BaseLayout>
+
+<style>
+  .tp-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+</style>

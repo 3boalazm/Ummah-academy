@@ -1,0 +1,54 @@
+---
+/**
+ * Phosphor icon, inlined at build time (no runtime, no icon font).
+ * <Icon name="book-open-text" weight="duotone" />
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+
+type Weight = 'regular' | 'duotone' | 'bold' | 'fill' | 'light' | 'thin';
+
+interface Props {
+  name: string;
+  weight?: Weight;
+  size?: number | string;
+  class?: string;
+  label?: string;
+}
+
+const { name, weight = 'duotone', size, class: className, label } = Astro.props;
+
+const cache: Map<string, { viewBox: string; body: string }> =
+  ((globalThis as any).__uaIconCache ??= new Map());
+
+function load(n: string, w: Weight) {
+  const key = `${w}:${n}`;
+  if (cache.has(key)) return cache.get(key)!;
+  const file = w === 'regular' ? `${n}.svg` : `${n}-${w}.svg`;
+  const p = path.join(process.cwd(), 'node_modules/@phosphor-icons/core/assets', w, file);
+  if (!fs.existsSync(p)) throw new Error(`[Icon] Unknown Phosphor icon: ${n} (${w})`);
+  const raw = fs.readFileSync(p, 'utf8');
+  const viewBox = raw.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 256 256';
+  const body = raw.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+  const entry = { viewBox, body };
+  cache.set(key, entry);
+  return entry;
+}
+
+const { viewBox, body } = load(name, weight);
+const dim = size ?? undefined;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox={viewBox}
+  fill="currentColor"
+  width={dim}
+  height={dim}
+  class:list={['icon', `icon-${name}`, className]}
+  aria-hidden={label ? undefined : 'true'}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  focusable="false"
+  set:html={body}
+/>

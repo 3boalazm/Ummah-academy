@@ -1,0 +1,265 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import Steps from '@/components/Steps.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/track-arabic.jpg';
+import { SITE, waLink } from '@/data/site';
+
+const why = [
+  { icon: 'coins', title: 'Competitive Income', text: 'Earn a consistent monthly income from home — no commuting, no freelance uncertainty.' },
+  { icon: 'globe-hemisphere-west', title: 'Teach Worldwide', text: 'Your students will be Muslim families from UK, USA, Canada, Australia, Germany, and beyond.' },
+  { icon: 'calendar-dots', title: 'Flexible Schedule', text: 'Set your own hours and days. Full-time or part-time — you control your workload.' },
+  { icon: 'lifebuoy', title: 'Full Admin Support', text: 'We handle scheduling, billing, technical support. You focus entirely on teaching.' },
+  { icon: 'trend-up', title: 'Professional Growth', text: 'Monthly performance reviews and opportunities to lead specialized programs.' },
+  { icon: 'medal', title: 'Respected Platform', text: 'Your credentials and Ijazah prominently featured — building your reputation globally.' },
+];
+const reqs = [
+  { icon: 'mosque', title: 'Al-Azhar Graduate', text: 'Verified degree from any relevant Al-Azhar faculty' },
+  { icon: 'scroll', title: 'Valid Ijazah', text: 'Documented Ijazah with chain of transmission' },
+  { icon: 'translate', title: 'English Skills', text: 'Ability to explain concepts in English for Western students' },
+  { icon: 'wifi-high', title: 'Stable Internet', text: 'Reliable connection, quiet space, basic computer skills' },
+  { icon: 'heart', title: 'Teaching Passion', text: 'Genuine enjoyment in teaching — especially beginners and children' },
+];
+const roles = [
+  ['Tajweed Specialist', 'All 3 levels · Ijazah required · Bilingual'],
+  ['Hifz Teacher', 'Full Quran Hafiz · Ijazah required'],
+  ['Arabic Language Teacher', 'Noor Al-Bayan, Grammar, Conversation'],
+  ['Ummah Cubs Teacher', 'Child education background · Female welcome'],
+  ['Islamic Studies Teacher', 'Aqeedah, Fiqh, Tafseer, Seerah'],
+];
+const process = [
+  { icon: 'note-pencil', title: 'Submit Application', text: 'Fill in the form with credentials, Ijazah details, and specialization.' },
+  { icon: 'scroll', title: 'Credential Verification', text: 'Our team verifies your Al-Azhar degree and Ijazah. Takes 48–72 hours.' },
+  { icon: 'video-camera', title: 'Teaching Audit', text: 'Short live demo observed by senior scholars to assess method and accuracy.' },
+  { icon: 'rocket-launch', title: 'Welcome Onboard!', text: 'Matched with students, platform training, first sessions within 2 weeks.' },
+];
+---
+
+<BaseLayout title="Online Teaching Jobs | Ummah Academy Careers" description="Al-Azhar graduate with an Ijazah? Teach Quran, Arabic and Islamic Studies to Muslim families in 50+ countries — flexible hours, full admin support, steady students.">
+  <PageHero
+    eyebrow="Careers at Ummah Academy"
+    eyebrowAr="وظائف"
+    title='Teach the <span class="accent">Ummah.</span> Earn From Home. Grow Your Impact.'
+    sub="علّم الأمة واكسب من منزلك"
+    lede="Are you an Al-Azhar graduate with an Ijazah? Join our growing family of scholars changing the lives of Muslims in 50+ countries."
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href="#apply">Apply to Join Now <Icon name="arrow-down" weight="bold" /></a>
+      <a class="btn btn--glass" href={waLink('Assalamu alaikum, I have a question about teaching at Ummah Academy.')} target="_blank" rel="noopener"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> Ask on WhatsApp</a>
+    </Fragment>
+    <Fragment slot="visual">
+      <div class="frame frame--arch career-art">
+        <Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" />
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section" aria-labelledby="why-teach">
+    <div class="container">
+      <SectionHead id="why-teach" eyebrow="Why Teach With Us" eyebrowAr="لماذا تنضم إلينا" title='Your Knowledge. <span class="accent">Global Impact.</span>' sub="علمك — تأثير عالمي" lede="Join a team of scholars making authentic Islamic education accessible to Muslims worldwide." />
+      <FeatureGrid items={why} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="reqs">
+    <div class="container">
+      <SectionHead id="reqs" eyebrow="Qualifications" eyebrowAr="المؤهلات" title='What We <span class="accent">Look For</span>' lede="High standards to ensure every teacher meets our quality benchmarks." />
+      <FeatureGrid items={reqs} cols={3} />
+      <div class="glass roles" data-reveal>
+        <p class="roles__title">Open Positions <span lang="ar" class="arabic">— الوظائف المتاحة</span></p>
+        <ul role="list">
+          {
+            roles.map(([r, d]) => (
+              <li>
+                <strong>{r}</strong>
+                <span>{d}</span>
+                <a class="btn btn--sm btn--glass" href="#apply">Apply</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how">
+    <div class="container">
+      <SectionHead id="how" eyebrow="How It Works" eyebrowAr="كيف يعمل" title='Our 4-Step <span class="accent">Application Process</span>' lede="Most applications reviewed within 72 hours. Successful candidates start within 2 weeks." />
+      <Steps items={process} />
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container--narrow seo-copy" data-reveal>
+      <span class="eyebrow">Careers</span>
+      <h2>Online Teaching Jobs at Ummah Academy</h2>
+      <p>
+        Online Teaching Jobs at Ummah Academy let qualified Quran, Arabic, and Islamic Studies teachers earn a stable income from
+        home while teaching students around the world. We are always looking for certified, experienced educators who are
+        passionate about sharing authentic Islamic knowledge.
+      </p>
+      <p>
+        Teachers who join us get a flexible schedule, a steady stream of students matched to their specialty, and the support of a
+        growing, mission-driven online academy. Whether you specialize in Tajweed, Hifz, Quranic Arabic, or Islamic Studies for kids
+        and adults, there is a place for your expertise here. If you hold a real ijazah or recognized teaching credentials and want
+        to teach the Ummah while earning from home, apply below.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="apply" aria-labelledby="apply-title">
+    <div class="container--narrow">
+      <SectionHead id="apply-title" eyebrow="Teacher Application" eyebrowAr="التقديم" title='Apply to Join Our <span class="accent">Teaching Team</span>' lede="Complete this form. Our coordinator will review and contact you within 72 hours." />
+      <form class="glass glass--strong apply" novalidate data-apply data-email={SITE.email} data-wa={SITE.whatsapp.number}>
+        <div class="apply__grid">
+          <div class="field"><label for="ap-name">Full name *</label><input class="input" id="ap-name" name="Full name" required autocomplete="name" /><p class="error">Please enter your full name.</p></div>
+          <div class="field"><label for="ap-email">Email *</label><input class="input" id="ap-email" name="Email" type="email" required autocomplete="email" /><p class="error">Please enter a valid email address.</p></div>
+          <div class="field"><label for="ap-wa">WhatsApp *</label><input class="input" id="ap-wa" name="WhatsApp" type="tel" required autocomplete="tel" /><p class="error">Please enter your WhatsApp number.</p></div>
+          <div class="field"><label for="ap-country">Country *</label><input class="input" id="ap-country" name="Country" required autocomplete="country-name" /><p class="error">Please enter your country.</p></div>
+          <div class="field"><label for="ap-faculty">Al-Azhar faculty *</label>
+            <select class="select" id="ap-faculty" name="Al-Azhar faculty" required><option value="">Select faculty…</option><option>Faculty of Sharia &amp; Law</option><option>Faculty of Arabic Language</option><option>Faculty of Quran Sciences</option><option>Faculty of Islamic Studies</option><option>Faculty of Education</option><option>Other</option></select>
+            <p class="error">Please select your faculty.</p></div>
+          <div class="field"><label for="ap-year">Graduation year *</label><input class="input" id="ap-year" name="Graduation year" inputmode="numeric" required /><p class="error">Please enter your graduation year.</p></div>
+          <div class="field"><label for="ap-ijazah">Ijazah *</label>
+            <select class="select" id="ap-ijazah" name="Ijazah" required><option value="">Select…</option><option>Yes — Hafs ’an ’Asim</option><option>Yes — other riwayah</option><option>No — Arabic / Islamic Studies only</option></select>
+            <p class="error">Please select an option.</p></div>
+          <div class="field"><label for="ap-exp">Experience *</label>
+            <select class="select" id="ap-exp" name="Experience" required><option value="">Select…</option><option>0–2 years</option><option>2–5 years</option><option>5–10 years</option><option>10+ years</option></select>
+            <p class="error">Please select your experience.</p></div>
+          <div class="field"><label for="ap-spec">Specialization *</label>
+            <select class="select" id="ap-spec" name="Specialization" required><option value="">Select…</option><option>Tajweed (all levels)</option><option>Quran Memorization</option><option>Ijazah Program</option><option>Noor Al-Bayan</option><option>Arabic Grammar</option><option>Arabic Conversation</option><option>Islamic Studies</option><option>Kids (Ummah Cubs)</option><option>Multiple</option></select>
+            <p class="error">Please select your specialization.</p></div>
+          <div class="field"><label for="ap-eng">English level *</label>
+            <select class="select" id="ap-eng" name="English level" required><option value="">Select…</option><option>Fluent</option><option>Good</option><option>Basic</option><option>Arabic only</option></select>
+            <p class="error">Please select your English level.</p></div>
+        </div>
+        <div class="field"><label for="ap-msg">Message (optional)</label><textarea class="textarea" id="ap-msg" name="Message"></textarea></div>
+        <p class="apply__note"><Icon name="paperclip" weight="bold" /> CV, Ijazah and Al-Azhar degree: attach them to the email that opens after you submit (PDF, JPG or PNG, max 10&nbsp;MB).</p>
+        <div class="cluster">
+          <button class="btn btn--lg btn--primary" type="submit" value="email"><Icon name="envelope-simple" /> Submit by email</button>
+          <button class="btn btn--lg btn--glass" type="submit" value="whatsapp"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> Submit on WhatsApp</button>
+        </div>
+        <p class="muted apply__small">All applications reviewed within 72 hours.</p>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  const form = document.querySelector<HTMLFormElement>('[data-apply]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const submitter = (e as SubmitEvent).submitter as HTMLButtonElement | null;
+    const required = Array.from(form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]'));
+    let first: HTMLElement | null = null;
+    required.forEach((el) => {
+      const bad = !el.value.trim() || (el.type === 'email' && !/^\S+@\S+\.\S+$/.test(el.value));
+      el.closest('.field')?.toggleAttribute('data-invalid', bad);
+      el.setAttribute('aria-invalid', String(bad));
+      if (bad && !first) first = el;
+    });
+    if (first) return (first as HTMLElement).focus();
+    const lines = Array.from(new FormData(form).entries())
+      .filter(([, v]) => String(v).trim())
+      .map(([k, v]) => `${k}: ${v}`);
+    const body = ['Teacher application — Ummah Academy', '', ...lines].join('\n');
+    track('teacher_application_submit', { channel: submitter?.value || 'email' });
+    if (submitter?.value === 'whatsapp') {
+      window.open(`https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(body)}`, '_blank', 'noopener');
+    } else {
+      location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent('Teacher application')}&body=${encodeURIComponent(body + '\n\n(Please attach your CV, Ijazah and Al-Azhar degree.)')}`;
+    }
+  });
+</script>
+
+<style>
+  .career-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+
+  .roles {
+    --radius: 28px;
+    margin-top: 20px;
+    padding: clamp(20px, 3vw, 32px);
+  }
+
+  .roles__title {
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 10px;
+  }
+
+  .roles li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .roles li:last-child {
+    border-bottom: 0;
+  }
+
+  .roles li span {
+    grid-column: 1;
+    color: var(--ink-3);
+    font-size: 0.92rem;
+  }
+
+  .roles li .btn {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
+  .apply {
+    --radius: var(--r-xl);
+    display: grid;
+    gap: 18px;
+    padding: clamp(22px, 3.5vw, 40px);
+  }
+
+  .apply__grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .apply__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .apply__note {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: var(--ink-2);
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.6);
+  }
+
+  .apply__note :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    margin-top: 2px;
+  }
+
+  .apply__small {
+    font-size: 0.86rem;
+  }
+</style>
