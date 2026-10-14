@@ -1,0 +1,505 @@
+---
+/**
+ * Teacher profile (E-E-A-T). Only facts already published for each teacher are
+ * shown: the Sanad block appears only when her bio states an Ijazah, and only
+ * testimonials that name her are attributed to her.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import SanadChain from '@/components/SanadChain.astro';
+import CourseCard from '@/components/CourseCard.astro';
+import TestimonialCard from '@/components/TestimonialCard.astro';
+import TeacherCard from '@/components/TeacherCard.astro';
+import Steps from '@/components/Steps.astro';
+import Faq from '@/components/Faq.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import { getTeachers, getTestimonials, teacherById } from '@/data/people';
+import { trackById } from '@/data/tracks';
+import { SITE, trialLink, waLink } from '@/data/site';
+import { lp, type Lang } from '@/i18n';
+
+interface Props {
+  id: string;
+  lang?: Lang;
+}
+const { id, lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const t = teacherById(id, lang)!;
+const en = teacherById(id, 'en')!;
+const first = t.name.split(' ')[0];
+const track = trackById(t.track, lang);
+const stories = getTestimonials(lang).filter((s) => s.teacher === id);
+const others = getTeachers(lang).filter((o) => o.id !== id);
+const book = trialLink({ teacher: t.canonical }, lang);
+
+const L = ar
+  ? {
+      teachers: 'المعلمون',
+      book: `احجز حصة مجانية مع ${first}`,
+      ask: `اسأل عن مواعيد ${first}`,
+      waText: `السلام عليكم، أرغب في حجز حصة تجريبية مع ${t.name}. ما المواعيد المتاحة؟`,
+      verified: t.ijazah ? 'إجازة موثّقة' : 'مؤهلات موثّقة',
+      creds: 'المؤهلات',
+      bestFor: 'الأنسب لـ',
+      sanadTitle: 'سندها في القراءة',
+      sanadText: `تحمل ${first} إجازة برواية حفص عن عاصم: سلسلة موثّقة من الشيوخ، كلٌّ أخذ عمّن قبله، حتى النبي ﷺ.`,
+      sanadNote: 'نتحقق من سند كل معلم مباشرة، ولا نكتفي بقوله.',
+      sanadMore: 'ما معنى الإجازة والسند؟',
+      sanadHref: '/ar/blog/what-is-ijazah-and-sanad/',
+      vetTitle: 'كيف نالت مكانها عندنا',
+      vet: [
+        { icon: 'files', title: 'مراجعة الطلب', text: 'تحقّقنا من المؤهلات والانتساب للأزهر قبل أي مقابلة.' },
+        { icon: 'scroll', title: t.ijazah ? 'التحقق من الإجازة والسند' : 'التحقق من الشهادات', text: t.ijazah ? 'راجعنا سلسلة السند مباشرة.' : 'راجعنا الشهادات مباشرة مع الجهات المانحة.' },
+        { icon: 'chalkboard-teacher', title: 'حصة تدريسية مباشرة', text: 'قدّمت حصة حقيقية قبل اعتمادها.' },
+        { icon: 'chart-line-up', title: 'تقييم مستمر', text: 'تُراجَع جودة التدريس باستمرار، لا عند التعيين فقط.' },
+      ],
+      teachesTitle: `ماذا تدرّس ${first}`,
+      storiesTitle: `ماذا تقول الأسر عن ${first}`,
+      bookTitle: `كيف تحجز مع ${first}`,
+      steps: [
+        { icon: 'cursor-click', title: 'اخترها في نموذج الحجز', text: 'اسمها مكتوب مسبقًا. أخبرنا لمن الحصص وما منطقتك الزمنية.' },
+        { icon: 'whatsapp-logo', title: 'نؤكد موعدها عبر واتساب', text: 'وإذا كان جدولها ممتلئًا في وقتك، نخبرك بصراحة ونقترح أقرب بديل.' },
+        { icon: 'gift', title: 'حصتان مجانيتان ثم تقرّر', text: 'بدون بطاقة دفع وبدون التزام. تكمل فقط إذا ارتحت.' },
+      ],
+      faqTitle: 'أسئلة عن الحجز',
+      faq: [
+        { q: `هل يمكنني اختيار ${first} تحديدًا؟`, a: `نعم. اخترها في نموذج الحجز (اسمها مكتوب مسبقًا)، وسنؤكد مواعيدها المتاحة في منطقتك الزمنية عبر واتساب قبل الحصة الأولى.` },
+        { q: 'هل يمكنني تغيير المعلمة لاحقًا؟', a: 'نعم. إذا شعرت أن الانسجام غير كافٍ، أخبرنا عبر واتساب وسنبحث لك عن الأنسب.' },
+        { q: 'بأي لغة تشرح؟', a: `تدرّس ${first} بالعربية والإنجليزية، وتختار لغة الشرح بحسب الطالب وعمره.` },
+      ],
+      othersTitle: 'تعرّف على بقية رؤساء الأقسام',
+      ctaTitle: `ابدأ مع <span class="accent">${first}</span> هذا الأسبوع.`,
+      ctaLede: 'أول حصتين مجانًا. نؤكد الموعد عبر واتساب خلال دقائق.',
+    }
+  : {
+      teachers: 'Teachers',
+      book: `Book a free lesson with ${first}`,
+      ask: `Ask about ${first}’s availability`,
+      waText: `Assalamu alaikum, I’d like to book a trial with ${t.name}. Which times are available?`,
+      verified: t.ijazah ? 'Ijazah verified' : 'Credentials verified',
+      creds: 'Credentials',
+      bestFor: 'Best for',
+      sanadTitle: 'Her chain of transmission',
+      sanadText: `${first} holds an Ijazah in Hafs ’an ’Asim — a documented chain of teachers, each taught by the one before, back to the Prophet ﷺ.`,
+      sanadNote: 'We check every teacher’s chain directly — never on their word alone.',
+      sanadMore: 'What an Ijazah really means',
+      sanadHref: '/what-is-an-ijazah-understanding-quran-certification-and-sanad/',
+      vetTitle: 'How she earned her place',
+      vet: [
+        { icon: 'files', title: 'Application review', text: 'Credentials and Al-Azhar affiliation verified before any interview.' },
+        { icon: 'scroll', title: t.ijazah ? 'Ijazah & Sanad verification' : 'Certificate verification', text: t.ijazah ? 'Her chain of transmission was checked directly.' : 'Her certificates were checked directly with the issuers.' },
+        { icon: 'chalkboard-teacher', title: 'Live teaching demonstration', text: 'She taught a real lesson before approval.' },
+        { icon: 'chart-line-up', title: 'Ongoing evaluation', text: 'Teaching quality is reviewed continuously — not just at hiring.' },
+      ],
+      teachesTitle: `What ${first} teaches`,
+      storiesTitle: `What families say about ${first}`,
+      bookTitle: `Booking with ${first}`,
+      steps: [
+        { icon: 'cursor-click', title: 'Choose her in the booking form', text: 'Her name is already filled in. Tell us who the lessons are for and your time zone.' },
+        { icon: 'whatsapp-logo', title: 'We confirm her times on WhatsApp', text: 'If her schedule is full at your time, we’ll say so honestly and suggest the closest option.' },
+        { icon: 'gift', title: 'Two free sessions, then decide', text: 'No card, no commitment. Continue only if it feels right.' },
+      ],
+      faqTitle: 'Questions about booking',
+      faq: [
+        { q: `Can I choose ${first} specifically?`, a: `Yes. Pick her in the booking form (we’ve pre-filled it) and we’ll confirm her availability for your time zone on WhatsApp before your first session.` },
+        { q: 'Can I change teacher later?', a: 'Yes. If the fit doesn’t feel right, tell us on WhatsApp and we’ll look for a better match.' },
+        { q: 'Which language does she teach in?', a: `${first} teaches in Arabic and English, and chooses the language of explanation to suit the student and their age.` },
+      ],
+      othersTitle: 'Meet the other department leads',
+      ctaTitle: `Start with <span class="accent">${first}</span> this week.`,
+      ctaLede: 'Your first 2 sessions are free. We confirm times on WhatsApp within minutes.',
+    };
+
+const url = new URL(lp(lang, `/teachers/${id}/`), SITE.url).href;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  url,
+  mainEntity: {
+    '@type': 'Person',
+    name: t.name,
+    alternateName: ar ? en.name : undefined,
+    jobTitle: t.role,
+    description: t.bio,
+    knowsAbout: [t.specialty, ...t.bestFor],
+    knowsLanguage: ['ar', 'en'],
+    worksFor: { '@id': `${SITE.url}/#organization` },
+    ...(en.alumniOf ? { alumniOf: { '@type': 'CollegeOrUniversity', name: en.alumniOf } } : {}),
+    ...(en.credentialNames ? { hasCredential: en.credentialNames.map((name) => ({ '@type': 'EducationalOccupationalCredential', name })) } : {}),
+  },
+};
+const meta = ar
+  ? { title: `${t.name} — ${t.role} | أكاديمية الأمة`, desc: `${t.name}، ${t.role} في أكاديمية الأمة: ${t.specialty}. تعرّف على مؤهلاتها، وأسلوبها، واحجز حصتين مجانيتين معها.` }
+  : { title: `${t.name} — ${t.role} | Ummah Academy`, desc: `${t.name}, ${t.role} at Ummah Academy: ${t.specialty}. Her credentials, who she teaches best, and how to book 2 free sessions with her.` };
+---
+
+<BaseLayout title={meta.title} description={meta.desc} jsonLd={ld} lang={lang}>
+  <section class={`page-hero tprof tprof--${t.hue}`}>
+    <div class="container tprof__grid">
+      <div class="tprof__copy" data-reveal>
+        <Breadcrumbs items={[{ label: L.teachers, href: lp(lang, '/teachers/') }, { label: t.name }]} lang={lang} />
+        <span class="eyebrow">{t.role}</span>
+        <h1>{t.name}</h1>
+        <p class="tprof__spec">{t.specialty}</p>
+        <p class="lead">{t.bio}</p>
+        <div class="tprof__best">
+          <p class="tprof__label">{L.bestFor}</p>
+          <ul role="list" class="cluster">
+            {t.bestFor.map((b) => <li class="chip chip--accent">{b}</li>)}
+          </ul>
+        </div>
+        <div class="cluster tprof__actions">
+          <a class="btn btn--primary" href={book}>{L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+          <a class="btn btn--glass" href={waLink(L.waText)} target="_blank" rel="noopener" data-track="teacher_profile">
+            <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {L.ask}
+          </a>
+        </div>
+      </div>
+      <div class="tprof__visual" data-reveal style="--reveal-delay:0.08s">
+        <div class="tprof__portrait" aria-hidden="true">
+          <span class="tprof__monogram">{en.initials}</span>
+        </div>
+        <span class="tprof__verified glass"><Icon name="seal-check" weight="fill" /> {L.verified}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-label={L.creds}>
+    <div class="container tprof__proof">
+      <div class="glass glass--strong tprof__card" data-reveal>
+        <h2 class="tprof__h2">{L.creds}</h2>
+        <ul role="list" class="tprof__creds">
+          {
+            t.credentials.map((c) => (
+              <li>
+                <Icon name="seal-check" weight="fill" /> {c}
+              </li>
+            ))
+          }
+        </ul>
+        {
+          t.ijazah && (
+            <div class="tprof__sanad">
+              <h3>{L.sanadTitle}</h3>
+              <p>{L.sanadText}</p>
+              <SanadChain lang={lang} />
+              <p class="tprof__note">
+                <Icon name="shield-check" weight="fill" /> {L.sanadNote}{' '}
+                <a href={L.sanadHref}>{L.sanadMore}</a>
+              </p>
+            </div>
+          )
+        }
+      </div>
+      <div class="glass tprof__card" data-reveal style="--reveal-delay:0.06s">
+        <h2 class="tprof__h2">{L.vetTitle}</h2>
+        <ol role="list" class="tprof__vet">
+          {
+            L.vet.map((v) => (
+              <li>
+                <span class="icon-badge">
+                  <Icon name={v.icon} />
+                </span>
+                <span>
+                  <strong>{v.title}</strong>
+                  <small>{v.text}</small>
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="teaches">
+    <div class="container">
+      <div class="tprof__head" data-reveal>
+        <h2 id="teaches">{L.teachesTitle}</h2>
+        <p class="lead">{track.intro}</p>
+      </div>
+      <div class="grid grid-3">
+        {track.courses.map((c, i) => <CourseCard course={c} lang={lang} delay={i * 0.05} />)}
+      </div>
+    </div>
+  </section>
+
+  {
+    stories.length > 0 && (
+      <section class="section section--tight" aria-labelledby="stories">
+        <div class="container">
+          <div class="tprof__head" data-reveal>
+            <h2 id="stories">{L.storiesTitle}</h2>
+          </div>
+          <div class="grid grid-2 tprof__stories">
+            {stories.map((s) => (
+              <div data-reveal>
+                <TestimonialCard t={s} lang={lang} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--tight" aria-labelledby="booking">
+    <div class="container">
+      <div class="tprof__head" data-reveal>
+        <h2 id="booking">{L.bookTitle}</h2>
+      </div>
+      <Steps items={L.steps} />
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="booking-faq">
+    <div class="container--narrow">
+      <div class="tprof__head" data-reveal>
+        <h2 id="booking-faq">{L.faqTitle}</h2>
+      </div>
+      <Faq items={L.faq} schema={false} />
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="others">
+    <div class="container">
+      <div class="tprof__head" data-reveal>
+        <h2 id="others">{L.othersTitle}</h2>
+      </div>
+      <div class="grid grid-2">
+        {others.map((o, i) => <TeacherCard teacher={o} variant="compact" lang={lang} delay={i * 0.05} />)}
+      </div>
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} title={L.ctaTitle} lede={L.ctaLede} primary={{ label: L.book, href: book }} />
+</BaseLayout>
+
+<style>
+  .tprof {
+    --tint-a: rgb(175 204 234 / 0.9);
+    --tint-b: rgb(241 205 220 / 0.95);
+  }
+
+  .tprof--sky {
+    --tint-a: rgb(173 167 201 / 0.85);
+    --tint-b: rgb(175 204 234 / 0.95);
+  }
+
+  .tprof--rose {
+    --tint-a: rgb(241 205 220 / 0.95);
+    --tint-b: rgb(206 179 193 / 0.9);
+  }
+
+  .tprof__grid {
+    display: grid;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .tprof__grid {
+      grid-template-columns: 1.25fr 1fr;
+    }
+  }
+
+  .tprof__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .tprof__copy h1 {
+    font-size: var(--fs-h1);
+  }
+
+  .tprof__spec {
+    margin-top: -6px;
+    font-size: 1.15rem;
+    font-weight: 540;
+    color: var(--accent-ink);
+  }
+
+  .tprof__label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-3);
+    margin-bottom: 6px;
+  }
+
+  .tprof__best ul {
+    --cluster: 6px;
+  }
+
+  .tprof__actions {
+    margin-top: 6px;
+  }
+
+  .tprof__visual {
+    position: relative;
+    width: min(100%, 420px);
+    margin-inline: auto;
+  }
+
+  .tprof__portrait {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    border-radius: 999px 999px 32px 32px / 70% 70% 32px 32px;
+    overflow: hidden;
+    background:
+      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.9), transparent 60%),
+      radial-gradient(80% 70% at 80% 90%, var(--tint-a), transparent 65%),
+      radial-gradient(90% 80% at 10% 100%, var(--tint-b), transparent 70%),
+      linear-gradient(160deg, #ece6f6, #dfd8ef);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.7),
+      0 40px 80px -40px rgb(46 29 70 / 0.45);
+  }
+
+  .tprof__monogram {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(5rem, 12vw, 8rem);
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .tprof__verified {
+    --radius: var(--r-pill);
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    translate: -50% 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    color: var(--accent-ink);
+  }
+
+  .tprof__verified :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tprof__proof {
+    display: grid;
+    gap: 18px;
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .tprof__proof {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+
+  .tprof__card {
+    --radius: var(--r-xl);
+    display: grid;
+    gap: 18px;
+    padding: clamp(22px, 3vw, 34px);
+  }
+
+  .tprof__h2 {
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  }
+
+  .tprof__creds {
+    display: grid;
+    gap: 10px;
+  }
+
+  .tprof__creds li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 540;
+  }
+
+  .tprof__creds :global(svg) {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    color: var(--accent-ink);
+  }
+
+  .tprof__sanad {
+    display: grid;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid rgb(46 29 70 / 0.08);
+  }
+
+  .tprof__sanad h3 {
+    font-size: 1.2rem;
+  }
+
+  .tprof__sanad > p {
+    color: var(--ink-2);
+  }
+
+  .tprof__note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+
+  .tprof__note :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-ink);
+  }
+
+  .tprof__note a {
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+
+  .tprof__vet {
+    display: grid;
+    gap: 14px;
+  }
+
+  .tprof__vet li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .tprof__vet strong {
+    display: block;
+    font-weight: 600;
+  }
+
+  .tprof__vet small {
+    display: block;
+    color: var(--ink-2);
+    font-size: 0.92rem;
+  }
+
+  .tprof__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .tprof__head h2 {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+  }
+
+</style>

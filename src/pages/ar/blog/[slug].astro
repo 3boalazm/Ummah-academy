@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import Article from '@/views/Article.astro';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blogAr')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  const en = await getCollection('blog');
+  return posts.map((post, i) => {
+    const prev = posts[i + 1];
+    const next = posts[i - 1];
+    const twinId = post.data.translationOf;
+    if (twinId && !en.some((p) => p.id === twinId)) throw new Error(`blogAr/${post.id}: translationOf "${twinId}" is not an English article`);
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        prev: prev ? { href: `/ar/blog/${prev.id}/`, title: prev.data.title } : null,
+        next: next ? { href: `/ar/blog/${next.id}/`, title: next.data.title } : null,
+        alternates: twinId ? { en: `/${twinId}/`, ar: `/ar/blog/${post.id}/` } : undefined,
+      },
+    };
+  });
+}
+
+const { post, prev, next, alternates } = Astro.props;
+---
+
+<Article lang="ar" entry={post} path={`/ar/blog/${post.id}/`} prev={prev} next={next} alternates={alternates} switchTo={{ lang: 'en', href: '/blog/' }} exclude={[`ar:${post.id}`, ...(post.data.translationOf ? [post.data.translationOf] : [])]} />

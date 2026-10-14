@@ -23,7 +23,27 @@ export const BILINGUAL_ROUTES = [
   '/online-arabic-classes/',
   '/ummah-cubs-kids-islamic-studies/',
   '/online-islamic-studies-classes/',
+  // Phase 3: the last English-only corners
+  '/blog/',
+  '/resources/',
+  '/family-portal/',
+  '/privacy-policy/',
+  '/terms-of-service/',
+  // Teacher profiles — keep in sync with src/data/people.ts (asserted at build time)
+  '/teachers/omneya-ali/',
+  '/teachers/sara-ahmed/',
+  '/teachers/nour-hassan/',
 ] as const;
+
+/** A page's twin in the other language, when the paths are not mirror images (e.g. blog articles). */
+export interface Alternates {
+  en: string;
+  ar: string;
+}
+export interface LangSwitch {
+  lang: Lang;
+  href: string;
+}
 
 export const langFromPath = (pathname: string): Lang => (pathname === '/ar' || pathname.startsWith('/ar/') ? 'ar' : 'en');
 
@@ -39,13 +59,18 @@ export const lp = (lang: Lang, path: string) => {
   return has ? `/ar${p}${rest}` : path;
 };
 
-/** Counterpart of the current page in the other language (falls back to that language's home). */
-export const counterpart = (pathname: string) => {
+/**
+ * Counterpart of the current page in the other language. Pages whose twin is not a
+ * mirror path (blog articles) pass an explicit override; otherwise we fall back to
+ * the other language's home so the switch can never 404.
+ */
+export const counterpart = (pathname: string, override?: LangSwitch): LangSwitch => {
+  if (override) return override;
   const lang = langFromPath(pathname);
   const base = basePath(pathname);
   const exists = (BILINGUAL_ROUTES as readonly string[]).includes(base);
-  if (lang === 'en') return { lang: 'ar' as Lang, href: exists ? `/ar${base}` : '/ar/' };
-  return { lang: 'en' as Lang, href: base };
+  if (lang === 'en') return { lang: 'ar', href: exists ? `/ar${base}` : '/ar/' };
+  return { lang: 'en', href: exists ? base : '/' };
 };
 
 export const hasArabic = (pathname: string) => (BILINGUAL_ROUTES as readonly string[]).includes(basePath(pathname));

@@ -2,7 +2,7 @@
 import Icon from './Icon.astro';
 import type { Teacher } from '@/data/people';
 import { trialLink } from '@/data/site';
-import type { Lang } from '@/i18n';
+import { lp, type Lang } from '@/i18n';
 interface Props {
   teacher: Teacher;
   variant?: 'full' | 'compact';
@@ -11,8 +11,9 @@ interface Props {
 }
 const { teacher: t, variant = 'full', lang = 'en', delay = 0 } = Astro.props;
 const L = lang === 'ar'
-  ? { verified: 'إجازة موثّقة', bestFor: 'الأنسب لـ', creds: 'المؤهلات', book: `احجز مع ${t.name.split(' ')[0]}` }
-  : { verified: 'Ijazah verified', bestFor: 'Best for', creds: 'Credentials', book: `Book with ${t.name.split(' ')[0]}` };
+  ? { verified: t.ijazah ? 'إجازة موثّقة' : 'مؤهلات موثّقة', bestFor: 'الأنسب لـ', creds: 'المؤهلات', book: `احجز مع ${t.name.split(' ')[0]}`, profile: 'الملف الكامل' }
+  : { verified: t.ijazah ? 'Ijazah verified' : 'Credentials verified', bestFor: 'Best for', creds: 'Credentials', book: `Book with ${t.name.split(' ')[0]}`, profile: 'Full profile' };
+const profile = lp(lang, `/teachers/${t.id}/`);
 ---
 
 <article class:list={['teacher', 'glass', `teacher--${variant}`, `teacher--${t.hue}`]} data-reveal style={`--reveal-delay:${delay}s`}>
@@ -22,7 +23,7 @@ const L = lang === 'ar'
   </div>
   <div class="teacher__body">
     <p class="teacher__role">{t.role}</p>
-    <h3>{t.name}</h3>
+    <h3><a class="teacher__name" href={profile}>{t.name}</a></h3>
     <p class="teacher__spec">{t.specialty}</p>
     {variant === 'full' && <p class="teacher__bio">{t.bio}</p>}
     <div class="teacher__lists">
@@ -45,9 +46,12 @@ const L = lang === 'ar'
         )
       }
     </div>
-    <a class="btn btn--sm btn--primary" href={trialLink({ teacher: t.canonical }, lang)}>
-      {L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
-    </a>
+    <div class="cluster teacher__actions">
+      <a class="btn btn--sm btn--primary" href={trialLink({ teacher: t.canonical }, lang)}>
+        {L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+      </a>
+      <a class="btn btn--sm btn--glass" href={profile} aria-label={`${L.profile}: ${t.name}`}>{L.profile}</a>
+    </div>
   </div>
 </article>
 
@@ -185,7 +189,21 @@ const L = lang === 'ar'
     margin-bottom: 6px;
   }
 
-  .teacher .btn {
+  .teacher__actions {
+    --cluster: 8px;
     margin-top: auto;
+  }
+
+  .teacher__name {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .teacher__name:hover {
+    color: var(--accent-ink);
+  }
+
+  .teacher__name:focus-visible {
+    outline-offset: 4px;
   }
 </style>

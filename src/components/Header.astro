@@ -4,16 +4,17 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { portalLinks, waLink } from '@/data/site';
 import { getTracks } from '@/data/tracks';
-import { ui, lp, counterpart, basePath, price, type Lang } from '@/i18n';
+import { ui, lp, counterpart, basePath, price, type Lang, type LangSwitch } from '@/i18n';
 
 interface Props {
   lang?: Lang;
+  switchTo?: LangSwitch;
 }
-const { lang = 'en' } = Astro.props;
+const { lang = 'en', switchTo } = Astro.props;
 const t = ui(lang);
 const tracks = getTracks(lang);
 const path = basePath(Astro.url.pathname);
-const other = counterpart(Astro.url.pathname);
+const other = counterpart(Astro.url.pathname, switchTo);
 const courseRoutes = ['/courses/', ...tracks.map((tr) => tr.href)];
 const coursesActive = courseRoutes.some((r) => path.startsWith(r));
 const links = [

@@ -1,28 +1,78 @@
 ---
+/**
+ * One static 404 serves every missing path on Vercel, so it speaks both
+ * languages. On /ar/… paths an inline script puts the Arabic panel first.
+ */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { waLink } from '@/data/site';
-const links = [
-  { href: '/courses/', label: 'All courses', icon: 'books' },
-  { href: '/pricing/', label: 'Pricing', icon: 'tag' },
-  { href: '/placement-test/', label: 'Placement test', icon: 'compass' },
-  { href: '/blog/', label: 'Blog', icon: 'article' },
+
+const panels = [
+  {
+    lang: 'en',
+    dir: 'ltr',
+    eyebrow: 'Page not found',
+    title: 'We couldn’t find that page',
+    lede: 'It may have moved or no longer exists. These are the pages families visit most:',
+    home: { href: '/', label: 'Back to Home' },
+    links: [
+      { href: '/courses/', label: 'All courses', icon: 'books' },
+      { href: '/pricing/', label: 'Pricing', icon: 'tag' },
+      { href: '/placement-test/', label: 'Placement test', icon: 'compass' },
+      { href: '/blog/', label: 'Blog', icon: 'article' },
+    ],
+    wa: 'Message us on WhatsApp',
+  },
+  {
+    lang: 'ar',
+    dir: 'rtl',
+    eyebrow: 'الصفحة غير موجودة',
+    title: 'لم نعثر على هذه الصفحة',
+    lede: 'ربما نُقلت أو لم تعد موجودة. هذه أكثر الصفحات التي تزورها الأسر:',
+    home: { href: '/ar/', label: 'العودة إلى الرئيسية' },
+    links: [
+      { href: '/ar/courses/', label: 'كل الدورات', icon: 'books' },
+      { href: '/ar/pricing/', label: 'الأسعار', icon: 'tag' },
+      { href: '/ar/placement-test/', label: 'اختبار تحديد المستوى', icon: 'compass' },
+      { href: '/ar/blog/', label: 'المدونة', icon: 'article' },
+    ],
+    wa: 'راسلنا عبر واتساب',
+  },
 ];
 ---
 
-<BaseLayout title="Page not found | Ummah Academy" description="The page you're looking for may have moved." noindex>
+<BaseLayout title="Page not found · الصفحة غير موجودة | Ummah Academy" description="The page you're looking for may have moved." noindex>
+  <script is:inline slot="head">
+    if (/^\/ar(\/|$)/.test(location.pathname)) document.documentElement.classList.add('nf-ar');
+  </script>
   <section class="section">
-    <div class="container--narrow nf">
+    <div class="container nf">
       <p class="nf__code quranic" aria-hidden="true">٤٠٤</p>
-      <span class="eyebrow">Page not found</span>
-      <h1>We couldn’t find that page</h1>
-      <p class="lead">The page you’re looking for may have moved or no longer exists. Jump back to one of our most-visited pages below.</p>
-      <ul role="list" class="nf__links">
-        {links.map((l) => <li><a class="btn btn--glass" href={l.href}><Icon name={l.icon} /> {l.label}</a></li>)}
-      </ul>
-      <div class="cluster nf__cta">
-        <a class="btn btn--primary" href="/">Back to Home</a>
-        <a class="btn btn--glass" href={waLink()} target="_blank" rel="noopener"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> Message us on WhatsApp</a>
+      <div class="nf__panels">
+        {
+          panels.map((p) => (
+            <div class:list={['nf__panel', 'glass', `nf__panel--${p.lang}`]} lang={p.lang} dir={p.dir}>
+              <span class="eyebrow">{p.eyebrow}</span>
+              <h1 class="nf__title">{p.title}</h1>
+              <p class="nf__lede">{p.lede}</p>
+              <ul role="list" class="nf__links">
+                {p.links.map((l) => (
+                  <li>
+                    <a class="btn btn--sm btn--glass" href={l.href}>
+                      <Icon name={l.icon} /> {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div class="cluster nf__cta">
+                <a class="btn btn--primary" href={p.home.href}>{p.home.label}</a>
+                <a class="btn btn--glass" href={waLink()} target="_blank" rel="noopener">
+                  <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {p.wa}
+                </a>
+              </div>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -33,13 +83,12 @@ const links = [
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     gap: 18px;
-    padding-block: 40px;
+    padding-block: 24px;
   }
 
   .nf__code {
-    font-size: clamp(6rem, 18vw, 11rem);
+    font-size: clamp(5.5rem, 16vw, 10rem);
     line-height: 1;
     background: var(--grad-accent);
     -webkit-background-clip: text;
@@ -47,19 +96,54 @@ const links = [
     color: transparent;
   }
 
-  .nf h1 {
-    font-size: var(--fs-h1);
+  .nf__panels {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    max-width: 1040px;
+  }
+
+  @media (min-width: 900px) {
+    .nf__panels {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .nf__panel {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: clamp(22px, 3vw, 36px);
+  }
+
+  :global(html.nf-ar) .nf__panel--ar {
+    order: -1;
+  }
+
+  .nf__title {
+    font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.4rem);
+  }
+
+  .nf__panel--ar .nf__title {
+    letter-spacing: 0;
+    line-height: 1.35;
+    font-weight: 700;
+  }
+
+  .nf__lede {
+    color: var(--ink-2);
   }
 
   .nf__links {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 8px;
   }
 
   .nf__cta {
-    justify-content: center;
-    margin-top: 8px;
+    margin-top: auto;
+    padding-top: 6px;
   }
 </style>

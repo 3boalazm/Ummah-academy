@@ -1,0 +1,138 @@
+---
+import PostCover from './PostCover.astro';
+import Icon from './Icon.astro';
+import type { Lang } from '@/i18n';
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  category: string;
+  date: Date;
+  track: string;
+  /** language of the article itself */
+  lang: Lang;
+  /** language of the page the card sits on */
+  pageLang?: Lang;
+  lead?: boolean;
+}
+const { href, title, description, category, date, track, lang, pageLang = lang, lead = false } = Astro.props;
+const foreign = lang !== pageLang;
+const fmt = (d: Date) => d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+<li data-track={track} class:list={['blog-card', { 'blog-card--lead': lead }]}>
+  <a class="glass glass--interactive blog-card__link" href={href} hreflang={foreign ? lang : undefined}>
+    <PostCover title={title} track={track} small={!lead} />
+    <span class="blog-card__body" lang={foreign ? lang : undefined} dir={foreign ? (lang === 'ar' ? 'rtl' : 'ltr') : undefined}>
+      <span class="blog-card__meta">
+        <span class="chip chip--accent">{category}</span>
+        <time datetime={date.toISOString()}>{fmt(date)}</time>
+      </span>
+      <span class="blog-card__title">{title}</span>
+      <span class="blog-card__excerpt">{description}</span>
+      <span class="blog-card__more">
+        {lang === 'ar' ? 'اقرأ المقال' : 'Read more'} <Icon name="arrow-right" weight="bold" />
+      </span>
+    </span>
+  </a>
+</li>
+
+<style>
+  .blog-card[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 1000px) {
+    .blog-card--lead {
+      grid-column: span 2;
+    }
+
+    .blog-card--lead .blog-card__link {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    /* the cover's 16:10 ratio must not drive the column width when stretched */
+    .blog-card--lead .blog-card__link > :global(.cover) {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 300px;
+    }
+
+    .blog-card--lead .blog-card__title {
+      font-size: 1.7rem;
+    }
+  }
+
+  .blog-card__link {
+    --radius: 28px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 8px;
+    text-decoration: none;
+  }
+
+  .blog-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 14px 14px;
+    flex: 1;
+  }
+
+  .blog-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.84rem;
+    color: var(--ink-3);
+  }
+
+  .blog-card__title {
+    font-weight: 620;
+    font-size: 1.18rem;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  :global([dir='rtl']) .blog-card__title {
+    letter-spacing: 0;
+    line-height: 1.5;
+    font-weight: 700;
+  }
+
+  .blog-card__excerpt {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .blog-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    font-weight: 560;
+    font-size: 0.9rem;
+    color: var(--accent-ink);
+  }
+
+  .blog-card__more :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  :global([dir='rtl']) .blog-card__more :global(svg) {
+    scale: -1 1;
+  }
+
+  .blog-card__body[dir='ltr'] .blog-card__more :global(svg) {
+    scale: 1;
+  }
+</style>

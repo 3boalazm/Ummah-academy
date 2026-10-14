@@ -253,7 +253,7 @@ const i18n = {
       <button class="btn btn--lg btn--primary" type="submit">{L.submit} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></button>
     </div>
     <p class="booking__note">{L.note}</p>
-    <p class="booking__privacy"><Icon name="lock-simple" weight="fill" /> {L.privacy} <a href="/privacy-policy/">{L.privacyLink}</a></p>
+    <p class="booking__privacy"><Icon name="lock-simple" weight="fill" /> {L.privacy} <a href={lp(lang, '/privacy-policy/')}>{L.privacyLink}</a></p>
   </fieldset>
 
   <input type="hidden" name="teacher" />

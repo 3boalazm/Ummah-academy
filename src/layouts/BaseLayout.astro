@@ -17,7 +17,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import StickyCta from '@/components/StickyCta.astro';
 import { SITE } from '@/data/site';
-import { dirOf, hasArabic, basePath, ui, type Lang } from '@/i18n';
+import { dirOf, hasArabic, basePath, ui, type Lang, type Alternates, type LangSwitch } from '@/i18n';
 
 interface Props {
   title: string;
@@ -28,6 +28,10 @@ interface Props {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   lang?: Lang;
   sticky?: boolean;
+  /** Explicit translation pair (emits hreflang). Use when the twin is not a mirror path. */
+  alternates?: Alternates;
+  /** Where the language switch goes when there is no translation (no hreflang emitted). */
+  switchTo?: LangSwitch;
 }
 
 const {
@@ -39,6 +43,7 @@ const {
   noindex = false,
   jsonLd,
   sticky = true,
+  alternates: pair,
 } = Astro.props;
 
 const t = ui(lang);
@@ -46,7 +51,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL(image, Astro.site).href;
 const dir = dirOf(lang);
 const base = basePath(Astro.url.pathname);
-const alternates = hasArabic(Astro.url.pathname)
+const alternates = pair
+  ? [
+      { lang: 'en', href: pair.en },
+      { lang: 'ar', href: pair.ar },
+      { lang: 'x-default', href: pair.en },
+    ]
+  : hasArabic(Astro.url.pathname)
   ? [
       { lang: 'en', href: base },
       { lang: 'ar', href: `/ar${base}` },
@@ -69,6 +80,7 @@ const org = {
     { '@type': 'ContactPoint', contactType: 'admissions', telephone: `+${SITE.whatsapp.number}`, email: SITE.email, availableLanguage: ['English', 'Arabic'] },
   ],
 };
+const switchTo: LangSwitch | undefined = pair ? (lang === 'ar' ? { lang: 'en', href: pair.en } : { lang: 'ar', href: pair.ar }) : Astro.props.switchTo;
 const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
 ---
@@ -111,11 +123,11 @@ const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
   <body class:list={[`lang-${lang}`]}>
     <a class="skip-link" href="#main">{t.skip}</a>
     <Aurora />
-    <Header lang={lang} />
+    <Header lang={lang} switchTo={switchTo} />
     <main id="main">
       <slot />
     </main>
-    <Footer lang={lang} />
+    <Footer lang={lang} switchTo={switchTo} />
     {sticky && <StickyCta lang={lang} />}
     <script>
       import '@/scripts/site';

@@ -17,6 +17,12 @@ export interface Teacher {
   credentials: string[];
   hue: 'violet' | 'sky' | 'rose';
   track: 'quran' | 'arabic' | 'kids';
+  /** true only when the published bio states an Ijazah (drives the badge and Sanad section) */
+  ijazah: boolean;
+  /** structured data (English only): institution she graduated from, if published */
+  alumniOf?: string;
+  /** structured data: credentials as published on the live site */
+  credentialNames?: string[];
 }
 
 const TEACHERS_EN: Teacher[] = [
@@ -32,6 +38,9 @@ const TEACHERS_EN: Teacher[] = [
     credentials: ['Ijazah — Hafs ’an ’Asim', '10+ years teaching', 'Arabic & English'],
     hue: 'violet',
     track: 'quran',
+    ijazah: true,
+    alumniOf: 'Al-Azhar University — Faculty of Sharia and Law',
+    credentialNames: ['Ijazah in Hafs ’an ’Asim with a chain of transmission'],
   },
   {
     id: 'sara-ahmed',
@@ -45,6 +54,9 @@ const TEACHERS_EN: Teacher[] = [
     credentials: ['Certified — Noor Al-Bayan', '8 years online', 'Arabic & English'],
     hue: 'sky',
     track: 'arabic',
+    ijazah: false,
+    alumniOf: 'Al-Azhar University — Faculty of Arabic Language',
+    credentialNames: ['Noor Al-Bayan teaching certification'],
   },
   {
     id: 'nour-hassan',
@@ -58,6 +70,8 @@ const TEACHERS_EN: Teacher[] = [
     credentials: ['Certified — Early Islamic Education', '7 years with ages 5–14', 'Arabic & English'],
     hue: 'rose',
     track: 'kids',
+    ijazah: false,
+    credentialNames: ['Certificate in Early Islamic Education (Al-Azhar)'],
   },
 ];
 
@@ -92,6 +106,7 @@ const TEACHERS_AR: Teacher[] = [
 ];
 
 export const getTeachers = (lang: Lang = 'en') => (lang === 'ar' ? TEACHERS_AR : TEACHERS_EN);
+export const teacherById = (id: string, lang: Lang = 'en') => getTeachers(lang).find((t) => t.id === id);
 export const TEACHERS = TEACHERS_EN;
 
 export interface Testimonial {
@@ -102,11 +117,13 @@ export interface Testimonial {
   location: string;
   program: string;
   track: 'quran' | 'arabic' | 'kids' | 'islamic';
+  /** set only when the quote itself names the teacher */
+  teacher?: string;
 }
 
 const T_EN: Testimonial[] = [
-  { quote: 'My son used to dread Quran lessons. Now he reminds ME about his session time! Teacher Nour makes every class an adventure he genuinely looks forward to.', result: 'Now excited for every Quran class', name: 'Sarah Al-Mansouri', initials: 'SA', location: 'London, UK', program: 'Ummah Cubs', track: 'kids' },
-  { quote: 'After years of struggling, I finally recited Surah Al-Fatiha correctly for the first time. Alhamdulillah — Teacher Omneya’s patience changed everything.', result: 'Recited Al-Fatiha correctly for the first time', name: 'Amina Bergström', initials: 'AB', location: 'Toronto, Canada', program: 'Tajweed', track: 'quran' },
+  { quote: 'My son used to dread Quran lessons. Now he reminds ME about his session time! Teacher Nour makes every class an adventure he genuinely looks forward to.', result: 'Now excited for every Quran class', name: 'Sarah Al-Mansouri', initials: 'SA', location: 'London, UK', program: 'Ummah Cubs', track: 'kids', teacher: 'nour-hassan' },
+  { quote: 'After years of struggling, I finally recited Surah Al-Fatiha correctly for the first time. Alhamdulillah — Teacher Omneya’s patience changed everything.', result: 'Recited Al-Fatiha correctly for the first time', name: 'Amina Bergström', initials: 'AB', location: 'Toronto, Canada', program: 'Tajweed', track: 'quran', teacher: 'omneya-ali' },
   { quote: 'As a father of three, the Family Portal lets me track all my children’s learning in one place. Detailed reports after every session — truly exceptional.', result: 'Tracks 3 children in one place', name: 'Khalid Rahman', initials: 'KR', location: 'Houston, USA', program: 'Family plan', track: 'kids' },
   { quote: 'I live in Australia and was worried about timezones. They scheduled my sessions at 7am and even send WhatsApp reminders. Very professional team.', result: '7am sessions across time zones', name: 'Omar Al-Farsi', initials: 'OF', location: 'Sydney, Australia', program: 'Memorisation', track: 'quran' },
   { quote: 'My Arabic went from absolute zero to reading the Quran in just 6 months using Noor Al-Bayan. The Itqan approach is simply extraordinary.', result: 'Reading the Qur’an within 6 months', name: 'Yasmin Dubois', initials: 'YD', location: 'Paris, France', program: 'Arabic', track: 'arabic' },

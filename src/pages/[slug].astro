@@ -1,202 +1,27 @@
 ---
-import { getCollection, render } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Breadcrumbs from '@/components/Breadcrumbs.astro';
-import PostCover from '@/components/PostCover.astro';
-import RelatedPosts from '@/components/RelatedPosts.astro';
-import Icon from '@/components/Icon.astro';
-import { trackById, type TrackId } from '@/data/tracks';
-import { trialLink } from '@/data/site';
+import { getCollection } from 'astro:content';
+import Article from '@/views/Article.astro';
 
 export async function getStaticPaths() {
   const posts = (await getCollection('blog')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-  return posts.map((post, i) => ({
-    params: { slug: post.id },
-    props: { post, prev: posts[i + 1] ?? null, next: posts[i - 1] ?? null },
-  }));
+  const arPosts = await getCollection('blogAr');
+  return posts.map((post, i) => {
+    const prev = posts[i + 1];
+    const next = posts[i - 1];
+    const twin = arPosts.find((a) => a.data.translationOf === post.id);
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        prev: prev ? { href: `/${prev.id}/`, title: prev.data.title } : null,
+        next: next ? { href: `/${next.id}/`, title: next.data.title } : null,
+        alternates: twin ? { en: `/${post.id}/`, ar: `/ar/blog/${twin.id}/` } : undefined,
+      },
+    };
+  });
 }
 
-interface Props {
-  post: CollectionEntry<'blog'>;
-  prev: CollectionEntry<'blog'> | null;
-  next: CollectionEntry<'blog'> | null;
-}
-const { post, prev, next } = Astro.props;
-const { Content } = await render(post);
-const words = (post.body ?? '').split(/\s+/).length;
-const minutes = Math.max(2, Math.round(words / 220));
-const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-const track = post.data.track !== 'general' ? trackById(post.data.track as TrackId) : null;
-const ld = {
-  '@context': 'https://schema.org',
-  '@type': 'BlogPosting',
-  headline: post.data.title,
-  description: post.data.description,
-  datePublished: post.data.date.toISOString(),
-  dateModified: (post.data.updated ?? post.data.date).toISOString(),
-  author: { '@type': 'Organization', name: post.data.author },
-  publisher: { '@id': 'https://ummahacademy.net/#organization' },
-  mainEntityOfPage: `https://ummahacademy.net/${post.id}/`,
-  wordCount: words,
-};
+const { post, prev, next, alternates } = Astro.props;
 ---
 
-<BaseLayout title={`${post.data.title} | Ummah Academy`} description={post.data.description} type="article" jsonLd={ld}>
-  <article class="post">
-    <header class="container--narrow post__head" data-reveal>
-      <Breadcrumbs items={[{ label: 'Blog', href: '/blog/' }, { label: post.data.title }]} />
-      <span class="chip chip--accent">{post.data.category}</span>
-      <h1>{post.data.title}</h1>
-      <p class="post__meta">
-        <span><Icon name="calendar-blank" weight="bold" /> <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time></span>
-        <span><Icon name="clock" weight="bold" /> {minutes} min read</span>
-        <span><Icon name="pen-nib" weight="bold" /> {post.data.author}</span>
-      </p>
-    </header>
-    <div class="container post__cover" data-reveal>
-      <PostCover title={post.data.title} track={post.data.track} />
-    </div>
-    <div class="container--narrow">
-      <div class="glass glass--strong post__body prose">
-        <Content />
-      </div>
-
-      <aside class="glass post__cta" aria-label="Start learning">
-        <div>
-          <p class="post__cta-kicker">{track ? track.title : 'Start learning'}</p>
-          <p class="post__cta-title">Learn this with a real teacher — your first 2 live sessions are free.</p>
-        </div>
-        <div class="cluster">
-          <a class="btn btn--primary" href={trialLink(track ? { course: track.trial } : {})}>Book free trial <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
-          {track && <a class="btn btn--glass" href={track.href}>About the course</a>}
-        </div>
-      </aside>
-
-      <nav class="post__pager" aria-label="More articles">
-        {prev ? <a class="glass" href={`/${prev.id}/`}><small>Previous</small>{prev.data.title}</a> : <span />}
-        {next ? <a class="glass post__pager-next" href={`/${next.id}/`}><small>Next</small>{next.data.title}</a> : <span />}
-      </nav>
-    </div>
-  </article>
-  <RelatedPosts track={post.data.track} title="Keep reading" />
-</BaseLayout>
-
-<style>
-  .post {
-    padding-block: clamp(28px, 4vw, 56px) 0;
-  }
-
-  .post__head {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .post__head h1 {
-    font-size: clamp(2rem, 1.4rem + 2.6vw, 3.4rem);
-  }
-
-  .post__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    color: var(--ink-3);
-    font-size: 0.92rem;
-  }
-
-  .post__meta span {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .post__meta :global(svg) {
-    width: 15px;
-    height: 15px;
-  }
-
-  .post__cover {
-    margin-block: 28px;
-    max-width: 1040px;
-  }
-
-  .post__cover :global(.cover) {
-    border-radius: 32px;
-    aspect-ratio: 21 / 9;
-  }
-
-  .post__body {
-    --radius: var(--r-xl);
-    padding: clamp(22px, 4vw, 56px);
-  }
-
-  .post__cta {
-    --radius: 28px;
-    display: grid;
-    gap: 16px;
-    margin-top: 20px;
-    padding: 26px;
-    align-items: center;
-    background:
-      radial-gradient(80% 120% at 100% 0%, rgb(175 204 234 / 0.55), transparent 60%),
-      radial-gradient(70% 120% at 0% 100%, rgb(241 205 220 / 0.6), transparent 60%),
-      var(--glass-fill);
-  }
-
-  @media (min-width: 760px) {
-    .post__cta {
-      grid-template-columns: 1fr auto;
-    }
-  }
-
-  .post__cta-kicker {
-    font-size: 0.78rem;
-    font-weight: 650;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-  }
-
-  .post__cta-title {
-    font-weight: 600;
-    font-size: 1.15rem;
-    letter-spacing: -0.015em;
-  }
-
-  .post__pager {
-    display: grid;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  @media (min-width: 640px) {
-    .post__pager {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .post__pager a {
-    --radius: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 18px 20px;
-    text-decoration: none;
-    font-weight: 560;
-    line-height: 1.35;
-  }
-
-  .post__pager small {
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-
-  .post__pager-next {
-    text-align: end;
-  }
-</style>
+<Article lang="en" entry={post} path={`/${post.id}/`} prev={prev} next={next} alternates={alternates} switchTo={{ lang: 'ar', href: '/ar/blog/' }} exclude={[post.id, ...(alternates ? [`ar:${alternates.ar.split('/').at(-2)}`] : [])]} />

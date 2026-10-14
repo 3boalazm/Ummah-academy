@@ -9,21 +9,62 @@ interface Props {
   limit?: number;
   title?: string;
   lang?: Lang;
-  exclude?: string;
+  /** ids to leave out; Arabic posts are prefixed `ar:` */
+  exclude?: string | string[];
 }
-const { slugs, track, limit = 3, lang = 'en', exclude } = Astro.props;
-const { title = lang === 'ar' ? 'مقالات ذات صلة (بالإنجليزية)' : 'Related articles' } = Astro.props;
-const all = await getCollection('blog');
-let posts = slugs
-  ? slugs.map((s) => all.find((p) => p.id === s)).filter((p): p is (typeof all)[number] => Boolean(p))
-  : all.filter((p) => (!track || p.data.track === track) && p.id !== exclude);
-if (!slugs) posts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-posts = posts.slice(0, limit);
-const L = lang === 'ar' ? { kicker: 'من المدونة', read: 'اقرأ المقال' } : { kicker: 'From our blog', read: 'Read article' };
+const { slugs, track, limit = 3, lang = 'en' } = Astro.props;
+const exclude = new Set([Astro.props.exclude ?? []].flat());
+const ar = lang === 'ar';
+const { title = ar ? 'مقالات ذات صلة' : 'Related articles' } = Astro.props;
+
+const en = await getCollection('blog');
+const arAll = await getCollection('blogAr');
+interface Item {
+  id: string;
+  href: string;
+  title: string;
+  category: string;
+  track: string;
+  lang: Lang;
+  twin?: (typeof arAll)[number];
+}
+const fromEn = (p: (typeof en)[number]): Item => ({
+  id: p.id,
+  href: `/${p.id}/`,
+  title: p.data.title,
+  category: p.data.category,
+  track: p.data.track,
+  lang: 'en',
+  twin: arAll.find((a) => a.data.translationOf === p.id),
+});
+const fromAr = (p: (typeof arAll)[number]): Item => ({
+  id: `ar:${p.id}`,
+  href: `/ar/blog/${p.id}/`,
+  title: p.data.title,
+  category: p.data.category,
+  track: p.data.track,
+  lang: 'ar',
+});
+const byDate = <T extends { data: { date: Date } }>(a: T, b: T) => b.data.date.getTime() - a.data.date.getTime();
+
+let items: Item[] = slugs
+  ? slugs.map((s) => en.find((p) => p.id === s)).filter((p): p is (typeof en)[number] => Boolean(p)).map(fromEn)
+  : en.filter((p) => !track || p.data.track === track).sort(byDate).map(fromEn);
+
+if (ar) {
+  // Arabic readers: swap in Arabic twins, pull in other Arabic articles on the same
+  // tracks, and only then fall back to English (clearly labelled).
+  const wanted = new Set(track ? [track] : items.map((i) => i.track));
+  const swapped = items.map((i) => (i.twin ? fromAr(i.twin) : i));
+  const extra = arAll.filter((a) => wanted.has(a.data.track) && !swapped.some((s) => s.id === `ar:${a.id}`)).sort(byDate).map(fromAr);
+  items = [...swapped.filter((i) => i.lang === 'ar'), ...extra, ...swapped.filter((i) => i.lang === 'en')];
+}
+items = items.filter((i) => !exclude.has(i.id)).slice(0, limit);
+const L = ar ? { kicker: 'من المدونة', read: 'اقرأ المقال', inEn: 'بالإنجليزية' } : { kicker: 'From our blog', read: 'Read article', inEn: '' };
 ---
 
 {
-  posts.length > 0 && (
+  items.length > 0 && (
     <section class="section section--tight" aria-labelledby="related-title">
       <div class="container">
         <div class="related__head" data-reveal>
@@ -31,14 +72,17 @@ const L = lang === 'ar' ? { kicker: 'من المدونة', read: 'اقرأ ال�
           <h2 id="related-title">{title}</h2>
         </div>
         <div class="grid grid-3">
-          {posts.map((p, i) => (
-            <a class="related__card glass glass--interactive" href={`/${p.id}/`} hreflang="en" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-              <PostCover title={p.data.title} track={p.data.track} small />
-              <span class="related__body" lang="en" dir="ltr">
-                <span class="chip chip--accent">{p.data.category}</span>
-                <span class="related__title">{p.data.title}</span>
+          {items.map((p, i) => (
+            <a class="related__card glass glass--interactive" href={p.href} hreflang={p.lang !== lang ? p.lang : undefined} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <PostCover title={p.title} track={p.track} small />
+              <span class="related__body" lang={p.lang !== lang ? p.lang : undefined} dir={p.lang !== lang ? (p.lang === 'ar' ? 'rtl' : 'ltr') : undefined}>
+                <span class="cluster" style="--cluster:6px">
+                  <span class="chip chip--accent">{p.category}</span>
+                  {ar && p.lang === 'en' && <span class="chip" lang="ar">{L.inEn}</span>}
+                </span>
+                <span class="related__title">{p.title}</span>
                 <span class="related__more">
-                  {L.read} <Icon name="arrow-right" weight="bold" />
+                  {L.read} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
                 </span>
               </span>
             </a>
@@ -99,5 +143,13 @@ const L = lang === 'ar' ? { kicker: 'من المدونة', read: 'اقرأ ال�
   .related__more :global(svg) {
     width: 14px;
     height: 14px;
+  }
+
+  :global([dir='rtl']) .related__more :global(svg) {
+    scale: -1 1;
+  }
+
+  .related__body[dir='ltr'] .related__more :global(svg) {
+    scale: 1;
   }
 </style>

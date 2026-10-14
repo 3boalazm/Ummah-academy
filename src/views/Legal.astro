@@ -1,0 +1,81 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Icon from '@/components/Icon.astro';
+import { SITE } from '@/data/site';
+import { getLegal, type LegalDoc } from '@/content-i18n/legal';
+import { lp, type Lang } from '@/i18n';
+
+interface Props {
+  doc: LegalDoc;
+  lang?: Lang;
+}
+const { doc, lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const c = getLegal(doc, lang);
+const path = doc === 'privacy' ? '/privacy-policy/' : '/terms-of-service/';
+const fill = (html: string) => html.replaceAll('{email}', SITE.email).replaceAll('{pricing}', lp(lang, '/pricing/'));
+---
+
+<BaseLayout title={c.meta.title} description={c.meta.desc} lang={lang}>
+  <PageHero eyebrow={ar ? 'قانوني' : 'Legal'} title={c.title} lede={c.lede} crumbs={[{ label: c.title }]} compact lang={lang} />
+  <section class="section section--tight">
+    <div class="container--narrow">
+      {
+        ar && (
+          <p class="legal__notice glass" role="note">
+            <Icon name="info" weight="fill" />
+            <span>
+              هذه ترجمة عربية للتيسير. إذا وقع اختلاف بينها وبين النص الإنجليزي، فالنص الإنجليزي هو المعتمد.{' '}
+              <a href={path} hreflang="en" lang="en">English version</a>
+            </span>
+          </p>
+        )
+      }
+      <article class="glass glass--strong legal prose">
+        <p><em>{c.updated}</em></p>
+        <p>{c.intro}</p>
+        {
+          c.sections.map((s) => (
+            <>
+              <h2>{s.h}</h2>
+              <Fragment set:html={fill(s.html)} />
+            </>
+          ))
+        }
+        <p><em>{c.note}</em></p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal {
+    --radius: var(--r-xl);
+    padding: clamp(24px, 4vw, 56px);
+  }
+
+  .legal__notice {
+    --radius: var(--r-md);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+
+  .legal__notice :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.35em;
+    color: var(--accent-ink);
+  }
+
+  .legal__notice a {
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+</style>

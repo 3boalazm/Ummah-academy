@@ -1,0 +1,215 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import { waLink } from '@/data/site';
+import downloads from '@/data/downloads.json';
+import { lp, num, type Lang } from '@/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+
+/* Worksheets are original Ummah Academy PDFs built by `npm run pdfs` into
+   /public/downloads (manifest: src/data/downloads.json). A sheet only gets a
+   direct link if its file really exists at build time; otherwise it falls back
+   to a WhatsApp request, so no link can ever break. */
+type Manifest = { files: Record<string, { file: string; pages: number; bytes: number }> };
+const files = (downloads as Manifest).files;
+const fileFor = (id: string) => {
+  const f = files[id];
+  if (!f) return null;
+  const onDisk = path.join(process.cwd(), 'public', f.file);
+  return fs.existsSync(onDisk) ? { ...f, bytes: fs.statSync(onDisk).size } : null;
+};
+const size = (b: number) => (b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
+
+const C = ar
+  ? {
+      meta: { title: 'مكتبة إسلامية مجانية — أوراق عمل وكتب | أكاديمية الأمة', desc: 'أوراق عمل مجانية جاهزة للطباعة في التجويد والحفظ والحروف العربية والنحو وأنشطة الأطفال، مع المتون التأسيسية التي يستخدمها معلمونا.' },
+      crumb: 'المكتبة المجانية',
+      eyebrow: 'مصادر مجانية',
+      title: 'المكتبة الإسلامية <span class="accent">المجانية</span>',
+      lede: 'أوراق عمل جاهزة للطباعة صمّمها فريقنا، والمتون التأسيسية التي يدرّس بها معلمونا. كلها مجانية، ودون تسجيل.',
+      sheetsEyebrow: 'أوراق العمل',
+      sheetsTitle: 'حمّلها <span class="accent">واطبعها الآن</span>',
+      sheetsLede: 'ملفات PDF بمقاس A4، ثنائية اللغة، للتدريب في البيت بين الحصص.',
+      booksEyebrow: 'المتون التأسيسية',
+      booksTitle: 'الكتب التي <span class="accent">يدرّس بها معلمونا</span>',
+      booksLede: 'نرسل لك عبر واتساب الطبعة التي يستخدمها معلمك، مجانًا.',
+      download: 'تحميل PDF',
+      request: 'اطلبه عبر واتساب',
+      requestShort: 'اطلب الملف',
+      pages: (n: number) => (n === 1 ? 'صفحة واحدة' : n === 2 ? 'صفحتان' : `${num('ar', n)} ${n <= 10 ? 'صفحات' : 'صفحة'}`),
+      free: 'مجاني',
+      langs: 'عربي · إنجليزي',
+      waText: (t: string) => `السلام عليكم، أرجو إرسال المصدر المجاني: ${t}`,
+      cta: { eyebrow: 'الخطوة التالية', title: 'المصادر المجانية <span class="accent">مجرد بداية</span>', lede: 'اجمع بين هذه المصادر وحصص مباشرة فردية مع معلمين من الأزهر.', label: 'احجز حصتين مجانًا' },
+      sheets: [
+        { id: 'tajweed-rules-summary', icon: 'list-checks', title: 'ملخص أحكام التجويد', text: 'صفحة واحدة ملوّنة تجمع أحكام النون الساكنة والميم الساكنة والمدود والقلقلة، مع أمثلة من القرآن.' },
+        { id: 'arabic-letter-tracing', icon: 'pencil-line', title: 'تتبّع الحروف العربية', text: 'أوراق تتبّع منقّطة للحروف الثمانية والعشرين، بأشكالها في أول الكلمة ووسطها وآخرها.' },
+        { id: 'daily-wird-tracker', icon: 'calendar-check', title: 'متابعة الورد اليومي', text: 'جدول ثلاثين يومًا لمتابعة التلاوة والحفظ الجديد والمراجعة، مع خانة لتوقيع ولي الأمر.' },
+        { id: 'hifz-schedule-template', icon: 'brain', title: 'قالب جدول الحفظ', text: 'خطة أسبوعية تقسم الجلسة إلى حفظ جديد ومراجعة قريبة ومراجعة بعيدة.' },
+        { id: 'nahw-exercises', icon: 'brackets-curly', title: 'تمارين النحو', text: 'تمارين قصيرة في الجملة الاسمية والفعلية وحروف الجر والإعراب، مع نموذج للإجابة.' },
+        { id: 'ummah-cubs-activity-pack', icon: 'star', title: 'أنشطة أشبال الأمة', text: 'أركان الإسلام، وبحث عن أسماء الأنبياء، وجدول الأعمال الصالحة، وصفحة تلوين بزخرفة إسلامية.' },
+      ],
+      books: [
+        { icon: 'book-open-text', title: 'نور البيان', text: 'أشهر منهج تأسيسي لتعليم القراءة العربية من الصفر.', lang: 'عربي · إنجليزي' },
+        { icon: 'text-aa', title: 'الآجرومية', text: 'المتن النحوي المختصر لابن آجُرّوم، مدخل طلاب النحو منذ سبعة قرون.', lang: 'عربي · مع شرح' },
+        { icon: 'music-notes-simple', title: 'المقدمة الجزرية', text: 'منظومة ابن الجزري في التجويد، المتن الأساس في مستويات التجويد الثلاثة.', lang: 'عربي · مشكول' },
+        { icon: 'moon-stars', title: 'أذكار الأطفال', text: 'دليل مصوّر للأذكار والآداب اليومية للأطفال.', lang: 'عربي · إنجليزي' },
+      ],
+    }
+  : {
+      meta: { title: 'Free Islamic Resources — Worksheets & Books | Ummah Academy', desc: 'Free printable worksheets for Tajweed, Hifz, Arabic letters, Nahw and kids’ activities, plus the foundation texts our Al-Azhar teachers use.' },
+      crumb: 'Free library',
+      eyebrow: 'Free Resources',
+      title: 'The <span class="accent">Free</span> Islamic Library',
+      lede: 'Printable worksheets designed by our team, plus the foundation texts our teachers use. All free, no sign-up.',
+      sheetsEyebrow: 'Worksheets',
+      sheetsTitle: 'Download &amp; <span class="accent">print today</span>',
+      sheetsLede: 'A4 PDFs, bilingual English–Arabic, for practice at home between lessons.',
+      booksEyebrow: 'Foundation Texts',
+      booksTitle: 'The books our <span class="accent">teachers use</span>',
+      booksLede: 'We’ll send you the exact edition your teacher uses, free, on WhatsApp.',
+      download: 'Download PDF',
+      request: 'Request on WhatsApp',
+      requestShort: 'Request the PDF',
+      pages: (n: number) => `${n} page${n === 1 ? '' : 's'}`,
+      free: 'Free',
+      langs: 'English · Arabic',
+      waText: (t: string) => `Assalamu alaikum, please send me the free resource: ${t}`,
+      cta: { eyebrow: 'Next step', title: 'Free Resources Are Just <span class="accent">the Beginning</span>', lede: 'Pair these resources with live 1-on-1 sessions from our Al-Azhar teachers.', label: 'Book 2 Free Live Sessions' },
+      sheets: [
+        { id: 'tajweed-rules-summary', icon: 'list-checks', title: 'Tajweed Rules Summary', text: 'One colour-coded page: Noon & Meem Sakinah, the Madd family and Qalqalah — with Qur’anic examples.' },
+        { id: 'arabic-letter-tracing', icon: 'pencil-line', title: 'Arabic Letter Tracing', text: 'Dotted tracing sheets for all 28 letters, in their initial, medial and final forms.' },
+        { id: 'daily-wird-tracker', icon: 'calendar-check', title: 'Daily Wird Tracker', text: 'A 30-day chart for recitation, new memorisation and revision — with a parent sign-off column.' },
+        { id: 'hifz-schedule-template', icon: 'brain', title: 'Hifz Schedule Template', text: 'A weekly plan split into new lesson, recent revision and long-term revision.' },
+        { id: 'nahw-exercises', icon: 'brackets-curly', title: 'Nahw Exercises', text: 'Short drills on nominal and verbal sentences, prepositions and case endings — with an answer key.' },
+        { id: 'ummah-cubs-activity-pack', icon: 'star', title: 'Ummah Cubs Activity Pack', text: 'Five Pillars matching, a Prophets word search, a good-deeds chart and a geometric colouring page.' },
+      ],
+      books: [
+        { icon: 'book-open-text', title: 'Noor Al-Bayan', text: 'The most trusted foundation book for teaching Arabic reading from scratch.', lang: 'Arabic · English' },
+        { icon: 'text-aa', title: 'Al-Ajrumiyyah', text: 'Ibn Ajurrum’s concise grammar primer — the first Nahw text for students for seven centuries.', lang: 'Arabic · Annotated' },
+        { icon: 'music-notes-simple', title: 'Al-Jazariyyah', text: 'Ibn al-Jazari’s Tajweed poem — the foundational text for all three Tajweed levels.', lang: 'Arabic · With Vowels' },
+        { icon: 'moon-stars', title: 'Adhkar for Kids', text: 'Illustrated daily Islamic etiquette and adhkar guide for children.', lang: 'Arabic · English' },
+      ],
+    };
+const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id) }));
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} crumbs={[{ label: C.crumb }]} compact lang={lang} />
+
+  <section class="section section--tight" aria-labelledby="sheets">
+    <div class="container">
+      <SectionHead id="sheets" eyebrow={C.sheetsEyebrow} title={C.sheetsTitle} lede={C.sheetsLede} />
+      <ul role="list" class="grid grid-3">
+        {
+          sheets.map((s, i) => (
+            <li class="card glass res" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <div class="res__top">
+                <span class="icon-badge">
+                  <Icon name={s.icon} />
+                </span>
+                <span class="cluster" style="--cluster:4px">
+                  <span class="chip">PDF</span>
+                  <span class="chip chip--accent">{C.free}</span>
+                </span>
+              </div>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+              {s.pdf ? (
+                <>
+                  <p class="res__lang">
+                    <Icon name="file-pdf" weight="bold" /> {C.pages(s.pdf.pages)} · <span dir="ltr">{size(s.pdf.bytes)}</span> · {C.langs}
+                  </p>
+                  <a class="btn btn--sm btn--primary" href={s.pdf.file} download data-download={s.id}>
+                    <Icon name="download-simple" weight="bold" /> {C.download}
+                  </a>
+                </>
+              ) : (
+                <a class="btn btn--sm btn--glass" href={waLink(C.waText(s.title))} target="_blank" rel="noopener">
+                  <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.requestShort}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="books">
+    <div class="container">
+      <SectionHead id="books" eyebrow={C.booksEyebrow} title={C.booksTitle} lede={C.booksLede} />
+      <ul role="list" class="grid grid-4">
+        {
+          C.books.map((b, i) => (
+            <li class="card glass res" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <div class="res__top">
+                <span class="icon-badge">
+                  <Icon name={b.icon} />
+                </span>
+                <span class="chip chip--accent">{C.free}</span>
+              </div>
+              <h3>{b.title}</h3>
+              <p>{b.text}</p>
+              <p class="res__lang">
+                <Icon name="globe-simple" weight="bold" /> {b.lang}
+              </p>
+              <a class="btn btn--sm btn--glass" href={waLink(C.waText(b.title))} target="_blank" rel="noopener">
+                <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.request}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} eyebrow={C.cta.eyebrow} title={C.cta.title} lede={C.cta.lede} primary={{ label: C.cta.label, href: lp(lang, '/contact/') + '#book' }} />
+</BaseLayout>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  document.querySelectorAll<HTMLAnchorElement>('[data-download]').forEach((a) =>
+    a.addEventListener('click', () => track('resource_download', { resource: a.dataset.download }))
+  );
+</script>
+
+<style>
+  .res {
+    list-style: none;
+  }
+
+  .res__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .res__lang {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+  }
+
+  .res__lang :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .res .btn {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+</style>
