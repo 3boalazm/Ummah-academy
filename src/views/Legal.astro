@@ -5,28 +5,29 @@ import Icon from '@/components/Icon.astro';
 import { SITE } from '@/data/site';
 import { getLegal, type LegalDoc } from '@/content-i18n/legal';
 import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
 
 interface Props {
   doc: LegalDoc;
   lang?: Lang;
 }
 const { doc, lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
+const t = ui(lang);
 const c = getLegal(doc, lang);
 const path = doc === 'privacy' ? '/privacy-policy/' : '/terms-of-service/';
 const fill = (html: string) => html.replaceAll('{email}', SITE.email).replaceAll('{pricing}', lp(lang, '/pricing/'));
 ---
 
 <BaseLayout title={c.meta.title} description={c.meta.desc} lang={lang}>
-  <PageHero eyebrow={ar ? 'قانوني' : 'Legal'} title={c.title} lede={c.lede} crumbs={[{ label: c.title }]} compact lang={lang} />
+  <PageHero eyebrow={t.legal} title={c.title} lede={c.lede} crumbs={[{ label: c.title }]} compact lang={lang} />
   <section class="section section--tight">
     <div class="container--narrow">
       {
-        ar && (
+        t.legalNotice && (
           <p class="legal__notice glass" role="note">
             <Icon name="info" weight="fill" />
             <span>
-              هذه ترجمة عربية للتيسير. إذا وقع اختلاف بينها وبين النص الإنجليزي، فالنص الإنجليزي هو المعتمد.{' '}
+              {t.legalNotice}{' '}
               <a href={path} hreflang="en" lang="en">English version</a>
             </span>
           </p>

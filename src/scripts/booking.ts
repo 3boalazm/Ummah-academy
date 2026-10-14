@@ -12,7 +12,7 @@ import { getAttribution } from './attribution';
 export const LEAD_KEY = 'ua:lead';
 
 interface I18n {
-  lang: 'en' | 'ar';
+  lang: string;
   thankYou: string;
   eFirst: string;
   eWa: string;
@@ -23,41 +23,31 @@ interface I18n {
   sending: string;
   courseLabels: Record<string, string>;
   countries: { v: string; d: string; tz: string[] }[];
+  /** WhatsApp message templates ({v} = value); `language` is a closing line for the team */
+  msg: Record<'hello' | 'name' | 'learner' | 'childAge' | 'course' | 'level' | 'plan' | 'teacher' | 'country' | 'tz' | 'schedule' | 'pref' | 'female' | 'male' | 'notes' | 'language', string>;
 }
 
 type Lead = Record<string, string>;
 
+const fill = (tpl: string, v: string) => tpl.replace('{v}', v);
+
+/** The message the family sends on WhatsApp — in their language; the country stays in English for the team. */
 function message(l: Lead, i: I18n): string {
+  const m = i.msg;
   const course = i.courseLabels[l.course] ?? l.course;
-  if (i.lang === 'ar') {
-    return [
-      'السلام عليكم، أودّ حجز الحصتين المجانيتين في أكاديمية الأمة.',
-      '',
-      `الاسم: ${l.firstName}`,
-      `المتعلم: ${l.learnerLabel}${l.childAge ? ` (عمر الطفل: ${l.childAge})` : ''}`,
-      `الدورة: ${course}${l.level ? ` — نتيجة الاختبار: ${l.level}` : ''}`,
-      l.plan ? `الخطة: ${l.plan}` : '',
-      l.teacher ? `المعلم المطلوب: ${l.teacher}` : '',
-      `الدولة: ${l.country}${l.timezone ? ` · التوقيت: ${l.timezone}` : ''}`,
-      `المواعيد: ${l.days} · ${l.time}`,
-      l.teacherGender && l.teacherGender !== 'No preference' ? `تفضيل المعلم: ${l.teacherGender === 'Female teacher' ? 'معلمة' : 'معلم'}` : '',
-      l.notes ? `ملاحظات: ${l.notes}` : '',
-    ]
-      .filter((x, idx) => x !== '' || idx === 1)
-      .join('\n');
-  }
   return [
-    'Assalamu alaikum! I would like to book my 2 free trial sessions with Ummah Academy.',
+    m.hello,
     '',
-    `Name: ${l.firstName}`,
-    `Learner: ${l.learnerLabel}${l.childAge ? ` (child aged ${l.childAge})` : ''}`,
-    `Course: ${course}${l.level ? ` — placement result: ${l.level}` : ''}`,
-    l.plan ? `Plan of interest: ${l.plan}` : '',
-    l.teacher ? `Requested teacher: ${l.teacher}` : '',
-    `Country: ${l.country}${l.timezone ? ` · Timezone: ${l.timezone}` : ''}`,
-    `Schedule: ${l.days} · ${l.time}`,
-    l.teacherGender && l.teacherGender !== 'No preference' ? `Teacher preference: ${l.teacherGender}` : '',
-    l.notes ? `Notes: ${l.notes}` : '',
+    fill(m.name, l.firstName),
+    fill(m.learner, l.learnerLabel || l.learner) + (l.childAge ? fill(m.childAge, l.childAge) : ''),
+    fill(m.course, course) + (l.level ? fill(m.level, l.level) : ''),
+    l.plan ? fill(m.plan, l.plan) : '',
+    l.teacher ? fill(m.teacher, l.teacher) : '',
+    fill(m.country, l.country) + (l.timezone ? fill(m.tz, l.timezone) : ''),
+    fill(m.schedule, `${l.daysLabel || l.days} · ${l.timeLabel || l.time}`),
+    l.teacherGender && l.teacherGender !== 'No preference' ? fill(m.pref, l.teacherGender === 'Female teacher' ? m.female : m.male) : '',
+    l.notes ? fill(m.notes, l.notes) : '',
+    m.language,
   ]
     .filter((x, idx) => x !== '' || idx === 1)
     .join('\n');
@@ -234,9 +224,14 @@ export function initBooking(): void {
       }
     }
     const data = Object.fromEntries(new FormData(form).entries()) as Lead;
-    const learnerInput = form.querySelector<HTMLInputElement>('input[name="learner"]:checked');
-    data.learnerLabel =
-      i18n.lang === 'ar' ? learnerInput?.closest('label')?.querySelector('.choice__box span')?.firstChild?.textContent?.trim() || data.learner : data.learner;
+    // Non-English messages use the visible (translated) labels; English keeps the canonical values.
+    if (i18n.lang !== 'en') {
+      const labelOf = (name: string, sel: string) =>
+        form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.closest('label')?.querySelector(sel)?.firstChild?.textContent?.trim() || '';
+      data.learnerLabel = labelOf('learner', '.choice__box span');
+      data.daysLabel = labelOf('days', 'span');
+      data.timeLabel = labelOf('time', 'span');
+    }
     data.source = location.pathname;
     data.lang = i18n.lang;
     const btn = form.querySelector<HTMLButtonElement>('button[type=submit]');

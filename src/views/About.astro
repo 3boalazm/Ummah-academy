@@ -89,7 +89,7 @@ const C = COPY.C;
       <div class="glass table-wrap diff" data-reveal>
         <table class="table">
           <thead>
-            <tr>{C.diffCols.map((c, i) => <th scope="col" class:list={{ diff__us: i === 1 }}>{c || <span class="sr-only">{ar ? 'الجانب' : 'Aspect'}</span>}</th>)}</tr>
+            <tr>{C.diffCols.map((c, i) => <th scope="col" class:list={{ diff__us: i === 1 }}>{c || <span class="sr-only">{C.aspect}</span>}</th>)}</tr>
           </thead>
           <tbody>
             {

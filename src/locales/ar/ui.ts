@@ -46,6 +46,7 @@ export default {
   stars: 'تقييم ٥ من ٥',
   withTeacher: (name: string) => `مع ${name}`,
   legal: 'قانوني',
+  legalNotice: 'هذه ترجمة عربية للتيسير. إذا وقع اختلاف بينها وبين النص الإنجليزي، فالنص الإنجليزي هو المعتمد.',
   approx: '',
   min: 'دقيقة',
   metaDescription:

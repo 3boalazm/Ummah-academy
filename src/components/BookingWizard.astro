@@ -5,8 +5,8 @@
  * so a no-JS notice offers WhatsApp/email directly).
  */
 import Icon from './Icon.astro';
-import { TRIAL_COURSES } from '@/data/tracks';
-import { COUNTRIES } from '@/data/countries';
+import { TRIAL_COURSES, courseLabel } from '@/data/tracks';
+import { COUNTRIES, countryName } from '@/data/countries';
 import { SITE, waLink } from '@/data/site';
 import { lp, type Lang } from '@/i18n';
 import { copy } from '@/locales';
@@ -15,7 +15,6 @@ interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 
 const COPY = copy(lang).booking;
 const L = COPY.L;
@@ -29,9 +28,10 @@ const i18n = {
   eLearner: L.eLearner,
   eCourse: L.eCourse,
   step: [L.step(1), L.step(2), L.step(3)],
-  sending: ar ? 'جارٍ تجهيز طلبك…' : 'Preparing your request…',
-  courseLabels: Object.fromEntries(TRIAL_COURSES.map((c) => [c.value, ar ? c.ar : c.en])),
+  sending: L.sending,
+  courseLabels: Object.fromEntries(TRIAL_COURSES.map((c) => [c.value, courseLabel(c, lang)])),
   countries: COUNTRIES.map((c) => ({ v: c.en, d: c.dial, tz: c.tz })),
+  msg: L.msg,
 };
 ---
 
@@ -88,7 +88,7 @@ const i18n = {
             <input type="radio" name="course" value={c.value} />
             <span class="choice__box">
               <span>
-                {ar ? c.ar : c.en}
+                {courseLabel(c, lang)}
                 <small>{L.tracks[c.track as keyof typeof L.tracks]}</small>
               </span>
             </span>
@@ -145,7 +145,7 @@ const i18n = {
         <label for="bk-country">{L.country} <span class="req" aria-hidden="true">*</span></label>
         <select class="select" id="bk-country" name="country" required>
           <option value="">—</option>
-          {COUNTRIES.map((c) => <option value={c.en}>{ar ? c.ar : c.en}</option>)}
+          {COUNTRIES.map((c) => <option value={c.en}>{countryName(c, lang, L.otherCountry)}</option>)}
         </select>
         <p class="error">{L.eCountry}</p>
       </div>

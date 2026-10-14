@@ -1,6 +1,7 @@
 /** About — English (reference locale) copy. */
 export default {
   C: {
+    aspect: 'Aspect',
     meta: {
       title: 'About Ummah Academy | Our Mission & Story',
       desc: 'Founded on one conviction: every Muslim deserves authentic Qur’anic education wherever they live. Our story, vision, the Itqan method and what makes us different.',

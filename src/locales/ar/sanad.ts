@@ -1,5 +1,6 @@
 /** SanadChain — Arabic copy. */
 export default {
+  label: 'سلسلة السند',
   nodes: [
     { label: 'أنت', sub: 'الطالب' },
     { label: 'معلمك', sub: 'حامل الإجازة' },

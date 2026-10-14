@@ -11,7 +11,7 @@ const COPY = copy(lang).sanad;
 const nodes = COPY.nodes;
 ---
 
-<ol role="list" class:list={['sanad', { 'sanad--dark': dark }]} aria-label={lang === 'ar' ? 'سلسلة السند' : 'Chain of transmission'}>
+<ol role="list" class:list={['sanad', { 'sanad--dark': dark }]} aria-label={COPY.label}>
   {
     nodes.map((n, i) => (
       <li class="sanad__node" style={`--i:${i}`}>

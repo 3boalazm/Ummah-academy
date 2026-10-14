@@ -201,15 +201,17 @@ export const trackById = (id: TrackId, lang: Lang = 'en') => getTracks(lang).fin
 /** Backwards-compatible default export for English-only templates. */
 export const TRACKS = EN;
 
-/** Booking options: canonical value (stored/sent) + localized labels. */
+/** Booking options: canonical value (stored/sent to the team) + localized labels. */
 export const TRIAL_COURSES = [
-  { value: 'Quran Recitation', track: 'quran', en: 'Quran Recitation', ar: 'تلاوة القرآن' },
-  { value: 'Tajweed Rules', track: 'quran', en: 'Tajweed Rules', ar: 'أحكام التجويد' },
-  { value: 'Quran Memorization (Hifz)', track: 'quran', en: 'Hifz (memorisation)', ar: 'حفظ القرآن' },
-  { value: 'Ijazah Program', track: 'quran', en: 'Ijazah programme', ar: 'برنامج الإجازة' },
-  { value: 'Noor Al-Bayan', track: 'arabic', en: 'Noor Al-Bayan (reading)', ar: 'نور البيان (القراءة)' },
-  { value: 'Arabic Grammar', track: 'arabic', en: 'Arabic grammar', ar: 'النحو والصرف' },
-  { value: 'Arabic Conversation', track: 'arabic', en: 'Arabic conversation', ar: 'المحادثة العربية' },
-  { value: 'Ummah Cubs (Kids)', track: 'kids', en: 'Ummah Cubs (kids 5–14)', ar: 'أشبال الأمة (٥–١٤ سنة)' },
-  { value: 'Islamic Studies', track: 'islamic', en: 'Islamic studies', ar: 'الدراسات الإسلامية' },
+  { value: 'Quran Recitation', track: 'quran', en: 'Quran Recitation', ar: 'تلاوة القرآن', de: 'Koranrezitation', fr: 'Récitation du Coran', it: 'Recitazione del Corano' },
+  { value: 'Tajweed Rules', track: 'quran', en: 'Tajweed Rules', ar: 'أحكام التجويد', de: 'Tajweed-Regeln', fr: 'Règles de tajwid', it: 'Regole del Tajweed' },
+  { value: 'Quran Memorization (Hifz)', track: 'quran', en: 'Hifz (memorisation)', ar: 'حفظ القرآن', de: 'Hifz (Auswendiglernen)', fr: 'Hifz (mémorisation)', it: 'Hifz (memorizzazione)' },
+  { value: 'Ijazah Program', track: 'quran', en: 'Ijazah programme', ar: 'برنامج الإجازة', de: 'Ijaza-Programm', fr: 'Programme d’ijaza', it: 'Programma di ijaza' },
+  { value: 'Noor Al-Bayan', track: 'arabic', en: 'Noor Al-Bayan (reading)', ar: 'نور البيان (القراءة)', de: 'Noor Al-Bayan (Lesen)', fr: 'Noor Al-Bayan (lecture)', it: 'Noor Al-Bayan (lettura)' },
+  { value: 'Arabic Grammar', track: 'arabic', en: 'Arabic grammar', ar: 'النحو والصرف', de: 'Arabische Grammatik', fr: 'Grammaire arabe', it: 'Grammatica araba' },
+  { value: 'Arabic Conversation', track: 'arabic', en: 'Arabic conversation', ar: 'المحادثة العربية', de: 'Arabische Konversation', fr: 'Conversation en arabe', it: 'Conversazione in arabo' },
+  { value: 'Ummah Cubs (Kids)', track: 'kids', en: 'Ummah Cubs (kids 5–14)', ar: 'أشبال الأمة (٥–١٤ سنة)', de: 'Ummah Cubs (Kinder 5–14)', fr: 'Ummah Cubs (enfants 5–14 ans)', it: 'Ummah Cubs (bambini 5–14)' },
+  { value: 'Islamic Studies', track: 'islamic', en: 'Islamic studies', ar: 'الدراسات الإسلامية', de: 'Islamische Studien', fr: 'Sciences islamiques', it: 'Studi islamici' },
 ] as const;
+
+export const courseLabel = (c: (typeof TRIAL_COURSES)[number], lang: Lang) => c[lang];

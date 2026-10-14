@@ -4,7 +4,7 @@ import PageHero from '@/components/PageHero.astro';
 import Icon from '@/components/Icon.astro';
 import { getTests } from '@/data/placement';
 import { SITE } from '@/data/site';
-import type { Lang } from '@/i18n';
+import { LOCALE, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
 interface Props {
@@ -93,6 +93,7 @@ const C = COPY.C;
   </section>
 
   <script type="application/json" id="pt-data" set:html={JSON.stringify(tests)} />
+  <script type="application/json" id="pt-i18n" set:html={JSON.stringify({ ...COPY.S, lang, prefix: LOCALE[lang].prefix })} />
 </BaseLayout>
 
 <script>

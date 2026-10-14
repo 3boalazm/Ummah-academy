@@ -4,7 +4,7 @@ import BookingWizard from '@/components/BookingWizard.astro';
 import Faq from '@/components/Faq.astro';
 import Icon from '@/components/Icon.astro';
 import { SITE, waLink } from '@/data/site';
-import { lp, type Lang } from '@/i18n';
+import { lp, num, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
 interface Props {
@@ -62,7 +62,7 @@ const C = COPY.C;
         {
           C.steps.map(([h, p], i) => (
             <li class="glass next__item" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-              <span class="next__num">{ar ? ['١', '٢', '٣'][i] : i + 1}</span>
+              <span class="next__num">{num(lang, i + 1)}</span>
               <h3>{h}</h3>
               <p>{p}</p>
             </li>
@@ -76,7 +76,7 @@ const C = COPY.C;
     <div class="container--narrow">
       <h2 id="cfaq-title" class="next-title" data-reveal>{C.faqTitle}</h2>
       <Faq items={C.faq} />
-      <p class="more-faq"><a class="btn btn--link" href={lp(lang, '/faq/')}>{ar ? 'كل الأسئلة الشائعة' : 'All frequently asked questions'} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a></p>
+      <p class="more-faq"><a class="btn btn--link" href={lp(lang, '/faq/')}>{C.allFaq} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a></p>
     </div>
   </section>
 </BaseLayout>

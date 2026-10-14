@@ -23,7 +23,7 @@ const C = COPY.C;
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: ar ? 'دورات أكاديمية الأمة' : 'Ummah Academy courses',
+  name: C.ldName,
   itemListElement: tracks.flatMap((tr) => tr.courses).map((c, i) => ({
     '@type': 'ListItem',
     position: i + 1,
@@ -40,7 +40,7 @@ const ld = {
     </Fragment>
   </PageHero>
 
-  <nav class="track-nav" aria-label={ar ? 'انتقل إلى مسار' : 'Jump to a track'}>
+  <nav class="track-nav" aria-label={C.jump}>
     <div class="track-nav__inner glass">
       {tracks.map((tr) => <a href={`#${tr.id}`} class="track-nav__link"><Icon name={tr.icon} /> {tr.title}</a>)}
     </div>

@@ -1,5 +1,35 @@
 /** Placement — English (reference locale) copy. */
 export default {
+  S: {
+    levels: { Beginner: 'Beginner', Intermediate: 'Intermediate', Advanced: 'Advanced' },
+    headlines: {
+      Beginner: 'You’re ready to start with the fundamentals',
+      Intermediate: 'You have a solid base — time to refine it',
+      Advanced: 'Strong foundations — you’re ready for mastery',
+    },
+    score: 'You scored {p}% on the skills we checked.',
+    levelLine: '{level} · {track}',
+    noStrength: 'Motivation to begin — the most important step',
+    noFocus: 'Consistency and long-term revision',
+    msg: ['Assalamu alaikum! I just took the Ummah Academy placement test.', 'Track: {track}', 'Result: {level} ({p}%)', 'Recommended: {course}', 'Please send me my personalised study plan.'],
+    count: '{i} / {n}',
+    recs: {
+      quranRead: { course: 'Noor Al-Bayan (reading foundation)', why: 'Build confident letter-by-letter reading first — Tajweed sits on top of it.' },
+      quranRecite: { course: 'Quran Recitation', why: 'Strengthen fluent, correct recitation with live correction from your teacher.' },
+      quranTajweed: { course: 'Tajweed Rules — Level 2', why: 'You know the basics; now systematise the rules with Al-Jazariyyah.' },
+      quranHifz: { course: 'Hifz & Ijazah', why: 'Your recitation is strong enough to memorise with the Itqan method — and work toward an Ijazah.' },
+      arabicNoor: { course: 'Noor Al-Bayan', why: 'Start from the letters and reach independent reading in months, not years.' },
+      arabicTalk: { course: 'Arabic Conversation', why: 'You can read — now build speaking confidence for daily life and lectures.' },
+      arabicGrammar: { course: 'Grammar: Nahw & Sarf', why: 'Unlock understanding with the classical Al-Ajrumiyyah path.' },
+      kids: [
+        { course: 'Ummah Cubs — Little Explorers (5–7)', why: 'Playful 30-minute sessions: first letters, stories and short surahs.' },
+        { course: 'Ummah Cubs — Growing Learners (8–10)', why: 'Real reading fluency with Noor Al-Bayan plus short-surah memorisation.' },
+        { course: 'Ummah Cubs — Junior Scholars (11–14)', why: 'A structured track with Tajweed basics and deeper Islamic studies.' },
+      ],
+      subjects: ['Aqeedah', 'Fiqh', 'Tafseer', 'Seerah'],
+      islamic: { course: 'Islamic Studies — {s}', why: 'Start with {s}, paced to your background, taught 1-on-1 with room for your questions.' },
+    },
+  },
   C: {
     meta: {
       title: 'Free Placement Test — Find Your Level | Ummah Academy',

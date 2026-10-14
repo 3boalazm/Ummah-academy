@@ -28,7 +28,7 @@ const groups = [
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'OfferCatalog',
-  name: ar ? 'خطط أكاديمية الأمة' : 'Ummah Academy plans',
+  name: C.ldName,
   itemListElement: plans.map((p) => ({ '@type': 'Offer', name: `${p.name} — ${p.minutes} min × ${p.perWeek}/week`, price: p.price, priceCurrency: 'USD', category: 'subscription' })),
 };
 ---
@@ -92,10 +92,10 @@ const ld = {
                   <small>{t.perMonth}</small>
                 </p>
                 <p class="finder__meta">
-                  {p.sessionsLabel} · {num(lang, p.minutes)} {ar ? 'دقيقة' : 'min'}
+                  {p.sessionsLabel} · {num(lang, p.minutes)} {t.min}
                 </p>
                 <p class="finder__unit">
-                  {lang === 'ar' ? '' : '~'}{price(lang, perSession(p))} {C.perSession}
+                  {t.approx}{price(lang, perSession(p))} {C.perSession}
                 </p>
                 <p class="finder__best">{p.bestFor}</p>
                 <a class="btn btn--primary btn--block" href={trialLink({ plan: p.canonical }, lang)} data-track="plan-finder">
@@ -111,7 +111,7 @@ const ld = {
   </section>
 
   <!-- All plans -->
-  <section class="section" id="plans" aria-label={ar ? 'كل الخطط' : 'All plans'}>
+  <section class="section" id="plans" aria-label={C.allPlans}>
     <div class="container stack" style="--stack: clamp(40px, 6vw, 72px)">
       {
         groups.map((g) => (
@@ -135,7 +135,7 @@ const ld = {
                     <Icon name="calendar-blank" weight="bold" /> {p.sessionsLabel}
                   </p>
                   <p class="plan__unit">
-                    {lang === 'ar' ? '' : '~'}{price(lang, perSession(p))} {C.perSession}
+                    {t.approx}{price(lang, perSession(p))} {C.perSession}
                   </p>
                   <p class="plan__best">{p.bestFor}</p>
                   <a class:list={['btn', 'btn--block', p.badge ? 'btn--primary' : 'btn--glass']} href={trialLink({ plan: p.canonical }, lang)}>

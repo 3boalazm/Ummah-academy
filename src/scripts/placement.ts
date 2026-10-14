@@ -5,93 +5,63 @@
 import { track } from './analytics';
 import type { TrackTest, TrackKey, Question } from '@/data/placement';
 
-type Lang = 'en' | 'ar';
 interface Rec {
   course: string;
   trial: string;
   href: string;
   why: string;
 }
-
-const T = {
-  en: {
-    levels: { Beginner: 'Beginner', Intermediate: 'Intermediate', Advanced: 'Advanced' },
-    headlines: {
-      Beginner: 'You’re ready to start with the fundamentals',
-      Intermediate: 'You have a solid base — time to refine it',
-      Advanced: 'Strong foundations — you’re ready for mastery',
-    },
-    score: (p: number) => `You scored ${p}% on the skills we checked.`,
-    levelLine: (lvl: string, track: string) => `${lvl} · ${track}`,
-    noStrength: 'Motivation to begin — the most important step',
-    noFocus: 'Consistency and long-term revision',
-    msg: (track: string, lvl: string, p: number, course: string) =>
-      ['Assalamu alaikum! I just took the Ummah Academy placement test.', `Track: ${track}`, `Result: ${lvl} (${p}%)`, `Recommended: ${course}`, 'Please send me my personalised study plan.'].join('\n'),
-    count: (i: number, n: number) => `${i} / ${n}`,
-  },
-  ar: {
-    levels: { Beginner: 'مبتدئ', Intermediate: 'متوسط', Advanced: 'متقدم' },
-    headlines: {
-      Beginner: 'أنت جاهز للبدء من الأساسيات',
-      Intermediate: 'لديك أساس جيد — حان وقت صقله',
-      Advanced: 'أساس قوي — أنت جاهز للإتقان',
-    },
-    score: (p: number) => `نتيجتك ${toAr(p)}٪ في المهارات التي اختبرناها.`,
-    levelLine: (lvl: string, track: string) => `مستوى ${lvl} · ${track}`,
-    noStrength: 'الرغبة في البدء — وهي أهم خطوة',
-    noFocus: 'المواظبة والمراجعة على المدى الطويل',
-    msg: (track: string, lvl: string, p: number, course: string) =>
-      ['السلام عليكم، أنهيت اختبار تحديد المستوى في أكاديمية الأمة.', `المسار: ${track}`, `النتيجة: ${lvl} (${toAr(p)}٪)`, `الترشيح: ${course}`, 'أرجو إرسال خطة الدراسة المناسبة لي.'].join('\n'),
-    count: (i: number, n: number) => `${toAr(i)} / ${toAr(n)}`,
-  },
-};
-
-function toAr(v: number | string) {
-  return String(v).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]);
+type Level = 'Beginner' | 'Intermediate' | 'Advanced';
+type CW = { course: string; why: string };
+/** Script strings, serialised by the view from src/locales/<lang>/placement.ts (S) — {placeholders} filled here. */
+export interface PlacementStrings {
+  lang: string;
+  prefix: string;
+  levels: Record<Level, string>;
+  headlines: Record<Level, string>;
+  score: string;
+  levelLine: string;
+  noStrength: string;
+  noFocus: string;
+  msg: string[];
+  count: string;
+  recs: {
+    quranRead: CW;
+    quranRecite: CW;
+    quranTajweed: CW;
+    quranHifz: CW;
+    arabicNoor: CW;
+    arabicTalk: CW;
+    arabicGrammar: CW;
+    kids: CW[];
+    subjects: string[];
+    islamic: CW;
+  };
 }
 
-const p = (lang: Lang, path: string) => (lang === 'ar' ? `/ar${path}` : path);
+const toAr = (v: number | string) => String(v).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]);
+/** Fill {placeholders}; numbers use Arabic-Indic digits on Arabic pages. */
+const fmt = (S: PlacementStrings, tpl: string, vars: Record<string, string | number>) =>
+  tpl.replace(/\{(\w+)\}/g, (_, k: string) => (typeof vars[k] === 'number' && S.lang === 'ar' ? toAr(vars[k]) : String(vars[k] ?? '')));
 
-export function recommend(key: TrackKey, pct: number, a: Record<string, number>, lang: Lang = 'en'): Rec {
-  const ar = lang === 'ar';
+export function recommend(key: TrackKey, pct: number, a: Record<string, number>, S: PlacementStrings): Rec {
+  const R = S.recs;
+  const at = (path: string) => `${S.prefix}${path}`;
+  const rec = (cw: CW, trial: string, path: string): Rec => ({ ...cw, trial, href: at(path) });
   if (key === 'quran') {
-    if (a.q1 === 0)
-      return { course: ar ? 'نور البيان (تأسيس القراءة)' : 'Noor Al-Bayan (reading foundation)', trial: 'Noor Al-Bayan', href: p(lang, '/online-arabic-classes/'), why: ar ? 'ابدأ بإتقان القراءة حرفًا حرفًا — فالتجويد يُبنى عليها.' : 'Build confident letter-by-letter reading first — Tajweed sits on top of it.' };
-    if (pct < 0.45)
-      return { course: ar ? 'تلاوة القرآن' : 'Quran Recitation', trial: 'Quran Recitation', href: p(lang, '/quran-recitation-course/'), why: ar ? 'قوِّ تلاوتك لتكون صحيحة وسلسة مع تصحيح مباشر من معلمك.' : 'Strengthen fluent, correct recitation with live correction from your teacher.' };
-    if (pct < 0.8)
-      return { course: ar ? 'أحكام التجويد — المستوى الثاني' : 'Tajweed Rules — Level 2', trial: 'Tajweed Rules', href: p(lang, '/quran-recitation-course/'), why: ar ? 'تعرف الأساسيات؛ والآن رتّب الأحكام بمنهجية مع متن الجزرية.' : 'You know the basics; now systematise the rules with Al-Jazariyyah.' };
-    return { course: ar ? 'الحفظ والإجازة' : 'Hifz & Ijazah', trial: a.q8 >= 2 ? 'Ijazah Program' : 'Quran Memorization (Hifz)', href: p(lang, '/quran-memorization-hifz/'), why: ar ? 'تلاوتك قوية بما يكفي للحفظ بمنهج الإتقان والسير نحو الإجازة.' : 'Your recitation is strong enough to memorise with the Itqan method — and work toward an Ijazah.' };
+    if (a.q1 === 0) return rec(R.quranRead, 'Noor Al-Bayan', '/online-arabic-classes/');
+    if (pct < 0.45) return rec(R.quranRecite, 'Quran Recitation', '/quran-recitation-course/');
+    if (pct < 0.8) return rec(R.quranTajweed, 'Tajweed Rules', '/quran-recitation-course/');
+    return rec(R.quranHifz, a.q8 >= 2 ? 'Ijazah Program' : 'Quran Memorization (Hifz)', '/quran-memorization-hifz/');
   }
   if (key === 'arabic') {
-    if (a.a1 === 0 || pct < 0.4)
-      return { course: ar ? 'نور البيان' : 'Noor Al-Bayan', trial: 'Noor Al-Bayan', href: p(lang, '/online-arabic-classes/'), why: ar ? 'ابدأ من الحروف وصولًا إلى القراءة المستقلة خلال أشهر.' : 'Start from the letters and reach independent reading in months, not years.' };
-    if (a.a8 === 2)
-      return { course: ar ? 'المحادثة العربية' : 'Arabic Conversation', trial: 'Arabic Conversation', href: p(lang, '/online-arabic-classes/'), why: ar ? 'تقرأ جيدًا — والآن ابنِ ثقتك في الحديث للحياة اليومية والدروس.' : 'You can read — now build speaking confidence for daily life and lectures.' };
-    return { course: ar ? 'النحو والصرف' : 'Grammar: Nahw & Sarf', trial: 'Arabic Grammar', href: p(lang, '/online-arabic-classes/'), why: ar ? 'افتح باب الفهم عبر مسار الآجرومية التراثي.' : 'Unlock understanding with the classical Al-Ajrumiyyah path.' };
+    if (a.a1 === 0 || pct < 0.4) return rec(R.arabicNoor, 'Noor Al-Bayan', '/online-arabic-classes/');
+    if (a.a8 === 2) return rec(R.arabicTalk, 'Arabic Conversation', '/online-arabic-classes/');
+    return rec(R.arabicGrammar, 'Arabic Grammar', '/online-arabic-classes/');
   }
-  if (key === 'kids') {
-    const tiers: Rec[] = ar
-      ? [
-          { course: 'أشبال الأمة — المستكشفون الصغار (٥–٧)', trial: 'Ummah Cubs (Kids)', href: p(lang, '/ummah-cubs-kids-islamic-studies/'), why: 'حصص مرحة مدتها ٣٠ دقيقة: أول الحروف والقصص والسور القصيرة.' },
-          { course: 'أشبال الأمة — المتعلمون الناشئون (٨–١٠)', trial: 'Ummah Cubs (Kids)', href: p(lang, '/ummah-cubs-kids-islamic-studies/'), why: 'طلاقة حقيقية في القراءة بنور البيان مع حفظ السور القصيرة.' },
-          { course: 'أشبال الأمة — العلماء الصغار (١١–١٤)', trial: 'Ummah Cubs (Kids)', href: p(lang, '/ummah-cubs-kids-islamic-studies/'), why: 'مسار منظَّم يشمل أساسيات التجويد ودراسات إسلامية أعمق.' },
-        ]
-      : [
-          { course: 'Ummah Cubs — Little Explorers (5–7)', trial: 'Ummah Cubs (Kids)', href: p(lang, '/ummah-cubs-kids-islamic-studies/'), why: 'Playful 30-minute sessions: first letters, stories and short surahs.' },
-          { course: 'Ummah Cubs — Growing Learners (8–10)', trial: 'Ummah Cubs (Kids)', href: p(lang, '/ummah-cubs-kids-islamic-studies/'), why: 'Real reading fluency with Noor Al-Bayan plus short-surah memorisation.' },
-          { course: 'Ummah Cubs — Junior Scholars (11–14)', trial: 'Ummah Cubs (Kids)', href: p(lang, '/ummah-cubs-kids-islamic-studies/'), why: 'A structured track with Tajweed basics and deeper Islamic studies.' },
-        ];
-    return tiers[a.k1 ?? 0] ?? tiers[0];
-  }
-  const subjects = ar ? ['العقيدة', 'الفقه', 'التفسير', 'السيرة'] : ['Aqeedah', 'Fiqh', 'Tafseer', 'Seerah'];
-  const s = subjects[a.i8 ?? 0] ?? subjects[0];
-  return {
-    course: ar ? `الدراسات الإسلامية — ${s}` : `Islamic Studies — ${s}`,
-    trial: 'Islamic Studies',
-    href: p(lang, '/online-islamic-studies-classes/'),
-    why: ar ? `ابدأ بـ${s} بالسرعة التي تناسب خلفيتك، في حصص فردية تتسع لأسئلتك.` : `Start with ${s}, paced to your background, taught 1-on-1 with room for your questions.`,
-  };
+  if (key === 'kids') return rec(R.kids[a.k1 ?? 0] ?? R.kids[0], 'Ummah Cubs (Kids)', '/ummah-cubs-kids-islamic-studies/');
+  const s = R.subjects[a.i8 ?? 0] ?? R.subjects[0];
+  return rec({ course: fmt(S, R.islamic.course, { s }), why: fmt(S, R.islamic.why, { s }) }, 'Islamic Studies', '/online-islamic-studies-classes/');
 }
 
 const isArabicText = (s: string) => /[\u0600-\u06FF]/.test(s) && !/[a-z]/i.test(s);
@@ -101,8 +71,7 @@ export function initPlacement(): void {
   const dataEl = document.getElementById('pt-data');
   if (!root || !dataEl) return;
   const tests = JSON.parse(dataEl.textContent || '[]') as TrackTest[];
-  const lang = (root.dataset.lang as Lang) || 'en';
-  const S = T[lang];
+  const S = JSON.parse(document.getElementById('pt-i18n')?.textContent || '{}') as PlacementStrings;
   const wa = root.dataset.wa || '';
   const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
   const $ = <E extends Element>(sel: string) => root.querySelector<E>(sel)!;
@@ -123,7 +92,7 @@ export function initPlacement(): void {
     const t = state.test!;
     const q: Question = t.questions[state.i];
     $('[data-q-track]').textContent = t.label;
-    $('[data-q-count]').textContent = S.count(state.i + 1, t.questions.length);
+    $('[data-q-count]').textContent = fmt(S, S.count, { i: state.i + 1, n: t.questions.length });
     $<HTMLElement>('[data-q-bar]').style.width = `${(state.i / t.questions.length) * 100}%`;
     $('[data-q-prompt]').textContent = q.prompt;
     const wrap = $('[data-q-options]');
@@ -185,8 +154,8 @@ export function initPlacement(): void {
       }
     });
     const pct = max ? score / max : 0;
-    const level = (pct < 0.4 ? 'Beginner' : pct < 0.75 ? 'Intermediate' : 'Advanced') as keyof typeof S.levels;
-    const rec = recommend(t.key, pct, state.answers, lang);
+    const level: Level = pct < 0.4 ? 'Beginner' : pct < 0.75 ? 'Intermediate' : 'Advanced';
+    const rec = recommend(t.key, pct, state.answers, S);
     const percent = Math.round(pct * 100);
     const uniq = (xs: string[]) => Array.from(new Set(xs));
     const fill = (sel: string, items: string[], fallback: string) => {
@@ -198,17 +167,17 @@ export function initPlacement(): void {
         ul.append(li);
       });
     };
-    $('[data-r-level]').textContent = S.levelLine(S.levels[level], t.label);
+    $('[data-r-level]').textContent = fmt(S, S.levelLine, { level: S.levels[level], track: t.label });
     $('[data-r-headline]').textContent = S.headlines[level];
-    $('[data-r-score]').textContent = S.score(percent);
+    $('[data-r-score]').textContent = fmt(S, S.score, { p: percent });
     fill('[data-r-strengths]', uniq(strengths), S.noStrength);
     fill('[data-r-focus]', uniq(focus), S.noFocus);
     $('[data-r-course]').textContent = rec.course;
     $('[data-r-why]').textContent = rec.why;
     $<HTMLAnchorElement>('[data-r-link]').href = rec.href;
-    const bookBase = lang === 'ar' ? '/ar/contact/' : '/contact/';
+    const bookBase = `${S.prefix}/contact/`;
     $<HTMLAnchorElement>('[data-r-book]').href = `${bookBase}?course=${encodeURIComponent(rec.trial)}&level=${encodeURIComponent(S.levels[level])}${t.key === 'kids' ? '&learner=My%20child' : ''}#book`;
-    $<HTMLAnchorElement>('[data-r-wa]').href = `https://wa.me/${wa}?text=${encodeURIComponent(S.msg(t.label, S.levels[level], percent, rec.course))}`;
+    $<HTMLAnchorElement>('[data-r-wa]').href = `https://wa.me/${wa}?text=${encodeURIComponent(S.msg.map((line) => fmt(S, line, { track: t.label, level: S.levels[level], p: percent, course: rec.course })).join('\n'))}`;
     $<HTMLElement>('[data-q-bar]').style.width = '100%';
     track('placement_result', { track: t.key, level });
     show('result');

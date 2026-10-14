@@ -185,10 +185,10 @@ const ld = {
                 <small>{t.perMonth}</small>
               </span>
               <span class="rplan__meta">
-                {p.sessionsLabel} · {num(lang, p.minutes)} {ar ? 'دقيقة' : 'min'}
+                {p.sessionsLabel} · {num(lang, p.minutes)} {t.min}
               </span>
               <span class="rplan__unit">
-                {lang === 'ar' ? '' : '~'}{price(lang, perSession(p))} {L.perSession}
+                {t.approx}{price(lang, perSession(p))} {L.perSession}
               </span>
               <span class="rplan__go">
                 {L.choose} <Icon name="arrow-right" weight="bold" class="icon-arrow" />

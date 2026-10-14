@@ -46,6 +46,8 @@ export default {
   stars: '5 out of 5 stars',
   withTeacher: (name: string) => `with ${name}`,
   legal: 'Legal',
+  /** shown on translated legal pages only (empty for the English original) */
+  legalNotice: '',
   approx: '~',
   min: 'min',
   metaDescription:

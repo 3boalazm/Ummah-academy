@@ -1,6 +1,7 @@
 /** Contact — English (reference locale) copy. */
 export default {
   C: {
+    allFaq: 'All frequently asked questions',
     meta: {
       title: 'Book 2 Free Trial Sessions | Contact Ummah Academy',
       desc: 'Book two free live 1-on-1 trial sessions with an Al-Azhar teacher in under a minute. We confirm your teacher and time on WhatsApp.',

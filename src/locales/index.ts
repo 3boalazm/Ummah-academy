@@ -8,11 +8,15 @@
 import type { Lang } from '@/i18n';
 import * as en from './en';
 import * as ar from './ar';
+import * as de from './de';
+import * as fr from './fr';
+import * as it from './it';
 
 export type Copy = typeof en;
 export type UIStrings = Copy['ui'];
 
-const REGISTRY: Record<string, Copy> = { en, ar: ar as unknown as Copy };
+/** A locale may be partial while it is being translated (missing modules render in English). */
+const REGISTRY: Record<string, Partial<Copy>> = { en, ar: ar as unknown as Copy, de: de as Partial<Copy>, fr: fr as Partial<Copy>, it: it as Partial<Copy> };
 
 /** Keys a locale may legitimately omit or add (documented, intentional differences). */
 const OPTIONAL: Record<string, string[]> = {
@@ -54,22 +58,37 @@ function assertParity() {
   if (checked) return;
   checked = true;
   const issues: Issue[] = [];
-  for (const [lang, mod] of Object.entries(REGISTRY)) if (lang !== 'en') compare(en, mod, '', lang, issues);
+  for (const [lang, mod] of Object.entries(REGISTRY)) {
+    if (lang === 'en') continue;
+    // only modules that exist are compared; missing modules are reported by copy()
+    const present = Object.fromEntries(Object.keys(mod).map((k) => [k, (en as Record<string, unknown>)[k]]));
+    compare(present, mod, '', lang, issues);
+  }
   if (issues.length) throw new Error(`Locale shape mismatch (${issues.length}):\n  ${issues.join('\n  ')}`);
 }
 
 const warned = new Set<string>();
+const merged = new Map<string, Copy>();
 export function copy(lang: Lang): Copy {
   assertParity();
+  if (merged.has(lang)) return merged.get(lang)!;
   const c = REGISTRY[lang];
-  if (c) return c;
-  // While a locale is being translated it renders in English; strict builds (npm run qa) refuse.
-  if (process.env.I18N_STRICT) throw new Error(`No locale registered for "${lang}" in src/locales/index.ts`);
-  if (!warned.has(lang)) {
-    warned.add(lang);
-    console.warn(`[i18n] "${lang}" is not registered yet — rendering English copy`);
+  if (!c) throw new Error(`No locale registered for "${lang}" in src/locales/index.ts`);
+  const missing = Object.keys(en).filter((k) => !(k in c));
+  if (missing.length) {
+    // While a locale is being translated, missing modules render in English; strict builds refuse.
+    if (process.env.I18N_STRICT) throw new Error(`Locale "${lang}" is missing modules: ${missing.join(', ')}`);
+    if (!warned.has(lang)) {
+      warned.add(lang);
+      console.warn(`[i18n] "${lang}" missing ${missing.length} module(s), rendering English: ${missing.join(', ')}`);
+    }
   }
-  return en;
+  const full = { ...en, ...c } as Copy;
+  merged.set(lang, full);
+  return full;
 }
+
+/** Locales whose every module is translated (used by QA). */
+export const completeLocales = () => Object.keys(REGISTRY).filter((l) => Object.keys(en).every((k) => k in REGISTRY[l]!));
 
 export const ui = (lang: Lang): UIStrings => copy(lang).ui;

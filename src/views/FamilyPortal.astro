@@ -5,7 +5,7 @@ import SectionHead from '@/components/SectionHead.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import { portalLinks, waLink } from '@/data/site';
-import { num, type Lang } from '@/i18n';
+import { num, pct, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
 interface Props {
@@ -42,7 +42,7 @@ const M = C.mock;
           <span class="btn btn--sm btn--primary portal__join"><Icon name="play" weight="fill" /> {M.join}</span>
         </div>
         <div class="portal__progress">
-          <span>{M.progress}</span><strong>{ar ? '٦٥٪' : '65%'}</strong>
+          <span>{M.progress}</span><strong>{pct(lang, 65)}</strong>
           <span class="portal__bar"><i style="width:65%"></i></span>
         </div>
         <ul role="list" class="portal__alerts">

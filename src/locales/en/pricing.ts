@@ -1,6 +1,8 @@
 /** Pricing — English (reference locale) copy. */
 export default {
   C: {
+    ldName: 'Ummah Academy plans',
+    allPlans: 'All plans',
     meta: {
       title: 'Quran Classes Pricing — Plans from $40/month | Ummah Academy',
       desc: 'Transparent monthly plans from $40 to $128 for live 1-on-1 Qur’an, Arabic and Islamic Studies lessons. Every plan starts with 2 free sessions.',

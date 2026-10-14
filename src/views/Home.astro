@@ -33,8 +33,8 @@ const plans60 = plans.filter((p) => p.minutes === 60);
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: ar ? 'أكاديمية الأمة' : 'Ummah Academy',
-  url: ar ? 'https://ummahacademy.net/ar/' : 'https://ummahacademy.net/',
+  name: t.siteName,
+  url: `https://ummahacademy.net${lp(lang, '/')}`,
 };
 ---
 
@@ -273,7 +273,7 @@ const ld = {
                       {price(lang, p.price)}
                       <small>{t.perMonth}</small>
                       <span>
-                        {lang === 'ar' ? '' : '~'}{price(lang, perSession(p))} {C.pricing.perSession}
+                        {t.approx}{price(lang, perSession(p))} {C.pricing.perSession}
                       </span>
                     </p>
                   </li>

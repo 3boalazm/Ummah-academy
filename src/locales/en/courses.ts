@@ -1,6 +1,8 @@
 /** Courses — English (reference locale) copy. */
 export default {
   C: {
+    ldName: 'Ummah Academy courses',
+    jump: 'Jump to a track',
     meta: {
       title: 'Online Quran Courses | Tajweed, Hifz, Arabic & Islamic Studies | Ummah Academy',
       desc: 'Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs for kids and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. From $40/month, 2 free sessions.',

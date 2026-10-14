@@ -1,6 +1,26 @@
 /** BookingWizard — English (reference locale) copy. */
 export default {
   L: {
+    msg: {
+      hello: 'Assalamu alaikum! I would like to book my 2 free trial sessions with Ummah Academy.',
+      name: 'Name: {v}',
+      learner: 'Learner: {v}',
+      childAge: ' (child aged {v})',
+      course: 'Course: {v}',
+      level: ' — placement result: {v}',
+      plan: 'Plan of interest: {v}',
+      teacher: 'Requested teacher: {v}',
+      country: 'Country: {v}',
+      tz: ' · Timezone: {v}',
+      schedule: 'Schedule: {v}',
+      pref: 'Teacher preference: {v}',
+      female: 'Female teacher',
+      male: 'Male teacher',
+      notes: 'Notes: {v}',
+      language: '',
+    },
+    sending: 'Preparing your request…',
+    otherCountry: 'Other',
     step: (n: number) => `Step ${n} of 3`,
     s1: 'Who is learning?',
     s1b: 'What would you like to learn?',
