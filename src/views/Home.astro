@@ -30,15 +30,9 @@ const C = COPY.C;
 
 const plans30 = plans.filter((p) => p.minutes === 30);
 const plans60 = plans.filter((p) => p.minutes === 60);
-const ld = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: t.siteName,
-  url: `https://ummahacademy.net${lp(lang, '/')}`,
-};
 ---
 
-<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
   <!-- 1 · Hero -->
   <section class="hero">
     <div class="container hero__grid">

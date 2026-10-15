@@ -20,7 +20,7 @@ import Analytics from '@/components/Analytics.astro';
 import ConsentBanner from '@/components/ConsentBanner.astro';
 import LangHint from '@/components/LangHint.astro';
 import { SITE } from '@/data/site';
-import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, type Lang, type Alternates } from '@/i18n';
+import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, lp, type Lang, type Alternates } from '@/i18n';
 import { ogCardPath } from '@/data/og';
 import { ui } from '@/locales';
 
@@ -86,7 +86,32 @@ const org = {
   ],
 };
 const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
-const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
+// Stable IDs connect the page, its language-specific website and the real provider.
+// Do not invent ratings, accreditations, addresses or social profiles for rich results.
+const websiteId = `${SITE.url}${lp(lang, '/')}#website`;
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': websiteId,
+  name: t.siteName,
+  alternateName: SITE.nameAr,
+  url: `${SITE.url}${lp(lang, '/')}`,
+  inLanguage: lang,
+  publisher: { '@id': org['@id'] },
+};
+const webpage = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${canonical}#webpage`,
+  url: canonical,
+  name: title,
+  description,
+  inLanguage: lang,
+  isPartOf: { '@id': websiteId },
+  about: { '@id': org['@id'] },
+  primaryImageOfPage: { '@type': 'ImageObject', url: ogImage },
+};
+const graph = [org, website, webpage, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
 // Search Console / Bing Webmaster verification (prefer DNS verification — see docs/15); root home only
 const verify = Astro.url.pathname === '/' ? { google: String(import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION ?? '').trim(), bing: String(import.meta.env.PUBLIC_BING_SITE_VERIFICATION ?? '').trim() } : { google: '', bing: '' };
 // the consent banner exists only when cookie-based analytics (GTM) is configured
@@ -104,7 +129,8 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+    <link rel="alternate" type="text/plain" title="Ummah Academy — machine-readable overview" href="/llms.txt" />
     {hreflang.map((a) => <link rel="alternate" hreflang={a.lang} href={new URL(a.href, Astro.site).href} />)}
 
     <meta property="og:site_name" content={t.siteName} />
