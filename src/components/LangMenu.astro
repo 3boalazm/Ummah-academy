@@ -376,4 +376,40 @@ const partial = targets.some((x) => !x.exact);
       animation: none;
     }
   }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .langmenu__btn {
+    background: rgb(255 255 255 / 0.09);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.13);
+  }
+
+  :global([data-theme='dark']) .langmenu__btn:hover,
+  :global([data-theme='dark']) .langmenu[open] .langmenu__btn {
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  :global([data-theme='dark']) .langmenu__panel {
+    background: linear-gradient(155deg, rgb(41 31 59 / 0.97), rgb(28 20 42 / 0.95));
+  }
+
+  :global([data-theme='dark']) .langmenu__item:hover {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  :global([data-theme='dark']) .langmenu__item.is-current {
+    background: rgb(255 255 255 / 0.13);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  }
+
+  :global([data-theme='dark']) .langmenu__short {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  :global([data-theme='dark']) .is-current .langmenu__short {
+    background: rgb(185 140 232 / 0.2);
+  }
+
+  :global([data-theme='dark']) .langchips__chip {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  }
 </style>

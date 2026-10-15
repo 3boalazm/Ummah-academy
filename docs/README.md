@@ -21,3 +21,5 @@
 | 10 | [10-phase4-i18n-plan.md](10-phase4-i18n-plan.md) | Phase 4 plan (German, French, Italian), written before code: market terminology, EU legal notes, typography, architecture, workstreams, gates |
 | 11 | [11-i18n-glossary.md](11-i18n-glossary.md) | DE/FR/IT voice and register, untranslated names, Islamic and UI terms, honesty rules, and the EN → DE/FR/IT article slug map |
 | 12 | [12-phase4-changelog.md](12-phase4-changelog.md) | Phase 4 delivery: the i18n engine, language menu and hint, 23 routes and 19 articles in each of DE/FR/IT (57 article translations), QA, bugs fixed, business gates (with screenshots) |
+| 13 | [13-phase5-plan.md](13-phase5-plan.md) | Phase 5 plan (after "كمل"): the layer that lets the academy run the site without a developer — QA in the repo, social cards, CMS, search launch kit, device readiness |
+| 18 | [18-dark-mode-and-installable-app.md](18-dark-mode-and-installable-app.md) | Light ⇄ dark for the whole design system, installable as an app (manifest, icons, service worker, bottom-left pill), and the heaviest layout sweep in the repo (20 widths × 194 pages) with the three bugs it found and fixed |

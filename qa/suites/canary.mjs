@@ -10,6 +10,8 @@ import { check } from './header.mjs';
 import { fits } from './popovers.mjs';
 import { audit } from './touch.mjs';
 import { axeScoped } from './axe.mjs';
+import { darkContrast } from './theme.mjs';
+import { auditManifest } from './pwa.mjs';
 
 const CANARIES = [
   {
@@ -54,6 +56,38 @@ const CANARIES = [
     css: '#bk-first, .input { font-size: 13px !important; }',
     before: (page) => page.evaluate(() => document.querySelectorAll('[data-bstep]').forEach((s) => s.classList.add('is-active'))),
     run: (page) => page.evaluate(audit, true),
+  },
+  {
+    name: 'theme sees dark-on-dark text in dark mode',
+    width: 1280,
+    css: '.lead { color: #241a34 !important; }',
+    before: (page) => page.evaluate(() => (document.documentElement.dataset.theme = 'dark')),
+    run: (page) => darkContrast(page),
+  },
+  {
+    name: 'offline sees a page that was never cached',
+    width: 1280,
+    path: '/pricing/',
+    css: '',
+    before: (page) => page.evaluate(() => caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k))))),
+    run: (page) =>
+      page.evaluate(async () => {
+        const keys = await caches.keys();
+        const hits = [];
+        for (const k of keys) {
+          const c = await caches.open(k);
+          if (await c.match('/pricing/')) hits.push(k);
+        }
+        return hits.length ? [] : ['the visited page is not in any cache — an offline visit would fail'];
+      }),
+  },
+  {
+    name: 'pwa sees a broken manifest',
+    width: 390,
+    mobile: true,
+    css: '',
+    before: (page) => page.evaluate(() => (document.querySelector('link[rel="manifest"]').href = '/does-not-exist.webmanifest')),
+    run: (page) => page.evaluate(auditManifest),
   },
   {
     name: 'axe sees an image without alt text',

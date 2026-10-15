@@ -11,7 +11,9 @@
 import { newPage, open } from '../lib/browser.mjs';
 import { pool } from '../lib/pages.mjs';
 
-export const DEFAULT_WIDTHS = [320, 360, 390, 768, 1024, 1280];
+// 540/820/900/1180 were added after a 20-width sweep found a card CTA overflowing at exactly
+// those widths in DE/FR/IT — the grid changes column count between the round numbers.
+export const DEFAULT_WIDTHS = [320, 360, 390, 540, 768, 820, 900, 1024, 1180, 1280];
 
 export function measure() {
   const vw = document.documentElement.clientWidth;

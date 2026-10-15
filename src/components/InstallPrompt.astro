@@ -1,0 +1,183 @@
+---
+/**
+ * Install-as-an-app pill — bottom of the screen, on the inline-start edge
+ * (bottom-left in LTR, bottom-right in RTL, mirroring the reading direction).
+ * Hidden until the browser offers an install (or the visitor is on iOS Safari);
+ * tapping it opens a small card with the install action. Behaviour: src/scripts/install.ts.
+ */
+import Icon from './Icon.astro';
+import { ui } from '@/locales';
+import type { Lang } from '@/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const t = ui(lang).install;
+---
+
+<div class="install" data-install>
+  <div class="install__card glass glass--strong" id="ua-install-card" data-install-card aria-labelledby="ua-install-title" hidden>
+    <button class="install__close" type="button" data-install-close aria-label={t.close}>
+      <Icon name="x" weight="bold" />
+    </button>
+
+    <div class="install__pane" data-install-native hidden>
+      <p class="install__title" id="ua-install-title">{t.title}</p>
+      <p class="install__body">{t.body}</p>
+      <div class="install__actions">
+        <button class="btn btn--sm btn--primary" type="button" data-install-confirm>{t.confirm}</button>
+        <button class="install__later" type="button" data-install-dismiss>{t.dismiss}</button>
+      </div>
+    </div>
+
+    <div class="install__pane" data-install-ios hidden>
+      <p class="install__title">{t.iosTitle}</p>
+      <p class="install__body">
+        <Icon name="share-fat" weight="fill" class="install__share" />
+        {t.iosBody}
+      </p>
+      <div class="install__actions">
+        <button class="install__later" type="button" data-install-dismiss>{t.dismiss}</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="install__pill glass" type="button" data-install-open aria-expanded="false" aria-controls="ua-install-card" tabindex="-1">
+    <Icon name="download-simple" weight="bold" />
+    <span>{t.trigger}</span>
+  </button>
+</div>
+
+<style>
+  .install {
+    position: fixed;
+    inset-block-end: calc(14px + env(safe-area-inset-bottom));
+    inset-inline-start: calc(14px + env(safe-area-inset-left));
+    z-index: 30; /* under the sticky CTA (40), the language hint (45) and the header (50) */
+    display: none;
+  }
+
+  .install[data-visible] {
+    display: block;
+  }
+
+  .install__pill {
+    --radius: var(--r-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 0;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 560;
+    white-space: nowrap;
+    animation: install-in 0.4s var(--ease-spring);
+  }
+
+  .install__pill :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+
+  @keyframes install-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+  }
+
+  .install__card {
+    --radius: 22px;
+    position: absolute;
+    inset-block-end: calc(100% + 10px);
+    inset-inline-start: 0;
+    width: min(304px, calc(100vw - 28px));
+    padding: 18px;
+    animation: install-in 0.28s var(--ease-out);
+  }
+
+  .install__close {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink-3);
+    background: transparent;
+  }
+
+  /* 32 px box, 44 px target */
+  .install__close::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+  }
+
+  .install__close :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .install__title {
+    font-size: 1.02rem;
+    font-weight: 620;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    padding-inline-end: 24px;
+  }
+
+  .install__body {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .install__share {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-inline-end: 2px;
+    vertical-align: -2px;
+    color: var(--accent-ink);
+  }
+
+  .install__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin-top: 14px;
+  }
+
+  .install__later {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font-size: 0.88rem;
+    font-weight: 540;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* The mobile action bar owns the bottom edge on phones — ride above it while it is up. */
+  :global(.sticky-cta.is-visible) ~ .install {
+    inset-block-end: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  /* The consent banner (only with GTM configured) is full width at the bottom: clear it. */
+  :global(.consent:not([hidden])) ~ .install {
+    inset-block-end: calc(170px + env(safe-area-inset-bottom));
+  }
+</style>

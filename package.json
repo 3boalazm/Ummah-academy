@@ -12,6 +12,7 @@
     "verify": "npm run check:links && npm run check:i18n && npm run check:jsonld && npm run check:sitemap",
     "qa": "npm run build && npm run verify && npm run check:cards && npm run check:cms && npm run check:css && npm test",
     "pdfs": "node scripts/build-pdfs.mjs",
+    "pwa:icons": "node scripts/build-pwa-icons.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:jsonld": "node scripts/check-jsonld.mjs",
     "check:cards": "node scripts/check-cards.mjs",

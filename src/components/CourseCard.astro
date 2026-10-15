@@ -62,15 +62,27 @@ const t = ui(lang);
     font-size: 0.97rem;
   }
 
+  /* The price and the CTA share one row while there is room. Between ~540 and ~1180 px the
+     card grid holds 3–4 columns, so the card gets narrow while the DE/FR/IT label
+     ("Kostenlos testen", "Essayer gratuitement") still needs ~210 px: the row then wraps and
+     the CTA takes the line below instead of pushing the card past the viewport.
+     Found by the 20-width sweep (qa/suites/overflow.mjs --widths=…), invisible at 6 widths. */
   .course-card__foot {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px 12px;
     width: 100%;
     margin-top: auto;
     padding-top: 14px;
     border-top: 1px solid var(--line);
+  }
+
+  .course-card__foot :global(.btn) {
+    white-space: normal;
+    text-wrap: balance;
+    max-width: 100%;
   }
 
   .course-card__price {

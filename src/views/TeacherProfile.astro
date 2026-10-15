@@ -425,5 +425,19 @@ const meta = COPY.meta(t);
   .tprof__head h2 {
     font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
   }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .tprof__portrait {
+    background:
+      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.12), transparent 60%),
+      radial-gradient(80% 70% at 80% 90%, rgb(109 158 214 / 0.28), transparent 65%),
+      radial-gradient(90% 80% at 10% 100%, rgb(200 123 128 / 0.24), transparent 70%),
+      linear-gradient(160deg, #2b2040, #201731);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.16),
+      0 40px 80px -40px rgb(0 0 0 / 0.8);
+  }
 
+  :global([data-theme='dark']) .tprof__sanad {
+    border-top-color: rgb(255 255 255 / 0.1);
+  }
 </style>

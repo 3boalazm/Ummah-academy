@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "Ummah Academy — Qur'an, Arabic & Islamic Studies",
+  "short_name": "Ummah",
+  "description": "Live 1-on-1 Qur'an, Tajweed, Arabic and Islamic studies with Al-Azhar scholars who hold a verified Ijazah.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f1f8",
+  "theme_color": "#f4f1f8",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Book a free trial", "short_name": "Free trial", "url": "/contact/#book", "description": "Two free 1-on-1 sessions, no card needed" },
+    { "name": "All courses", "short_name": "Courses", "url": "/courses/", "description": "Qur'an, Arabic and Islamic studies tracks" },
+    { "name": "Placement test", "short_name": "My level", "url": "/placement-test/", "description": "Free 3-minute placement test" }
+  ]
+}

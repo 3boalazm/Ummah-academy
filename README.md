@@ -19,6 +19,8 @@ This repository is the **native-code** replacement for the WordPress/Elementor s
   - The 19 articles are translated into DE/FR/IT under localised slugs; there are also 3 original Arabic articles.
   - A glass language menu always opens the true translation.
   - Reciprocal `hreflang` everywhere, and automated i18n QA.
+- **Light and dark:** one design system, two themes. The switch (header on desktop, mobile sheet on phones) remembers the choice per browser; without a choice the OS preference decides, and the theme is applied **before the first paint**, so there is no flash. Dark mode has its own QA suite (`theme`).
+- **Installable as an app:** a web manifest, maskable icons and a service worker make the site installable on Android and iOS. A small “Get the app” pill sits bottom-left (bottom-right in RTL) and opens a card: the native prompt on Android, the Share → Add to Home Screen steps on iOS. Offline, the last pages visited still open. Audited by the `pwa` suite.
 
 ## Quick start
 
@@ -27,7 +29,9 @@ npm install
 npm run dev        # http://localhost:4321
 npm run build      # → dist/ (195 pages; production builds fail on a half-translated locale)
 npm run preview    # serve the production build
-npm run qa         # build + internal link/fragment checker + i18n checker
+npm run qa         # build + internal link/fragment checker + i18n checker + CSS + CMS + units
+npm run qa:browser # the browser suites (canary, overflow, header, popovers, axe, flows, touch, theme, pwa, offline, cms)
+npm run pwa:icons  # regenerate the app icons in public/icons/ (only after a brand change)
 CHROME_PATH=/path/to/chrome npm run pdfs   # regenerate the free worksheets → public/downloads/
 ```
 
@@ -47,13 +51,15 @@ src/
   content/blog/     English articles → /<slug>/
   content/blog-ar/  Arabic articles → /ar/blog/<slug>/ (optional translationOf: <english-slug>)
   content/blog-tr/  de/ fr/ it/ translated articles → /<lang>/blog/<localised-slug>/ (translationOf required)
-  components/       design-system components (Header, LangMenu, LangHint, BookingWizard, TrackCard…)
+  components/       design-system components (Header, LangMenu, ThemeToggle, InstallPrompt, LangHint, BookingWizard, TrackCard…)
   data/             single source of truth: site/contact, tracks, pricing, people, placement test, countries
   layouts/          BaseLayout (SEO head, hreflang, JSON-LD, fonts, aurora, header/footer)
-  scripts/          client islands: site.ts, booking.ts, placement.ts, attribution.ts, analytics.ts
-  styles/global.css design tokens + glass system
+  scripts/          client islands: site.ts, booking.ts, placement.ts, theme.ts, install.ts, pwa.ts, attribution.ts, analytics.ts
+  styles/global.css design tokens + glass system + the dark theme
+public/sw.js        service worker: offline support and the installability requirement
+public/manifest.webmanifest  the app manifest (name, icons, shortcuts)
   assets/art/       art-directed renders (optimised to AVIF/WebP at build)
-public/             favicon, OG cards (og/default[-ar|-de|-fr|-it].png), robots.txt, downloads/
+public/             favicon, app icons (icons/), OG cards (og/default[-ar|-de|-fr|-it].png), robots.txt, downloads/
 docs/               research, audits, strategy, QA, glossary and the final report
 scripts/            check-links.mjs, check-i18n.mjs, build-pdfs.mjs + pdfs/ (worksheet templates)
 ```

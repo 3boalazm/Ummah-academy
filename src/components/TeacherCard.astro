@@ -206,4 +206,17 @@ const profile = lp(lang, `/teachers/${t.id}/`);
   .teacher__name:focus-visible {
     outline-offset: 4px;
   }
+  /* ---------- Dark theme: the portrait placeholder (visible only until a photo loads) ---------- */
+  :global([data-theme='dark']) .teacher__portrait {
+    background:
+      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.12), transparent 60%),
+      radial-gradient(80% 70% at 80% 90%, rgb(109 158 214 / 0.28), transparent 65%),
+      radial-gradient(90% 80% at 10% 100%, rgb(200 123 128 / 0.24), transparent 70%),
+      linear-gradient(160deg, #2b2040, #201731);
+  }
+
+  :global([data-theme='dark']) .teacher__verified {
+    background: rgb(255 255 255 / 0.14);
+    box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.75);
+  }
 </style>

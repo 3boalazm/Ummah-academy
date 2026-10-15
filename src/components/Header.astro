@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import LangMenu from './LangMenu.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { portalLinks, waLink } from '@/data/site';
 import { getTracks } from '@/data/tracks';
 import { lp, basePath, price, type Lang, type LangTarget } from '@/i18n';
@@ -88,6 +89,7 @@ const isActive = (href: string) => path.startsWith(href);
     </nav>
 
     <div class="site-header__actions">
+      <ThemeToggle lang={lang} />
       <LangMenu lang={lang} targets={targets} />
       <a class="nav__signin hide-mobile" href={portalLinks.login}>{t.signIn}</a>
       <a class="btn btn--sm btn--primary site-header__cta" href={lp(lang, '/contact/') + '#book'} data-track="header">
@@ -137,6 +139,7 @@ const isActive = (href: string) => path.startsWith(href);
           <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {t.whatsapp}
         </a>
         <LangMenu lang={lang} targets={targets} variant="sheet" />
+        <ThemeToggle lang={lang} variant="row" />
         <div class="mobile-menu__foot">
           <a href={portalLinks.login}>{t.signIn}</a>
         </div>
@@ -653,16 +656,26 @@ const isActive = (href: string) => path.startsWith(href);
     }
   }
 
-  /* 860–1099: the desktop nav has just appeared — tighten spacing so five languages fit */
+  /* 860–1099: the desktop nav has just appeared — tighten spacing so five languages fit,
+     the theme switch included (Arabic runs longest: it overflows by ~40px without this) */
   @media (min-width: 860px) and (max-width: 1099px) {
     .site-header__bar {
-      gap: 10px;
-      padding-inline: 16px 8px;
+      gap: 6px;
+      padding-inline: 14px 6px;
+    }
+
+    .site-header__actions {
+      gap: 4px;
     }
 
     .nav__link,
     .nav__signin {
-      padding: 0 10px;
+      padding: 0 8px;
+    }
+
+    .site-header__actions :global(.theme-toggle) {
+      width: 40px;
+      height: 40px;
     }
   }
 
@@ -741,6 +754,15 @@ const isActive = (href: string) => path.startsWith(href);
     }
   }
 
+  /* Phones: the bar is already full (brand + language + CTA + menu, measured at every
+     width from 320px by qa/suites/header.mjs), so the switch lives in the mobile sheet —
+     one tap away, with a label instead of an icon to guess at. */
+  @media (max-width: 859px) {
+    .site-header__actions :global(.theme-toggle) {
+      display: none;
+    }
+  }
+
   @media (max-width: 420px) {
     .site-header__brand :global(.logo) {
       gap: 8px;
@@ -754,5 +776,55 @@ const isActive = (href: string) => path.startsWith(href);
     .site-header__brand :global(.logo__name) {
       font-size: 1rem;
     }
+  }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark'][data-scrolled]) .site-header__bar {
+    background: var(--glass-fill-strong);
+  }
+
+  :global([data-theme='dark']) .nav__link:hover,
+  :global([data-theme='dark']) .nav__signin:hover,
+  :global([data-theme='dark']) .nav__item--mega[data-open] .nav__link {
+    background: rgb(255 255 255 / 0.09);
+  }
+
+  :global([data-theme='dark']) .nav__link.is-active {
+    background: rgb(255 255 255 / 0.14);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  }
+
+  :global([data-theme='dark']) .menu-btn {
+    background: rgb(255 255 255 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.13);
+  }
+
+  /* the mega panel sits inside the header's glass: keep it opaque enough to read */
+  :global([data-theme='dark']) .mega__panel {
+    background: linear-gradient(155deg, rgb(41 31 59 / 0.97), rgb(28 20 42 / 0.95));
+  }
+
+  :global([data-theme='dark']) .mega__track:hover,
+  :global([data-theme='dark']) .mega__track:focus-visible {
+    background: rgb(255 255 255 / 0.07);
+  }
+
+  :global([data-theme='dark']) .mega__thumb {
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+
+  :global([data-theme='dark']) .mega__aside {
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgb(109 158 214 / 0.3), transparent 60%),
+      radial-gradient(100% 80% at 0% 100%, rgb(200 123 128 / 0.22), transparent 60%),
+      rgb(255 255 255 / 0.06);
+  }
+
+  :global([data-theme='dark']) .mobile-menu::backdrop {
+    background: rgb(6 4 10 / 0.62);
+  }
+
+  :global([data-theme='dark']) .mobile-menu__tracks a {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
   }
 </style>

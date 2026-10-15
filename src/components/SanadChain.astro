@@ -128,4 +128,17 @@ const nodes = COPY.nodes;
       margin-top: -10px;
     }
   }
+  /* ---------- Dark theme: the beads keep their light, the halos drop back ---------- */
+  :global([data-theme='dark']) .sanad__dot {
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.12),
+      0 0 0 5px rgb(185 140 232 / 0.3),
+      0 8px 20px -6px rgb(0 0 0 / 0.7);
+  }
+
+  :global([data-theme='dark']) .sanad__node:last-child .sanad__dot {
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.12),
+      0 0 24px 4px rgb(217 178 106 / 0.4);
+  }
 </style>
