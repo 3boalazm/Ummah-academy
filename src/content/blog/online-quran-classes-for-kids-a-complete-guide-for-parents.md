@@ -39,7 +39,7 @@ Alongside Quran skills, age-appropriate Islamic studies — Prophet stories, bas
 
 ## How Online Quran Classes for Kids Work
 
-A real session is live and interactive, not a pre-recorded video — a teacher watches the child read or recite in real time and corrects immediately, the same way in-person Quran teaching always has. What changes online is convenience: no commute, flexible scheduling, and (in programs like Ummah Cubs) parent visibility through session recordings and progress notes.
+A real session is live and interactive, not a pre-recorded video — a teacher watches the child read or recite in real time and corrects immediately, the same way in-person Quran teaching always has. What changes online is convenience: no commute, flexible scheduling, and (in programs like Ummah Cubs) parent visibility through a report after every session (recordings are available on request).
 
 ## One-to-One vs Group Classes
 
@@ -63,7 +63,7 @@ Motivation for young learners rarely survives on the subject’s importance alon
 
 ## What Makes Ummah Cubs Different
 
-[Ummah Cubs](/ummah-cubs-kids-islamic-studies/), Ummah Academy’s dedicated kids program, is built around exactly these realities: 30-minute sessions matched to a child’s natural focus span, teachers certified specifically in Early Islamic Education (not adult-track teachers simply assigned to a younger student), games and stories instead of a lecture format, and a Family Portal giving parents session recordings and monthly progress updates without needing to sit in on every class.
+[Ummah Cubs](/ummah-cubs-kids-islamic-studies/), Ummah Academy’s dedicated kids program, is built around exactly these realities: 30-minute sessions matched to a child’s natural focus span, teachers certified specifically in Early Islamic Education (not adult-track teachers simply assigned to a younger student), games and stories instead of a lecture format, and a Family Portal giving parents a report after every session and monthly progress badges without needing to sit in on every class (recordings on request while the portal library rolls out).
 
 ## Frequently Asked Questions
 
