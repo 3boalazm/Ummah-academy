@@ -1,0 +1,108 @@
+{
+  "groups": [
+    {
+      "id": "start",
+      "title": "Getting started",
+      "items": [
+        {
+          "q": "How quickly will you reply?",
+          "a": "On WhatsApp, usually within minutes — always within 2 hours, in every time zone."
+        },
+        {
+          "q": "Are the 2 trial sessions really free?",
+          "a": "Yes — completely free, no card and no commitment."
+        },
+        {
+          "q": "What happens after the trial?",
+          "a": "If you’d like to continue, you choose a monthly plan. If not, there’s nothing to cancel."
+        },
+        {
+          "q": "Can I request a specific teacher?",
+          "a": "Yes — mention their name when you book and we’ll do our best to match you."
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "Courses & method",
+      "items": [
+        {
+          "q": "What if I don’t speak Arabic?",
+          "a": "Every teacher is fully bilingual in Arabic and English, and many students start from zero."
+        },
+        {
+          "q": "What makes your approach different?",
+          "a": "The Itqan method: mastery and reflection (Tadabbur), not just recitation — thematic verse grouping and real-time correction instead of rote repetition."
+        },
+        {
+          "q": "Do I get a certificate or Ijazah?",
+          "a": "Every student receives a certificate per level. Recitation and Hifz students can work toward a formal Ijazah with a documented chain back to the Prophet ﷺ."
+        }
+      ]
+    },
+    {
+      "id": "teachers",
+      "title": "Teachers",
+      "items": [
+        {
+          "q": "Who are your teachers?",
+          "a": "Al-Azhar University graduates holding Ijazahs, experienced with both Arabic and non-Arabic speakers."
+        },
+        {
+          "q": "Can I request a female teacher for my daughter or wife?",
+          "a": "Yes — dedicated female teachers for women and children, in a private, faith-conscious setting."
+        }
+      ]
+    },
+    {
+      "id": "schedule",
+      "title": "Scheduling & technology",
+      "items": [
+        {
+          "q": "What platform are sessions on?",
+          "a": "Zoom or Google Meet, with an interactive whiteboard for marking up Tajweed."
+        },
+        {
+          "q": "What if I miss a session?",
+          "a": "Reschedule free with 24 hours’ notice, so a missed session isn’t a lost one."
+        },
+        {
+          "q": "Do you cover my time zone?",
+          "a": "Yes — lessons run around the clock, so you book the time that genuinely suits you."
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "title": "Family & kids",
+      "items": [
+        {
+          "q": "My child is 5 — is that too young?",
+          "a": "Not at all — Ummah Cubs welcomes children from age 5 with short, game-based 30-minute lessons."
+        },
+        {
+          "q": "Can I track my child’s progress?",
+          "a": "A report after every lesson and monthly badges, with one Family Portal account for all your children; the live dashboard and recording library are rolling out."
+        }
+      ]
+    },
+    {
+      "id": "pricing",
+      "title": "Pricing & payment",
+      "items": [
+        {
+          "q": "How much does it cost?",
+          "a": "From {{from}} to {{to}} a month depending on session length and frequency — every plan starts with 2 free sessions. See [pricing](/pricing/)."
+        },
+        {
+          "q": "Can I cancel or pause?",
+          "a": "Yes — cancel anytime (effective at the end of your billing month) or freeze your subscription temporarily."
+        },
+        {
+          "q": "Which payment methods do you accept?",
+          "a": "Visa, Mastercard, PayPal, bank transfer, Western Union and MoneyGram."
+        }
+      ]
+    }
+  ]
+}

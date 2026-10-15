@@ -1,4 +1,8 @@
 /** Home — Deutsch. */
+import { prices } from '@/data/prices';
+
+const P = prices('de');
+
 export default {
   C: {
     meta: {
@@ -48,7 +52,7 @@ export default {
       itqan: ['Die Itqan-Methode', 'Verse nach Thema und Bedeutung gruppiert, live korrigiert – Auswendiglernen, das bleibt, statt Rezitation fürs Schaufenster.', 'So funktioniert es'],
       safe: ['Sicher für jede Familie', 'Privater Einzelunterricht, Lehrerinnen für Frauen und Mädchen und ein Bericht nach jeder Einheit.'],
       time: ['Nach Ihrer Uhr geplant', 'Morgens in Berlin oder abends in Toronto – buchen Sie jederzeit, mit WhatsApp-Erinnerung 15 Minuten vorher.'],
-      price: ['Ab 40 $ im Monat', 'Transparente Tarife. Zuerst zwei kostenlose Stunden.', 'Preise ansehen'],
+      price: [`Ab ${P.from} im Monat`, 'Transparente Tarife. Zuerst zwei kostenlose Stunden.', 'Preise ansehen'],
     },
     how: {
       eyebrow: 'So funktioniert es',
@@ -82,7 +86,7 @@ export default {
         },
         {
           q: 'Was kostet es, und kann ich kündigen?',
-          a: 'Die Tarife liegen je nach Dauer und Häufigkeit der Einheiten zwischen 40 $ und 128 $ im Monat. Sie können jederzeit kündigen (wirksam zum Ende des Abrechnungsmonats), Ihr Abo pausieren und Einheiten mit 24 Stunden Vorlauf verlegen.',
+          a: `Die Tarife liegen je nach Dauer und Häufigkeit der Einheiten zwischen ${P.from} und ${P.to} im Monat. Sie können jederzeit kündigen (wirksam zum Ende des Abrechnungsmonats), Ihr Abo pausieren und Einheiten mit 24 Stunden Vorlauf verlegen.`,
         },
         { q: 'Kann ich eine Lehrerin wählen?', a: 'Ja. Für Frauen und Mädchen stehen Lehrerinnen zur Verfügung – wählen Sie bei der Buchung einfach „Lehrerin“.' },
         { q: 'Ist mein Kind zu jung?', a: 'Ummah Cubs nimmt Kinder ab 5 Jahren auf – mit kurzen, spielbasierten 30-Minuten-Einheiten, die auf die Aufmerksamkeitsspanne kleiner Kinder zugeschnitten sind.' },

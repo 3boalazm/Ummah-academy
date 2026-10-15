@@ -7,7 +7,7 @@
  *  de/fr/it  src/content/blog-tr/<lang>/<slug>.md → /<lang>/blog/<slug>/  (translations; translationOf required)
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { LANGS, type Lang, type Alternates } from '@/i18n';
+import { LANGS, TRANSLATED_ROUTES, typo, type Lang, type Alternates } from '@/i18n';
 
 export type AnyPost = CollectionEntry<'blog'> | CollectionEntry<'blogAr'> | CollectionEntry<'blogTr'>;
 
@@ -26,6 +26,9 @@ interface Blog {
   clusters: Map<string, Alternates>;
 }
 
+/** English articles live at the site root (/<slug>/), so they must not take an existing page's URL. */
+const RESERVED = new Set([...TRANSLATED_ROUTES.map((r) => r.split('/')[1]).filter(Boolean), 'ar', 'de', 'fr', 'it', 'blog', 'admin', 'og', 'downloads', 'teachers', 'thank-you', 'rss.xml', '404', 'legal-notice']);
+
 let cache: Promise<Blog> | undefined;
 
 export function loadBlog(): Promise<Blog> {
@@ -39,6 +42,17 @@ export function loadBlog(): Promise<Blog> {
         return { lang, slug, url: `/${lang}/blog/${slug}/`, enId: e.data.translationOf, entry: e };
       }),
     ];
+    // Guards for articles created in the CMS: a readable build error beats a broken page.
+    for (const p of posts) {
+      const file = `src/content/${p.lang === 'en' ? 'blog' : p.lang === 'ar' ? 'blog-ar' : `blog-tr/${p.lang}`}/${p.slug}.md`;
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.slug)) throw new Error(`${file}: the file name (= URL) must be lowercase Latin letters, digits and dashes, e.g. "quran-for-kids"`);
+      if (p.lang === 'en' && RESERVED.has(p.slug)) throw new Error(`${file}: "/${p.slug}/" is already a page on the site — choose another slug`);
+      // French typography for titles typed in the CMS (bodies: scripts/markdown-french-spacing.mjs)
+      if (p.lang === 'fr') {
+        p.entry.data.title = typo('fr', p.entry.data.title);
+        p.entry.data.description = typo('fr', p.entry.data.description);
+      }
+    }
     const enIds = new Set(en.map((e) => e.id));
     const clusters = new Map<string, Alternates>();
     for (const p of posts) {

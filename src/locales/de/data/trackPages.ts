@@ -1,5 +1,8 @@
 /** Kursseiten — Deutsch (nur Texte; Pfade, Tarife, Lehrkraft und Icons kommen aus der englischen Fassung). */
 import type { TrackPageKey, TrackPageText } from '@/content-i18n/tracks';
+import { prices } from '@/data/prices';
+
+const P = prices('de');
 
 const pages: Record<TrackPageKey, TrackPageText> = {
   recitation: {
@@ -92,7 +95,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
   arabic: {
     meta: {
       title: 'Arabisch online lernen für Muslime | Von Noor Al-Bayan bis zur Grammatik | Ummah Academy',
-      desc: 'Koranisches Arabisch im Einzelunterricht: Lesen von null mit Noor Al-Bayan, Grammatik mit der Ajrumiyya und Konversation – mit zweisprachigen Al-Azhar-Lehrkräften (Arabisch/Englisch). Ab 40 $ im Monat.',
+      desc: `Koranisches Arabisch im Einzelunterricht: Lesen von null mit Noor Al-Bayan, Grammatik mit der Ajrumiyya und Konversation – mit zweisprachigen Al-Azhar-Lehrkräften (Arabisch/Englisch). Ab ${P.from} im Monat.`,
     },
     crumb: 'Arabisch',
     eyebrow: 'Arabisch',
@@ -122,7 +125,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
       { q: 'Unterrichten Sie neben dem Lesen auch Grammatik?', a: 'Ja – nach dem flüssigen Lesen geht es mit Nahw und Sarf anhand der Ajrumiyya weiter, danach mit Konversation.' },
       { q: 'Ist der Unterricht einzeln?', a: 'Ja, immer – jede und jeder lernt mit einer eigenen Lehrkraft.' },
       { q: 'Wie oft findet der Unterricht statt?', a: 'Meist 2–3 Einheiten pro Woche, geplant nach Ihrer Zeitzone.' },
-      { q: 'Was kostet es?', a: 'Ab 40 $ im Monat für 30-Minuten-Einheiten; Grammatik und Konversation ab 64 $. Jeder Tarif beginnt mit 2 kostenlosen Stunden.' },
+      { q: 'Was kostet es?', a: `Ab ${P.from} im Monat für 30-Minuten-Einheiten; Grammatik und Konversation ab ${P.from60}. Jeder Tarif beginnt mit 2 kostenlosen Stunden.` },
     ],
     cta: { title: 'Ihre ersten zwei Arabischstunden <span class="accent">gehen auf uns.</span>', lede: 'Etappe finden, Lehrkraft kennenlernen, dann entscheiden. Keine Kreditkarte nötig.' },
     schemaName: 'Online-Unterricht in koranischem Arabisch',
@@ -130,7 +133,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
   kids: {
     meta: {
       title: 'Koran & Islamische Studien online für Kinder (5–14) | Ummah Cubs | Ummah Academy',
-      desc: 'Ummah Cubs: spielerischer Einzelunterricht in 30-Minuten-Einheiten – Koranlesen, Arabisch und islamische Werte für Kinder von 5 bis 14, mit geduldigen Al-Azhar-Lehrkräften. Ab 40 $ im Monat.',
+      desc: `Ummah Cubs: spielerischer Einzelunterricht in 30-Minuten-Einheiten – Koranlesen, Arabisch und islamische Werte für Kinder von 5 bis 14, mit geduldigen Al-Azhar-Lehrkräften. Ab ${P.from} im Monat.`,
     },
     crumb: 'Ummah Cubs',
     eyebrow: 'Ummah Cubs · 5 bis 14 Jahre',
@@ -160,7 +163,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
       { q: 'Sind die Lehrkräfte für Kinder ausgebildet?', a: 'Ja. Unsere Programmleiterin hat eine Zertifizierung in früher islamischer Bildung, und die Cubs-Lehrkräfte sind auf 5- bis 14-Jährige spezialisiert.' },
       { q: 'Kann ich für meine Tochter eine Lehrerin wünschen?', a: 'Ja – Lehrerinnen sind verfügbar, in einem ganz privaten Rahmen, der religiöse Werte achtet.' },
       { q: 'Woran erkenne ich, dass mein Kind Fortschritte macht?', a: 'An einem kurzen Bericht nach jeder Stunde, monatlichen Abzeichen – und an allem gebündelt in einem Konto im Familienportal.' },
-      { q: 'Was kostet es?', a: 'Ab 40 $ im Monat, mit zuerst 2 kostenlosen Stunden. Unsicher beim Niveau? Machen Sie den kostenlosen Einstufungstest für Kinder.' },
+      { q: 'Was kostet es?', a: `Ab ${P.from} im Monat, mit zuerst 2 kostenlosen Stunden. Unsicher beim Niveau? Machen Sie den kostenlosen Einstufungstest für Kinder.` },
     ],
     cta: { title: 'Lassen Sie Ihr Kind seine Lehrkraft kennenlernen – <span class="accent">kostenlos.</span>', lede: 'Zwei kostenlose Stunden, keine Kreditkarte. Sehen Sie, wie Ihr Kind reagiert, bevor Sie irgendetwas entscheiden.' },
     schemaName: 'Ummah Cubs – Koran & Islamische Studien online für Kinder',

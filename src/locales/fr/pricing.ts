@@ -1,11 +1,15 @@
 /** Pricing — français. */
+import { prices } from '@/data/prices';
+
+const P = prices('fr');
+
 export default {
   C: {
     ldName: 'Les formules d’Ummah Academy',
     allPlans: 'Toutes les formules',
     meta: {
-      title: 'Tarifs des cours de Coran — Formules dès 40 $/mois | Ummah Academy',
-      desc: 'Des formules mensuelles transparentes, de 40 $ à 128 $, pour des cours de Coran, d’arabe et de sciences islamiques en direct et en tête-à-tête. Chaque formule commence par 2 séances gratuites.',
+      title: `Tarifs des cours de Coran — Formules dès ${P.from}/mois | Ummah Academy`,
+      desc: `Des formules mensuelles transparentes, de ${P.from} à ${P.to}, pour des cours de Coran, d’arabe et de sciences islamiques en direct et en tête-à-tête. Chaque formule commence par 2 séances gratuites.`,
     },
     eyebrow: 'Tarifs',
     title: 'Des tarifs simples et <span class="accent">transparents</span>',

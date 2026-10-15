@@ -1,4 +1,8 @@
 /** Home — italiano. */
+import { prices } from '@/data/prices';
+
+const P = prices('it');
+
 export default {
   C: {
     meta: {
@@ -48,7 +52,7 @@ export default {
       itqan: ['Il metodo Itqan', 'Versetti raggruppati per tema e significato, corretti dal vivo — una memorizzazione che dura, non una recitazione di facciata.', 'Come funziona'],
       safe: ['Sicuro per ogni famiglia', 'Lezioni private individuali, insegnanti donne per donne e ragazze, e un resoconto dopo ogni lezione.'],
       time: ['Costruito sul tuo orario', 'Al mattino a Milano o la sera a New York — prenota quando vuoi, con un promemoria su WhatsApp 15 minuti prima.'],
-      price: ['Da 40 $ al mese', 'Piani trasparenti. Prima due lezioni gratuite.', 'Vedi i prezzi'],
+      price: [`Da ${P.from} al mese`, 'Piani trasparenti. Prima due lezioni gratuite.', 'Vedi i prezzi'],
     },
     how: {
       eyebrow: 'Come funziona',
@@ -82,7 +86,7 @@ export default {
         },
         {
           q: 'Quanto costa, e posso disdire?',
-          a: 'I piani vanno da 40 $ a 128 $ al mese, in base a durata e frequenza delle lezioni. Puoi disdire quando vuoi (con effetto alla fine del mese di fatturazione), sospendere l’abbonamento e spostare le lezioni con 24 ore di preavviso.',
+          a: `I piani vanno da ${P.from} a ${P.to} al mese, in base a durata e frequenza delle lezioni. Puoi disdire quando vuoi (con effetto alla fine del mese di fatturazione), sospendere l’abbonamento e spostare le lezioni con 24 ore di preavviso.`,
         },
         { q: 'Posso scegliere un’insegnante donna?', a: 'Sì. Ci sono insegnanti donne per donne e ragazze: basta scegliere «Insegnante donna» al momento della prenotazione.' },
         { q: 'Mio figlio è troppo piccolo?', a: 'Ummah Cubs accoglie i bambini dai 5 anni, con lezioni brevi e giocose da 30 minuti, pensate per l’attenzione dei più piccoli.' },

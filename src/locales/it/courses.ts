@@ -1,11 +1,15 @@
 /** Courses — italiano. */
+import { prices } from '@/data/prices';
+
+const P = prices('it');
+
 export default {
   C: {
     ldName: 'I corsi di Ummah Academy',
     jump: 'Vai a un percorso',
     meta: {
       title: 'Corsi di Corano online | Tajweed, hifz, arabo e studi islamici | Ummah Academy',
-      desc: 'Quattro percorsi — Corano e Tajweed, arabo, Ummah Cubs per bambini e studi islamici — con lezioni individuali dal vivo tenute da insegnanti di al-Azhar. Da 40 $ al mese, 2 lezioni gratuite.',
+      desc: `Quattro percorsi — Corano e Tajweed, arabo, Ummah Cubs per bambini e studi islamici — con lezioni individuali dal vivo tenute da insegnanti di al-Azhar. Da ${P.from} al mese, 2 lezioni gratuite.`,
     },
     eyebrow: 'Corsi',
     title: 'Ogni corso, <span class="accent">un percorso chiaro.</span>',

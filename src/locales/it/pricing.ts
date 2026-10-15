@@ -1,11 +1,15 @@
 /** Pricing — italiano. */
+import { prices } from '@/data/prices';
+
+const P = prices('it');
+
 export default {
   C: {
     ldName: 'I piani di Ummah Academy',
     allPlans: 'Tutti i piani',
     meta: {
-      title: 'Prezzi delle lezioni di Corano — Piani da 40 $ al mese | Ummah Academy',
-      desc: 'Piani mensili trasparenti da 40 $ a 128 $ per lezioni individuali dal vivo di Corano, arabo e studi islamici. Ogni piano inizia con 2 lezioni gratuite.',
+      title: `Prezzi delle lezioni di Corano — Piani da ${P.from} al mese | Ummah Academy`,
+      desc: `Piani mensili trasparenti da ${P.from} a ${P.to} per lezioni individuali dal vivo di Corano, arabo e studi islamici. Ogni piano inizia con 2 lezioni gratuite.`,
     },
     eyebrow: 'Prezzi',
     title: 'Prezzi semplici e <span class="accent">trasparenti</span>',

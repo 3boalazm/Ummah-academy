@@ -1,11 +1,15 @@
 /** Pricing — English (reference locale) copy. */
+import { prices } from '@/data/prices';
+
+const P = prices('en');
+
 export default {
   C: {
     ldName: 'Ummah Academy plans',
     allPlans: 'All plans',
     meta: {
-      title: 'Quran Classes Pricing — Plans from $40/month | Ummah Academy',
-      desc: 'Transparent monthly plans from $40 to $128 for live 1-on-1 Qur’an, Arabic and Islamic Studies lessons. Every plan starts with 2 free sessions.',
+      title: `Quran Classes Pricing — Plans from ${P.from}/month | Ummah Academy`,
+      desc: `Transparent monthly plans from ${P.from} to ${P.to} for live 1-on-1 Qur’an, Arabic and Islamic Studies lessons. Every plan starts with 2 free sessions.`,
     },
     eyebrow: 'Pricing',
     title: 'Simple, <span class="accent">transparent</span> pricing',

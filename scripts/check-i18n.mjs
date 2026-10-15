@@ -26,8 +26,10 @@ const files = [];
 (function walk(dir) {
   for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, f.name);
-    if (f.isDirectory()) walk(p);
-    else if (f.name.endsWith('.html')) files.push(p);
+    if (f.isDirectory()) {
+      if (dir === DIST && f.name === 'admin') continue; // the CMS app (public/admin), not a site page
+      walk(p);
+    } else if (f.name.endsWith('.html')) files.push(p);
   }
 })(DIST);
 

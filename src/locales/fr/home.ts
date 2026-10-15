@@ -1,4 +1,8 @@
 /** Home — français. */
+import { prices } from '@/data/prices';
+
+const P = prices('fr');
+
 export default {
   C: {
     meta: {
@@ -48,7 +52,7 @@ export default {
       itqan: ['La méthode Itqan', 'Des versets regroupés par thème et par sens, corrigés en direct — une mémorisation qui dure, pas une récitation de façade.', 'Comment ça marche'],
       safe: ['Sûr pour chaque famille', 'Des cours privés en tête-à-tête, des enseignantes pour les femmes et les filles, et un compte rendu après chaque séance.'],
       time: ['Calé sur votre horloge', 'Le matin à Paris ou le soir à Montréal — réservez à toute heure, avec un rappel WhatsApp 15\u00a0minutes avant.'],
-      price: ['Dès 40\u00a0$ par mois', 'Des formules transparentes. D’abord deux séances gratuites.', 'Voir les tarifs'],
+      price: [`Dès ${P.from} par mois`, 'Des formules transparentes. D’abord deux séances gratuites.', 'Voir les tarifs'],
     },
     how: {
       eyebrow: 'Comment ça marche',
@@ -82,7 +86,7 @@ export default {
         },
         {
           q: 'Combien cela coûte-t-il, et puis-je résilier\u00a0?',
-          a: 'Les formules vont de 40\u00a0$ à 128\u00a0$ par mois selon la durée et la fréquence des séances. Résiliation à tout moment (effective à la fin du mois de facturation), suspension possible, et report des séances en prévenant 24\u00a0heures à l’avance.',
+          a: `Les formules vont de ${P.from} à ${P.to} par mois selon la durée et la fréquence des séances. Résiliation à tout moment (effective à la fin du mois de facturation), suspension possible, et report des séances en prévenant 24\u00a0heures à l’avance.`,
         },
         { q: 'Puis-je choisir une enseignante\u00a0?', a: 'Oui. Des enseignantes sont disponibles pour les femmes et les filles — choisissez simplement «\u00a0Enseignante\u00a0» lors de la réservation.' },
         { q: 'Mon enfant est-il trop jeune\u00a0?', a: 'Ummah Cubs accueille les enfants dès 5\u00a0ans, avec des séances courtes et ludiques de 30\u00a0minutes, pensées pour la concentration des plus petits.' },

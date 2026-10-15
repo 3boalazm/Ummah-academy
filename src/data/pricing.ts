@@ -1,10 +1,12 @@
 import type { Lang } from '@/i18n';
+import { PRICES } from '@/data/prices';
 import pricingDe from '@/locales/de/data/pricing';
 import pricingFr from '@/locales/fr/data/pricing';
 import pricingIt from '@/locales/it/data/pricing';
 
 /**
- * Published prices (ummahacademy.net/pricing, Oct 2026), USD per month.
+ * Plans: structure and copy. The prices themselves live in src/data/prices.json (the one
+ * place to change them — also editable in the CMS). USD per month.
  * v2 change: "Deen" ($59, 4×30 min) was identical to "Consistent" and is
  * presented as Consistent with any subject (incl. Ummah Cubs Islamic studies).
  */
@@ -23,12 +25,12 @@ export interface Plan {
 }
 
 const base = [
-  { id: 'launch', minutes: 30, perWeek: 2, sessionsPerMonth: 8, price: 40, canonical: 'Launch' },
-  { id: 'consistent', minutes: 30, perWeek: 4, sessionsPerMonth: 16, price: 59, canonical: 'Consistent' },
-  { id: 'elite', minutes: 30, perWeek: 5, sessionsPerMonth: 20, price: 74, canonical: 'Elite' },
-  { id: 'starter', minutes: 60, perWeek: 1, sessionsPerMonth: 4, price: 64, canonical: 'Starter' },
-  { id: 'gold', minutes: 60, perWeek: 2, sessionsPerMonth: 8, price: 96, canonical: 'Gold' },
-  { id: 'diamond', minutes: 60, perWeek: 3, sessionsPerMonth: 12, price: 128, canonical: 'Diamond' },
+  { id: 'launch', minutes: 30, perWeek: 2, sessionsPerMonth: 8, price: PRICES.launch, canonical: 'Launch' },
+  { id: 'consistent', minutes: 30, perWeek: 4, sessionsPerMonth: 16, price: PRICES.consistent, canonical: 'Consistent' },
+  { id: 'elite', minutes: 30, perWeek: 5, sessionsPerMonth: 20, price: PRICES.elite, canonical: 'Elite' },
+  { id: 'starter', minutes: 60, perWeek: 1, sessionsPerMonth: 4, price: PRICES.starter, canonical: 'Starter' },
+  { id: 'gold', minutes: 60, perWeek: 2, sessionsPerMonth: 8, price: PRICES.gold, canonical: 'Gold' },
+  { id: 'diamond', minutes: 60, perWeek: 3, sessionsPerMonth: 12, price: PRICES.diamond, canonical: 'Diamond' },
 ] as const;
 
 const COPY = {

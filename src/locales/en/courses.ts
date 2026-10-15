@@ -1,11 +1,15 @@
 /** Courses — English (reference locale) copy. */
+import { prices } from '@/data/prices';
+
+const P = prices('en');
+
 export default {
   C: {
     ldName: 'Ummah Academy courses',
     jump: 'Jump to a track',
     meta: {
       title: 'Online Quran Courses | Tajweed, Hifz, Arabic & Islamic Studies | Ummah Academy',
-      desc: 'Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs for kids and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. From $40/month, 2 free sessions.',
+      desc: `Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs for kids and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. From ${P.from}/month, 2 free sessions.`,
     },
     eyebrow: 'Courses',
     title: 'Every course, <span class="accent">one clear path.</span>',

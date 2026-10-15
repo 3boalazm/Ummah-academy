@@ -1,6 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { satteri } from '@astrojs/markdown-satteri';
+import frenchSpacing from './scripts/markdown-french-spacing.mjs';
 
 /** Social cards for every indexable page, rendered from the built HTML (scripts/og). */
 const socialCards = {
@@ -22,6 +24,10 @@ export default defineConfig({
   build: {
     format: 'directory',
     inlineStylesheets: 'auto',
+  },
+  markdown: {
+    // Astro's default processor (Sätteri) + French typography for CMS-typed articles
+    processor: satteri({ mdastPlugins: [frenchSpacing] }),
   },
   integrations: [
     sitemap({

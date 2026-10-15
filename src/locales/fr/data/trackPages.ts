@@ -1,5 +1,8 @@
 /** Pages de cours — français (textes seulement ; chemins, formules, professeur et icônes viennent de la version anglaise). */
 import type { TrackPageKey, TrackPageText } from '@/content-i18n/tracks';
+import { prices } from '@/data/prices';
+
+const P = prices('fr');
 
 const pages: Record<TrackPageKey, TrackPageText> = {
   recitation: {
@@ -92,7 +95,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
   arabic: {
     meta: {
       title: 'Cours d’arabe en ligne pour musulmans | De Noor Al-Bayan à la grammaire | Ummah Academy',
-      desc: 'Apprenez l’arabe coranique en tête-à-tête\u00a0: lecture à partir de zéro avec Noor Al-Bayan, grammaire avec l’Ajrumiyya et conversation, avec des enseignants d’al-Azhar bilingues arabe-anglais. Dès 40\u00a0$/mois.',
+      desc: `Apprenez l’arabe coranique en tête-à-tête\u00a0: lecture à partir de zéro avec Noor Al-Bayan, grammaire avec l’Ajrumiyya et conversation, avec des enseignants d’al-Azhar bilingues arabe-anglais. Dès ${P.from}/mois.`,
     },
     crumb: 'Langue arabe',
     eyebrow: 'Langue arabe',
@@ -122,7 +125,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
       { q: 'Enseignez-vous la grammaire en plus de la lecture\u00a0?', a: 'Oui — une fois la lecture fluide, les élèves passent au nahw et au sarf avec l’Ajrumiyya, puis à la conversation.' },
       { q: 'Les cours sont-ils individuels\u00a0?', a: 'Oui, toujours — chaque élève apprend avec son propre professeur.' },
       { q: 'À quelle fréquence ont lieu les cours\u00a0?', a: 'En général 2 à 3 séances par semaine, calées sur votre fuseau horaire.' },
-      { q: 'Combien cela coûte-t-il\u00a0?', a: 'Dès 40\u00a0$ par mois pour des séances de 30\u00a0minutes\u00a0; grammaire et conversation dès 64\u00a0$. Chaque formule commence par 2 séances gratuites.' },
+      { q: 'Combien cela coûte-t-il\u00a0?', a: `Dès ${P.from} par mois pour des séances de 30\u00a0minutes\u00a0; grammaire et conversation dès ${P.from60}. Chaque formule commence par 2 séances gratuites.` },
     ],
     cta: { title: 'Vos deux premiers cours d’arabe <span class="accent">sont offerts.</span>', lede: 'Trouvez votre étape, rencontrez votre professeur, puis décidez. Sans carte bancaire.' },
     schemaName: 'Cours d’arabe coranique en ligne',
@@ -130,7 +133,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
   kids: {
     meta: {
       title: 'Coran & sciences islamiques en ligne pour enfants (5–14 ans) | Ummah Cubs | Ummah Academy',
-      desc: 'Ummah Cubs\u00a0: des cours ludiques de 30\u00a0minutes en tête-à-tête — lecture du Coran, arabe et valeurs islamiques pour les enfants de 5 à 14\u00a0ans, avec des enseignants d’al-Azhar patients. Dès 40\u00a0$/mois.',
+      desc: `Ummah Cubs\u00a0: des cours ludiques de 30\u00a0minutes en tête-à-tête — lecture du Coran, arabe et valeurs islamiques pour les enfants de 5 à 14\u00a0ans, avec des enseignants d’al-Azhar patients. Dès ${P.from}/mois.`,
     },
     crumb: 'Ummah Cubs',
     eyebrow: 'Ummah Cubs · de 5 à 14\u00a0ans',
@@ -160,7 +163,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
       { q: 'Les enseignants sont-ils formés pour les enfants\u00a0?', a: 'Oui. Notre responsable de programme est certifiée en éducation islamique de la petite enfance, et les enseignants Cubs sont spécialisés dans les 5–14\u00a0ans.' },
       { q: 'Puis-je demander une enseignante pour ma fille\u00a0?', a: 'Oui — des enseignantes sont disponibles, dans un cadre entièrement privé et respectueux de la foi.' },
       { q: 'Comment saurai-je que mon enfant progresse\u00a0?', a: 'Un court compte rendu après chaque cours, des badges de réussite mensuels, et tout réuni dans un seul compte Espace famille.' },
-      { q: 'Combien cela coûte-t-il\u00a0?', a: 'Dès 40\u00a0$ par mois, avec d’abord 2 séances gratuites. Vous hésitez sur le niveau\u00a0? Faites le test de niveau gratuit pour enfants.' },
+      { q: 'Combien cela coûte-t-il\u00a0?', a: `Dès ${P.from} par mois, avec d’abord 2 séances gratuites. Vous hésitez sur le niveau\u00a0? Faites le test de niveau gratuit pour enfants.` },
     ],
     cta: { title: 'Laissez votre enfant rencontrer son professeur — <span class="accent">gratuitement.</span>', lede: 'Deux séances gratuites, sans carte. Voyez comment votre enfant réagit avant de décider quoi que ce soit.' },
     schemaName: 'Ummah Cubs — Coran & sciences islamiques en ligne pour enfants',

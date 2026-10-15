@@ -1,11 +1,15 @@
 /** Courses — français. */
+import { prices } from '@/data/prices';
+
+const P = prices('fr');
+
 export default {
   C: {
     ldName: 'Les cours d’Ummah Academy',
     jump: 'Aller à un parcours',
     meta: {
       title: 'Cours de Coran en ligne | Tajwid, hifz, arabe & sciences islamiques | Ummah Academy',
-      desc: 'Quatre parcours — Coran & tajwid, arabe, Ummah Cubs pour les enfants et sciences islamiques — en direct et en tête-à-tête avec des enseignants d’al-Azhar. Dès 40 $/mois, 2 séances offertes.',
+      desc: `Quatre parcours — Coran & tajwid, arabe, Ummah Cubs pour les enfants et sciences islamiques — en direct et en tête-à-tête avec des enseignants d’al-Azhar. Dès ${P.from}/mois, 2 séances offertes.`,
     },
     eyebrow: 'Cours',
     title: 'Chaque cours, <span class="accent">un chemin clair.</span>',

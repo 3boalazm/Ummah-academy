@@ -1,5 +1,8 @@
 /** Pagine dei corsi — italiano (solo testi; percorsi, piani, insegnante e icone arrivano dalla versione inglese). */
 import type { TrackPageKey, TrackPageText } from '@/content-i18n/tracks';
+import { prices } from '@/data/prices';
+
+const P = prices('it');
 
 const pages: Record<TrackPageKey, TrackPageText> = {
   recitation: {
@@ -92,7 +95,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
   arabic: {
     meta: {
       title: 'Lezioni di arabo online per musulmani | Da Noor Al-Bayan alla grammatica | Ummah Academy',
-      desc: 'Impara l’arabo coranico con lezioni individuali: lettura da zero con Noor Al-Bayan, grammatica con l’Ajrumiyya e conversazione, con insegnanti di al-Azhar bilingui arabo-inglese. Da 40 $ al mese.',
+      desc: `Impara l’arabo coranico con lezioni individuali: lettura da zero con Noor Al-Bayan, grammatica con l’Ajrumiyya e conversazione, con insegnanti di al-Azhar bilingui arabo-inglese. Da ${P.from} al mese.`,
     },
     crumb: 'Lingua araba',
     eyebrow: 'Lingua araba',
@@ -122,7 +125,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
       { q: 'Insegnate anche la grammatica, oltre alla lettura?', a: 'Sì — dopo aver raggiunto una lettura fluida, gli studenti passano al nahw e al sarf con l’Ajrumiyya, poi alla conversazione.' },
       { q: 'Le lezioni sono individuali?', a: 'Sì, sempre — ogni studente impara con il proprio insegnante.' },
       { q: 'Con che frequenza si tengono le lezioni?', a: 'Di solito 2–3 lezioni a settimana, organizzate in base al tuo fuso orario.' },
-      { q: 'Quanto costa?', a: 'Da 40 $ al mese per lezioni da 30 minuti; grammatica e conversazione da 64 $. Ogni piano inizia con 2 lezioni gratuite.' },
+      { q: 'Quanto costa?', a: `Da ${P.from} al mese per lezioni da 30 minuti; grammatica e conversazione da ${P.from60}. Ogni piano inizia con 2 lezioni gratuite.` },
     ],
     cta: { title: 'Le prime due lezioni di arabo <span class="accent">te le offriamo noi.</span>', lede: 'Trova la tua tappa, conosci il tuo insegnante, poi decidi. Nessuna carta richiesta.' },
     schemaName: 'Lezioni online di arabo coranico',
@@ -130,7 +133,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
   kids: {
     meta: {
       title: 'Corano e studi islamici online per bambini (5–14) | Ummah Cubs | Ummah Academy',
-      desc: 'Ummah Cubs: lezioni individuali giocose da 30 minuti — lettura del Corano, arabo e valori islamici per bambini dai 5 ai 14 anni, con insegnanti di al-Azhar pazienti. Da 40 $ al mese.',
+      desc: `Ummah Cubs: lezioni individuali giocose da 30 minuti — lettura del Corano, arabo e valori islamici per bambini dai 5 ai 14 anni, con insegnanti di al-Azhar pazienti. Da ${P.from} al mese.`,
     },
     crumb: 'Ummah Cubs',
     eyebrow: 'Ummah Cubs · 5–14 anni',
@@ -160,7 +163,7 @@ const pages: Record<TrackPageKey, TrackPageText> = {
       { q: 'Gli insegnanti sono preparati per i bambini?', a: 'Sì. La nostra responsabile del programma è certificata in educazione islamica per la prima infanzia, e gli insegnanti Cubs sono specializzati nella fascia 5–14 anni.' },
       { q: 'Posso chiedere un’insegnante donna per mia figlia?', a: 'Sì — ci sono insegnanti donne, in un ambiente del tutto riservato e rispettoso della fede.' },
       { q: 'Come saprò che mio figlio sta facendo progressi?', a: 'Con un breve resoconto dopo ogni lezione, badge mensili per i traguardi e tutto raccolto in un unico account nell’Area famiglie.' },
-      { q: 'Quanto costa?', a: 'Da 40 $ al mese, con prima 2 lezioni gratuite. Non sei sicuro del livello? Fai il test di livello gratuito per bambini.' },
+      { q: 'Quanto costa?', a: `Da ${P.from} al mese, con prima 2 lezioni gratuite. Non sei sicuro del livello? Fai il test di livello gratuito per bambini.` },
     ],
     cta: { title: 'Fai conoscere a tuo figlio il suo insegnante — <span class="accent">gratis.</span>', lede: 'Due lezioni gratuite, nessuna carta. Guarda come reagisce tuo figlio prima di decidere qualsiasi cosa.' },
     schemaName: 'Ummah Cubs — Corano e studi islamici online per bambini',

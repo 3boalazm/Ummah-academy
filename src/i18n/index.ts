@@ -131,7 +131,7 @@ export const num = (lang: Lang, v: string | number) => (lang === 'ar' ? toArabic
 /** Whole-dollar USD price in the locale's convention: $40 · ٤٠ $ · 40 $. */
 export const price = (lang: Lang, v: number) => {
   if (lang === 'en') return `$${v}`;
-  if (lang === 'ar') return `${toArabicDigits(String(v))} $`;
+  if (lang === 'ar') return `${toArabicDigits(String(v))}${NBSP}$`;
   return `${String(v).replace('.', ',')}${NBSP}$`;
 };
 
@@ -143,6 +143,13 @@ export const pct = (lang: Lang, v: number) => {
 };
 
 export const fmtDate = (lang: Lang, d: Date, month: 'long' | 'short' = 'long') => d.toLocaleDateString(LOCALE[lang].intl, { day: 'numeric', month, year: 'numeric' });
+
+/**
+ * Typography fixes for text typed by people (CMS, front-matter): French takes a no-break
+ * space before ? ! : ; » and after « — typed spaces are converted, existing NBSPs kept.
+ * Idempotent; other languages pass through. (Markdown bodies: scripts/markdown-french-spacing.mjs.)
+ */
+export const typo = (lang: Lang, s: string) => (lang === 'fr' ? s.replace(/[ \u00a0]+([?!:;»])/g, `${NBSP}$1`).replace(/«[ \u00a0]+/g, `«${NBSP}`) : s);
 
 /** Language names rendered in a given locale ("Arabisch und Englisch"). */
 export const listLanguages = (lang: Lang, codes: readonly string[]) => {

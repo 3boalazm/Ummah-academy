@@ -1,11 +1,15 @@
 /** Pricing — Deutsch. */
+import { prices } from '@/data/prices';
+
+const P = prices('de');
+
 export default {
   C: {
     ldName: 'Tarife der Ummah Academy',
     allPlans: 'Alle Tarife',
     meta: {
-      title: 'Preise für Koranunterricht – Tarife ab 40 $ im Monat | Ummah Academy',
-      desc: 'Transparente Monatstarife von 40 $ bis 128 $ für Koran, Arabisch und Islamische Studien live im Einzelunterricht. Jeder Tarif beginnt mit 2 kostenlosen Stunden.',
+      title: `Preise für Koranunterricht – Tarife ab ${P.from} im Monat | Ummah Academy`,
+      desc: `Transparente Monatstarife von ${P.from} bis ${P.to} für Koran, Arabisch und Islamische Studien live im Einzelunterricht. Jeder Tarif beginnt mit 2 kostenlosen Stunden.`,
     },
     eyebrow: 'Preise',
     title: 'Einfache, <span class="accent">transparente</span> Preise',

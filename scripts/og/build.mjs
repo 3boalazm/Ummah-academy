@@ -150,6 +150,9 @@ export default async function buildCards({ dir, logger }) {
     }
   });
   const ok = jobs.length - failed.length;
+  // health file for post-deploy checks: https://<host>/og/manifest.json → failed must be 0
+  fs.mkdirSync(path.join(dist, 'og'), { recursive: true });
+  fs.writeFileSync(path.join(dist, 'og/manifest.json'), JSON.stringify({ renderer: RENDERER, cards: ok, failed: failed.length, avgKB: ok ? Math.round(bytes / ok / 1024) : 0 }) + '\n');
   logger.info(
     `${ok} social cards (${ok - cached} rendered, ${cached} from cache) in ${((Date.now() - t0) / 1000).toFixed(1)}s · avg ${ok ? Math.round(bytes / ok / 1024) : 0} KB · max ${Math.round(max / 1024)} KB${failed.length ? ` · ${failed.length} FAILED` : ''}`
   );
