@@ -129,7 +129,24 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     </div>
   </section>
 
-  <!-- 4 · Why (bento) -->
+  <!-- 4 · Programmes: choose a path before exploring the method -->
+  <section class="section" aria-labelledby="tracks-title">
+    <div class="container">
+      <div class="head-row" data-reveal>
+        <div class="stack" style="--stack:14px">
+          <span class="eyebrow" style="align-self:flex-start">{C.tracks.eyebrow}</span>
+          <h2 id="tracks-title" class="h2" set:html={C.tracks.title} />
+          <p class="lead">{C.tracks.lede}</p>
+        </div>
+        <a class="btn btn--glass" href={lp(lang, '/courses/')}>{t.compareCourses} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      </div>
+      <div class="grid grid-4">
+        {tracks.map((tr, i) => <TrackCard track={tr} lang={lang} delay={i * 0.06} compact />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Why (bento) -->
   <section class="section" aria-labelledby="why-title">
     <div class="container">
       <div class="head-split" data-reveal>
@@ -170,7 +187,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     </div>
   </section>
 
-  <!-- 5 · What happens after you book -->
+  <!-- 6 · What happens after you book -->
   <section class="section" aria-labelledby="how-title">
     <div class="container split how">
       <div class="how__visual" data-reveal>
@@ -196,23 +213,6 @@ const plans60 = plans.filter((p) => p.minutes === 60);
           }
         </ol>
         <a class="btn btn--primary" href={lp(lang, '/contact/') + '#book'} data-track="how">{t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6 · Tracks -->
-  <section class="section" aria-labelledby="tracks-title">
-    <div class="container">
-      <div class="head-row" data-reveal>
-        <div class="stack" style="--stack:14px">
-          <span class="eyebrow" style="align-self:flex-start">{C.tracks.eyebrow}</span>
-          <h2 id="tracks-title" class="h2" set:html={C.tracks.title} />
-          <p class="lead">{C.tracks.lede}</p>
-        </div>
-        <a class="btn btn--glass" href={lp(lang, '/courses/')}>{t.compareCourses} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
-      </div>
-      <div class="grid grid-4">
-        {tracks.map((tr, i) => <TrackCard track={tr} lang={lang} delay={i * 0.06} compact />)}
       </div>
     </div>
   </section>

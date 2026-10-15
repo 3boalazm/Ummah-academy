@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHero from '@/components/PageHero.astro';
 import Faq from '@/components/Faq.astro';
-import CtaPanel from '@/components/CtaPanel.astro';
+import NextSteps from '@/components/NextSteps.astro';
 import { lp, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
@@ -40,7 +40,7 @@ const C = COPY.C;
     </div>
   </section>
 
-  <CtaPanel lang={lang} title={C.ctaTitle} lede={C.ctaLede} />
+  <NextSteps lang={lang} />
 </BaseLayout>
 
 <style>

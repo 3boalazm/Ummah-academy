@@ -3,10 +3,12 @@
 import assert from 'node:assert/strict';
 import { arDollarNoun, prices, fillPrices, PRICE_FACTS } from '../src/data/prices.ts';
 import { faqHtml, faqGroups } from '../src/data/faq.ts';
-import { typo, price } from '../src/i18n/index.ts';
+import { typo, price, LANGS, lp } from '../src/i18n/index.ts';
 import { ogCardPath } from '../src/data/og.ts';
 import { extract } from './og/build.mjs';
 import { frenchSpacing } from './markdown-french-spacing.mjs';
+
+import { NEXT_STEPS } from '../src/data/next-steps.ts';
 
 const NB = '\u00a0';
 let n = 0;
@@ -70,6 +72,19 @@ t('social card path and extraction', () => {
   assert.equal(card.url, 'ummahacademy.net/quran-recitation-course');
   const dup = extract('<html lang="en"><h1>Privacy Policy</h1><script type="application/ld+json">{"@type":"BreadcrumbList","itemListElement":[{"name":"Home"},{"name":"Privacy Policy"}]}</script></html>', '/privacy-policy/');
   assert.equal(dup.kicker, undefined, 'a kicker equal to the title is dropped');
+});
+
+t('Next-step navigation has complete copy and localized destinations', () => {
+  assert.deepEqual(Object.keys(NEXT_STEPS).sort(), [...LANGS].sort());
+  for (const lang of LANGS) {
+    const copy = NEXT_STEPS[lang];
+    assert.ok(copy.title && copy.lede && copy.eyebrow);
+    assert.equal(copy.cards.length, 3);
+    for (const card of copy.cards) assert.ok(card.length === 3 && card.every((s) => s.trim().length > 0));
+    for (const route of ['/courses/', '/placement-test/', '/contact/#book']) {
+      assert.equal(lp(lang, route), `${lang === 'en' ? '' : `/${lang}`}${route}`);
+    }
+  }
 });
 
 console.log(`✓ ${n} unit test groups passed`);

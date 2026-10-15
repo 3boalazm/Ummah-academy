@@ -8,7 +8,7 @@ export default {
     crumb: 'Free library',
     eyebrow: 'Free Resources',
     title: 'The <span class="accent">Free</span> Islamic Library',
-    lede: 'Printable worksheets designed by our team, plus the foundation texts our teachers use. All free, no sign-up.',
+    lede: 'Keep practising between lessons with free printable worksheets. Download available files directly, or request foundation texts and other resources on WhatsApp. No sign-up needed.',
     sheetsEyebrow: 'Worksheets',
     sheetsTitle: 'Download &amp; <span class="accent">print today</span>',
     sheetsLede: 'A4 PDFs, bilingual English–Arabic, for practice at home between lessons.',
