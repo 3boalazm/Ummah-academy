@@ -262,6 +262,8 @@ const C = COPY.C;
   .meaning__inner {
     position: relative;
     display: grid;
+    /* minmax(0, 1fr): long localized figures (“1.000+”, “1 000+”) must never widen the column */
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
     align-items: center;
   }
@@ -274,7 +276,7 @@ const C = COPY.C;
 
   .meaning__stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 
@@ -282,11 +284,11 @@ const C = COPY.C;
     --radius: 22px;
     display: flex;
     flex-direction: column;
-    padding: 22px;
+    padding: clamp(16px, 4.5vw, 22px);
   }
 
   .meaning__stats strong {
-    font-size: 2.4rem;
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
     font-weight: 620;
     letter-spacing: -0.045em;
     line-height: 1;
