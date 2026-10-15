@@ -30,6 +30,20 @@ export const SITE = {
    * sub-domain and set PUBLIC_PORTAL_URL. See docs/06-launch-checklist.md.
    */
   portalBase: (env.PUBLIC_PORTAL_URL as string | undefined) ?? 'https://ummahacademy.net',
+  /**
+   * Provider identification for the legal notice (German "Impressum", § 5 DDG; French
+   * "mentions légales"). Leave null until the business supplies real data — the page
+   * /legal-notice/ (+ /de/ /fr/ /it/ /ar/) and its footer link only exist when this is set.
+   * Never publish placeholders. Linear: launch gate "Impressum data".
+   */
+  legalEntity: null as null | {
+    name: string;
+    legalForm?: string;
+    address: string[];
+    representative?: string;
+    register?: string;
+    vatId?: string;
+  },
   leadEndpoint: (env.PUBLIC_LEAD_ENDPOINT as string | undefined) ?? '',
 } as const;
 

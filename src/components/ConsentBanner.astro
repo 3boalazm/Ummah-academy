@@ -24,8 +24,9 @@ const L = COPY.L;
     </p>
   </div>
   <div class="consent__actions">
-    <button type="button" class="btn btn--sm btn--glass" data-consent-choice="denied">{L.deny}</button>
-    <button type="button" class="btn btn--sm btn--primary" data-consent-choice="granted">{L.allow}</button>
+    <!-- Equal visual weight: refusing must be as easy as accepting (CNIL / Garante / DSK guidance) -->
+    <button type="button" class="btn btn--sm btn--glass consent__btn" data-consent-choice="denied">{L.deny}</button>
+    <button type="button" class="btn btn--sm btn--glass consent__btn" data-consent-choice="granted">{L.allow}</button>
   </div>
 </section>
 

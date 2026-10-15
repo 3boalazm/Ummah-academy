@@ -55,6 +55,7 @@ export default {
   language: 'Lingua',
   langPartial: 'Se questa pagina non è ancora tradotta, il link apre la sezione più vicina.',
   langHint: { text: 'Questa pagina è disponibile anche in italiano.', cta: 'Leggi in italiano', close: 'Chiudi' },
+  imprint: { title: 'Note legali', lede: 'Chi gestisce questo sito e come contattarci.', provider: 'Fornitore del servizio', representative: 'Rappresentato da', register: 'Iscrizione al registro', vat: 'Partita IVA', contact: 'Contatti' },
   footerLinks: {
     learn: ['Tutti i corsi', 'Recitazione del Corano & Tajweed', 'Hifz & ijaza', 'Lingua araba', 'Ummah Cubs (bambini)', 'Studi islamici'],
     academy: ['Chi siamo', 'I nostri insegnanti', 'Prezzi', 'Area famiglie', 'Insegna con noi'],

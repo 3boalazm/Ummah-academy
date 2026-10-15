@@ -76,8 +76,9 @@ export function copy(lang: Lang): Copy {
   if (!c) throw new Error(`No locale registered for "${lang}" in src/locales/index.ts`);
   const missing = Object.keys(en).filter((k) => !(k in c));
   if (missing.length) {
-    // While a locale is being translated, missing modules render in English; strict builds refuse.
-    if (process.env.I18N_STRICT) throw new Error(`Locale "${lang}" is missing modules: ${missing.join(', ')}`);
+    // While a locale is being translated, missing modules render in English in dev.
+    // Production builds are strict (a half-translated locale must never ship); `astro dev` is lenient.
+    if ((import.meta.env.PROD && !process.env.I18N_LENIENT) || process.env.I18N_STRICT) throw new Error(`Locale "${lang}" is missing modules: ${missing.join(', ')}`);
     if (!warned.has(lang)) {
       warned.add(lang);
       console.warn(`[i18n] "${lang}" missing ${missing.length} module(s), rendering English: ${missing.join(', ')}`);
