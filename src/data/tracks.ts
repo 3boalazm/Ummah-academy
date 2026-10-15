@@ -1,6 +1,6 @@
 import quranImg from '@/assets/art/track-quran.jpg';
 import arabicImg from '@/assets/art/track-arabic.jpg';
-import kidsImg from '@/assets/art/track-kids.jpg';
+import kidsImg from '@/assets/art/kids-learning.webp';
 import islamicImg from '@/assets/art/track-islamic.jpg';
 import type { Lang } from '@/i18n';
 import { PRICES } from '@/data/prices';
