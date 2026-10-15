@@ -1,0 +1,9 @@
+---
+import FamilyPortal from '@/views/FamilyPortal.astro';
+import { localePaths, type Lang } from '@/i18n';
+
+export const getStaticPaths = () => localePaths();
+const lang = Astro.params.locale as Lang;
+---
+
+<FamilyPortal lang={lang} />

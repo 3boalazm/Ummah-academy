@@ -1,0 +1,72 @@
+# Quality gates on every push and pull request (see qa/README.md).
+# 1. build + static gates   2. browser suites in three parallel jobs on the runner's Chrome
+name: QA
+
+on:
+  push:
+    paths-ignore: ['docs/**', '**/*.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**/*.md']
+  workflow_dispatch:
+
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Build + static gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build, links, i18n, structured data, social cards
+        run: npm run qa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
+
+  browser:
+    name: Browser QA · ${{ matrix.name }}
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: canary, overflow, header
+            suites: canary overflow header
+          - name: popovers, axe
+            suites: popovers axe
+          - name: flows, touch
+            suites: flows touch
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Run suites (Chrome preinstalled on ubuntu-latest)
+        run: node qa/run.mjs ${{ matrix.suites }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-report-${{ strategy.job-index }}
+          path: qa/report
+          retention-days: 14

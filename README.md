@@ -1,117 +1,151 @@
-# Ummah Academy — Website Rebuild
+# Ummah Academy — native website
 
-A ground-up rebuild of ummahacademy.net as modular Elementor HTML widgets — replacing a template-bound WordPress/Elementor site (Lorem ipsum text, a fake phone number, broken images, emoji icons, CDN font dependencies) with one consistent design system across every page.
+Live 1-on-1 Qur'an, Tajweed, Arabic and Islamic Studies with Al-Azhar scholars.
+This repository is the **native-code** replacement for the WordPress/Elementor site at ummahacademy.net.
 
-## A note on provenance
+- **Stack:** [Astro](https://astro.build) (static output) · hand-written CSS design system ("Sakinah Glass") · vanilla TypeScript islands · self-hosted fonts · Phosphor icons inlined at build time.
+- **No runtime framework:** about 2 KB of site JS per page (gzipped), and every English URL is identical to WordPress.
+- **Five languages:**
 
-Most of this project was built turn-by-turn in this conversation. **Five files were not** — `footer.html`, `career.html`, `contact.html`, `courses.html`, and `family-portal.html`, plus an expansion to `script.js` (a new `initCoursesTabs()` function), appeared in the shared working directory over a ~15-minute window while this session was independently building the 10 files in `courses/`. Everything checked out structurally (balanced tags, resolved CSS variables, valid JS, the same `ua-` conventions and design tokens as the rest of the project) and is included here as-is, but it wasn't written or reviewed by this session — if there's a parallel session/tab working on this same project, worth confirming with it directly before treating these five as final.
+  | Language | Where |
+  |---|---|
+  | English | at the root |
+  | Arabic (RTL) | `/ar/` |
+  | German | `/de/` |
+  | French | `/fr/` |
+  | Italian | `/it/` |
 
-## Folder structure
+  - All 23 routes exist in every language.
+  - The 19 articles are translated into DE/FR/IT under localised slugs; there are also 3 original Arabic articles.
+  - A glass language menu always opens the true translation.
+  - Reciprocal `hreflang` everywhere, and automated i18n QA.
 
-```
-shared/       Used on every single page — enqueue/paste these once, site-wide
-homepage/     Ordered sections for the Home page specifically
-pages/        Complete, standalone pages
-courses/      One detail page per individual course, linked from pages/courses.html
-```
-
-## Deploying in Elementor
-
-1. **Enqueue `shared/styles.css` and `shared/script.js`** once, site-wide (e.g. via your theme's `functions.php` or a snippets plugin — not per-page).
-2. **Paste `shared/header.html`** into Elementor's Theme Builder as the global Header template, and **`shared/footer.html`** as the global Footer template — both render on every page, neither is a body-section widget.
-3. **Homepage:** create the page, paste each file in `homepage/` as its own HTML widget, in filename order. **There are real gaps in this sequence** — see the table below. Don't paste 01–04 back-to-back assuming that's the finished homepage.
-4. **Every other page** (About, Blog, FAQ, Teachers, Courses listing, Contact, Career, Family Portal): create the page, paste the matching file from `pages/` as one HTML widget.
-5. **Each individual course** (e.g. `/courses/quran-recitation/`): create the page, paste the matching file from `courses/` as one HTML widget. `pages/courses.html` is the listing page these link out from.
-
-Every file is a self-contained fragment (no `<html>`/`<head>`/`<style>` wrapper) — that's intentional, so each pastes cleanly into its own Elementor HTML widget.
-
-## Deploying as a plain static site (Vercel)
-
-Because the source files are fragments, serving this repo directly gives a 404 — there is no `index.html` and nothing links `styles.css`. `build.js` closes that gap: it composes the fragments into complete documents under `dist/`, without modifying anything in `shared/`, `homepage/`, `pages/`, or `courses/`. Both deployment targets stay valid from one source.
+## Quick start
 
 ```bash
-npm run build      # -> dist/
-npx serve dist     # preview at http://localhost:3000
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # → dist/ (195 pages; production builds fail on a half-translated locale)
+npm run preview    # serve the production build
+npm run qa         # build + internal link/fragment checker + i18n checker
+CHROME_PATH=/path/to/chrome npm run pdfs   # regenerate the free worksheets → public/downloads/
 ```
 
-What the build does:
+Node ≥ 20.19.
 
-- **`dist/index.html`** — every file in `homepage/` concatenated in filename order.
-- **`dist/<page>.html`** — one per file in `pages/` (`/about.html`, `/courses.html`, …), flat at the root, matching the URL scheme `shared/footer.html` already links to.
-- **`dist/courses/<slug>.html`** — one per file in `courses/`.
-- Each page is wrapped in a real `<!DOCTYPE html>` document with `<meta charset>`, a viewport tag, a `<title>` taken from the page's `<h1>`, and `<body class="ua-homepage">` — that class is what activates the scoped reset in `styles.css`, and standalone there's no Elementor Container to carry it.
-- `shared/header.html` and `shared/footer.html` are injected around the content, and `shared/styles.css` / `shared/script.js` are copied to `dist/shared/`.
-- The header's nav links point at `https://ummahacademy.net/...` (absolute, for the live WordPress site); the build rewrites just those `href`s to the local `/*.html` equivalents so the deployment is browsable. Source is untouched, and the `wp-content` image URLs on the same host are left alone.
+## Project map
 
-`vercel.json` sets `buildCommand: node build.js` and `outputDirectory: dist`. No dependencies, no framework — Node's stdlib only.
+```
+src/
+  pages/            English routes (URLs mirror WordPress, e.g. /quran-memorization-hifz/)
+  pages/[locale]/   the same routes for ar · de · fr · it (+ blog/, teachers/[id], rss.xml)
+  views/            page templates shared by all languages (Home, TrackPage, Pricing, Contact…)
+  locales/<lang>/   ALL human-language copy: 23 modules per language (ui, home, pricing, booking…)
+  locales/<lang>/data/  de · fr · it text overlays for tracks, track pages, teachers, plans, placement, legal
+  i18n/index.ts     locale registry (LOCALE, LANGS), routing (lp, langTargets…), Intl formatting (price, pct, fmtDate)
+  content-i18n/     course-page template (tracks.ts) and privacy + terms (legal.ts), EN + AR
+  content/blog/     English articles → /<slug>/
+  content/blog-ar/  Arabic articles → /ar/blog/<slug>/ (optional translationOf: <english-slug>)
+  content/blog-tr/  de/ fr/ it/ translated articles → /<lang>/blog/<localised-slug>/ (translationOf required)
+  components/       design-system components (Header, LangMenu, LangHint, BookingWizard, TrackCard…)
+  data/             single source of truth: site/contact, tracks, pricing, people, placement test, countries
+  layouts/          BaseLayout (SEO head, hreflang, JSON-LD, fonts, aurora, header/footer)
+  scripts/          client islands: site.ts, booking.ts, placement.ts, attribution.ts, analytics.ts
+  styles/global.css design tokens + glass system
+  assets/art/       art-directed renders (optimised to AVIF/WebP at build)
+public/             favicon, OG cards (og/default[-ar|-de|-fr|-it].png), robots.txt, downloads/
+docs/               research, audits, strategy, QA, glossary and the final report
+scripts/            check-links.mjs, check-i18n.mjs, build-pdfs.mjs + pdfs/ (worksheet templates)
+```
 
-**Still 404 on the deployed site:** `/pricing.html`, `/privacy.html`, `/terms.html`. All three are linked from the footer/header but have no page built yet (Pricing is in the "received but not reconciled" queue below; Privacy and Terms were never in scope). The build prints this list on every run.
+## Configuration (environment variables)
 
-## What's built vs. what's still open
-
-**Global chrome:** Header ✅ and Footer ✅ (both `shared/`) — the site finally has a real footer.
-
-**Homepage** — original spec called for 15 ordered sections. Actually built, in true final order:
-
-| # | Section | Status |
-|---|---|---|
-| 1 | Hero | ✅ Built — `homepage/01-hero.html` |
-| 2 | Trust Bar (merged with "Statistics") | ✅ Built — `homepage/02-trust-bar.html` |
-| 3 | How It Works | ❌ Not built |
-| 4 | Learning Paths | ❌ Not built |
-| 5 | Why Ummah Academy | ✅ Built — `homepage/03-why-ummah-academy.html` |
-| — | Comparison (added mid-project, not in the original 15) | ✅ Built — `homepage/04-comparison.html` |
-| 6 | Featured Courses | ❌ Not built |
-| 7 | Teachers (homepage teaser) | ❌ Not built |
-| 8 | Methodology | ❌ Not built |
-| 9 | Technology | ❌ Not built |
-| 10 | Community | ❌ Not built |
-| 11 | Testimonials | ❌ Not built |
-| 12 | Pricing (homepage teaser) | ❌ Not built |
-| 13 | FAQ (homepage teaser) | ❌ Not built |
-| 14 | Final CTA | ❌ Not built |
-| 15 | Footer | ✅ Built (site-wide, `shared/footer.html`) |
-
-**Standalone pages — built:** About, Blog, FAQ, Teachers (v2), **Courses listing, Contact, Career, Family Portal** (these last four: see "A note on provenance" above).
-**Standalone pages — still not built:** Pricing, Login/Register, Resources.
-**Individual course detail pages — built (10/10):** Qur'an Recitation, Tajweed, Hifz, Aqeedah, Islamic Studies for Kids, Fiqh, Tafseer, Noor Al-Bayan, Arabic Grammar, Arabic Conversation — all in `courses/`. Content is a first pass, translated and expanded from a provided course list; more detail was flagged as coming later.
-
-**Received but not yet reconciled into this system at all:** a Login/Register (Auth) page, a Pricing page (its real numbers — $128/$96/$64 for Track A, $74/$59/$59/$40 for Track B — are already reflected in the course pages' sidebar/meta where relevant), and a Resources (free library) page. All three were uploaded as raw source but not yet rebuilt — next in the queue.
-
-## Design system quick reference
-
-- **Colors:** deep aubergine primary (`#2E1D46`), dark slate-teal ink (`#24393C`), warm neutral background (`#FAFAFA`), plus a Secondary set (blue/indigo/magenta/rose) and Accent tints — all as CSS custom properties at the top of `styles.css` (`--ua-accent`, `--ua-ink`, `--ua-bg`, etc.).
-- **Type:** no webfonts/CDN — a serif system stack for headings, the native OS sans stack for body text.
-- **Naming:** every class is `ua-` prefixed; base resets are scoped under `.ua-homepage` so they can't leak into the surrounding WordPress theme — add that class to whichever Elementor Container wraps your page content.
-- **Icons:** inline SVG throughout, no emoji, no icon font.
-
-## Known open items (flagged along the way, not yet resolved)
-
-- **Real teacher photos** — Omneya Ali, Sara Ahmed, and Nour Hassan still show initials-on-gradient placeholders everywhere. No real photos of them exist in the site's Media Library as of the last check.
-- **Hero stat figures** (50+ countries, 100+ scholars, 1,000+ students, 95% rating) — flagged in-file as illustrative until confirmed against real analytics.
-- **Blog category filter links** point to `#` — need real WordPress category archive URLs.
-- **Teachers-page and Course-Explorer filter buttons** are presentational — need the same lightweight JS pattern Trust Bar's counters already use.
-- **The Auth, Pricing, and Resources pages** (see above) are queued for the same reconciliation process every other page here already went through.
-- A separate, live WordPress site (same domain) was going through its own concurrent maintenance pass during parts of this project (broken image cleanup, security headers, object cache) — independent of these files, not repeated here.
-
-## File-by-file
-
-| File | What it is |
+| Variable | Purpose |
 |---|---|
-| `shared/styles.css` | Every design token, reset, and component style for the whole site |
-| `shared/script.js` | Namespaced (`UmmahAcademy`) vanilla JS — scroll effects, reveal animations, counters, nav/mobile menu, course tabs |
-| `shared/header.html` | Floating pill nav, desktop + mobile |
-| `shared/footer.html` | Site-wide footer |
-| `homepage/01-hero.html` | Cinematic full-bleed photo hero |
-| `homepage/02-trust-bar.html` | Animated stat counters |
-| `homepage/03-why-ummah-academy.html` | Four differentiator cards |
-| `homepage/04-comparison.html` | Ummah Academy vs. generic platforms table |
-| `pages/about.html` | Mission, timeline, teacher preview, methodology, CTA |
-| `pages/blog.html` | Post listing with search + category filters |
-| `pages/faq.html` | Categorized FAQ with sticky in-page nav |
-| `pages/teachers.html` | Full faculty directory (v2) |
-| `pages/courses.html` | Course catalog / listing page |
-| `pages/contact.html` | Contact / booking page |
-| `pages/career.html` | Teacher recruitment page |
-| `pages/family-portal.html` | Family Portal marketing page |
-| `courses/*.html` | 10 individual course detail pages |
+| `PUBLIC_LEAD_ENDPOINT` | Optional HTTPS endpoint that receives trial requests as JSON, including `lang` and first-touch UTM attribution (Google Apps Script, Zapier, Make, CRM). Without it, requests are handed off to WhatsApp, and the thank-you page says so. |
+| `PUBLIC_PORTAL_URL` | Base URL of the student/family portal (currently WordPress). Set it before DNS cut-over, e.g. `https://portal.ummahacademy.net`. |
+| `PUBLIC_PLAUSIBLE_DOMAIN` / `PUBLIC_PLAUSIBLE_SRC` | Optional. Turns on Plausible (cookieless, so no banner). `_SRC` swaps the script, e.g. a proxy or the file-downloads variant. |
+| `PUBLIC_GTM_ID` | Optional. Google Tag Manager in Consent Mode v2: nothing loads until the visitor clicks "Allow" on the consent banner (in the page's language). Setting it also adds a footer "Privacy choices" link. |
+| `I18N_LENIENT` / `I18N_STRICT` | Build-time only. Production builds are strict about missing locale modules; `I18N_LENIENT=1` lets a work-in-progress locale render English for missing modules, and `I18N_STRICT=1` makes `astro dev` strict too. |
+
+With none of the analytics variables set, the site ships **no third-party scripts and no cookies**. Every analytics event carries `page_lang`.
+
+## Deploy
+
+Vercel (`vercel.json`): the framework preset is Astro, the output goes to `dist/`, trailing slashes are on, and legacy WordPress URLs get 301s and security headers.
+
+- The site **never redirects by browser language**. The in-page language hint suggests a translation instead.
+- See `docs/06-launch-checklist.md` before pointing the production domain here. §C covers the five-language gates: Impressum, teaching language and native review.
+
+## Documentation
+
+Start with [`docs/README.md`](docs/README.md).
+
+## Adding or editing content
+
+- **Page copy (any language):** `src/locales/<lang>/<module>.ts`.
+  - The views in `src/views/` contain no copy.
+  - English (`src/locales/en`) is the typed reference. Every other language must have the same keys, array lengths and value types, or the build fails with a list of the differences.
+- **Prices, ids, links, images:** `src/data/*.ts`, the single source for all languages.
+- **Data text:** tracks, teachers, testimonials, placement questions.
+  - English and Arabic sit side by side in `src/data/*.ts`.
+  - German, French and Italian are text-only overlays in `src/locales/<lang>/data/`.
+- **Course pages:** `src/content-i18n/tracks.ts` (EN + AR) and `src/locales/<lang>/data/trackPages.ts` (DE/FR/IT).
+- **Blog:**
+  - **English:** add a Markdown file to `src/content/blog/`. The file name is the URL slug.
+  - **Arabic:** add a Markdown file to `src/content/blog-ar/`. Set `translationOf` to the English slug when it's the counterpart of an English article.
+  - **German/French/Italian:** add `src/content/blog-tr/<lang>/<localised-slug>.md` with a **required** `translationOf: <english-slug>`. The hreflang cluster, the "Also available in" row and the language menu targets follow automatically.
+  - The build checks that every `translationOf` exists.
+  - Slugs and terminology: `docs/11-i18n-glossary.md`.
+- **Teachers:** each teacher in `src/data/people.ts` gets a profile at `/teachers/<id>/` in every language. Add the path to `TRANSLATED_ROUTES` in `src/i18n/index.ts`; the build fails if you forget. Set `ijazah: true` only when the published bio states one.
+- **Legal notice / Impressum:** fill in `SITE.legalEntity` in `src/data/site.ts` with real data, and `/legal-notice/` plus a footer link appear in all five languages. Leave it `null` until then; never publish placeholders.
+- **Worksheets:** edit `scripts/pdfs/sheets/*.mjs`, run `npm run pdfs`, and commit the PDFs and `src/data/downloads.json`. A sheet links directly on `/resources/` only if its PDF exists.
+
+## Languages (i18n)
+
+**How it works**
+
+- **URLs:** English lives at the root. The other languages reuse the **same page slugs** under a prefix (`/de/pricing/`). Articles are the exception: they get localised slugs (`/de/blog/<slug>/`).
+- **Language menu:**
+  - Each page builds its targets with `langTargets()`: the true translation when it exists, otherwise the closest section in that language. So the menu can never 404.
+  - It works without JavaScript (`<details>`). On phones it becomes a sheet, and the footer repeats it as a row.
+- **Language hint:** when the browser prefers another language that has a translation of *this* page, a dismissible hint appears **in that language**. It never redirects. Any explicit choice (`localStorage` `ua:lang`) silences it.
+- **SEO:** each page emits `hreflang` for every real translation plus `x-default` (English), and `og:locale` + `og:locale:alternate`. JSON-LD is localised, and the sitemap lists all five locales. `noindex` pages emit no hreflang.
+- **Formatting:**
+  - Prices stay in USD, written the local way: `$40` · `٤٠ $` · `40 $`.
+  - Dates use `Intl`, and country names come from `Intl.DisplayNames`.
+- **Guards:**
+  - **Build time:** locale shape parity, and strict production builds.
+  - **Post-build:** `npm run check:i18n` checks `lang`/`dir`, canonical, reciprocal hreflang clusters, and **English leaks** on DE/FR/IT pages (visible text, alt, aria-label, title, placeholder, meta description).
+
+**Adding a sixth language**, e.g. Turkish `tr`:
+
+1. **`src/i18n/index.ts`:**
+   - add `'tr'` to the `Lang` type;
+   - add a `LOCALE.tr` entry (native name, English name, `dir`, `Intl` tag, OG locale, `prefix: '/tr'`, pill label);
+   - add `'tr'` to `LANGS` (menu order) and `PREFIXED`.
+2. **Copy:**
+   - copy `src/locales/de/` to `src/locales/tr/` (23 modules, `index.ts` and `data/`) and translate it;
+   - register it in `src/locales/index.ts` (`import * as tr from './tr'` and the `REGISTRY` entry);
+   - `astro dev` renders any module you haven't translated yet in English and warns; production builds refuse to ship it.
+3. **Data overlays:** add `tr` to the `OVERLAY` / `TRANSLATED` maps in
+   - `src/data/tracks.ts`
+   - `src/content-i18n/tracks.ts`
+   - `src/data/people.ts`
+   - `src/data/pricing.ts`
+   - `src/data/placement.ts`
+   - `src/content-i18n/legal.ts`
+4. **Blog:**
+   - add `src/content/blog-tr/tr/*.md`, each with `translationOf`;
+   - extend the `blogTr` glob in `src/content.config.ts` (`'{de,fr,it,tr}/*.md'`).
+5. **Site plumbing:**
+   - add the panel text to the `T` table and a `.nf__panel--tr` rule in `src/pages/404.astro`;
+   - add `tr` to the sitemap `i18n.locales` in `astro.config.mjs`;
+   - add `tr` to `PREFIXED` (and to `CHECK_LEAKS` for a Latin-script language) in `scripts/check-i18n.mjs`.
+6. **Assets:**
+   - add an OG card at `public/og/default-tr.png` (1200×630) and point `ogImage` in `src/locales/tr/ui.ts` at it;
+   - check glyph coverage:
+     - Geist loads its latin-ext, Cyrillic and Vietnamese subsets on demand (`unicode-range`).
+     - The italic accent font is imported as **latin only** (`@fontsource/instrument-serif/latin-400-italic.css`), so a language with letters such as ğ ş İ needs its latin-ext file.
+     - Non-Latin scripts need their own font imported in `BaseLayout.astro`.
+7. **Verify:** run `npm run qa` and check the language menu on a few pages. Also run an overflow check at 320 px, because longer languages break tight layouts first.

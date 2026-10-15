@@ -1,0 +1,71 @@
+---
+export interface FaqItem {
+  q: string;
+  a: string;
+  qAr?: string;
+  aAr?: string;
+}
+interface Props {
+  items: FaqItem[];
+  schema?: boolean;
+  open?: number;
+}
+const { items, schema = true, open = -1 } = Astro.props;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((it) => ({
+    '@type': 'Question',
+    name: it.q,
+    acceptedAnswer: { '@type': 'Answer', text: it.a.replace(/<[^>]+>/g, '') },
+  })),
+};
+---
+
+<div class="faq">
+  {
+    items.map((it, i) => (
+      <details class="glass glass--flat" open={i === open} data-reveal style={`--reveal-delay:${Math.min(i, 6) * 0.04}s`}>
+        <summary>
+          <span>
+            {it.q}
+            {it.qAr && (
+              <span class="faq__q-ar" lang="ar" dir="rtl">
+                {it.qAr}
+              </span>
+            )}
+          </span>
+        </summary>
+        <div class="faq__body">
+          <p set:html={it.a} />
+          {it.aAr && (
+            <p class="faq__a-ar" lang="ar" dir="rtl">
+              {it.aAr}
+            </p>
+          )}
+        </div>
+      </details>
+    ))
+  }
+</div>
+{schema && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}
+
+<style>
+  .faq__q-ar {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-arabic);
+    font-weight: 400;
+    font-size: 0.92rem;
+    color: var(--ink-3);
+  }
+  .faq__a-ar {
+    margin-top: 10px;
+    font-family: var(--font-arabic);
+    color: var(--ink-3);
+  }
+  .faq__body :global(a) {
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+</style>

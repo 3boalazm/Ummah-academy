@@ -1,0 +1,108 @@
+---
+/**
+ * Analytics consent (rendered only when PUBLIC_GTM_ID is set; Plausible needs none).
+ * Non-modal: never steals focus or blocks the page. The choice lives in
+ * localStorage `ua:consent` (granted | denied) and can be changed from the
+ * footer's "Privacy choices" button ([data-consent-open]).
+ */
+import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const COPY = copy(lang).consent;
+const L = COPY.L;
+---
+
+<section class="consent glass glass--strong" aria-label={L.label} data-consent hidden>
+  <div class="consent__copy">
+    <p class="consent__title">{L.title}</p>
+    <p class="consent__text">
+      {L.text} <a href={lp(lang, '/privacy-policy/')}>{L.more}</a>
+    </p>
+  </div>
+  <div class="consent__actions">
+    <!-- Equal visual weight: refusing must be as easy as accepting (CNIL / Garante / DSK guidance) -->
+    <button type="button" class="btn btn--sm btn--glass consent__btn" data-consent-choice="denied">{L.deny}</button>
+    <button type="button" class="btn btn--sm btn--glass consent__btn" data-consent-choice="granted">{L.allow}</button>
+  </div>
+</section>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  type Choice = 'granted' | 'denied';
+  const KEY = 'ua:consent';
+  const banner = document.querySelector<HTMLElement>('[data-consent]');
+  const read = (): Choice | null => {
+    try {
+      const v = localStorage.getItem(KEY);
+      return v === 'granted' || v === 'denied' ? v : null;
+    } catch {
+      return null;
+    }
+  };
+  if (banner) {
+    if (!read()) banner.hidden = false;
+    banner.querySelectorAll<HTMLButtonElement>('[data-consent-choice]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const choice = b.dataset.consentChoice as Choice;
+        try {
+          localStorage.setItem(KEY, choice);
+        } catch {
+          /* private mode: the choice lasts for this page only */
+        }
+        (window as unknown as { __uaGtm?: (allow: boolean) => void }).__uaGtm?.(choice === 'granted');
+        banner.hidden = true;
+        if (choice === 'granted') track('consent_update', { analytics: 'granted' });
+      })
+    );
+    document.querySelectorAll<HTMLElement>('[data-consent-open]').forEach((o) =>
+      o.addEventListener('click', () => {
+        banner.hidden = false;
+        banner.querySelector<HTMLButtonElement>('[data-consent-choice="granted"]')?.focus();
+      })
+    );
+  }
+</script>
+
+<style>
+  .consent {
+    --radius: var(--r-lg);
+    position: fixed;
+    z-index: 60;
+    inset-inline: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    max-width: 640px;
+    margin-inline: auto;
+    padding: 16px 18px;
+  }
+
+  .consent__copy {
+    flex: 1 1 300px;
+  }
+
+  .consent__title {
+    font-weight: 620;
+  }
+
+  .consent__text {
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+
+  .consent__text a {
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+
+  .consent__actions {
+    display: flex;
+    gap: 8px;
+  }
+</style>

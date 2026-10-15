@@ -1,0 +1,204 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BookingWizard from '@/components/BookingWizard.astro';
+import Faq from '@/components/Faq.astro';
+import Icon from '@/components/Icon.astro';
+import { SITE, waLink } from '@/data/site';
+import { lp, num, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+
+const COPY = copy(lang).contact;
+const C = COPY.C;
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} sticky={false}>
+  <section class="section book-hero" id="book" aria-labelledby="book-title">
+    <div class="container book-hero__grid">
+      <div class="book-hero__intro" data-reveal>
+        <span class="eyebrow">{C.eyebrow}</span>
+        <h1 id="book-title" set:html={C.title} />
+        <p class="lead">{C.lede}</p>
+      </div>
+      <div class="book-hero__form" data-reveal style="--reveal-delay:.08s">
+        <BookingWizard lang={lang} />
+      </div>
+      <div class="book-hero__aside" data-reveal style="--reveal-delay:.12s">
+        <ul role="list" class="book-gets">
+          {
+            C.gets.map(([icon, h, p]) => (
+              <li>
+                <span class="icon-badge">
+                  <Icon name={icon} />
+                </span>
+                <div>
+                  <strong>{h}</strong>
+                  <p>{p}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="book-direct">
+          <p>{C.direct}</p>
+          <div class="cluster">
+            <a class="btn btn--sm btn--glass" href={waLink()} target="_blank" rel="noopener" data-track="contact-direct"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> <span dir="ltr">{SITE.whatsapp.display}</span></a>
+            <a class="btn btn--sm btn--glass" href={`mailto:${SITE.email}`}><Icon name="envelope-simple" /> {SITE.email}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="next-title">
+    <div class="container">
+      <h2 id="next-title" class="next-title" data-reveal>{C.next}</h2>
+      <ol role="list" class="grid grid-3 next">
+        {
+          C.steps.map(([h, p], i) => (
+            <li class="glass next__item" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="next__num">{num(lang, i + 1)}</span>
+              <h3>{h}</h3>
+              <p>{p}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cfaq-title">
+    <div class="container--narrow">
+      <h2 id="cfaq-title" class="next-title" data-reveal>{C.faqTitle}</h2>
+      <Faq items={C.faq} />
+      <p class="more-faq"><a class="btn btn--link" href={lp(lang, '/faq/')}>{C.allFaq} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .book-hero {
+    padding-top: clamp(28px, 4vw, 56px);
+    scroll-margin-top: calc(var(--header-h) + 8px);
+  }
+
+  .book-hero__grid {
+    display: grid;
+    gap: clamp(20px, 3vw, 28px) clamp(28px, 4vw, 56px);
+    grid-template-areas: 'intro' 'form' 'aside';
+    align-items: start;
+  }
+
+  @media (min-width: 1000px) {
+    .book-hero__grid {
+      grid-template-columns: 0.85fr 1.15fr;
+      grid-template-areas: 'intro form' 'aside form';
+      grid-template-rows: auto 1fr;
+    }
+  }
+
+  .book-hero__intro {
+    grid-area: intro;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .book-hero__intro h1 {
+    font-size: clamp(2.2rem, 1.4rem + 3vw, 3.8rem);
+  }
+
+  .book-hero__form {
+    grid-area: form;
+  }
+
+  .book-hero__aside {
+    grid-area: aside;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .book-gets {
+    display: grid;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .book-gets li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .book-gets strong {
+    display: block;
+    font-weight: 620;
+    margin-bottom: 2px;
+  }
+
+  .book-gets p {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+
+  .book-direct {
+    display: grid;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    width: 100%;
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+
+  .next-title {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+    margin-bottom: 22px;
+  }
+
+  .next {
+    list-style: none;
+    padding: 0;
+  }
+
+  .next__item {
+    --radius: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px;
+  }
+
+  .next__num {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--accent-ink);
+  }
+
+  :global([dir='rtl']) .next__num {
+    font-family: var(--font-arabic);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .next__item h3 {
+    font-size: 1.12rem;
+  }
+
+  .next__item p {
+    color: var(--ink-2);
+  }
+
+  .more-faq {
+    margin-top: 16px;
+  }
+</style>

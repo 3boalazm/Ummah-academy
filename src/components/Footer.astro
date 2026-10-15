@@ -1,0 +1,187 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import LangMenu from './LangMenu.astro';
+import { FOOTER_LINKS, SITE, waLink } from '@/data/site';
+import { lp, LOCALE, type Lang, type LangTarget } from '@/i18n';
+import { ui } from '@/locales';
+interface Props {
+  lang?: Lang;
+  targets: LangTarget[];
+}
+const { lang = 'en', targets } = Astro.props;
+const t = ui(lang);
+const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '').trim());
+const cols = FOOTER_LINKS(lang, t.footerLinks);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="night-panel theme-night site-footer__panel">
+    <div class="stars"></div>
+    <div class="container site-footer__inner">
+      <div class="site-footer__brand">
+        <Logo tone="light" showSecondary lang={lang} />
+        <p class="site-footer__mission">{t.footerMission}</p>
+        <div class="site-footer__contact">
+          <a class="btn btn--sm btn--glass" href={waLink()} target="_blank" rel="noopener" data-track="footer">
+            <Icon name="whatsapp-logo" weight="fill" class="icon-wa" />
+            <span dir="ltr">{SITE.whatsapp.display}</span>
+          </a>
+          <a class="btn btn--sm btn--glass" href={`mailto:${SITE.email}`}>
+            <Icon name="envelope-simple" weight="regular" />
+            {SITE.email}
+          </a>
+        </div>
+      </div>
+
+      <nav class="site-footer__cols" aria-label={t.footerNav}>
+        {
+          (['learn', 'academy', 'resources'] as const).map((k) => (
+            <div class="site-footer__col">
+              <p class="site-footer__heading">{t.footerCols[k]}</p>
+              <ul role="list">
+                {cols[k].map((l) => (
+                  <li>
+                    <a href={l.href}>{l.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </div>
+
+    <div class="container site-footer__base">
+      <p>© {year} {t.siteName}. {t.rights}</p>
+      <ul role="list" class="site-footer__legal">
+        <li><a href={lp(lang, '/privacy-policy/')}>{t.privacy}</a></li>
+        <li><a href={lp(lang, '/terms-of-service/')}>{t.terms}</a></li>
+        {SITE.legalEntity && <li><a href={`${LOCALE[lang].prefix}/legal-notice/`}>{t.imprint.title}</a></li>}
+        {
+          consent && (
+            <li>
+              <button type="button" class="site-footer__choices" data-consent-open>
+                {t.privacyChoices}
+              </button>
+            </li>
+          )
+        }
+      </ul>
+      <LangMenu lang={lang} targets={targets} variant="footer" />
+      <p class="site-footer__note">{t.footerNote}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-block: clamp(32px, 6vw, 72px) clamp(8px, 1.6vw, 24px);
+  }
+
+  .site-footer__panel {
+    position: relative;
+    padding-block: clamp(48px, 7vw, 88px) 28px;
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: 48px;
+  }
+
+  @media (min-width: 960px) {
+    .site-footer__inner {
+      grid-template-columns: 1.1fr 1.6fr;
+    }
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    align-items: flex-start;
+  }
+
+  .site-footer__mission {
+    max-width: 44ch;
+    color: var(--ink-2);
+  }
+
+  .site-footer__contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .site-footer__cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 32px;
+  }
+
+  .site-footer__heading {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 14px;
+  }
+
+  [dir='rtl'] .site-footer__heading {
+    letter-spacing: 0;
+    font-size: 0.9rem;
+  }
+
+  .site-footer__col ul {
+    display: grid;
+    gap: 10px;
+  }
+
+  .site-footer a:not(.btn) {
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 0.97rem;
+  }
+
+  .site-footer a:not(.btn):hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+
+  .site-footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    align-items: center;
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 0.88rem;
+    color: var(--ink-3);
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .site-footer__note {
+    margin-inline-start: auto;
+  }
+
+  .site-footer__choices {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .site-footer__choices:hover {
+    color: var(--ink);
+  }
+</style>

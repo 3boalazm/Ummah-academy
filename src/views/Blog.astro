@@ -1,0 +1,134 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import { SITE } from '@/data/site';
+import { postsIn, type Post } from '@/data/blog';
+import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const posts = await postsIn('en');
+const arPosts = ar ? await postsIn('ar') : [];
+// German/French/Italian: the translated library (falls back to English while a locale is incomplete)
+const own = lang === 'en' || ar ? posts : await postsIn(lang);
+const grid: Post[] = own.length ? own : posts;
+// German/French/Italian posts keep the English category key → localised label (foreign-language cards stay as written)
+const label = (p: Post) => (p.lang === 'ar' || p.lang !== lang ? p.entry.data.category : ((C.categories as Record<string, string>)[p.entry.data.category] ?? p.entry.data.category));
+
+const COPY = copy(lang).blog;
+const C = COPY.C;
+
+const listed = (ar ? arPosts : grid).map((p) => ({ url: p.url, title: p.entry.data.title, date: p.entry.data.date }));
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: C.ldName,
+  url: new URL(lp(lang, '/blog/'), SITE.url).href,
+  blogPost: listed.slice(0, 12).map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: new URL(p.url, SITE.url).href, datePublished: p.date.toISOString() })),
+};
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} jsonLd={ld} lang={lang}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang} />
+
+  {
+    ar && C.arHead && (
+      <section class="section section--tight" aria-labelledby="ar-posts">
+        <div class="container">
+          <SectionHead id="ar-posts" eyebrow={C.arHead.eyebrow} title={C.arHead.title} lede={C.arHead.lede} />
+          <ul role="list" class="blog-grid">
+            {arPosts.map((p, i) => (
+              <BlogCard href={p.url} title={p.entry.data.title} description={p.entry.data.description} category={p.entry.data.category} date={p.entry.data.date} track={p.entry.data.track} lang="ar" pageLang="ar" lead={i === 0 && (arPosts.length + 1) % 3 === 0} />
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class:list={['section', { 'section--tight': !ar }]} aria-labelledby={ar ? 'en-posts' : undefined} aria-label={ar ? undefined : C.meta.title}>
+    <div class="container">
+      {ar && C.enHead && <SectionHead id="en-posts" eyebrow={C.enHead.eyebrow} title={C.enHead.title} lede={C.enHead.lede} />}
+      <div class="blog-filters glass" role="toolbar" aria-label={C.filtersLabel}>
+        {C.filters.map((f, i) => <button type="button" class:list={['blog-filter', { 'is-active': i === 0 }]} data-filter={f.key} aria-pressed={i === 0 ? 'true' : 'false'}>{f.label}</button>)}
+      </div>
+      <ul role="list" class="blog-grid" data-blog-grid>
+        {grid.map((p, i) => <BlogCard href={p.url} title={p.entry.data.title} description={p.entry.data.description} category={label(p)} date={p.entry.data.date} track={p.entry.data.track} lang={p.lang} pageLang={lang} lead={!ar && i === 0} />)}
+      </ul>
+      <p class="blog-empty muted" hidden data-blog-empty>{C.empty}</p>
+    </div>
+  </section>
+
+  {ar && C.cta && <CtaPanel lang={lang} eyebrow={C.cta.eyebrow} title={C.cta.title} lede={C.cta.lede} primary={{ label: C.cta.label, href: lp(lang, '/contact/') + '#book' }} />}
+</BaseLayout>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const cards = document.querySelectorAll<HTMLElement>('[data-blog-grid] > li');
+  const empty = document.querySelector<HTMLElement>('[data-blog-empty]');
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const key = b.dataset.filter;
+      buttons.forEach((x) => {
+        x.classList.toggle('is-active', x === b);
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      let shown = 0;
+      cards.forEach((c) => {
+        const on = key === 'all' || c.dataset.track === key;
+        c.hidden = !on;
+        if (on) shown++;
+      });
+      if (empty) empty.hidden = shown > 0;
+      track('blog_filter', { topic: key });
+    })
+  );
+</script>
+
+<style>
+  .blog-filters {
+    --radius: var(--r-pill);
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .blog-filter {
+    border: 0;
+    background: transparent;
+    padding: 10px 16px;
+    border-radius: var(--r-pill);
+    font-weight: 540;
+    font-size: 0.93rem;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  .blog-filter:hover {
+    background: rgb(255 255 255 / 0.7);
+  }
+
+  .blog-filter.is-active {
+    color: #fff;
+    background: var(--aubergine-800);
+  }
+
+  .blog-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  }
+</style>

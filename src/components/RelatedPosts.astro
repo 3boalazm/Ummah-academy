@@ -1,0 +1,133 @@
+---
+import Icon from './Icon.astro';
+import PostCover from './PostCover.astro';
+import { loadBlog, type Post } from '@/data/blog';
+import { LOCALE, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+interface Props {
+  /** English slugs to feature (else: newest on `track`) */
+  slugs?: string[];
+  track?: string;
+  limit?: number;
+  title?: string;
+  lang?: Lang;
+  /** article URLs to leave out (the current article and its translations) */
+  exclude?: string | string[];
+}
+const { slugs, track, limit = 3, lang = 'en' } = Astro.props;
+const exclude = new Set([Astro.props.exclude ?? []].flat());
+const L = copy(lang).related.L;
+const { title = L.title } = Astro.props;
+
+const { posts, clusters } = await loadBlog();
+const enPosts = posts.filter((p) => p.lang === 'en');
+const base: Post[] = slugs ? slugs.map((s) => enPosts.find((p) => p.slug === s)).filter((p): p is Post => Boolean(p)) : enPosts.filter((p) => !track || p.entry.data.track === track);
+
+let items = base;
+if (lang !== 'en') {
+  // Readers in other languages: swap in their translation, pull in other articles of theirs on the
+  // same tracks, and only then fall back to English (clearly labelled).
+  const twin = (p: Post) => {
+    const url = clusters.get(p.slug)?.[lang];
+    return url ? posts.find((q) => q.url === url) : undefined;
+  };
+  const swapped = base.map((p) => twin(p) ?? p);
+  const wanted = new Set(track ? [track] : base.map((p) => p.entry.data.track));
+  const extra = posts.filter((p) => p.lang === lang && wanted.has(p.entry.data.track) && !swapped.includes(p));
+  items = [...swapped.filter((p) => p.lang === lang), ...extra, ...swapped.filter((p) => p.lang !== lang)];
+}
+items = items.filter((p) => !exclude.has(p.url)).slice(0, limit);
+const categories = copy(lang).blog.C.categories as Record<string, string>;
+const label = (p: Post) => (p.lang === lang && p.lang !== 'ar' ? (categories[p.entry.data.category] ?? p.entry.data.category) : p.entry.data.category);
+---
+
+{
+  items.length > 0 && (
+    <section class="section section--tight" aria-labelledby="related-title">
+      <div class="container">
+        <div class="related__head" data-reveal>
+          <span class="eyebrow">{L.kicker}</span>
+          <h2 id="related-title">{title}</h2>
+        </div>
+        <div class="grid grid-3">
+          {items.map((p, i) => (
+            <a class="related__card glass glass--interactive" href={p.url} hreflang={p.lang !== lang ? p.lang : undefined} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <PostCover title={p.entry.data.title} track={p.entry.data.track} small />
+              <span class="related__body" lang={p.lang !== lang ? p.lang : undefined} dir={p.lang !== lang ? LOCALE[p.lang].dir : undefined}>
+                <span class="cluster" style="--cluster:6px">
+                  <span class="chip chip--accent">{label(p)}</span>
+                  {lang !== 'en' && p.lang === 'en' && <span class="chip" lang={lang} dir={LOCALE[lang].dir}>{L.inEn}</span>}
+                </span>
+                <span class="related__title">{p.entry.data.title}</span>
+                <span class="related__more">
+                  {L.read} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                </span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .related__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .related__head h2 {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+  }
+
+  .related__card {
+    --radius: 26px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    text-decoration: none;
+  }
+
+  .related__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 14px 14px;
+    flex: 1;
+  }
+
+  .related__title {
+    font-weight: 600;
+    font-size: 1.08rem;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
+  }
+
+  .related__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    font-size: 0.88rem;
+    font-weight: 560;
+    color: var(--accent-ink);
+  }
+
+  .related__more :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  :global([dir='rtl']) .related__more :global(svg) {
+    scale: -1 1;
+  }
+
+  .related__body[dir='ltr'] .related__more :global(svg) {
+    scale: 1;
+  }
+</style>

@@ -1,0 +1,441 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import Faq from '@/components/Faq.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import { getPlans, getIncluded, perSession, paymentMethods } from '@/data/pricing';
+import { trialLink } from '@/data/site';
+import { price, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const t = ui(lang);
+const plans = getPlans(lang);
+const included = getIncluded(lang);
+const COPY = copy(lang).pricing;
+const C = COPY.C;
+
+const groups = [
+  { minutes: 30 as const, title: C.g30, sub: C.g30s, list: plans.filter((p) => p.minutes === 30) },
+  { minutes: 60 as const, title: C.g60, sub: C.g60s, list: plans.filter((p) => p.minutes === 60) },
+];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'OfferCatalog',
+  name: C.ldName,
+  itemListElement: plans.map((p) => ({ '@type': 'Offer', name: `${p.name} — ${p.minutes} min × ${p.perWeek}/week`, price: p.price, priceCurrency: 'USD', category: 'subscription' })),
+};
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang}>
+    <ul role="list" class="cluster ticks">{C.chips.map((c) => <li class="chip"><Icon name="check-circle" weight="fill" /> {c}</li>)}</ul>
+  </PageHero>
+
+  <!-- Plan finder -->
+  <section class="section section--tight" aria-labelledby="finder-title">
+    <div class="container">
+      <div class="glass finder" data-finder data-reveal>
+        <div class="finder__controls">
+          <h2 id="finder-title">{C.finderTitle}</h2>
+          <fieldset class="finder__q">
+            <legend>{C.q1}</legend>
+            <div class="finder__len">
+              {
+                C.len.map(([v, l, s], i) => (
+                  <label class="choice">
+                    <input type="radio" name="len" value={v} checked={i === 0} />
+                    <span class="choice__box">
+                      <Icon name={v === '30' ? 'timer' : 'hourglass-medium'} />
+                      <span>
+                        {l}
+                        <small>{s}</small>
+                      </span>
+                    </span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+          <fieldset class="finder__q">
+            <legend>{C.q2}</legend>
+            {
+              groups.map((g) => (
+                <div class="seg finder__freq" data-freq={g.minutes} hidden={g.minutes === 60}>
+                  {g.list.map((p, i) => (
+                    <label class="seg__opt">
+                      <input type="radio" name={`freq-${g.minutes}`} value={p.id} checked={g.minutes === 30 ? p.id === 'consistent' : p.id === 'gold'} />
+                      <span>{C.perWeek(p.perWeek)}</span>
+                    </label>
+                  ))}
+                </div>
+              ))
+            }
+          </fieldset>
+        </div>
+        <div class="finder__result" aria-live="polite">
+          {
+            plans.map((p) => (
+              <article class="finder__plan" data-plan={p.id} hidden={p.id !== 'consistent'}>
+                <p class="finder__kicker">{C.result}</p>
+                <p class="finder__name">
+                  {p.name} {p.badge && <span class="finder__badge">{p.badge}</span>}
+                </p>
+                <p class="finder__price">
+                  {price(lang, p.price)}
+                  <small>{t.perMonth}</small>
+                </p>
+                <p class="finder__meta">
+                  {p.sessionsLabel} · {num(lang, p.minutes)} {t.min}
+                </p>
+                <p class="finder__unit">
+                  {t.approx}{price(lang, perSession(p))} {C.perSession}
+                </p>
+                <p class="finder__best">{p.bestFor}</p>
+                <a class="btn btn--primary btn--block" href={trialLink({ plan: p.canonical }, lang)} data-track="plan-finder">
+                  {C.start} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                </a>
+                <a class="finder__compare" href="#plans">{C.compare}</a>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- All plans -->
+  <section class="section" id="plans" aria-label={C.allPlans}>
+    <div class="container stack" style="--stack: clamp(40px, 6vw, 72px)">
+      {
+        groups.map((g) => (
+          <div>
+            <div class="plans-head" data-reveal>
+              <h2>{g.title}</h2>
+              <p class="lead">{g.sub}</p>
+            </div>
+            <div class="grid grid-3">
+              {g.list.map((p, i) => (
+                <article class:list={['plan', 'glass', { 'plan--featured': p.badge }]} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+                  <div class="plan__top">
+                    <h3 class="plan__name">{p.name}</h3>
+                    {p.badge && <span class="plan__badge">{p.badge}</span>}
+                  </div>
+                  <p class="plan__price">
+                    {price(lang, p.price)}
+                    <small>{t.perMonth}</small>
+                  </p>
+                  <p class="plan__meta">
+                    <Icon name="calendar-blank" weight="bold" /> {p.sessionsLabel}
+                  </p>
+                  <p class="plan__unit">
+                    {t.approx}{price(lang, perSession(p))} {C.perSession}
+                  </p>
+                  <p class="plan__best">{p.bestFor}</p>
+                  <a class:list={['btn', 'btn--block', p.badge ? 'btn--primary' : 'btn--glass']} href={trialLink({ plan: p.canonical }, lang)}>
+                    {C.choose} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="incl-title">
+    <div class="container">
+      <h2 id="incl-title" class="block-title" data-reveal>{C.incl}</h2>
+      <FeatureGrid items={included.map((f) => ({ icon: f.icon, title: f.title, text: f.desc }))} cols={4} />
+      <div class="glass pay" data-reveal>
+        <div>
+          <p class="pay__title">{C.pay}</p>
+          <p class="muted">{C.payNote}</p>
+        </div>
+        <ul role="list" class="cluster">{paymentMethods(lang).map((m) => <li class="chip">{m}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pfaq-title">
+    <div class="container--narrow">
+      <h2 id="pfaq-title" class="block-title" data-reveal>{C.faqTitle}</h2>
+      <Faq items={C.faq} />
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} title={C.ctaTitle} lede={C.ctaLede} />
+</BaseLayout>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  const box = document.querySelector<HTMLElement>('[data-finder]');
+  if (box) {
+    const update = () => {
+      const len = box.querySelector<HTMLInputElement>('input[name="len"]:checked')?.value || '30';
+      box.querySelectorAll<HTMLElement>('[data-freq]').forEach((f) => (f.hidden = f.dataset.freq !== len));
+      const id = box.querySelector<HTMLInputElement>(`input[name="freq-${len}"]:checked`)?.value;
+      box.querySelectorAll<HTMLElement>('[data-plan]').forEach((p) => (p.hidden = p.dataset.plan !== id));
+      return { len, id };
+    };
+    box.addEventListener('change', () => {
+      const { len, id } = update();
+      track('plan_finder_change', { minutes: len, plan: id });
+    });
+    update();
+  }
+</script>
+
+<style>
+  .ticks {
+    justify-content: center;
+  }
+
+  .ticks :global(svg) {
+    color: var(--success);
+  }
+
+  .finder {
+    --radius: var(--r-xl);
+    display: grid;
+    gap: clamp(20px, 3vw, 40px);
+    padding: clamp(20px, 3.5vw, 44px);
+  }
+
+  @media (min-width: 900px) {
+    .finder {
+      grid-template-columns: 1.2fr 0.9fr;
+      align-items: stretch;
+    }
+  }
+
+  .finder__controls {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .finder__controls h2 {
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.2rem);
+  }
+
+  .finder__q {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .finder__q legend {
+    padding: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .finder__len {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 480px) {
+    .finder__len {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .finder__result {
+    display: flex;
+  }
+
+  .finder__plan {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 26px;
+    border-radius: 28px;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgb(175 204 234 / 0.6), transparent 60%),
+      radial-gradient(100% 90% at 0% 100%, rgb(241 205 220 / 0.7), transparent 60%),
+      #fff;
+    box-shadow:
+      inset 0 0 0 1px rgb(46 29 70 / 0.06),
+      0 24px 50px -30px rgb(46 29 70 / 0.45);
+  }
+
+  .finder__kicker {
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  :global([dir='rtl']) .finder__kicker {
+    letter-spacing: 0;
+    font-size: 0.9rem;
+  }
+
+  .finder__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.5rem;
+    font-weight: 640;
+    letter-spacing: -0.03em;
+  }
+
+  .finder__badge,
+  .plan__badge {
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0;
+    color: #fff;
+    background: var(--grad-accent);
+  }
+
+  .finder__price,
+  .plan__price {
+    font-size: clamp(2.6rem, 2rem + 2vw, 3.6rem);
+    font-weight: 640;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global([dir='rtl']) .finder__price,
+  :global([dir='rtl']) .plan__price {
+    letter-spacing: 0;
+  }
+
+  .finder__price small,
+  .plan__price small {
+    font-size: 0.95rem;
+    font-weight: 450;
+    letter-spacing: 0;
+    color: var(--ink-3);
+  }
+
+  .finder__meta,
+  .plan__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 560;
+    color: var(--ink-2);
+  }
+
+  .plan__meta :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-ink);
+  }
+
+  .finder__unit,
+  .plan__unit {
+    font-size: 0.86rem;
+    color: var(--ink-3);
+    margin-top: -4px;
+  }
+
+  .finder__best,
+  .plan__best {
+    color: var(--ink-2);
+    margin-block: 4px 12px;
+  }
+
+  .finder__plan .btn {
+    margin-top: auto;
+  }
+
+  .finder__compare {
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--ink-3);
+  }
+
+  .plans-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-bottom: 20px;
+  }
+
+  .plans-head h2 {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+  }
+
+  .plans-head .lead {
+    font-size: 1rem;
+  }
+
+  .plan {
+    --radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 26px;
+  }
+
+  .plan--featured {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgb(175 204 234 / 0.55), transparent 55%),
+      radial-gradient(120% 80% at 0% 100%, rgb(241 205 220 / 0.6), transparent 55%),
+      var(--glass-fill-strong);
+    box-shadow:
+      0 0 0 2px rgb(107 63 160 / 0.45),
+      var(--shadow-lift);
+  }
+
+  .plan__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .plan__name {
+    font-size: 1.4rem;
+  }
+
+  .plan .btn {
+    margin-top: auto;
+  }
+
+  .block-title {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+    margin-bottom: 22px;
+  }
+
+  .pay {
+    --radius: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 28px;
+    margin-top: 16px;
+    padding: 22px 26px;
+  }
+
+  .pay__title {
+    font-weight: 620;
+    font-size: 1.1rem;
+  }
+</style>

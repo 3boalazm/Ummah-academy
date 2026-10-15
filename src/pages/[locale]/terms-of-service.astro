@@ -1,0 +1,9 @@
+---
+import Legal from '@/views/Legal.astro';
+import { localePaths, type Lang } from '@/i18n';
+
+export const getStaticPaths = () => localePaths();
+const lang = Astro.params.locale as Lang;
+---
+
+<Legal doc="terms" lang={lang} />

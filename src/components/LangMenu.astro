@@ -1,0 +1,379 @@
+---
+/**
+ * Language menu — one component, three placements.
+ *  header: a glass pill that opens a frosted popover (native <details>, so it works without JS;
+ *          site.ts adds outside-click / Escape / one-open-at-a-time).
+ *  sheet:  five chips inside the mobile menu.
+ *  footer: an inline row of language names.
+ * Every link points at the true translation of the current page when one exists
+ * (`exact`), otherwise at the closest section in that language — never a 404.
+ */
+import Icon from './Icon.astro';
+import { LOCALE, type Lang, type LangTarget } from '@/i18n';
+import { ui } from '@/locales';
+
+interface Props {
+  lang: Lang;
+  targets: LangTarget[];
+  variant?: 'header' | 'sheet' | 'footer';
+}
+const { lang, targets, variant = 'header' } = Astro.props;
+const t = ui(lang);
+const partial = targets.some((x) => !x.exact);
+---
+
+{
+  variant === 'header' && (
+    <details class="langmenu" data-langmenu>
+      <summary class="langmenu__btn">
+        <Icon name="globe" weight="bold" />
+        <span class="langmenu__code">{LOCALE[lang].short}</span>
+        <span class="sr-only"> · {t.language}</span>
+        <Icon name="caret-down" weight="bold" class="langmenu__caret" />
+      </summary>
+      <div class="langmenu__panel glass glass--strong">
+        <p class="langmenu__title" aria-hidden="true">
+          {t.language}
+        </p>
+        <ul role="list" class="langmenu__list">
+          {targets.map((x) => (
+            <li>
+              <a
+                class:list={['langmenu__item', { 'is-current': x.lang === lang }]}
+                href={x.href}
+                hreflang={x.lang}
+                lang={x.lang}
+                aria-current={x.lang === lang ? 'true' : undefined}
+                data-lang-choice={x.lang}
+              >
+                <span class="langmenu__name" dir={LOCALE[x.lang].dir}>
+                  {LOCALE[x.lang].name}
+                </span>
+                <span class="langmenu__short" aria-hidden="true">
+                  {x.lang === lang ? <Icon name="check" weight="bold" /> : LOCALE[x.lang].short}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        {partial && <p class="langmenu__note">{t.langPartial}</p>}
+      </div>
+    </details>
+  )
+}
+
+{
+  variant === 'sheet' && (
+    <nav class="langchips" aria-label={t.language}>
+      <p class="langchips__label" aria-hidden="true">
+        <Icon name="globe" weight="bold" /> {t.language}
+      </p>
+      <ul role="list">
+        {targets.map((x) => (
+          <li>
+            <a class:list={['langchips__chip', { 'is-current': x.lang === lang }]} href={x.href} hreflang={x.lang} lang={x.lang} dir={LOCALE[x.lang].dir} aria-current={x.lang === lang ? 'true' : undefined} data-lang-choice={x.lang}>
+              {LOCALE[x.lang].name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+{
+  variant === 'footer' && (
+    <nav class="langrow" aria-label={t.language}>
+      <Icon name="globe" weight="bold" />
+      <ul role="list">
+        {targets.map((x) => (
+          <li>
+            <a href={x.href} hreflang={x.lang} lang={x.lang} dir={LOCALE[x.lang].dir} aria-current={x.lang === lang ? 'true' : undefined} data-lang-choice={x.lang}>
+              {LOCALE[x.lang].name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  /* ── header pill + popover ── */
+  .langmenu {
+    position: relative;
+  }
+
+  .langmenu__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    padding: 0 10px 0 12px;
+    border-radius: var(--r-pill);
+    color: var(--ink-2);
+    font-size: 0.86rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition:
+      background 0.25s,
+      color 0.25s;
+  }
+
+  .langmenu__btn::-webkit-details-marker {
+    display: none;
+  }
+
+  /* invisible hit-area extension: 38–40 px pill → ≥ 44 px target (gap to the CTA is 6 px) */
+  .langmenu__btn {
+    position: relative;
+  }
+
+  .langmenu__btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px -3px;
+    border-radius: inherit;
+  }
+
+  .langmenu__btn:hover,
+  .langmenu[open] .langmenu__btn {
+    color: var(--ink);
+    background: #fff;
+  }
+
+  .langmenu__btn :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .langmenu__btn :global(.langmenu__caret) {
+    width: 11px;
+    height: 11px;
+    opacity: 0.7;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .langmenu[open] :global(.langmenu__caret) {
+    transform: rotate(180deg);
+  }
+
+  .langmenu__panel {
+    --radius: 22px;
+    position: absolute;
+    inset-inline-end: 0;
+    top: calc(100% + 10px);
+    z-index: 60;
+    width: min(250px, calc(100vw - 24px));
+    padding: 10px;
+    /* nested inside the header's glass, backdrop blur can't reach the page — stay legible */
+    background: linear-gradient(155deg, rgb(255 255 255 / 0.99), rgb(255 255 255 / 0.95));
+    transform-origin: top right;
+    animation: langmenu-in 0.28s var(--ease-out);
+  }
+
+  @media (max-width: 859px) {
+    /* phones: a sheet under the header, so it can never run off-screen (LTR or RTL) */
+    .langmenu__panel {
+      position: fixed;
+      top: 80px;
+      inset-inline: 12px;
+      width: auto;
+    }
+  }
+
+  :global([dir='rtl']) .langmenu__panel {
+    transform-origin: top left;
+  }
+
+  @keyframes langmenu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+    }
+  }
+
+  .langmenu__title {
+    margin: 4px 10px 8px;
+    color: var(--ink-3);
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .langmenu__list {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .langmenu__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 14px;
+    color: var(--ink);
+    font-size: 0.98rem;
+    font-weight: 540;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .langmenu__item:hover {
+    background: rgb(46 29 70 / 0.06);
+  }
+
+  .langmenu__item.is-current {
+    background: rgb(255 255 255 / 0.85);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+    font-weight: 620;
+  }
+
+  .langmenu__item:lang(ar) .langmenu__name {
+    font-family: var(--font-arabic);
+  }
+
+  .langmenu__short {
+    display: inline-grid;
+    place-items: center;
+    min-width: 30px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 8px;
+    color: var(--ink-3);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    background: rgb(46 29 70 / 0.05);
+  }
+
+  .is-current .langmenu__short {
+    color: var(--accent-ink);
+    background: rgb(143 47 158 / 0.1);
+  }
+
+  .langmenu__short :global(svg) {
+    width: 13px;
+    height: 13px;
+  }
+
+  .langmenu__note {
+    margin: 8px 10px 4px;
+    color: var(--ink-3);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  /* ── mobile sheet chips ── */
+  .langchips {
+    margin-top: 4px;
+  }
+
+  .langchips__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px;
+    color: var(--ink-3);
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .langchips__label :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .langchips ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .langchips__chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: var(--r-pill);
+    color: var(--ink-2);
+    font-size: 0.95rem;
+    font-weight: 560;
+    text-decoration: none;
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+  }
+
+  .langchips__chip.is-current {
+    color: #fff;
+    background: var(--ink);
+    box-shadow: none;
+  }
+
+  .langchips__chip:lang(ar) {
+    font-family: var(--font-arabic);
+  }
+
+  /* ── footer row ── */
+  .langrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .langrow > :global(svg) {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+  }
+
+  .langrow ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .langrow a {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.78;
+  }
+
+  .langrow a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .langrow a[aria-current] {
+    opacity: 1;
+    font-weight: 620;
+  }
+
+  .langrow a:lang(ar) {
+    font-family: var(--font-arabic);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .langmenu__panel {
+      animation: none;
+    }
+  }
+</style>

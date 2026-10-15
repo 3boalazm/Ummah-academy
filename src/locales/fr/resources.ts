@@ -1,0 +1,46 @@
+/** Resources — français. */
+export default {
+  C: {
+    meta: {
+      title: 'Ressources islamiques gratuites — Fiches & livres | Ummah Academy',
+      desc: 'Des fiches gratuites à imprimer pour le tajwid, le hifz, les lettres arabes, le nahw et les activités pour enfants, ainsi que les textes de base utilisés par nos enseignants d’al-Azhar.',
+    },
+    crumb: 'Bibliothèque gratuite',
+    eyebrow: 'Ressources gratuites',
+    title: 'La bibliothèque islamique <span class="accent">gratuite</span>',
+    lede: 'Des fiches à imprimer conçues par notre équipe, et les textes de base qu’utilisent nos enseignants. Tout est gratuit, sans inscription.',
+    sheetsEyebrow: 'Fiches',
+    sheetsTitle: 'Téléchargez &amp; <span class="accent">imprimez dès aujourd’hui</span>',
+    sheetsLede: 'Des PDF au format A4, bilingues anglais–arabe, pour pratiquer à la maison entre les cours.',
+    booksEyebrow: 'Textes de base',
+    booksTitle: 'Les livres qu’utilisent <span class="accent">nos enseignants</span>',
+    booksLede: 'Nous vous envoyons gratuitement sur WhatsApp l’édition exacte qu’utilise votre professeur.',
+    download: 'Télécharger le PDF',
+    request: 'Demander sur WhatsApp',
+    requestShort: 'Demander le PDF',
+    pages: (n: number) => `${n}\u00a0page${n > 1 ? 's' : ''}`,
+    free: 'Gratuit',
+    langs: 'Anglais · Arabe',
+    waText: (t: string) => `Assalamou alaykoum, pouvez-vous m’envoyer la ressource gratuite\u00a0: ${t}`,
+    cta: {
+      eyebrow: 'Étape suivante',
+      title: 'Les ressources gratuites ne sont que <span class="accent">le début</span>',
+      lede: 'Associez ces ressources à des séances en direct et en tête-à-tête avec nos enseignants d’al-Azhar.',
+      label: 'Réserver 2 séances gratuites en direct',
+    },
+    sheets: [
+      { id: 'tajweed-rules-summary', icon: 'list-checks', title: 'Résumé des règles de tajwid', text: 'Une page en couleurs\u00a0: noun et mim sakina, la famille du madd et la qalqala — avec des exemples tirés du Coran.' },
+      { id: 'arabic-letter-tracing', icon: 'pencil-line', title: 'Tracé des lettres arabes', text: 'Des fiches en pointillés pour les 28 lettres, dans leurs formes initiale, médiane et finale.' },
+      { id: 'daily-wird-tracker', icon: 'calendar-check', title: 'Suivi quotidien du wird', text: 'Un tableau sur 30\u00a0jours pour la récitation, la nouvelle mémorisation et la révision — avec une colonne de validation pour les parents.' },
+      { id: 'hifz-schedule-template', icon: 'brain', title: 'Planning de hifz', text: 'Un planning hebdomadaire divisé en nouvelle leçon, révision récente et révision à long terme.' },
+      { id: 'nahw-exercises', icon: 'brackets-curly', title: 'Exercices de nahw', text: 'De courts exercices sur les phrases nominales et verbales, les prépositions et les désinences casuelles — avec corrigé.' },
+      { id: 'ummah-cubs-activity-pack', icon: 'star', title: 'Pack d’activités Ummah Cubs', text: 'Un jeu d’association sur les cinq piliers, des mots mêlés sur les prophètes, un tableau des bonnes actions et un coloriage géométrique.' },
+    ],
+    books: [
+      { icon: 'book-open-text', title: 'Noor Al-Bayan', text: 'Le livre de base le plus reconnu pour apprendre à lire l’arabe en partant de zéro.', lang: 'Arabe · Anglais' },
+      { icon: 'text-aa', title: 'Al-Ajrumiyya', text: 'Le précis de grammaire d’Ibn Ajurrum — premier texte de nahw des étudiants depuis sept siècles.', lang: 'Arabe · Annoté' },
+      { icon: 'music-notes-simple', title: 'Al-Jazariyya', text: 'Le poème de tajwid d’Ibn al-Jazari — le texte de référence pour les trois niveaux de tajwid.', lang: 'Arabe · Vocalisé' },
+      { icon: 'moon-stars', title: 'Adhkar pour enfants', text: 'Un guide illustré des bonnes manières islamiques et des adhkar du quotidien pour les enfants.', lang: 'Arabe · Anglais' },
+    ],
+  },
+};

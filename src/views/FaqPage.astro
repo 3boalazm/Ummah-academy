@@ -1,0 +1,102 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Faq from '@/components/Faq.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import { lp, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+type Group = { id: string; title: string; items: { q: string; a: string }[] };
+const COPY = copy(lang).faq;
+const groups: Group[] = COPY.groups;
+const all = groups.flatMap((g) => g.items);
+const ld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: all.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a.replace(/<[^>]+>/g, '') } })) };
+const C = COPY.C;
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang} />
+
+  <section class="section section--tight">
+    <div class="container faq-page">
+      <nav class="faq-page__nav glass" aria-label={C.topics}>
+        {groups.map((g) => <a href={`#${g.id}`}>{g.title}</a>)}
+      </nav>
+      <div class="faq-page__groups">
+        {
+          groups.map((g) => (
+            <section id={g.id} class="faq-page__group" aria-labelledby={`${g.id}-h`}>
+              <h2 id={`${g.id}-h`}>{g.title}</h2>
+              <Faq items={g.items} schema={false} />
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} title={C.ctaTitle} lede={C.ctaLede} />
+</BaseLayout>
+
+<style>
+  .faq-page {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .faq-page {
+      grid-template-columns: 260px 1fr;
+    }
+  }
+
+  .faq-page__nav {
+    --radius: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px;
+  }
+
+  @media (min-width: 960px) {
+    .faq-page__nav {
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      flex-direction: column;
+    }
+  }
+
+  .faq-page__nav a {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 540;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .faq-page__nav a:hover {
+    background: rgb(255 255 255 / 0.8);
+    color: var(--ink);
+  }
+
+  .faq-page__groups {
+    display: grid;
+    gap: 48px;
+  }
+
+  .faq-page__group {
+    scroll-margin-top: calc(var(--header-h) + 24px);
+  }
+
+  .faq-page__group h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+</style>

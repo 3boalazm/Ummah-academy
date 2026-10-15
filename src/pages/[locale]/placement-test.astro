@@ -1,0 +1,9 @@
+---
+import View from '@/views/Placement.astro';
+import { localePaths, type Lang } from '@/i18n';
+
+export const getStaticPaths = () => localePaths();
+const lang = Astro.params.locale as Lang;
+---
+
+<View lang={lang} />

@@ -1,0 +1,262 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import { portalLinks, waLink } from '@/data/site';
+import { num, pct, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+
+const COPY = copy(lang).familyPortal;
+const C = COPY.C;
+const M = C.mock;
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero eyebrow={C.eyebrow} title={C.title} lede={C.lede} crumbs={[{ label: C.crumb }]} lang={lang}>
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={portalLinks.register}>{C.create} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href={portalLinks.login}>{C.signIn}</a>
+    </Fragment>
+    <Fragment slot="visual">
+      <div class="portal glass glass--strong" role="img" aria-label={M.aria}>
+        <div class="portal__head">
+          <span class="portal__avatar">{M.initials}</span>
+          <span><small>{M.brand}</small><strong>{M.parent}</strong></span>
+        </div>
+        <p class="portal__label">{M.kidsLabel}</p>
+        <div class="portal__kids">
+          {M.kids.map((k, i) => <span class:list={['portal__kid', { 'is-active': i === 0 }]}><b>{k.i}</b>{k.name}<small>{k.sub}</small></span>)}
+        </div>
+        <div class="portal__next">
+          <p class="portal__label">{M.nextLabel}</p>
+          <strong>{M.nextWhen}</strong>
+          <small>{M.nextWho}</small>
+          <span class="btn btn--sm btn--primary portal__join"><Icon name="play" weight="fill" /> {M.join}</span>
+        </div>
+        <div class="portal__progress">
+          <span>{M.progress}</span><strong>{pct(lang, 65)}</strong>
+          <span class="portal__bar"><i style="width:65%"></i></span>
+        </div>
+        <ul role="list" class="portal__alerts">
+          <li><Icon name="bell" weight="fill" /> {M.alerts[0]}</li>
+          <li><Icon name="calendar" weight="fill" /> {M.alerts[1]}</li>
+          <li><Icon name="credit-card" weight="fill" /> {M.alerts[2]}</li>
+        </ul>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section" aria-labelledby="pf-title">
+    <div class="container">
+      <SectionHead id="pf-title" eyebrow={C.featuresEyebrow} title={C.featuresTitle} lede={C.featuresLede} />
+      <ol role="list" class="grid grid-3 pf">
+        {
+          C.features.map((f, i) => (
+            <li class="card glass" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <div class="pf__top">
+                <span class="icon-badge">
+                  <Icon name={f.icon} />
+                </span>
+                <span class="pf__num" aria-hidden="true">{num(lang, `0${i + 1}`)}</span>
+              </div>
+              <h3>
+                {f.title} {f.soon && <span class="chip chip--accent">{C.soon}</span>}
+              </h3>
+              <p>{f.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} eyebrow={C.ctaEyebrow} title={C.ctaTitle} lede={C.ctaLede} primary={{ label: C.create, href: portalLinks.register }} secondary={{ label: C.ask, href: waLink() }} ticks={[]} />
+</BaseLayout>
+
+<style>
+  .portal {
+    --radius: 30px;
+    display: grid;
+    gap: 14px;
+    padding: 22px;
+    max-width: 440px;
+    margin-inline: auto;
+  }
+
+  .portal__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .portal__head small {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+
+  .portal__avatar {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 650;
+    font-size: 0.85rem;
+    background: var(--grad-accent);
+  }
+
+  .portal__label {
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .portal__kids {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .portal__kid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 6px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+  }
+
+  .portal__kid.is-active {
+    box-shadow: inset 0 0 0 2px var(--violet-600);
+    background: #fff;
+  }
+
+  .portal__kid b {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    color: var(--accent-ink);
+    background: var(--blush-100);
+  }
+
+  .portal__kid small {
+    font-weight: 450;
+    font-size: 0.72rem;
+    color: var(--ink-3);
+  }
+
+  .portal__next {
+    display: grid;
+    gap: 2px;
+    padding: 16px;
+    border-radius: 18px;
+    background:
+      radial-gradient(120% 100% at 100% 0%, rgb(175 204 234 / 0.6), transparent 60%),
+      rgb(255 255 255 / 0.7);
+  }
+
+  .portal__next small {
+    color: var(--ink-3);
+  }
+
+  .portal__join {
+    margin-top: 10px;
+    width: fit-content;
+    pointer-events: none;
+  }
+
+  .portal__progress {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    font-size: 0.88rem;
+  }
+
+  .portal__bar {
+    grid-column: 1 / -1;
+    height: 7px;
+    border-radius: 99px;
+    background: rgb(46 29 70 / 0.08);
+    overflow: hidden;
+  }
+
+  .portal__bar i {
+    display: block;
+    height: 100%;
+    background: var(--grad-accent);
+  }
+
+  .portal__alerts {
+    display: grid;
+    gap: 8px;
+    font-size: 0.86rem;
+    color: var(--ink-2);
+  }
+
+  .portal__alerts li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .portal__alerts :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-ink);
+  }
+
+  .pf {
+    list-style: none;
+    padding: 0;
+  }
+
+  .pf__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .pf__num {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2rem;
+    color: rgb(91 58 142 / 0.3);
+  }
+
+  :global([dir='rtl']) .pf__num {
+    font-family: var(--font-arabic);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 1.6rem;
+  }
+
+  :global([dir='rtl']) .portal__label {
+    letter-spacing: 0;
+  }
+
+  .pf h3 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+</style>

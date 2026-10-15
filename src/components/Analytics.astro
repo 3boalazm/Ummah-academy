@@ -1,0 +1,58 @@
+---
+/**
+ * Env-driven analytics. Nothing loads unless configured:
+ * - PUBLIC_PLAUSIBLE_DOMAIN → Plausible (cookieless, no banner needed).
+ *   PUBLIC_PLAUSIBLE_SRC optionally swaps the script (e.g. a self-hosted proxy or
+ *   the file-downloads/outbound-links variant).
+ * - PUBLIC_GTM_ID → Google Tag Manager in Consent Mode v2 "basic" mode: every
+ *   consent type defaults to denied and GTM is not requested at all until the
+ *   visitor allows analytics in <ConsentBanner />. Ads storage is never granted.
+ * track() (src/scripts/analytics.ts) already feeds both.
+ */
+const env = import.meta.env;
+const plausibleDomain = String(env.PUBLIC_PLAUSIBLE_DOMAIN ?? '').trim();
+const plausibleSrc = String(env.PUBLIC_PLAUSIBLE_SRC ?? '').trim() || 'https://plausible.io/js/script.js';
+const rawGtm = String(env.PUBLIC_GTM_ID ?? '').trim();
+const gtmId = /^GTM-[A-Z0-9]+$/.test(rawGtm) ? rawGtm : '';
+if (rawGtm && !gtmId) console.warn(`[analytics] Ignoring invalid PUBLIC_GTM_ID "${rawGtm}"`);
+---
+
+{
+  plausibleDomain && (
+    <>
+      <script is:inline>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)};</script>
+      <script is:inline defer data-domain={plausibleDomain} src={plausibleSrc} />
+    </>
+  )
+}
+{
+  gtmId && (
+    <script is:inline define:vars={{ gtmId }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () {
+        window.dataLayer.push(arguments);
+      };
+      window.gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+      });
+      window.__uaGtm = function (allow) {
+        window.gtag('consent', 'update', { analytics_storage: allow ? 'granted' : 'denied' });
+        if (!allow || window.__uaGtmLoaded) return;
+        window.__uaGtmLoaded = true;
+        window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(gtmId);
+        document.head.appendChild(s);
+      };
+      try {
+        if (localStorage.getItem('ua:consent') === 'granted') window.__uaGtm(true);
+      } catch (e) {}
+    </script>
+  )
+}

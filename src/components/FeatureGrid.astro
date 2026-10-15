@@ -1,0 +1,37 @@
+---
+import Icon from './Icon.astro';
+export interface Feature {
+  icon: string;
+  title: string;
+  ar?: string;
+  text: string;
+  tag?: string;
+}
+interface Props {
+  items: Feature[];
+  cols?: 2 | 3 | 4;
+}
+const { items, cols = 3 } = Astro.props;
+---
+
+<div class:list={['grid', `grid-${cols}`]}>
+  {
+    items.map((f, i) => (
+      <article class="card glass feature-card" data-reveal style={`--reveal-delay:${Math.min(i, 6) * 0.05}s`}>
+        <span class="icon-badge">
+          <Icon name={f.icon} />
+        </span>
+        {f.tag && <span class="chip chip--accent">{f.tag}</span>}
+        <h3>
+          {f.title}
+          {f.ar && (
+            <span class="why__ar" lang="ar">
+              {f.ar}
+            </span>
+          )}
+        </h3>
+        <p set:html={f.text} />
+      </article>
+    ))
+  }
+</div>

@@ -1,0 +1,357 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/hero-arch.jpg';
+import { lp, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const t = ui(lang);
+const COPY = copy(lang).about;
+const C = COPY.C;
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero eyebrow={C.eyebrow} title={C.title} lede={C.lede} lang={lang}>
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={lp(lang, '/contact/') + '#book'}>{t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href={lp(lang, '/teachers/')}>{t.nav.teachers}</a>
+    </Fragment>
+    <Fragment slot="visual">
+      <div class="a-visual">
+        <div class="frame frame--arch a-visual__frame">
+          <Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" />
+        </div>
+        <div class="glass a-card a-card--a"><small>{C.cardA[0]}</small><strong>{C.cardA[1]}</strong></div>
+        <div class="glass a-card a-card--b"><strong class="a-card__big">{C.cardB[0]}</strong><small>{C.cardB[1]}</small></div>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section" aria-labelledby="vision-title">
+    <div class="container split">
+      <div class="stack" style="--stack:18px" data-reveal>
+        <span class="eyebrow" style="align-self:flex-start">{C.visionKicker}</span>
+        <h2 id="vision-title" class="h2" set:html={C.visionTitle} />
+        <p class="lead">{C.vision}</p>
+      </div>
+      <FeatureGrid items={C.values} cols={2} />
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="journey-title">
+    <div class="container">
+      <h2 id="journey-title" class="block-title" data-reveal>{C.journeyTitle}</h2>
+    </div>
+    <div class="rail" tabindex="0" aria-label={C.journeyTitle}>
+      <ol role="list" class="rail__track">
+        {
+          C.journey.map(([y, tag, text]) => (
+            <li class="glass jcard">
+              <span class="jcard__year">{y}</span>
+              <span class="chip chip--accent">{tag}</span>
+              <p>{text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="ummah-title">
+    <div class="night-panel theme-night meaning">
+      <div class="stars"></div>
+      <div class="container meaning__inner">
+        <div class="stack" style="--stack:16px" data-reveal>
+          <span class="eyebrow" style="align-self:flex-start">{C.meaningKicker}</span>
+          <h2 id="ummah-title" class="h2">{C.meaningTitle}</h2>
+          <p class="lead">{C.meaning}</p>
+        </div>
+        <ul role="list" class="meaning__stats">
+          {C.stats.map(([n, l]) => <li class="glass"><strong>{n}</strong><span>{l}</span></li>)}
+        </ul>
+        <span class="meaning__word quranic" aria-hidden="true">أُمَّة</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="diff-title">
+    <div class="container">
+      <h2 id="diff-title" class="block-title" data-reveal>{C.diffTitle}</h2>
+      <div class="glass table-wrap diff" data-reveal>
+        <table class="table">
+          <thead>
+            <tr>{C.diffCols.map((c, i) => <th scope="col" class:list={{ diff__us: i === 1 }}>{c || <span class="sr-only">{C.aspect}</span>}</th>)}</tr>
+          </thead>
+          <tbody>
+            {
+              C.diff.map(([a, us, them]) => (
+                <tr>
+                  <th scope="row">{a}</th>
+                  <td class="diff__us">
+                    <Icon name="check-circle" weight="fill" class="diff__yes" /> {us}
+                  </td>
+                  <td>{them}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="method-title">
+    <div class="container">
+      <h2 id="method-title" class="block-title" data-reveal>{C.methodTitle}</h2>
+      <FeatureGrid items={C.method} cols={4} />
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="azhar-title">
+    <div class="container split">
+      <div class="glass azhar" data-reveal>
+        <h2 id="azhar-title">{C.azharTitle}</h2>
+        <p>{C.azhar}</p>
+        <ul class="checklist">{C.azharList.map((x) => <li>{x}</li>)}</ul>
+      </div>
+      <div class="card glass cert" data-reveal style="--reveal-delay:.08s">
+        <span class="icon-badge"><Icon name="certificate" /></span>
+        <h3>{C.certTitle}</h3>
+        <p>{C.cert}</p>
+      </div>
+    </div>
+  </section>
+
+  <CtaPanel lang={lang} title={C.ctaTitle} lede={C.ctaLede} />
+</BaseLayout>
+
+<style>
+  .h2 {
+    font-size: var(--fs-h2);
+  }
+
+  .block-title {
+    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+    margin-bottom: clamp(20px, 3vw, 32px);
+  }
+
+  .a-visual {
+    position: relative;
+    width: min(100%, 420px);
+    margin-inline: auto;
+    padding: 20px 30px 40px;
+  }
+
+  .a-visual__frame {
+    aspect-ratio: 4 / 5;
+  }
+
+  .a-card {
+    --radius: 20px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    max-width: 230px;
+    animation: float-y 8s ease-in-out infinite;
+  }
+
+  .a-card small {
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+
+  .a-card strong {
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .a-card__big {
+    font-size: 2rem;
+    letter-spacing: -0.04em;
+  }
+
+  .a-card--a {
+    top: 12%;
+    inset-inline-start: -6%;
+  }
+
+  .a-card--b {
+    bottom: 8%;
+    inset-inline-end: -6%;
+    animation-delay: -4s;
+  }
+
+  @media (max-width: 480px) {
+    /* phones: keep the floating glass inside the screen edge */
+    .a-card--a {
+      inset-inline-start: -10px;
+    }
+
+    .a-card--b {
+      inset-inline-end: -10px;
+    }
+  }
+
+  .rail {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 6px 0 24px;
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail__track {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    padding-inline: max(var(--gutter), calc((100vw - var(--maxw)) / 2));
+  }
+
+  .jcard {
+    --radius: 24px;
+    width: min(78vw, 300px);
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 24px;
+  }
+
+  .jcard__year {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2.4rem;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  :global([dir='rtl']) .jcard__year {
+    font-family: var(--font-arabic);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .jcard p {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+
+  .meaning {
+    position: relative;
+    padding-block: clamp(56px, 8vw, 104px);
+  }
+
+  .meaning__inner {
+    position: relative;
+    display: grid;
+    /* minmax(0, 1fr): long localized figures (“1.000+”, “1 000+”) must never widen the column */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .meaning__inner {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+
+  .meaning__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .meaning__stats li {
+    --radius: 22px;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(16px, 4.5vw, 22px);
+  }
+
+  .meaning__stats strong {
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
+    font-weight: 620;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+
+  .meaning__stats span {
+    color: var(--ink-2);
+    margin-top: 6px;
+  }
+
+  .meaning__word {
+    position: absolute;
+    inset-inline-end: 2%;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: -1;
+    font-size: clamp(8rem, 18vw, 16rem);
+    line-height: 1;
+    color: rgb(255 255 255 / 0.05);
+    pointer-events: none;
+  }
+
+  .diff {
+    --radius: 30px;
+    padding: 8px;
+  }
+
+  .diff td {
+    color: var(--ink-2);
+  }
+
+  .diff td.diff__us {
+    color: var(--ink);
+    font-weight: 520;
+    background: rgb(255 255 255 / 0.5);
+  }
+
+  .diff thead .diff__us {
+    color: var(--accent-ink);
+  }
+
+  .diff td :global(svg) {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    vertical-align: -3px;
+    margin-inline-end: 6px;
+    color: var(--success);
+  }
+
+  .azhar {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(26px, 3.5vw, 44px);
+  }
+
+  .azhar h2 {
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem);
+  }
+
+  .azhar > p {
+    color: var(--ink-2);
+  }
+</style>

@@ -1,0 +1,248 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import FeatureGrid from '@/components/FeatureGrid.astro';
+import Steps from '@/components/Steps.astro';
+import Icon from '@/components/Icon.astro';
+import art from '@/assets/art/track-arabic.jpg';
+import { SITE, waLink } from '@/data/site';
+import type { Lang } from '@/i18n';
+import { copy } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const COPY = copy(lang).career;
+const C = COPY.C;
+const fields: { id: string; label: string; type?: string; options?: string[] }[] = [
+  { id: 'name', label: C.f.name },
+  { id: 'email', label: C.f.email, type: 'email' },
+  { id: 'wa', label: C.f.wa, type: 'tel' },
+  { id: 'country', label: C.f.country },
+  { id: 'faculty', label: C.f.faculty, options: C.faculties },
+  { id: 'year', label: C.f.year, type: 'number' },
+  { id: 'ijazah', label: C.f.ijazah, options: C.ijazahs },
+  { id: 'exp', label: C.f.exp, options: C.exps },
+  { id: 'spec', label: C.f.spec, options: C.specs },
+  { id: 'eng', label: C.f.eng, options: C.engs },
+];
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero eyebrow={C.eyebrow} title={C.title} lede={C.lede} lang={lang}>
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href="#apply">{C.apply} <Icon name="arrow-down" weight="bold" /></a>
+      <a class="btn btn--glass" href={waLink(C.askMsg)} target="_blank" rel="noopener"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.ask}</a>
+    </Fragment>
+    <Fragment slot="visual">
+      <div class="frame frame--arch career-art"><Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 80vw" loading="eager" /></div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--tight" aria-labelledby="why-title">
+    <div class="container">
+      <h2 id="why-title" class="block-title" data-reveal>{C.whyTitle}</h2>
+      <FeatureGrid items={C.why} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="req-title">
+    <div class="container">
+      <h2 id="req-title" class="block-title" data-reveal>{C.reqTitle}</h2>
+      <FeatureGrid items={C.reqs} cols={3} />
+      <div class="glass roles" data-reveal>
+        <p class="roles__title">{C.rolesTitle}</p>
+        <ul role="list">
+          {C.roles.map(([r, d]) => <li><strong>{r}</strong><span>{d}</span><a class="btn btn--sm btn--glass" href="#apply">{C.apply}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="process-title">
+    <div class="container">
+      <div class="c-head" data-reveal>
+        <h2 id="process-title">{C.processTitle}</h2>
+        <p class="lead">{C.processLede}</p>
+      </div>
+      <Steps items={C.process} />
+    </div>
+  </section>
+
+  <section class="section" id="apply" aria-labelledby="apply-title">
+    <div class="container--narrow">
+      <div class="c-head" data-reveal>
+        <h2 id="apply-title">{C.formTitle}</h2>
+        <p class="lead">{C.formLede}</p>
+      </div>
+      <form class="glass glass--strong apply" novalidate data-apply data-email={SITE.email} data-wa={SITE.whatsapp.number} data-subject={C.subject} data-head={C.head} data-attach={C.attachNote}>
+        <div class="apply__grid">
+          {
+            fields.map((f) => (
+              <div class="field">
+                <label for={`ap-${f.id}`}>
+                  {f.label} <span class="req" aria-hidden="true">*</span>
+                </label>
+                {f.options ? (
+                  <select class="select" id={`ap-${f.id}`} name={f.label} required>
+                    <option value="">{C.f.select}</option>
+                    {f.options.map((o) => (
+                      <option>{o}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input class="input" id={`ap-${f.id}`} name={f.label} type={f.type ?? 'text'} required dir={f.type === 'email' || f.type === 'tel' ? 'ltr' : undefined} />
+                )}
+                <p class="error">{C.err}</p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="field">
+          <label for="ap-msg">{C.f.msg}</label>
+          <textarea class="textarea" id="ap-msg" name={C.f.msg}></textarea>
+        </div>
+        <p class="apply__note"><Icon name="paperclip" weight="bold" /> {C.attach}</p>
+        <div class="cluster">
+          <button class="btn btn--lg btn--primary" type="submit" value="email"><Icon name="envelope-simple" /> {C.byEmail}</button>
+          <button class="btn btn--lg btn--glass" type="submit" value="whatsapp"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.byWa}</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { track } from '@/scripts/analytics';
+  const form = document.querySelector<HTMLFormElement>('[data-apply]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const submitter = (e as SubmitEvent).submitter as HTMLButtonElement | null;
+    let first: HTMLElement | null = null;
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]').forEach((el) => {
+      const bad = !el.value.trim() || (el.type === 'email' && !/^\S+@\S+\.\S+$/.test(el.value));
+      el.closest('.field')?.toggleAttribute('data-invalid', bad);
+      el.setAttribute('aria-invalid', String(bad));
+      if (bad && !first) first = el;
+    });
+    if (first) return (first as HTMLElement).focus();
+    const lines = Array.from(new FormData(form).entries())
+      .filter(([, v]) => String(v).trim())
+      .map(([k, v]) => `${k}: ${v}`);
+    const body = [form.dataset.head, '', ...lines].join('\n');
+    track('teacher_application_submit', { channel: submitter?.value || 'email' });
+    if (submitter?.value === 'whatsapp') window.open(`https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(body)}`, '_blank', 'noopener');
+    else location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(form.dataset.subject || '')}&body=${encodeURIComponent(`${body}\n\n${form.dataset.attach}`)}`;
+  });
+</script>
+
+<style>
+  .career-art {
+    aspect-ratio: 4 / 5;
+    width: min(100%, 400px);
+    margin-inline: auto;
+  }
+
+  .block-title {
+    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+    margin-bottom: clamp(20px, 3vw, 32px);
+  }
+
+  .c-head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .c-head h2 {
+    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+  }
+
+  .roles {
+    --radius: 28px;
+    margin-top: 20px;
+    padding: clamp(20px, 3vw, 32px);
+  }
+
+  .roles__title {
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 10px;
+  }
+
+  :global([dir='rtl']) .roles__title {
+    letter-spacing: 0;
+    font-size: 0.95rem;
+  }
+
+  .roles li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .roles li:last-child {
+    border-bottom: 0;
+  }
+
+  .roles li span {
+    grid-column: 1;
+    color: var(--ink-3);
+    font-size: 0.92rem;
+  }
+
+  .roles li .btn {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
+  .apply {
+    --radius: var(--r-xl);
+    display: grid;
+    gap: 18px;
+    padding: clamp(22px, 3.5vw, 40px);
+  }
+
+  .apply__grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .apply__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .apply__note {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: var(--ink-2);
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.6);
+  }
+
+  .apply__note :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    margin-top: 2px;
+  }
+
+  .req {
+    color: var(--magenta-600);
+  }
+</style>

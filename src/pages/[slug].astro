@@ -1,0 +1,14 @@
+---
+import Article from '@/views/Article.astro';
+import { postsIn, clusterOf, neighbours } from '@/data/blog';
+
+// English articles live at the site root — exactly like the WordPress permalinks.
+export async function getStaticPaths() {
+  const list = await postsIn('en');
+  return Promise.all(list.map(async (post, i) => ({ params: { slug: post.slug }, props: { post, ...neighbours(list, i), alternates: await clusterOf(post) } })));
+}
+
+const { post, prev, next, alternates } = Astro.props;
+---
+
+<Article lang="en" post={post} prev={prev} next={next} alternates={alternates} />

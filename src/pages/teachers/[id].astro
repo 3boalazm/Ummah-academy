@@ -1,0 +1,16 @@
+---
+import TeacherProfile from '@/views/TeacherProfile.astro';
+import { TEACHERS } from '@/data/people';
+import { TRANSLATED_ROUTES } from '@/i18n';
+
+export function getStaticPaths() {
+  return TEACHERS.map((t) => {
+    // Profiles must be registered as bilingual so hreflang + the language switch work.
+    if (!(TRANSLATED_ROUTES as readonly string[]).includes(`/teachers/${t.id}/`)) throw new Error(`Add /teachers/${t.id}/ to TRANSLATED_ROUTES in src/i18n/index.ts`);
+    return { params: { id: t.id } };
+  });
+}
+const { id } = Astro.params;
+---
+
+<TeacherProfile id={id} lang="en" />

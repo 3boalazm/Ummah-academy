@@ -1,0 +1,9 @@
+---
+import Blog from '@/views/Blog.astro';
+import { localePaths, type Lang } from '@/i18n';
+
+export const getStaticPaths = () => localePaths();
+const lang = Astro.params.locale as Lang;
+---
+
+<Blog lang={lang} />

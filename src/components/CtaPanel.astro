@@ -1,0 +1,121 @@
+---
+import Icon from './Icon.astro';
+import { waLink } from '@/data/site';
+import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  primary?: { label: string; href: string };
+  secondary?: { label: string; href: string } | false;
+  ticks?: string[];
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const t = ui(lang);
+const {
+  eyebrow = t.ctaEyebrow,
+  title,
+  lede,
+  primary = { label: t.book2, href: lp(lang, '/contact/') + '#book' },
+  secondary = { label: t.whatsapp, href: waLink() },
+  ticks = t.ctaTicks,
+} = Astro.props;
+---
+
+<section class="section section--tight">
+  <div class="night-panel theme-night cta-panel">
+    <div class="stars"></div>
+    <div class="cta-panel__glow" aria-hidden="true"></div>
+    <div class="container--narrow cta-panel__inner" data-reveal>
+      <span class="eyebrow">{eyebrow}</span>
+      <h2 set:html={title} />
+      {lede && <p class="lead">{lede}</p>}
+      <div class="cluster cta-panel__actions">
+        <a class="btn btn--lg btn--primary" href={primary.href} data-track="cta-panel">
+          {primary.label}
+          <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+        </a>
+        {
+          secondary && (
+            <a
+              class="btn btn--lg btn--glass"
+              href={secondary.href}
+              target={secondary.href.startsWith('http') ? '_blank' : undefined}
+              rel={secondary.href.startsWith('http') ? 'noopener' : undefined}
+              data-track="cta-panel"
+            >
+              {secondary.href.includes('wa.me') && <Icon name="whatsapp-logo" weight="fill" class="icon-wa" />}
+              {secondary.label}
+            </a>
+          )
+        }
+      </div>
+      {
+        ticks.length > 0 && (
+          <ul role="list" class="cta-panel__ticks">
+            {ticks.map((tick) => (
+              <li>
+                <Icon name="check-circle" weight="fill" /> {tick}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-panel {
+    position: relative;
+    padding-block: clamp(64px, 9vw, 120px);
+    text-align: center;
+  }
+
+  .cta-panel__glow {
+    position: absolute;
+    inset: auto 0 -40% 0;
+    height: 80%;
+    z-index: -1;
+    background: radial-gradient(50% 60% at 50% 100%, rgb(241 205 220 / 0.35), transparent 70%);
+  }
+
+  .cta-panel__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .cta-panel h2 {
+    font-size: var(--fs-h2);
+  }
+
+  .cta-panel__actions {
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .cta-panel__ticks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 22px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+
+  .cta-panel__ticks li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cta-panel__ticks :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: #b9f0cf;
+  }
+</style>

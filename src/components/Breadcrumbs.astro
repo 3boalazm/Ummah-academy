@@ -1,0 +1,38 @@
+---
+import { SITE } from '@/data/site';
+import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
+interface Props {
+  items: { label: string; href?: string }[];
+  lang?: Lang;
+}
+const { items, lang = 'en' } = Astro.props;
+const all = [{ label: ui(lang).home, href: lp(lang, '/') }, ...items];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: all.map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: it.label,
+    ...(it.href ? { item: new URL(it.href, SITE.url).href } : {}),
+  })),
+};
+---
+
+<nav class="breadcrumbs" aria-label={ui(lang).breadcrumb}>
+  <ol>
+    {
+      all.map((it, i) =>
+        it.href && i < all.length - 1 ? (
+          <li>
+            <a href={it.href}>{it.label}</a>
+          </li>
+        ) : (
+          <li aria-current="page">{it.label}</li>
+        )
+      )
+    }
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

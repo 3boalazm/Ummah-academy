@@ -1,0 +1,219 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import CourseCard from '@/components/CourseCard.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import { getTracks } from '@/data/tracks';
+import { trialLink } from '@/data/site';
+import { lp, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const t = ui(lang);
+const tracks = getTracks(lang);
+const COPY = copy(lang).courses;
+const C = COPY.C;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: C.ldName,
+  itemListElement: tracks.flatMap((tr) => tr.courses).map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: { '@type': 'Course', name: c.title, description: c.desc, provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' }, offers: { '@type': 'Offer', price: c.from, priceCurrency: 'USD', category: 'subscription' } },
+  })),
+};
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang}>
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={lp(lang, '/contact/') + '#book'}>{t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--glass" href={lp(lang, '/placement-test/')}><Icon name="compass" /> {t.findLevel}</a>
+    </Fragment>
+  </PageHero>
+
+  <nav class="track-nav" aria-label={C.jump}>
+    <div class="track-nav__inner glass">
+      {tracks.map((tr) => <a href={`#${tr.id}`} class="track-nav__link"><Icon name={tr.icon} /> {tr.title}</a>)}
+    </div>
+  </nav>
+
+  <section class="section section--tight" aria-labelledby="chooser-title">
+    <div class="container">
+      <div class="c-head" data-reveal>
+        <h2 id="chooser-title">{C.chooserTitle}</h2>
+        <p class="lead">{C.chooserLede}</p>
+      </div>
+      <div class="glass table-wrap chooser" data-reveal>
+        <table class="table">
+          <thead><tr>{C.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
+          <tbody>
+            {
+              C.rows.map(([name, href, best, beginner, goal]) => (
+                <tr>
+                  <th scope="row">
+                    <a href={lp(lang, href)}>{name}</a>
+                  </th>
+                  <td>{best}</td>
+                  <td>{beginner}</td>
+                  <td>{goal}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  {
+    tracks.map((tr, idx) => (
+      <section class="section track" id={tr.id} aria-labelledby={`${tr.id}-title`}>
+        <div class="container">
+          <div class:list={['split', 'track__intro', { 'split--reverse': idx % 2 === 1 }]}>
+            <div class="track__copy" data-reveal>
+              <span class="eyebrow">{C.track(idx + 1)}</span>
+              <h2 id={`${tr.id}-title`}>{tr.title}</h2>
+              <p class="lead">{tr.intro}</p>
+              <ul class="checklist">
+                {tr.points.map((p) => (
+                  <li>{p}</li>
+                ))}
+              </ul>
+              <div class="cluster">
+                <a class="btn btn--primary" href={trialLink({ course: tr.trial }, lang)}>
+                  {tr.ctaLabel} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                </a>
+                <a class="btn btn--glass" href={lp(lang, tr.href)}>
+                  {C.details}
+                </a>
+              </div>
+              {tr.id === 'kids' && (
+                <a class="btn btn--link" href={`${lp(lang, '/placement-test/')}?track=kids`}>
+                  {C.kidsTest} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                </a>
+              )}
+            </div>
+            <div class="frame track__art" data-reveal style="--reveal-delay:.1s">
+              <Image src={tr.image} alt="" widths={[480, 720, 960]} sizes="(min-width: 960px) 520px, 92vw" />
+            </div>
+          </div>
+          <div class:list={['grid', tr.courses.length === 4 ? 'grid-4' : 'grid-3', 'track__courses']}>
+            {tr.courses.map((c, i) => (
+              <CourseCard course={c} lang={lang} delay={i * 0.05} />
+            ))}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <RelatedPosts lang={lang} slugs={['how-to-learn-quran-online-a-complete-beginners-guide-2026', '7-signs-youve-found-the-right-online-quran-teacher', 'how-long-does-it-take-to-memorize-the-quran-a-realistic-timeline']} />
+
+  <CtaPanel lang={lang} title={C.ctaTitle} lede={C.ctaLede} secondary={{ label: C.ctaSecondary, href: lp(lang, '/placement-test/') }} />
+</BaseLayout>
+
+<style>
+  .c-head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .c-head h2 {
+    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+  }
+
+  .chooser {
+    --radius: 30px;
+    padding: 8px;
+  }
+
+  .chooser th a {
+    color: var(--accent-ink);
+    text-decoration: none;
+  }
+
+  .chooser th a:hover {
+    text-decoration: underline;
+  }
+
+  .chooser td {
+    color: var(--ink-2);
+  }
+
+  .track-nav {
+    position: sticky;
+    top: calc(var(--header-h) + 4px);
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    padding-inline: var(--gutter);
+  }
+
+  .track-nav__inner {
+    --radius: var(--r-pill);
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .track-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--r-pill);
+    font-size: 0.92rem;
+    font-weight: 540;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--ink-2);
+  }
+
+  .track-nav__link :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-ink);
+  }
+
+  .track-nav__link:hover {
+    background: rgb(255 255 255 / 0.8);
+    color: var(--ink);
+  }
+
+  .track {
+    scroll-margin-top: 150px;
+  }
+
+  .track__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .track__copy h2 {
+    font-size: var(--fs-h2);
+  }
+
+  .track__art {
+    aspect-ratio: 5 / 4;
+  }
+
+  .track__courses {
+    margin-top: clamp(32px, 4vw, 56px);
+  }
+</style>

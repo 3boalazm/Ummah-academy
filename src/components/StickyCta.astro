@@ -1,0 +1,64 @@
+---
+/** Mobile-only persistent action bar (appears after the hero, hides near the footer). */
+import Icon from './Icon.astro';
+import { waLink } from '@/data/site';
+import { lp, type Lang } from '@/i18n';
+import { ui } from '@/locales';
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const t = ui(lang);
+---
+
+<div class="sticky-cta" data-sticky-cta aria-hidden="true">
+  <div class="sticky-cta__bar glass glass--strong">
+    <a class="btn btn--primary sticky-cta__book" href={lp(lang, '/contact/') + '#book'} data-track="sticky" tabindex="-1">
+      {t.sticky.book}
+    </a>
+    <a class="btn btn--glass sticky-cta__wa" href={waLink()} target="_blank" rel="noopener" data-track="sticky" tabindex="-1" aria-label={t.whatsapp}>
+      <Icon name="whatsapp-logo" weight="fill" class="icon-wa" />
+      <span>{t.sticky.wa}</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    inset: auto 0 calc(10px + env(safe-area-inset-bottom));
+    z-index: 40;
+    padding-inline: 10px;
+    transform: translateY(140%);
+    transition: transform 0.45s var(--ease-out);
+    pointer-events: none;
+  }
+
+  .sticky-cta.is-visible {
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .sticky-cta__bar {
+    --radius: var(--r-pill);
+    display: flex;
+    gap: 8px;
+    padding: 6px;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+
+  .sticky-cta__book {
+    flex: 1;
+  }
+
+  .sticky-cta__wa {
+    padding-inline: 16px;
+  }
+
+  @media (min-width: 860px) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+</style>

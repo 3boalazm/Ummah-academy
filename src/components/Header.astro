@@ -1,0 +1,758 @@
+---
+import { Image } from 'astro:assets';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import LangMenu from './LangMenu.astro';
+import { portalLinks, waLink } from '@/data/site';
+import { getTracks } from '@/data/tracks';
+import { lp, basePath, price, type Lang, type LangTarget } from '@/i18n';
+import { ui } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+  targets: LangTarget[];
+}
+const { lang = 'en', targets } = Astro.props;
+const t = ui(lang);
+const tracks = getTracks(lang);
+const path = basePath(Astro.url.pathname);
+const courseRoutes = ['/courses/', ...tracks.map((tr) => tr.href)];
+const coursesActive = courseRoutes.some((r) => path.startsWith(r));
+const links = [
+  { label: t.nav.teachers, href: '/teachers/' },
+  { label: t.nav.pricing, href: '/pricing/' },
+  { label: t.nav.about, href: '/about/' },
+  { label: t.nav.blog, href: '/blog/' },
+];
+const isActive = (href: string) => path.startsWith(href);
+---
+
+<header class="site-header" data-header>
+  <div class="site-header__bar glass">
+    <a class="site-header__brand" href={lp(lang, '/')} aria-label={t.homeLabel}>
+      <Logo lang={lang} />
+    </a>
+
+    <nav class="nav hide-mobile" aria-label={t.primaryNav}>
+      <ul role="list" class="nav__list">
+        <li class="nav__item nav__item--mega" data-mega>
+          <button class:list={['nav__link', { 'is-active': coursesActive }]} type="button" aria-expanded="false" aria-controls="mega-courses" data-mega-toggle>
+            {t.nav.courses}
+            <Icon name="caret-down" weight="bold" class="nav__caret" />
+          </button>
+          <div class="mega" id="mega-courses">
+            <div class="mega__panel glass glass--strong">
+              <div class="mega__grid">
+                {
+                  tracks.map((tr) => (
+                    <a class="mega__track" href={lp(lang, tr.href)}>
+                      <span class="mega__thumb">
+                        <Image src={tr.image} alt="" width={112} height={112} loading="lazy" />
+                      </span>
+                      <span class="mega__text">
+                        <span class="mega__title">{tr.title}</span>
+                        <span class="mega__sub">{tr.subtitle}</span>
+                        <span class="mega__from">
+                          {t.from} {price(lang, tr.from)}
+                          {t.perMonth}
+                        </span>
+                      </span>
+                    </a>
+                  ))
+                }
+              </div>
+              <div class="mega__aside">
+                <p class="mega__aside-kicker">{t.notSure}</p>
+                <p class="mega__aside-title">{t.takeTest}</p>
+                <a class="btn btn--sm btn--primary" href={lp(lang, '/placement-test/')}>
+                  {t.findLevel}
+                  <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                </a>
+                <a class="mega__all" href={lp(lang, '/courses/')}>
+                  {t.compareCourses} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+        {
+          links.map((l) => (
+            <li class="nav__item">
+              <a class:list={['nav__link', { 'is-active': isActive(l.href) }]} href={lp(lang, l.href)} aria-current={isActive(l.href) ? 'page' : undefined}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <LangMenu lang={lang} targets={targets} />
+      <a class="nav__signin hide-mobile" href={portalLinks.login}>{t.signIn}</a>
+      <a class="btn btn--sm btn--primary site-header__cta" href={lp(lang, '/contact/') + '#book'} data-track="header">
+        <span class="cta-long">{t.bookTrial}</span><span class="cta-short">{t.bookTrialShort}</span>
+      </a>
+      <button class="menu-btn" type="button" aria-label={t.menuOpen} aria-haspopup="dialog" data-menu-open>
+        <Icon name="list" weight="bold" />
+      </button>
+    </div>
+  </div>
+
+  <dialog class="mobile-menu" aria-label={t.menu} data-menu>
+    <div class="mobile-menu__sheet glass glass--strong">
+      <div class="mobile-menu__top">
+        <Logo lang={lang} />
+        <button class="menu-btn menu-btn--close" type="button" aria-label={t.menuClose} data-menu-close>
+          <Icon name="x" weight="bold" />
+        </button>
+      </div>
+      <p class="mobile-menu__label">{t.nav.courses}</p>
+      <ul role="list" class="mobile-menu__tracks">
+        {
+          tracks.map((tr) => (
+            <li>
+              <a href={lp(lang, tr.href)}>
+                <Image src={tr.image} alt="" width={88} height={88} loading="lazy" />
+                <span>
+                  <strong>{tr.title}</strong>
+                  <small>
+                    {t.from} {price(lang, tr.from)}
+                    {t.perMonth}
+                  </small>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <ul role="list" class="mobile-menu__links">
+        <li><a href={lp(lang, '/placement-test/')}>{t.placementTest}</a></li>
+        {links.map((l) => <li><a href={lp(lang, l.href)}>{l.label}</a></li>)}
+        <li><a href={lp(lang, '/faq/')}>{t.nav.faq}</a></li>
+      </ul>
+      <div class="mobile-menu__cta">
+        <a class="btn btn--primary btn--block" href={lp(lang, '/contact/') + '#book'}>{t.book2}</a>
+        <a class="btn btn--glass btn--block" href={waLink()} target="_blank" rel="noopener">
+          <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {t.whatsapp}
+        </a>
+        <LangMenu lang={lang} targets={targets} variant="sheet" />
+        <div class="mobile-menu__foot">
+          <a href={portalLinks.login}>{t.signIn}</a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 12px 0 auto;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .site-header__bar {
+    --radius: var(--r-pill);
+    pointer-events: auto;
+    width: min(100% - 2 * clamp(10px, 2.4vw, 32px), 1280px);
+    margin-inline: auto;
+    height: 64px;
+    padding-inline: 20px 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition:
+      box-shadow 0.4s var(--ease-out),
+      background 0.4s;
+  }
+
+  :global([data-scrolled]) .site-header__bar {
+    background: linear-gradient(155deg, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.74));
+    box-shadow: var(--shadow-lift);
+  }
+
+  .site-header__brand {
+    text-decoration: none;
+    display: inline-flex;
+    border-radius: 12px;
+    flex: none;
+  }
+
+  .nav {
+    margin-inline: auto;
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .nav__item {
+    position: relative;
+  }
+
+  .nav__link,
+  .nav__signin {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 42px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 0.95rem;
+    font-weight: 520;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background 0.25s,
+      color 0.25s;
+  }
+
+  .nav__link:hover,
+  .nav__signin:hover,
+  .nav__item--mega[data-open] .nav__link {
+    color: var(--ink);
+    background: rgb(46 29 70 / 0.06);
+  }
+
+  .nav__link.is-active {
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.8);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+  }
+
+  .nav__link :global(.nav__caret) {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .nav__item--mega[data-open] :global(.nav__caret) {
+    transform: rotate(180deg);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-inline-start: auto;
+  }
+
+  @media (min-width: 860px) {
+    .site-header__actions {
+      margin-inline-start: 0;
+    }
+  }
+
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.7);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.1);
+  }
+
+  .menu-btn :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* invisible hit-area extension: the 40 px phone variant still offers a ≥ 44 px target */
+  .menu-btn {
+    position: relative;
+  }
+
+  .menu-btn::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+  }
+
+  /* the CTA is wide already: extend its hit area vertically only, so it never steals taps
+     from the language pill or the menu button beside it (4–6 px gaps on phones) */
+  .site-header__cta::after {
+    inset: -4px 0;
+  }
+
+  @media (min-width: 860px) {
+    .site-header__actions .menu-btn {
+      display: none;
+    }
+  }
+
+  @media (max-width: 859px) {
+    .nav__signin {
+      display: none;
+    }
+  }
+
+  /* Mega menu — centred on the header bar (not on the Courses button), so the
+     880px panel can never leave the viewport at 860–1279px, LTR or RTL */
+  .nav__item--mega {
+    position: static;
+  }
+
+  .mega {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    width: min(880px, 92vw);
+    opacity: 0;
+    visibility: hidden;
+    /* centring lives in transform (the minifier folds a separate `translate` into it and drops it) */
+    transform: translateX(-50%) translateY(-6px) scale(0.985);
+    transform-origin: top center;
+    transition:
+      opacity 0.3s var(--ease-out),
+      transform 0.35s var(--ease-out),
+      visibility 0.3s;
+  }
+
+  /* hover bridge from the button down to the panel */
+  .mega::before {
+    content: '';
+    position: absolute;
+    inset: -24px 0 auto;
+    height: 24px;
+  }
+
+  .nav__item--mega[data-open] .mega {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%);
+  }
+
+  @media (hover: hover) {
+    .nav__item--mega:hover .mega {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%);
+    }
+  }
+
+  .mega__panel {
+    --radius: 30px;
+    /* nested inside the header's glass, backdrop blur can't reach the page — stay legible */
+    background: linear-gradient(155deg, rgb(255 255 255 / 0.98), rgb(255 255 255 / 0.93));
+    display: grid;
+    /* minmax(0, …): the nowrap subtitles must ellipsize, not push the aside out of the panel */
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .mega__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mega__track {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: background 0.25s;
+  }
+
+  .mega__track:hover,
+  .mega__track:focus-visible {
+    background: rgb(46 29 70 / 0.05);
+  }
+
+  .mega__thumb {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgb(46 29 70 / 0.06);
+  }
+
+  .mega__thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 1099px) {
+    .mega__panel {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+
+    .mega__track {
+      gap: 12px;
+    }
+
+    .mega__thumb {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+    }
+  }
+
+  .mega__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .mega__title {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  /* wraps to two lines rather than truncating the topic list (German/French/Italian run longer) */
+  .mega__sub {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--ink-3);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .mega__from {
+    font-size: 0.78rem;
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+
+  .mega__aside {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 20px;
+    border-radius: 22px;
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgb(175 204 234 / 0.6), transparent 60%),
+      radial-gradient(100% 80% at 0% 100%, rgb(241 205 220 / 0.7), transparent 60%),
+      rgb(255 255 255 / 0.6);
+  }
+
+  .mega__aside-kicker {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  .mega__aside-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .mega__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    font-size: 0.88rem;
+    font-weight: 560;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .mega__all :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  [dir='rtl'] .mega__all :global(svg) {
+    transform: scaleX(-1);
+  }
+
+  .mega__all:hover {
+    color: var(--ink);
+  }
+
+  /* Mobile menu */
+  .mobile-menu {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+  }
+
+  .mobile-menu::backdrop {
+    background: rgb(30 21 48 / 0.28);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .mobile-menu[open] .mobile-menu__sheet {
+    animation: sheet-in 0.45s var(--ease-out);
+  }
+
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.98);
+    }
+  }
+
+  .mobile-menu__sheet {
+    --radius: 30px;
+    min-height: 100%;
+    padding: 14px 16px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+  }
+
+  .mobile-menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px 6px 6px;
+  }
+
+  .mobile-menu__label {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-inline: 6px;
+  }
+
+  .mobile-menu__tracks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .mobile-menu__tracks a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 18px;
+    background: rgb(255 255 255 / 0.7);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+    text-decoration: none;
+  }
+
+  .mobile-menu__tracks :global(img) {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  .mobile-menu__tracks strong {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .mobile-menu__tracks small {
+    font-size: 0.76rem;
+    color: var(--ink-3);
+  }
+
+  .mobile-menu__links {
+    display: grid;
+    margin-top: 4px;
+  }
+
+  .mobile-menu__links a {
+    display: block;
+    padding: 13px 8px;
+    font-size: 1.12rem;
+    font-weight: 540;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .mobile-menu__cta {
+    display: grid;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .mobile-menu__foot {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 6px;
+    font-size: 0.92rem;
+  }
+
+  .mobile-menu__foot a {
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 859px) {
+    .site-header__bar {
+      height: 60px;
+      padding-inline: 12px 8px;
+      gap: 8px;
+    }
+
+    .site-header__actions {
+      gap: 4px;
+    }
+
+    .site-header__actions .btn--sm {
+      padding-inline: 0.9em;
+    }
+
+    .menu-btn {
+      width: 40px;
+      height: 40px;
+    }
+
+    .site-header__actions :global(.langmenu__btn) {
+      padding: 0 8px 0 10px;
+    }
+  }
+
+  /* CTA label: short until there is room for the long one (German/French/Italian run ~30% longer) */
+  .site-header__cta .cta-long {
+    display: none;
+  }
+
+  @media (min-width: 1100px) {
+    .site-header__cta .cta-long {
+      display: inline;
+    }
+
+    .site-header__cta .cta-short {
+      display: none;
+    }
+  }
+
+  /* 860–1099: the desktop nav has just appeared — tighten spacing so five languages fit */
+  @media (min-width: 860px) and (max-width: 1099px) {
+    .site-header__bar {
+      gap: 10px;
+      padding-inline: 16px 8px;
+    }
+
+    .nav__link,
+    .nav__signin {
+      padding: 0 10px;
+    }
+  }
+
+  @media (min-width: 860px) and (max-width: 979px) {
+    .site-header__brand :global(.logo__soft) {
+      display: none;
+    }
+  }
+
+  /* phones: the language pill becomes a globe (the code stays for screen readers) */
+  @media (max-width: 459px) {
+    .site-header__actions :global(.langmenu__btn) {
+      padding: 0 11px;
+      gap: 0;
+    }
+
+    .site-header__actions :global(.langmenu__code) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .site-header__actions :global(.langmenu__caret) {
+      display: none;
+    }
+
+    .site-header__actions .btn--sm {
+      padding-inline: 0.8em;
+      font-size: 0.86rem;
+    }
+  }
+
+  /* Phones and tablets (<860px): the CTA never wraps — the wordmark gives way instead.
+     " Academy" drops onto a clipped second line and the Arabic name stacks onto two lines,
+     only when space actually runs out. Robust to any label length or fallback font in all
+     five languages (replaces fixed per-width breakpoints). */
+  @media (max-width: 859px) {
+    .site-header__brand {
+      flex: 0 1 auto;
+    }
+
+    .site-header__brand :global(.logo__name:not(.logo__name--ar)) {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      row-gap: 12px;
+      height: 1.3em;
+      line-height: 1.3;
+      overflow: hidden;
+    }
+
+    .site-header__brand :global(.logo__soft) {
+      margin-inline-start: 0.26em;
+    }
+
+    .site-header__brand :global(.logo__name--ar) {
+      white-space: normal;
+      line-height: 1.1;
+    }
+
+    .site-header__actions {
+      flex: none;
+    }
+
+    .site-header__cta {
+      white-space: nowrap;
+    }
+  }
+
+  @media (max-width: 339px) {
+    .site-header__cta {
+      display: none;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .site-header__brand :global(.logo) {
+      gap: 8px;
+    }
+
+    .site-header__brand :global(.logo__mark) {
+      width: 30px;
+      height: 30px;
+    }
+
+    .site-header__brand :global(.logo__name) {
+      font-size: 1rem;
+    }
+  }
+</style>

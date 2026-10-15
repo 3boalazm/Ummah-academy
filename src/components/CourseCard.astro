@@ -1,0 +1,88 @@
+---
+import Icon from './Icon.astro';
+import type { Course } from '@/data/tracks';
+import { trialLink } from '@/data/site';
+import { lp, price, type Lang } from '@/i18n';
+import { ui } from '@/locales';
+interface Props {
+  course: Course;
+  lang?: Lang;
+  delay?: number;
+  showLink?: boolean;
+}
+const { course, lang = 'en', delay = 0, showLink = true } = Astro.props;
+const t = ui(lang);
+---
+
+<article class="course-card glass glass--interactive" data-reveal style={`--reveal-delay:${delay}s`}>
+  <span class="chip chip--accent">{course.badge}</span>
+  <h3>
+    {course.href && showLink ? <a href={lp(lang, course.href)}>{course.title}</a> : course.title}
+  </h3>
+  <div class="cluster course-card__tags">
+    {course.tags.map((tag) => <span class="chip">{tag}</span>)}
+  </div>
+  <p>{course.desc}</p>
+  <div class="course-card__foot">
+    <span class="course-card__price"><small>{t.from}</small> {price(lang, course.from)}<small>{t.perMonth}</small></span>
+    <a class="btn btn--sm btn--primary" href={trialLink({ course: course.trial }, lang)}>
+      {ui(lang).tryFree} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+    </a>
+  </div>
+</article>
+
+<style>
+  .course-card {
+    --radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 24px;
+  }
+
+  .course-card h3 {
+    font-size: 1.3rem;
+  }
+
+  .course-card h3 a {
+    text-decoration: none;
+  }
+
+  .course-card h3 a:hover {
+    text-decoration: underline;
+  }
+
+  .course-card__tags {
+    --cluster: 6px;
+  }
+
+  .course-card p {
+    color: var(--ink-2);
+    font-size: 0.97rem;
+  }
+
+  .course-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+
+  .course-card__price {
+    font-size: 1.35rem;
+    font-weight: 620;
+    letter-spacing: -0.03em;
+  }
+
+  .course-card__price small {
+    font-size: 0.78rem;
+    font-weight: 450;
+    color: var(--ink-3);
+    letter-spacing: 0;
+  }
+</style>

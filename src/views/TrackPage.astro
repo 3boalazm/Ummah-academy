@@ -1,0 +1,516 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import CourseCard from '@/components/CourseCard.astro';
+import TeacherCard from '@/components/TeacherCard.astro';
+import TestimonialCard from '@/components/TestimonialCard.astro';
+import SanadChain from '@/components/SanadChain.astro';
+import Faq from '@/components/Faq.astro';
+import RelatedPosts from '@/components/RelatedPosts.astro';
+import CtaPanel from '@/components/CtaPanel.astro';
+import Icon from '@/components/Icon.astro';
+import heroArt from '@/assets/art/hero-arch.jpg';
+import { getTrackPage, type TrackPageKey } from '@/content-i18n/tracks';
+import { getTracks } from '@/data/tracks';
+import { getTeachers, getTestimonials } from '@/data/people';
+import { getPlans, perSession } from '@/data/pricing';
+import { trialLink } from '@/data/site';
+import { lp, price, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
+
+interface Props {
+  page: TrackPageKey;
+  lang?: Lang;
+}
+const { page, lang = 'en' } = Astro.props;
+const ar = lang === 'ar';
+const t = ui(lang);
+const C = getTrackPage(page, lang);
+const tracks = getTracks(lang);
+const artMap = Object.fromEntries(tracks.map((tr) => [tr.id, tr.image])) as Record<string, ImageMetadata>;
+const art = C.art === 'hero' ? heroArt : artMap[C.art];
+const courses = C.courseTrack ? tracks.find((tr) => tr.id === C.courseTrack)!.courses : [];
+const teacher = C.teacher ? getTeachers(lang).find((x) => x.id === C.teacher) : undefined;
+const story = C.testimonial !== undefined ? getTestimonials(lang)[C.testimonial] : undefined;
+const plans = getPlans(lang);
+const recPlans = C.plans.map((id) => plans.find((p) => p.id === id)!).filter(Boolean);
+const COPY = copy(lang).trackPage;
+const L = COPY.L;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: C.schemaName,
+  description: C.meta.desc,
+  provider: { '@type': 'EducationalOrganization', name: 'Ummah Academy', sameAs: 'https://ummahacademy.net' },
+  offers: { '@type': 'Offer', price: C.from, priceCurrency: 'USD', category: 'subscription' },
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online' },
+};
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+  <section class="tp-hero">
+    <div class="container tp-hero__grid">
+      <div class="tp-hero__copy" data-reveal>
+        <Breadcrumbs lang={lang} items={[{ label: t.nav.courses, href: lp(lang, '/courses/') }, { label: C.crumb }]} />
+        <span class="eyebrow">{C.eyebrow}</span>
+        <h1 set:html={C.title} />
+        <p class="lead">{C.lede}</p>
+        <div class="cluster">
+          <a class="btn btn--lg btn--primary" href={trialLink({ course: C.trial }, lang)} data-track="track-hero">{t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+          <a class="btn btn--lg btn--glass" href={`${lp(lang, '/placement-test/')}?track=${C.testTrack}`} data-track="track-hero"><Icon name="compass" /> {t.findLevel}</a>
+        </div>
+      </div>
+      <aside class="glass glass--strong glance" data-reveal style="--reveal-delay:.1s" aria-label={L.glance}>
+        <div class="glance__art">
+          <Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 92vw" loading="eager" />
+        </div>
+        <p class="glance__kicker">{L.glance}</p>
+        <dl class="glance__list">
+          {
+            C.glance.map(([k, v]) => (
+              <div>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <div class="glance__price">
+          <span>{L.from}</span>
+          <strong>{price(lang, C.from)}</strong>
+          <span>{t.perMonth}</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="learn-title">
+    <div class="container">
+      <div class="tp-head" data-reveal>
+        <h2 id="learn-title">{C.learnTitle}</h2>
+        <p class="lead">{C.learnLede}</p>
+      </div>
+      {
+        courses.length > 0 ? (
+          <div class:list={['grid', courses.length === 4 ? 'grid-4' : 'grid-3']}>
+            {courses.map((c, i) => (
+              <CourseCard course={c} lang={lang} delay={i * 0.05} showLink={false} />
+            ))}
+          </div>
+        ) : (
+          <ol role="list" class="stages">
+            {C.learn?.map((s, i) => (
+              <li class="glass stage" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+                <span class="stage__num">{num(lang, String(i + 1).padStart(2, '0'))}</span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="method-title">
+    <div class="container">
+      <h2 id="method-title" class="tp-h2" data-reveal>{C.methodTitle}</h2>
+      <div class="grid grid-3">
+        {
+          C.method.map((m, i) => (
+            <article class="card glass" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="icon-badge">
+                <Icon name={m.icon} />
+              </span>
+              <h3>{m.title}</h3>
+              <p>{m.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    (teacher || story) && (
+      <section class="section section--tight" aria-label={L.teacherTitle}>
+        <div class="container tp-people">
+          {teacher && (
+            <div class="tp-people__teacher">
+              <h2 class="tp-h2" data-reveal>
+                {L.teacherTitle}
+              </h2>
+              <TeacherCard teacher={teacher} variant="compact" lang={lang} />
+            </div>
+          )}
+          <div class="tp-people__side">
+            {C.sanad && (
+              <div class="glass sanad-box" data-reveal>
+                <p class="sanad-box__note">
+                  <Icon name="seal-check" weight="fill" /> {L.sanadNote}
+                </p>
+                <SanadChain lang={lang} />
+              </div>
+            )}
+            {story && (
+              <div data-reveal>
+                <TestimonialCard t={story} lang={lang} />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--tight" aria-labelledby="plans-title">
+    <div class="container">
+      <div class="tp-head tp-head--row" data-reveal>
+        <div>
+          <h2 id="plans-title">{L.plansTitle}</h2>
+          <p class="lead">{C.plansNote}</p>
+        </div>
+        <a class="btn btn--glass" href={lp(lang, '/pricing/')}>{L.allPlans} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      </div>
+      <div class="grid grid-3">
+        {
+          recPlans.map((p, i) => (
+            <a class:list={['glass', 'glass--interactive', 'rplan', { 'rplan--top': i === 0 }]} href={trialLink({ course: C.trial, plan: p.canonical }, lang)} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="rplan__name">
+                {p.name} {p.badge && <span class="rplan__badge">{p.badge}</span>}
+              </span>
+              <span class="rplan__price">
+                {price(lang, p.price)}
+                <small>{t.perMonth}</small>
+              </span>
+              <span class="rplan__meta">
+                {p.sessionsLabel} · {num(lang, p.minutes)} {t.min}
+              </span>
+              <span class="rplan__unit">
+                {t.approx}{price(lang, perSession(p))} {L.perSession}
+              </span>
+              <span class="rplan__go">
+                {L.choose} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="tfaq-title">
+    <div class="container tp-faq">
+      <h2 id="tfaq-title" class="tp-h2" data-reveal>{L.faq}</h2>
+      <Faq items={C.faq} />
+    </div>
+  </section>
+
+  <RelatedPosts slugs={C.related} title={L.related} lang={lang} />
+
+  <CtaPanel lang={lang} title={C.cta.title} lede={C.cta.lede} primary={{ label: t.book2, href: trialLink({ course: C.trial }, lang) }} />
+</BaseLayout>
+
+<style>
+  .tp-hero {
+    padding-block: clamp(28px, 4vw, 64px) clamp(24px, 3vw, 40px);
+  }
+
+  .tp-hero__grid {
+    display: grid;
+    gap: clamp(28px, 4vw, 64px);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .tp-hero__grid {
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+  }
+
+  .tp-hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .tp-hero__copy h1 {
+    font-size: clamp(2.3rem, 1.4rem + 3.4vw, 4.2rem);
+  }
+
+  :global([dir='rtl']) .tp-hero__copy h1 {
+    font-size: clamp(2rem, 1.3rem + 2.8vw, 3.5rem);
+  }
+
+  .glance {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 10px 10px 22px;
+  }
+
+  .glance__art {
+    aspect-ratio: 16 / 9;
+    border-radius: 30px;
+    overflow: hidden;
+  }
+
+  .glance__art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .glance__kicker {
+    padding-inline: 14px;
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  :global([dir='rtl']) .glance__kicker {
+    letter-spacing: 0;
+    font-size: 0.9rem;
+  }
+
+  .glance__list {
+    display: grid;
+    margin: 0;
+    padding-inline: 14px;
+  }
+
+  .glance__list div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.94rem;
+  }
+
+  .glance__list dt {
+    color: var(--ink-3);
+  }
+
+  .glance__list dd {
+    margin: 0;
+    font-weight: 560;
+    text-align: end;
+  }
+
+  .glance__price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding-inline: 14px;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+  }
+
+  .glance__price strong {
+    font-size: 2.2rem;
+    font-weight: 640;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+
+  .tp-head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: clamp(24px, 3vw, 40px);
+    max-width: 760px;
+  }
+
+  .tp-head h2,
+  .tp-h2 {
+    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+  }
+
+  .tp-h2 {
+    margin-bottom: clamp(20px, 3vw, 32px);
+  }
+
+  .tp-head--row {
+    max-width: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .tp-head--row > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 680px;
+  }
+
+  .stages {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  }
+
+  .stage {
+    --radius: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 26px;
+  }
+
+  .stage__num {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2.2rem;
+    line-height: 1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  :global([dir='rtl']) .stage__num {
+    font-family: var(--font-arabic);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .stage h3 {
+    font-size: 1.2rem;
+  }
+
+  .stage p {
+    color: var(--ink-2);
+  }
+
+  .tp-people {
+    display: grid;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .tp-people {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+  }
+
+  .tp-people__side {
+    display: grid;
+    gap: 16px;
+  }
+
+  @media (min-width: 960px) {
+    .tp-people__side {
+      padding-top: calc(clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem) * 1.2 + clamp(20px, 3vw, 32px));
+    }
+  }
+
+  .sanad-box {
+    --radius: 26px;
+    display: grid;
+    gap: 22px;
+    padding: 26px;
+  }
+
+  .sanad-box__note {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-weight: 560;
+  }
+
+  .sanad-box__note :global(svg) {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: var(--accent-ink);
+  }
+
+  .rplan {
+    --radius: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 24px;
+    text-decoration: none;
+  }
+
+  .rplan--top {
+    box-shadow:
+      0 0 0 2px rgb(107 63 160 / 0.4),
+      var(--shadow-glass);
+  }
+
+  .rplan__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    font-weight: 620;
+  }
+
+  .rplan__badge {
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: #fff;
+    background: var(--grad-accent);
+  }
+
+  .rplan__price {
+    font-size: 2.4rem;
+    font-weight: 640;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+  }
+
+  :global([dir='rtl']) .rplan__price {
+    letter-spacing: 0;
+  }
+
+  .rplan__price small {
+    font-size: 0.9rem;
+    font-weight: 450;
+    letter-spacing: 0;
+    color: var(--ink-3);
+  }
+
+  .rplan__meta {
+    color: var(--ink-2);
+    font-weight: 540;
+  }
+
+  .rplan__unit {
+    font-size: 0.85rem;
+    color: var(--ink-3);
+  }
+
+  .rplan__go {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-weight: 600;
+    color: var(--accent-ink);
+  }
+
+  .rplan__go :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .tp-faq {
+    max-width: var(--maxw-narrow);
+  }
+</style>

@@ -1,0 +1,66 @@
+/** About — italiano. */
+export default {
+  C: {
+    aspect: 'Aspetto',
+    meta: {
+      title: 'Chi è Ummah Academy | La nostra missione e la nostra storia',
+      desc: 'Fondata su una convinzione: ogni musulmano merita un’educazione coranica autentica, ovunque viva. La nostra storia, la nostra visione, il metodo Itqan e ciò che ci distingue.',
+    },
+    eyebrow: 'Chi siamo',
+    title: 'L’educazione coranica autentica <span class="accent">non dovrebbe dipendere da dove vivi.</span>',
+    lede: 'Ummah Academy nasce da una convinzione: ogni musulmano merita un insegnamento coranico autentico, ovunque si trovi. Portiamo la tradizione millenaria di al-Azhar alle famiglie che hanno bisogno di flessibilità.',
+    cardA: ['La nostra squadra', 'Oltre 100 insegnanti di al-Azhar'],
+    cardB: ['1.000+', 'anni di studi ad al-Azhar'],
+    visionKicker: 'La nostra visione',
+    visionTitle: 'Ogni musulmano, di nuovo vicino <span class="accent">al Libro di Allah.</span>',
+    vision:
+      'Non per una recitazione di facciata, ma per una vera padronanza (itqan), una riflessione profonda (tadabbur) e un legame sincero con le parole di Allah. Il sapere autentico non dovrebbe mai essere un privilegio geografico: a Milano, Torino, Zurigo o Dubai, meriti la qualità che al-Azhar custodisce da oltre un millennio.',
+    values: [
+      { icon: 'diamond', title: 'Itqan', text: 'Insegniamo per la profondità e una memoria duratura, non per l’apparenza.' },
+      { icon: 'lightbulb', title: 'Tadabbur', text: 'Ogni lezione collega lo studente al significato di ciò che impara.' },
+      { icon: 'globe-hemisphere-east', title: 'Per tutta la Ummah', text: 'Il nostro nome è la nostra promessa: servire ogni membro della comunità, ovunque.' },
+    ],
+    journeyTitle: 'Come siamo nati',
+    journey: [
+      ['2022', 'Il seme', 'Il nostro fondatore ha visto famiglie musulmane in Occidente faticare a trovare insegnanti qualificati — affidandosi a volontari senza certificazioni o a scuole locali costose e poco flessibili.'],
+      ['2023', 'La soluzione', 'Abbiamo iniziato a selezionare insegnanti direttamente all’Università al-Azhar, puntando su studiosi con ijaza e catene documentate.'],
+      ['2024', 'Il lancio', 'Siamo partiti con 20 insegnanti e 150 studenti in 12 paesi; entro l’anno la nostra prima ijaza è andata a uno studente nel Regno Unito.'],
+      ['2025', 'La crescita', 'Oltre 100 insegnanti, più di 1.000 studenti in oltre 50 paesi e il lancio di Ummah Cubs per i bambini dai 5 anni.'],
+      ['2026', 'Oggi', 'Oltre 400 ore di lezione dal vivo al mese, più di 12 ijaza conferite e un’Area famiglie.'],
+    ],
+    meaningKicker: 'Il nostro nome, la nostra missione',
+    meaningTitle: 'Cosa significa «Ummah»?',
+    meaning: 'Nel Corano, la «Ummah» (أمة) è la comunità mondiale dei credenti, unita dalla fede. Il nostro nome è una promessa: questa accademia esiste per servire ciascuno dei suoi membri.',
+    stats: [
+      ['50+', 'paesi'],
+      ['1.000+', 'studenti'],
+      ['100+', 'insegnanti'],
+      ['12+', 'ijaza'],
+    ],
+    diffTitle: 'Cosa ci rende diversi',
+    diffCols: ['', 'Ummah Academy', 'Piattaforme tipiche'],
+    diff: [
+      ['Insegnanti', 'Laureati di al-Azhar con ijaza e sanad verificati', 'Volontari o tutor senza certificazioni'],
+      ['Formato', '100% dal vivo e individuale, con correzione immediata', 'Video preregistrati o grandi gruppi'],
+      ['Memorizzazione', 'Itqan: raggruppamento tematico e tadabbur', 'La quantità prima della qualità'],
+      ['Arabo', 'Arabo coranico collegato ai testi classici', 'Arabo generico, scollegato dal testo rivelato'],
+      ['Progressi', 'Un resoconto dopo ogni lezione', 'Nessun monitoraggio sistematico'],
+      ['Orari', 'A ogni ora, in ogni fuso orario', 'Fasce fisse che ignorano i ritmi occidentali'],
+    ],
+    methodTitle: 'Il metodo Itqan — padronanza, non apparenza',
+    method: [
+      { icon: 'squares-four', title: 'Versetti raggruppati per tema', text: 'I versetti sono raggruppati per tema e significato, così lo studente ne capisce il contesto.' },
+      { icon: 'waveform', title: 'Correzione del makhraj in tempo reale', text: 'Le lezioni individuali dal vivo permettono all’insegnante di correggere subito l’articolazione.' },
+      { icon: 'steps', title: 'Livelli progressivi', text: 'Tre livelli definiti, con traguardi misurabili in ogni percorso.' },
+      { icon: 'link-simple', title: 'Il sanad', text: 'Chi ottiene l’ijaza riceve una catena documentata che risale al Profeta ﷺ.' },
+    ],
+    azharTitle: 'Mille anni di al-Azhar',
+    azhar:
+      'Fondata nel 970, al-Azhar è una delle università più antiche del mondo e un riferimento globale nelle scienze coraniche. Ogni insegnante di Ummah Academy porta questa tradizione viva fino a casa tua.',
+    azharList: ['Ijaza con sanad che risale al Profeta ﷺ', 'Verifica della laurea di al-Azhar su richiesta', 'Lezioni in arabo e in inglese', 'Insegnanti donne per donne e bambini'],
+    certTitle: 'Un certificato per ogni livello',
+    cert: 'Ogni studente riceve un certificato alla fine di ogni livello; chi studia per l’ijaza riceve un sanad documentato.',
+    ctaTitle: 'Entra nella nostra <span class="accent">famiglia.</span>',
+    ctaLede: 'Le prime due lezioni sono completamente gratuite: scopri tu stesso la differenza.',
+  },
+};

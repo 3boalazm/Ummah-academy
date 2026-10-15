@@ -1,0 +1,283 @@
+---
+import Icon from './Icon.astro';
+import type { Lang } from '@/i18n';
+import { copy } from '@/locales';
+/** A live 1-on-1 session rendered in HTML/CSS (crisp at any size, no stock photo). */
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const COPY = copy(lang).mockup;
+const L = COPY.L;
+---
+
+<div class="classroom glass" role="img" aria-label={L.aria}>
+  <div class="classroom__bar">
+    <span class="classroom__dots"><i></i><i></i><i></i></span>
+    <span class="classroom__title">{L.title}</span>
+    <span class="classroom__live" dir="ltr"><span class="classroom__pulse"></span> 00:24:18</span>
+  </div>
+  <div class="classroom__stage">
+    <div class="classroom__board">
+      <p class="classroom__ayah quranic" lang="ar" dir="rtl">
+        بِسْمِ <mark class="m1">ٱللَّهِ</mark> ٱلرَّحْمَٰنِ <mark class="m2">ٱلرَّحِيمِ</mark>
+      </p>
+      <div class="classroom__notes">
+        <span class="chip"><i class="sw sw1"></i> {L.t1}</span>
+        <span class="chip"><i class="sw sw2"></i> {L.t2}</span>
+        <span class="chip"><Icon name="pencil-simple-line" weight="bold" /> {L.t3}</span>
+      </div>
+      <svg class="classroom__ink" viewBox="0 0 300 60" aria-hidden="true">
+        <path d="M8 44c40-24 80-30 120-18s70 16 110 2 50-20 54-22" fill="none" stroke="url(#ink)" stroke-width="3" stroke-linecap="round"></path>
+        <defs>
+          <linearGradient id="ink" x1="0" x2="1">
+            <stop offset="0" stop-color="#8f2f9e"></stop>
+            <stop offset="1" stop-color="#1d5fa8"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="classroom__tiles">
+      <div class="classroom__tile classroom__tile--teacher">
+        <span class="classroom__avatar">OA</span>
+        <span class="classroom__name"><Icon name="seal-check" weight="fill" /> {L.teacher}</span>
+      </div>
+      <div class="classroom__tile classroom__tile--student">
+        <span class="classroom__avatar">{L.you}</span>
+        <span class="classroom__name"><Icon name="microphone" weight="fill" /> {L.reciting}</span>
+      </div>
+    </div>
+  </div>
+  <div class="classroom__toolbar" aria-hidden="true">
+    <span><Icon name="microphone" weight="fill" /></span>
+    <span><Icon name="video-camera" weight="fill" /></span>
+    <span><Icon name="chalkboard-simple" weight="fill" /></span>
+    <span><Icon name="record" weight="fill" /></span>
+    <span class="classroom__end"><Icon name="phone-x" weight="fill" /></span>
+  </div>
+</div>
+
+<style>
+  .classroom {
+    --radius: 28px;
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .classroom__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 6px;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+
+  .classroom__dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .classroom__dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgb(46 29 70 / 0.14);
+  }
+
+  .classroom__title {
+    font-weight: 560;
+    color: var(--ink-2);
+  }
+
+  .classroom__live {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--success);
+  }
+
+  .classroom__pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--wa-green);
+    animation: pulse-dot 1.6s ease-out infinite;
+  }
+
+  .classroom__stage {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 560px) {
+    .classroom__stage {
+      grid-template-columns: 1fr 150px;
+    }
+  }
+
+  .classroom__board {
+    position: relative;
+    padding: 26px 22px 20px;
+    border-radius: 20px;
+    background: rgb(255 255 255 / 0.86);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .classroom__ayah {
+    font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.5rem);
+    line-height: 1.9;
+    text-align: center;
+    color: var(--aubergine-900);
+  }
+
+  .classroom__ayah mark {
+    color: inherit;
+    border-radius: 8px;
+    padding: 0 4px;
+  }
+
+  .classroom__ayah .m1 {
+    background: rgb(29 95 168 / 0.14);
+  }
+
+  .classroom__ayah .m2 {
+    background: rgb(143 47 158 / 0.14);
+  }
+
+  .classroom__notes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .sw {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .sw1 {
+    background: rgb(29 95 168 / 0.5);
+  }
+
+  .sw2 {
+    background: rgb(143 47 158 / 0.5);
+  }
+
+  .classroom__ink {
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 40%;
+    width: 76%;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .classroom__tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (min-width: 560px) {
+    .classroom__tiles {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .classroom__tile {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 105px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .classroom__tile--teacher {
+    background:
+      radial-gradient(80% 70% at 30% 20%, rgb(255 255 255 / 0.7), transparent 60%),
+      linear-gradient(160deg, #d9cff0, #c6d8f0);
+  }
+
+  .classroom__tile--student {
+    background:
+      radial-gradient(80% 70% at 70% 20%, rgb(255 255 255 / 0.7), transparent 60%),
+      linear-gradient(160deg, #f3d9e4, #e2d6f1);
+  }
+
+  .classroom__avatar {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.85);
+    font-weight: 650;
+    font-size: 0.85rem;
+    color: var(--accent-ink);
+    box-shadow: 0 6px 16px -8px rgb(46 29 70 / 0.5);
+  }
+
+  .classroom__name {
+    position: absolute;
+    inset-inline-start: 8px;
+    bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    font-size: 0.7rem;
+    font-weight: 560;
+    background: rgb(255 255 255 / 0.8);
+    color: var(--ink-2);
+  }
+
+  .classroom__name :global(svg) {
+    width: 12px;
+    height: 12px;
+    color: var(--accent-ink);
+  }
+
+  .classroom__toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 4px;
+  }
+
+  .classroom__toolbar span {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.75);
+    color: var(--ink-2);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+  }
+
+  .classroom__toolbar :global(svg) {
+    width: 17px;
+    height: 17px;
+  }
+
+  .classroom__toolbar .classroom__end {
+    background: #e5484d;
+    color: #fff;
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+/**
+ * Legal notice — German "Impressum" (§ 5 DDG), French "mentions légales".
+ * Built ONLY when SITE.legalEntity holds real company data (src/data/site.ts);
+ * until then no page and no footer link exist. Never publish placeholders.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import { SITE } from '@/data/site';
+import { LANGS, LOCALE, type Lang, type Alternates } from '@/i18n';
+import { ui } from '@/locales';
+
+export function getStaticPaths() {
+  if (!SITE.legalEntity) return [];
+  return LANGS.map((lang) => ({ params: { imprint: `${LOCALE[lang].prefix ? LOCALE[lang].prefix.slice(1) + '/' : ''}legal-notice` }, props: { lang } }));
+}
+const { lang } = Astro.props as { lang: Lang };
+const t = ui(lang);
+const e = SITE.legalEntity!;
+const alternates: Alternates = Object.fromEntries(LANGS.map((l) => [l, `${LOCALE[l].prefix}/legal-notice/`]));
+---
+
+<BaseLayout title={`${t.imprint.title} | ${t.siteName}`} description={t.imprint.lede} lang={lang} alternates={alternates}>
+  <PageHero eyebrow={t.legal} title={t.imprint.title} lede={t.imprint.lede} crumbs={[{ label: t.imprint.title }]} compact lang={lang} />
+  <section class="section section--tight">
+    <div class="container--narrow">
+      <article class="glass glass--strong legal-notice prose">
+        <h2>{t.imprint.provider}</h2>
+        <p>
+          {e.name}{e.legalForm ? ` (${e.legalForm})` : ''}
+          {e.address.map((line) => <><br />{line}</>)}
+        </p>
+        {e.representative && (<><h2>{t.imprint.representative}</h2><p>{e.representative}</p></>)}
+        {e.register && (<><h2>{t.imprint.register}</h2><p>{e.register}</p></>)}
+        {e.vatId && (<><h2>{t.imprint.vat}</h2><p>{e.vatId}</p></>)}
+        <h2>{t.imprint.contact}</h2>
+        <p>
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
+          WhatsApp: <a href={`https://wa.me/${SITE.whatsapp.number}`} dir="ltr">{SITE.whatsapp.display}</a>
+        </p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-notice {
+    --radius: var(--r-xl);
+    padding: clamp(24px, 4vw, 48px);
+  }
+</style>

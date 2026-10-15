@@ -1,0 +1,46 @@
+/** Resources — English (reference locale) copy. */
+export default {
+  C: {
+    meta: {
+      title: 'Free Islamic Resources — Worksheets & Books | Ummah Academy',
+      desc: 'Free printable worksheets for Tajweed, Hifz, Arabic letters, Nahw and kids’ activities, plus the foundation texts our Al-Azhar teachers use.',
+    },
+    crumb: 'Free library',
+    eyebrow: 'Free Resources',
+    title: 'The <span class="accent">Free</span> Islamic Library',
+    lede: 'Printable worksheets designed by our team, plus the foundation texts our teachers use. All free, no sign-up.',
+    sheetsEyebrow: 'Worksheets',
+    sheetsTitle: 'Download &amp; <span class="accent">print today</span>',
+    sheetsLede: 'A4 PDFs, bilingual English–Arabic, for practice at home between lessons.',
+    booksEyebrow: 'Foundation Texts',
+    booksTitle: 'The books our <span class="accent">teachers use</span>',
+    booksLede: 'We’ll send you the exact edition your teacher uses, free, on WhatsApp.',
+    download: 'Download PDF',
+    request: 'Request on WhatsApp',
+    requestShort: 'Request the PDF',
+    pages: (n: number) => `${n} page${n === 1 ? '' : 's'}`,
+    free: 'Free',
+    langs: 'English · Arabic',
+    waText: (t: string) => `Assalamu alaikum, please send me the free resource: ${t}`,
+    cta: {
+      eyebrow: 'Next step',
+      title: 'Free Resources Are Just <span class="accent">the Beginning</span>',
+      lede: 'Pair these resources with live 1-on-1 sessions from our Al-Azhar teachers.',
+      label: 'Book 2 Free Live Sessions',
+    },
+    sheets: [
+      { id: 'tajweed-rules-summary', icon: 'list-checks', title: 'Tajweed Rules Summary', text: 'One colour-coded page: Noon & Meem Sakinah, the Madd family and Qalqalah — with Qur’anic examples.' },
+      { id: 'arabic-letter-tracing', icon: 'pencil-line', title: 'Arabic Letter Tracing', text: 'Dotted tracing sheets for all 28 letters, in their initial, medial and final forms.' },
+      { id: 'daily-wird-tracker', icon: 'calendar-check', title: 'Daily Wird Tracker', text: 'A 30-day chart for recitation, new memorisation and revision — with a parent sign-off column.' },
+      { id: 'hifz-schedule-template', icon: 'brain', title: 'Hifz Schedule Template', text: 'A weekly plan split into new lesson, recent revision and long-term revision.' },
+      { id: 'nahw-exercises', icon: 'brackets-curly', title: 'Nahw Exercises', text: 'Short drills on nominal and verbal sentences, prepositions and case endings — with an answer key.' },
+      { id: 'ummah-cubs-activity-pack', icon: 'star', title: 'Ummah Cubs Activity Pack', text: 'Five Pillars matching, a Prophets word search, a good-deeds chart and a geometric colouring page.' },
+    ],
+    books: [
+      { icon: 'book-open-text', title: 'Noor Al-Bayan', text: 'The most trusted foundation book for teaching Arabic reading from scratch.', lang: 'Arabic · English' },
+      { icon: 'text-aa', title: 'Al-Ajrumiyyah', text: 'Ibn Ajurrum’s concise grammar primer — the first Nahw text for students for seven centuries.', lang: 'Arabic · Annotated' },
+      { icon: 'music-notes-simple', title: 'Al-Jazariyyah', text: 'Ibn al-Jazari’s Tajweed poem — the foundational text for all three Tajweed levels.', lang: 'Arabic · With Vowels' },
+      { icon: 'moon-stars', title: 'Adhkar for Kids', text: 'Illustrated daily Islamic etiquette and adhkar guide for children.', lang: 'Arabic · English' },
+    ],
+  },
+};

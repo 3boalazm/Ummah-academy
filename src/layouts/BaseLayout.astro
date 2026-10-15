@@ -1,0 +1,148 @@
+---
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
+import '@fontsource/amiri/arabic-400.css';
+import '@fontsource/amiri/arabic-700.css';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import plexArabic from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2?url';
+import amiriArabic from '@fontsource/amiri/files/amiri-arabic-400-normal.woff2?url';
+import '@/styles/global.css';
+
+import Aurora from '@/components/Aurora.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCta from '@/components/StickyCta.astro';
+import Analytics from '@/components/Analytics.astro';
+import ConsentBanner from '@/components/ConsentBanner.astro';
+import LangHint from '@/components/LangHint.astro';
+import { SITE } from '@/data/site';
+import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, type Lang, type Alternates } from '@/i18n';
+import { ogCardPath } from '@/data/og';
+import { ui } from '@/locales';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  lang?: Lang;
+  sticky?: boolean;
+  /** Explicit translation cluster (emits hreflang). Use when twins are not mirror paths (blog articles). */
+  alternates?: Alternates;
+  /** English path the language menu falls back to for languages without a translation (default: home). */
+  fallback?: string;
+}
+
+const {
+  title,
+  lang = 'en',
+  description = ui(lang).metaDescription,
+  image = ui(lang).ogImage,
+  type = 'website',
+  noindex = false,
+  jsonLd,
+  sticky = true,
+  alternates: pair,
+  fallback = '/',
+} = Astro.props;
+
+const t = ui(lang);
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// Its own social card for every indexable page (rendered post-build by scripts/og/build.mjs);
+// the home pages and noindex pages keep the hand-made default card of their language.
+const card = !Astro.props.image && !noindex && basePath(Astro.url.pathname) !== '/' ? ogCardPath(Astro.url.pathname) : null;
+const ogImage = new URL(card ?? image, Astro.site).href;
+const dir = dirOf(lang);
+// translation cluster → hreflang (only when the page really exists in 2+ languages)
+const cluster: Alternates = pair && Object.keys(pair).length ? pair : mirrorAlternates(Astro.url.pathname);
+const clusterLangs = LANGS.filter((l) => cluster[l]);
+const hreflang =
+  clusterLangs.length > 1 && !noindex
+    ? [...clusterLangs.map((l) => ({ lang: l as string, href: cluster[l]! })), { lang: 'x-default', href: cluster.en ?? cluster[clusterLangs[0]]! }]
+    : [];
+const targets = langTargets(Astro.url.pathname, cluster, fallback);
+const feed = `${LOCALE[lang].prefix}/rss.xml`;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  '@id': `${SITE.url}/#organization`,
+  name: SITE.name,
+  alternateName: SITE.nameAr,
+  url: SITE.url,
+  logo: `${SITE.url}/favicon.svg`,
+  email: SITE.email,
+  description: SITE.description,
+  // languages of instruction and support (not of this website) — see SITE.teachingLanguages
+  knowsLanguage: [...SITE.teachingLanguages],
+  contactPoint: [
+    { '@type': 'ContactPoint', contactType: 'admissions', telephone: `+${SITE.whatsapp.number}`, email: SITE.email, availableLanguage: SITE.teachingLanguages.map((c) => LOCALE[c as Lang]?.english ?? c) },
+  ],
+};
+const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
+// the consent banner exists only when cookie-based analytics (GTM) is configured
+const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '').trim());
+---
+
+<!doctype html>
+<html lang={lang} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {hreflang.map((a) => <link rel="alternate" hreflang={a.lang} href={new URL(a.href, Astro.site).href} />)}
+
+    <meta property="og:site_name" content={t.siteName} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content={card ? 'image/jpeg' : 'image/png'} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta property="og:locale" content={LOCALE[lang].og} />
+    {clusterLangs.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={LOCALE[l].og} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#f4f1f8" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title={`${t.siteName} — ${t.nav.blog}`} href={feed} />
+    <link rel="preload" href={lang === 'ar' ? plexArabic : geistLatin} as="font" type="font/woff2" crossorigin />
+
+    <style is:inline set:html={`@font-face{font-family:'UA Honorific';src:url(${amiriArabic}) format('woff2');unicode-range:U+FDFA,U+FDFD;size-adjust:125%;font-display:swap}`}></style>
+    <script type="application/ld+json" set:html={JSON.stringify(graph.length === 1 ? graph[0] : graph)} />
+    <Analytics />
+    <slot name="head" />
+  </head>
+  <body class:list={[`lang-${lang}`]}>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <Aurora />
+    <Header lang={lang} targets={targets} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} targets={targets} />
+    {sticky && <StickyCta lang={lang} />}
+    {consent && <ConsentBanner lang={lang} />}
+    <LangHint lang={lang} targets={targets} />
+    <script>
+      import '@/scripts/site';
+    </script>
+  </body>
+</html>

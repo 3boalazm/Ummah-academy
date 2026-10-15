@@ -1,0 +1,115 @@
+---
+import Breadcrumbs from './Breadcrumbs.astro';
+import type { Lang } from '@/i18n';
+interface Props {
+  lang?: Lang;
+  eyebrow?: string;
+  eyebrowAr?: string;
+  title: string;
+  sub?: string;
+  lede?: string;
+  crumbs?: { label: string; href?: string }[];
+  align?: 'start' | 'center';
+  compact?: boolean;
+}
+const { eyebrow, eyebrowAr, title, sub, lede, crumbs, align = 'start', compact = false, lang = 'en' } = Astro.props;
+const hasVisual = Astro.slots.has('visual');
+---
+
+<section class:list={['page-hero', { 'page-hero--center': align === 'center', 'page-hero--compact': compact }]}>
+  <div class:list={['container', 'page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
+    <div class="page-hero__copy" data-reveal>
+      {crumbs && <Breadcrumbs items={crumbs} lang={lang} />}
+      {
+        eyebrow && (
+          <span class="eyebrow">
+            {eyebrow}
+            {eyebrowAr && (
+              <span class="eyebrow__ar" lang="ar">
+                — {eyebrowAr}
+              </span>
+            )}
+          </span>
+        )
+      }
+      <h1 set:html={title} />
+      {sub && <p class="page-hero__sub" lang="ar" dir="rtl">{sub}</p>}
+      {lede && <p class="lead page-hero__lede">{lede}</p>}
+      {
+        Astro.slots.has('actions') && (
+          <div class="cluster page-hero__actions">
+            <slot name="actions" />
+          </div>
+        )
+      }
+      <slot />
+    </div>
+    {
+      hasVisual && (
+        <div class="page-hero__visual" data-reveal style="--reveal-delay:.12s">
+          <slot name="visual" />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    overflow-x: clip;
+    padding-block: clamp(40px, 6vw, 88px) clamp(32px, 5vw, 72px);
+  }
+
+  .page-hero--compact {
+    padding-bottom: clamp(16px, 3vw, 32px);
+  }
+
+  .page-hero__grid {
+    display: grid;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .page-hero__grid--split {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+
+  .page-hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 780px;
+  }
+
+  .page-hero--center .page-hero__copy {
+    align-items: center;
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  .page-hero h1 {
+    font-size: var(--fs-h1);
+  }
+
+  .page-hero__sub {
+    font-family: var(--font-arabic);
+    color: var(--ink-3);
+    font-size: 1.1rem;
+    margin-top: -8px;
+  }
+
+  .page-hero__lede {
+    max-width: 62ch;
+  }
+
+  .page-hero__actions {
+    margin-top: 6px;
+  }
+
+  .page-hero--center .page-hero__actions {
+    justify-content: center;
+  }
+</style>

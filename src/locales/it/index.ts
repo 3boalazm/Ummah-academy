@@ -1,0 +1,24 @@
+/** IT locale — one module per view/component (generated: keep in sync with ../en). */
+export { default as about } from './about';
+export { default as article } from './article';
+export { default as blog } from './blog';
+export { default as booking } from './booking';
+export { default as career } from './career';
+export { default as consent } from './consent';
+export { default as contact } from './contact';
+export { default as courses } from './courses';
+export { default as familyPortal } from './familyPortal';
+export { default as faq } from './faq';
+export { default as home } from './home';
+export { default as mockup } from './mockup';
+export { default as placement } from './placement';
+export { default as pricing } from './pricing';
+export { default as related } from './related';
+export { default as resources } from './resources';
+export { default as sanad } from './sanad';
+export { default as teacherCard } from './teacherCard';
+export { default as teacherProfile } from './teacherProfile';
+export { default as teachers } from './teachers';
+export { default as thankYou } from './thankYou';
+export { default as trackPage } from './trackPage';
+export { default as ui } from './ui';
