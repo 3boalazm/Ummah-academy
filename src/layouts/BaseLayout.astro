@@ -87,6 +87,8 @@ const org = {
 };
 const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const graph = [org, ...extra.map((g) => ({ inLanguage: lang, ...g }))];
+// Search Console / Bing Webmaster verification (prefer DNS verification — see docs/15); root home only
+const verify = Astro.url.pathname === '/' ? { google: String(import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION ?? '').trim(), bing: String(import.meta.env.PUBLIC_BING_SITE_VERIFICATION ?? '').trim() } : { google: '', bing: '' };
 // the consent banner exists only when cookie-based analytics (GTM) is configured
 const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '').trim());
 ---
@@ -119,6 +121,8 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     {clusterLangs.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={LOCALE[l].og} />)}
     <meta name="twitter:card" content="summary_large_image" />
 
+    {verify.google && <meta name="google-site-verification" content={verify.google} />}
+    {verify.bing && <meta name="msvalidate.01" content={verify.bing} />}
     <meta name="theme-color" content="#f4f1f8" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

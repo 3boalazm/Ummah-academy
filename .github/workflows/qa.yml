@@ -66,6 +66,9 @@ jobs:
           path: dist
       - name: Run suites (Chrome preinstalled on ubuntu-latest)
         run: node qa/run.mjs ${{ matrix.suites }}
+      - name: Summary
+        if: always()
+        run: test -f qa/report/latest.md && cat qa/report/latest.md >> "$GITHUB_STEP_SUMMARY" || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
