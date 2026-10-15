@@ -37,6 +37,9 @@
 | `blog_filter` | `topic` |
 | `resource_download` *(Phase 3)* | `resource` = worksheet id |
 | `consent_update` *(Phase 3, GTM only)* | `analytics` = granted |
+| `language_hint` *(Phase 4)* | `action` = accept \| dismiss, `to` = offered language |
+
+*Phase 4:* **every** event also carries `page_lang` (`en`, `ar`, `de`, `fr` or `it`, from `<html lang>`), so each funnel step can be split by language. `language_switch` fires from the header menu, the phone sheet, the footer row and the article "Also available in" chips. The hint fires `language_hint` instead.
 
 **Attribution:** on the first page view, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `gclid`/`fbclid` presence, the referrer and the landing path are stored in `localStorage` (`ua:attr`, first-touch) and attached to the lead webhook payload. They are never added to the WhatsApp text.
 

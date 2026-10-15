@@ -41,7 +41,8 @@ const offers = targets
     z-index: 45;
     inset: 88px 12px auto;
     margin-inline: auto;
-    width: min(100% - 24px, 520px);
+    /* wide enough that every hint sentence (IT is longest) stays on one line on desktop */
+    width: min(100% - 24px, 600px);
     display: grid;
     grid-template-columns: 1fr auto auto;
     align-items: center;
@@ -61,6 +62,7 @@ const offers = targets
     color: var(--ink);
     font-size: 0.95rem;
     font-weight: 540;
+    text-wrap: pretty;
   }
 
   .langhint:lang(ar) .langhint__text {
@@ -97,7 +99,7 @@ const offers = targets
     }
   }
 
-  @media (max-width: 520px) {
+  @media (max-width: 560px) {
     .langhint {
       grid-template-columns: 1fr auto;
     }

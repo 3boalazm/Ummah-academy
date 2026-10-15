@@ -1,4 +1,4 @@
-# 05 · QA report (v2 + Phase 3)
+# 05 · QA report (v2 + Phase 3 + Phase 4)
 
 **Environment:** Astro 7.3.8 static build, served by `astro preview`. Headless Chromium 153 (via `@sparticuz/chromium` and Puppeteer) in the sandbox. Date: 14 Oct 2026.
 
@@ -98,3 +98,56 @@ The remaining home-page cost is render-blocking CSS plus the uncompressed local 
 - The blog lead card's cover hid the text on desktop. This was pre-existing in v2.
 - Arrow direction was wrong in Arabic related-article and blog cards.
 - The "Ijazah verified" badge appeared on teachers whose bios don't state an Ijazah.
+
+## 7. Phase 4 re-run: five languages (15 Oct 2026)
+
+Same environment (Chromium 153 headless via Puppeteer, `astro preview`, no compression) plus Lighthouse 12.8.2. Every check covers all five languages unless stated otherwise.
+
+| Gate | Result |
+|---|---|
+| Build | ✅ **195 pages** in ~2 s: EN 42 · AR 26 · DE 42 · FR 42 · IT 42 · `404.html`. Production builds are strict: a locale missing a module fails the build |
+| Locale shape parity (build time) | ✅ AR/DE/FR/IT × 23 modules match the English reference: keys, array lengths, value types. Documented exception: the Arabic blog index's extra sections |
+| Internal links and fragments | ✅ **16,907 links, 0 broken** |
+| i18n (`npm run check:i18n`) | ✅ `<html lang>`/`dir` and the self-canonical are correct on 195 pages. **189 hreflang clusters** are reciprocal, each with `x-default`. **0 English leaks** on DE/FR/IT pages (visible text, alt, aria-label, title, placeholder, meta description) |
+| axe-core (wcag2a/aa, wcag21a/aa) | ✅ **0 violations on 194 pages**. Open states were also checked: the language menu (header popover and phone sheet); the language hint (DE→EN, AR→FR at 390 px, IT→DE, EN→AR); the Courses mega menu (5 languages × 1024/1440 px) |
+| Horizontal overflow | ✅ **0 on 194 pages at 320, 360, 768, 1024 and 1280 px**. Found and fixed: the About stats in DE/FR/IT at 320 px (localised `1.000+`, 6–12 px) |
+| Header fit | ✅ **Every width from 320 to 1440 px in 1 px steps × 5 languages** (5,605 layouts): no control leaves the bar, no CTA or nav item wraps, and the wordmark is never clipped. Found and fixed: the CTA wrapped in FR/IT at 390 and 460 px and in AR at 340 px |
+| Courses mega menu (open) | ✅ The panel fits the viewport at 860/960/1024/1099/1100/1280/1440 px × 5 languages, every child stays inside the panel, and no subtitle is truncated. Found and fixed: **since v2** the open panel ran off-screen from 860 to about 1200 px (25 of 35 checks), off the left edge in Arabic, and its aside overflowed the panel by ~10 px |
+| Language hint | ✅ It shows only when the browser prefers another language that has a translation of this page. The text and CTA are in that language (`lang`/`dir` set, RTL for Arabic), on one line on desktop (5 combinations × 1280/768/390 px). Never shown after an explicit choice |
+| Booking wizard and placement flows | ✅ Pass in all 5 languages: localised step labels and validation, a WhatsApp message in the visitor's language with a `Language:` line, the thank-you page, and placement results with prefilled booking links |
+| Structured data | ✅ **379 JSON-LD blocks on 195 pages parse**, and `inLanguage` always matches `<html lang>`. Content is localised (e.g. DE breadcrumb "Startseite › Lehrkräfte", FR/IT `FAQPage` questions). Types: `EducationalOrganization` ×285, `FAQPage` ×45, `BreadcrumbList` ×144, `BlogPosting` ×130, `Course` ×90, `ProfilePage` ×15, `Blog` ×5, `WebSite` ×5 |
+| Impressum gate | ✅ With `SITE.legalEntity = null` there is no page and no footer link. With temporary data, 5 pages, the footer link and a valid hreflang cluster appear (the data was reverted afterwards) |
+| Consent | ✅ "No thanks" and "Allow" have equal weight in every language. The GTM-after-Allow behaviour is unchanged from §6 |
+
+**Lighthouse, mobile (Phase 4 sample)**
+
+| Page | Perf | A11y | BP | SEO | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|---|
+| `/` (EN, control) | 91 | 100 | 100 | 100 | 2.9 s | 0 ms | 0 |
+| `/ar/` (control) | 87 | 100 | 100 | 100 | 3.3 s | 0 ms | 0.002 |
+| `/de/` | 92 | 100 | 100 | 100 | 2.9 s | 0 ms | 0 |
+| `/it/` | 92 | 100 | 100 | 100 | 2.9 s | 0 ms | 0 |
+| `/fr/pricing/` | 99 | 100 | 100 | 100 | 1.8 s | 0 ms | 0 |
+| `/it/contact/` | 99 | 100 | 100 | 100 | 1.8 s | 0 ms | 0 |
+| `/fr/quran-memorization-hifz/` | 95 | 100 | 100 | 100 | 2.6 s | 0 ms | 0 |
+| `/de/blog/ab-welchem-alter-sollten-kinder-koran-lernen/` | 97 | 100 | 100 | 100 | 2.3 s | 0 ms | 0 |
+
+- **No regression from five languages:** EN 91 vs 91 in Phase 3; AR 87 vs 88, which is within run-to-run noise.
+- **A sandbox quirk:** headless Chromium here sometimes collects no screenshots, which leaves Speed Index and therefore the Perf score empty. Those runs were repeated.
+
+**Weight (gzipped)**
+
+| Asset | Size |
+|---|---|
+| Home HTML, EN / AR / DE / FR / IT | 20.4 / 21.4 / 21.2 / 21.3 / 20.9 KB |
+| Site JS (header, language menu and hint, reveals, analytics shim) | 1.8 KB |
+| Booking / placement JS | 2.4 / 2.2 KB (strings now ship as page JSON) |
+| Global CSS | 10.9 KB |
+
+The extra ~1.6 KB of HTML compared with Phase 3 comes from the five `hreflang` links, the language menu and the hint data.
+
+**Known limitations (in addition to §5)**
+
+- **Translations:** careful and glossary-driven, but not yet signed off by native reviewers (ABO-52). Religious passages are listed for the academic review (ABO-39).
+- **Browsers:** German hyphenation (`hyphens: auto`) depends on the browser's dictionaries. Chromium and Safari support German; a few long compounds may still break with `overflow-wrap` on older engines. To verify on real devices (ABO-42).
+

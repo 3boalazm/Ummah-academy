@@ -15,10 +15,12 @@ declare global {
 
 export function track(event: string, props: Props = {}): void {
   try {
+    // every event carries the page language, so funnels can be split by locale (en/ar/de/fr/it)
+    const all: Props = { page_lang: document.documentElement.lang || undefined, ...props };
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event, ...props });
-    window.plausible?.(event, { props });
-    if (import.meta.env.DEV) console.debug('[track]', event, props);
+    window.dataLayer.push({ event, ...all });
+    window.plausible?.(event, { props: all });
+    if (import.meta.env.DEV) console.debug('[track]', event, all);
   } catch {
     /* never break the page for analytics */
   }

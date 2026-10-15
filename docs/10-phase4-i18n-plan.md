@@ -2,6 +2,8 @@
 
 > Written **before** any Phase 4 code was touched, as the standing rule requires.
 >
+> **Outcome:** every workstream below shipped. See [`12-phase4-changelog.md`](12-phase4-changelog.md) and [`05-qa-report.md`](05-qa-report.md) §7. Where the build differs from this plan, an *as built* note says so.
+>
 > **The ask (2026-10-15), translated:**
 > 1. "+971 50 276 0242 is the WhatsApp number."
 > 2. "I need the whole site translated, with a language switch for German, French and Italian. Go for it."
@@ -73,7 +75,7 @@ Full terminology: [`11-i18n-glossary.md`](11-i18n-glossary.md).
 
 | Topic | Decision | Why |
 |---|---|---|
-| Locale registry | `src/i18n/locales.ts` is one table holding code, native name, `dir`, `Intl` locale, OG locale and prefix. Adding a sixth language means one entry plus a `src/locales/<code>/` folder. | Single source of truth |
+| Locale registry | One table holding code, native name, `dir`, `Intl` locale, OG locale and prefix. Adding a sixth language means one entry plus a `src/locales/<code>/` folder. *As built:* the table is `LOCALE` in `src/i18n/index.ts` (no separate `locales.ts`). The steps are in the README, "Languages (i18n)". | Single source of truth |
 | URLs | EN stays at `/` (WordPress parity). The others use `/ar/`, `/de/`, `/fr/` and `/it/` + the **same page slug**, e.g. `/de/pricing/`. Articles: `/de/blog/<localised-slug>/`. | Keeps one route map. Localised article slugs carry the keywords people actually search. |
 | Routes | One dynamic set, `src/pages/[locale]/…`, serves AR, DE, FR and IT. The 22 duplicated `pages/ar/*` wrappers go away. | No copy-paste per language |
 | Copy | All UI and page copy moves out of the views into `src/locales/<lang>/<module>.ts`. EN is the typed reference; every other locale must match its shape (`satisfies`). EN/AR are extracted by script, and the EN/AR HTML is diffed before and after to **prove zero regressions**. | Translators work per language, and views become language-agnostic |
@@ -83,7 +85,7 @@ Full terminology: [`11-i18n-glossary.md`](11-i18n-glossary.md).
 | hreflang | Every page emits its full cluster plus `x-default` (EN), and only for translations that really exist. The sitemap gets the five locales. | SEO hygiene |
 | Language menu | Glass `<details>` popover in the header (native names, current marked, `lang`/`hreflang` on each link). Five chips in the mobile sheet and a language row in the footer. Works without JS; JS only adds outside-click and Escape. | Accessible, robust |
 | Language hint | A soft, dismissible glass hint is **written in the visitor's language**: "Diese Seite gibt es auch auf Deutsch". It shows only when the browser prefers a locale that has a translation of *this* page. It never redirects, and remembers the choice. | Helps people arriving from social links without hurting SEO |
-| WhatsApp hand-off | The message is written in the visitor's language and ends with a `Language: Deutsch (de)` line, so the team knows how to reply. The webhook payload carries `lang`. | Ops clarity |
+| WhatsApp hand-off | The message is written in the visitor's language and ends with a `Language: Deutsch (de)` line (*as built:* the bilingual `Sprache / Language: Deutsch (de)`), so the team knows how to reply. The webhook payload carries `lang`. | Ops clarity |
 | Formatting | `Intl` handles dates, numbers and prices. Prices stay **USD**, e.g. `40 $`, and the pricing page says "in US dollars". | Honest. EUR pricing is a business call (ABO-43). |
 | QA guards | **Build-time:** a shape-parity check across locales (the build fails on a missing key). **Post-build** `npm run check:i18n`: reciprocal hreflang, every alternate resolves, `<html lang>` is correct, and no English sentence leaks onto DE/FR/IT pages. | Automated quality |
 
@@ -91,20 +93,21 @@ Full terminology: [`11-i18n-glossary.md`](11-i18n-glossary.md).
 
 ## 4. Workstreams & checklist
 
-- [ ] **W0 · Contact.** WhatsApp confirmed in `site.ts`, the launch checklist and Linear ABO-37.
-- [ ] **W1 · Extraction.** EN/AR copy moves from views and components into `src/locales/{en,ar}`. A dist diff must show identical HTML.
-- [ ] **W2 · Engine.**
+- [x] **W0 · Contact.** WhatsApp confirmed in `site.ts`, the launch checklist and Linear ABO-37.
+- [x] **W1 · Extraction.** EN/AR copy moves from views and components into `src/locales/{en,ar}`. A dist diff must show identical HTML.
+- [x] **W2 · Engine.**
   - Locale registry, `[locale]` routes, alternates/clusters, formatting helpers, BaseLayout (hreflang, OG locale), sitemap.
   - Language menu (header, mobile, footer), language hint, `:lang(de)` hyphenation.
-- [ ] **W3 · UI & pages ×3.** UI strings, Home, Courses, 5 track pages, Pricing, Teachers + 3 profiles, About, Contact + booking wizard, Placement, FAQ, Career, Thank-you, Resources, Family portal, Blog index, Article chrome, 404, consent.
-- [ ] **W4 · Data ×3.** Tracks and courses, track-page content, teachers, testimonials (marked "translated"), plans, placement questions, countries, legal (Privacy, Terms).
-- [ ] **W5 · Blog ×3.** 19 articles per language (57 total), localised slugs, related posts, one RSS feed per language.
-- [ ] **W6 · Scripts.** Booking messages and validation in 5 languages, placement script strings, equal-weight consent buttons, `Impressum` page gated on real data.
-- [ ] **W7 · QA.**
+- [x] **W3 · UI & pages ×3.** UI strings, Home, Courses, 5 track pages, Pricing, Teachers + 3 profiles, About, Contact + booking wizard, Placement, FAQ, Career, Thank-you, Resources, Family portal, Blog index, Article chrome, 404, consent.
+- [x] **W4 · Data ×3.** Tracks and courses, track-page content, teachers, testimonials (marked "translated"), plans, placement questions, countries, legal (Privacy, Terms).
+- [x] **W5 · Blog ×3.** 19 articles per language (57 total), localised slugs, related posts, one RSS feed per language.
+- [x] **W6 · Scripts.** Booking messages and validation in 5 languages, placement script strings, equal-weight consent buttons, `Impressum` page gated on real data.
+- [x] **W7 · QA.**
   - Build, `check:links`, `check:i18n`, axe on every page.
   - Overflow sweep at 360/390/768/1024/1440 for DE/FR/IT.
   - Header fit, booking-flow test in DE/FR/IT, Lighthouse sample, JSON-LD parse, screenshots.
-- [ ] **W8 · Handoff.** Changelog, glossary, QA report §7, README "add a language", REPORT §11 (Arabic), Google Doc section, Linear issues and project update.
+  - *As built:* the sweep ran at 320/360/768/1024/1280 px for all five languages, and the header was checked at every width from 320 to 1440 px.
+- [x] **W8 · Handoff.** Changelog, glossary, QA report §7, README "add a language", REPORT §11 (Arabic), Google Doc section, Linear issues and project update.
 
 **Order.** W0, then W1 (proven no-op), then W2 (no new copy yet; DE/FR/IT fall back to EN during development and the build lists every fallback), then W3–W6 module by module, translating DE, FR and IT together while the English source is fresh, then W7 and W8. The work is committed after each workstream.
 
@@ -114,9 +117,9 @@ Full terminology: [`11-i18n-glossary.md`](11-i18n-glossary.md).
 
 | Gate | Linear | Notes |
 |---|---|---|
-| Teaching language for DE/FR/IT families | **new** | Copy says Arabic and English. If DE/FR/IT-speaking teachers are hired, change `SITE.teachingLanguages`. |
-| Impressum data (legal entity, address, register, representative, VAT) | **new** | The page appears automatically once `SITE.legalEntity` is filled in |
-| Native-speaker review of DE/FR/IT copy | **new** | Translations are careful and human-quality, but a native reviewer per language should sign off before launch. The Islamic terminology is in the glossary. |
+| Teaching language for DE/FR/IT families | **ABO-50** | Copy says Arabic and English. If DE/FR/IT-speaking teachers are hired, change `SITE.teachingLanguages` and the teaching-language sentences in `src/locales/{de,fr,it}` (listed in ABO-50). |
+| Impressum data (legal entity, address, register, representative, VAT) | **ABO-51** | The page appears automatically once `SITE.legalEntity` is filled in |
+| Native-speaker review of DE/FR/IT copy | **ABO-52** | Translations are careful and human-quality, but a native reviewer per language should sign off before launch. The Islamic terminology is in the glossary. |
 | Legal review of translated Privacy and Terms | ABO-44 | The English text prevails until reviewed |
 | EUR price display | ABO-43 | USD for now |
 | E-mail domain and address | ABO-37 | WhatsApp is now confirmed |
