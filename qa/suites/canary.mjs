@@ -1,0 +1,93 @@
+/**
+ * canary — proves the checks can fail. Each canary injects one known bug into a real
+ * page and asserts the matching check reports it. If a refactor ever blinds a check
+ * (renamed selector, wrong measurement), this suite fails instead of the QA going
+ * silently green. Runs first, takes seconds.
+ */
+import { newPage, open, settle } from '../lib/browser.mjs';
+import { measure } from './overflow.mjs';
+import { check } from './header.mjs';
+import { fits } from './popovers.mjs';
+import { audit } from './touch.mjs';
+import { axeScoped } from './axe.mjs';
+
+const CANARIES = [
+  {
+    name: 'overflow sees a too-wide element',
+    width: 320,
+    css: '.site-footer p { width: 520px !important; max-width: none !important; }',
+    run: (page) => page.evaluate(measure),
+  },
+  {
+    name: 'header sees a wrapping CTA',
+    width: 390,
+    css: '.site-header__cta { white-space: normal !important; width: 64px !important; flex: none !important; } .site-header__cta .cta-short { display: inline !important; white-space: normal !important; }',
+    run: (page) => page.evaluate(check),
+  },
+  {
+    name: 'header sees an overflowing bar',
+    width: 1024,
+    css: '.site-header__brand { min-width: 900px !important; }',
+    run: (page) => page.evaluate(check),
+  },
+  {
+    name: 'popovers see a mega panel outside the viewport',
+    width: 1024,
+    css: '.mega__panel { width: 1500px !important; max-width: none !important; }',
+    run: async (page) => {
+      await page.click('[data-mega-toggle]');
+      return page.evaluate(fits, '.mega__panel', { children: true });
+    },
+  },
+  {
+    name: 'touch sees a tiny crowded tap target',
+    width: 375,
+    mobile: true,
+    css: '.site-header__actions { gap: 0 !important; } .menu-btn { width: 14px !important; height: 14px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; } .site-header__cta { height: 14px !important; min-height: 0 !important; padding: 0 2px !important; }',
+    run: (page) => page.evaluate(audit, true),
+  },
+  {
+    name: 'touch sees a form field iOS would zoom into',
+    width: 375,
+    mobile: true,
+    path: '/contact/',
+    css: '#bk-first, .input { font-size: 13px !important; }',
+    before: (page) => page.evaluate(() => document.querySelectorAll('[data-bstep]').forEach((s) => s.classList.add('is-active'))),
+    run: (page) => page.evaluate(audit, true),
+  },
+  {
+    name: 'axe sees an image without alt text',
+    width: 1280,
+    css: '',
+    before: (page) =>
+      page.evaluate(() => {
+        const img = document.createElement('img');
+        img.src = '/favicon.svg';
+        img.width = 40;
+        img.height = 40;
+        img.id = 'canary-img';
+        document.querySelector('main').prepend(img);
+      }),
+    run: (page) => axeScoped(page, '#canary-img'),
+  },
+];
+
+export default async function canary({ browser, base }) {
+  const failures = [];
+  for (const c of CANARIES) {
+    const page = await newPage(browser, { width: c.width, height: 900, mobile: !!c.mobile, touch: !!c.mobile });
+    try {
+      await open(page, base + (c.path ?? '/'));
+      await settle(page);
+      if (c.css) await page.addStyleTag({ content: c.css });
+      if (c.before) await c.before(page);
+      const found = await c.run(page);
+      if (!found.length) failures.push({ page: c.path ?? '/', detail: `blind check — ${c.name}` });
+    } catch (e) {
+      failures.push({ page: c.path ?? '/', detail: `${c.name}: error ${e.message}` });
+    } finally {
+      await page.close();
+    }
+  }
+  return { checked: CANARIES.length, unit: 'canary', failures };
+}

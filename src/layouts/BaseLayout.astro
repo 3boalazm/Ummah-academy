@@ -20,7 +20,8 @@ import Analytics from '@/components/Analytics.astro';
 import ConsentBanner from '@/components/ConsentBanner.astro';
 import LangHint from '@/components/LangHint.astro';
 import { SITE } from '@/data/site';
-import { LANGS, LOCALE, dirOf, mirrorAlternates, langTargets, type Lang, type Alternates } from '@/i18n';
+import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, type Lang, type Alternates } from '@/i18n';
+import { ogCardPath } from '@/data/og';
 import { ui } from '@/locales';
 
 interface Props {
@@ -53,7 +54,10 @@ const {
 
 const t = ui(lang);
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL(image, Astro.site).href;
+// Its own social card for every indexable page (rendered post-build by scripts/og/build.mjs);
+// the home pages and noindex pages keep the hand-made default card of their language.
+const card = !Astro.props.image && !noindex && basePath(Astro.url.pathname) !== '/' ? ogCardPath(Astro.url.pathname) : null;
+const ogImage = new URL(card ?? image, Astro.site).href;
 const dir = dirOf(lang);
 // translation cluster → hreflang (only when the page really exists in 2+ languages)
 const cluster: Alternates = pair && Object.keys(pair).length ? pair : mirrorAlternates(Astro.url.pathname);
@@ -107,8 +111,10 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content={card ? 'image/jpeg' : 'image/png'} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
     <meta property="og:locale" content={LOCALE[lang].og} />
     {clusterLangs.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={LOCALE[l].og} />)}
     <meta name="twitter:card" content="summary_large_image" />

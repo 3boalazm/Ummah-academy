@@ -9,9 +9,13 @@
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0",
     "check:links": "node scripts/check-links.mjs",
-    "qa": "npm run build && npm run check:links && npm run check:i18n",
+    "verify": "npm run check:links && npm run check:i18n && npm run check:jsonld",
+    "qa": "npm run build && npm run verify && npm run check:cards",
     "pdfs": "node scripts/build-pdfs.mjs",
-    "check:i18n": "node scripts/check-i18n.mjs"
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "check:jsonld": "node scripts/check-jsonld.mjs",
+    "check:cards": "node scripts/check-cards.mjs",
+    "qa:browser": "node qa/run.mjs"
   },
   "engines": {
     "node": ">=20.19"
@@ -28,6 +32,7 @@
     "sharp": "^0.35.5"
   },
   "devDependencies": {
+    "axe-core": "^4.14.0",
     "puppeteer-core": "^25.14.0"
   }
 }

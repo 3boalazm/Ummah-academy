@@ -7,6 +7,7 @@ import RelatedPosts from '@/components/RelatedPosts.astro';
 import Icon from '@/components/Icon.astro';
 import { trackById, type TrackId } from '@/data/tracks';
 import { SITE, trialLink } from '@/data/site';
+import { ogCardPath } from '@/data/og';
 import type { Post } from '@/data/blog';
 import { LANGS, LOCALE, lp, fmtDate, type Lang, type Alternates } from '@/i18n';
 import { copy, ui } from '@/locales';
@@ -49,6 +50,9 @@ const ld = {
   author: { '@type': 'Organization', name: d.author },
   publisher: { '@id': `${SITE.url}/#organization` },
   mainEntityOfPage: url,
+  // the page's own social card (scripts/og/build.mjs) doubles as the article image
+  image: { '@type': 'ImageObject', url: new URL(ogCardPath(path), SITE.url).href, width: 1200, height: 630 },
+  articleSection: category,
   wordCount: words,
   ...(alternates?.en && lang !== 'en' ? { translationOfWork: { '@id': new URL(alternates.en, SITE.url).href } } : {}),
 };

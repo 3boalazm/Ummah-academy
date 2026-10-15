@@ -129,6 +129,18 @@ const partial = targets.some((x) => !x.exact);
     display: none;
   }
 
+  /* invisible hit-area extension: 38–40 px pill → ≥ 44 px target (gap to the CTA is 6 px) */
+  .langmenu__btn {
+    position: relative;
+  }
+
+  .langmenu__btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px -3px;
+    border-radius: inherit;
+  }
+
   .langmenu__btn:hover,
   .langmenu[open] .langmenu__btn {
     color: var(--ink);

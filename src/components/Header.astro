@@ -267,6 +267,24 @@ const isActive = (href: string) => path.startsWith(href);
     height: 20px;
   }
 
+  /* invisible hit-area extension: the 40 px phone variant still offers a ≥ 44 px target */
+  .menu-btn {
+    position: relative;
+  }
+
+  .menu-btn::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+  }
+
+  /* the CTA is wide already: extend its hit area vertically only, so it never steals taps
+     from the language pill or the menu button beside it (4–6 px gaps on phones) */
+  .site-header__cta::after {
+    inset: -4px 0;
+  }
+
   @media (min-width: 860px) {
     .site-header__actions .menu-btn {
       display: none;
