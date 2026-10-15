@@ -1,4 +1,8 @@
 /** Contact — Deutsch. */
+import { prices } from '@/data/prices';
+
+const P = prices('de');
+
 export default {
   C: {
     allFaq: 'Alle häufigen Fragen',
@@ -27,7 +31,7 @@ export default {
       { q: 'Kann ich mir eine bestimmte Lehrkraft wünschen?', a: 'Ja – schreiben Sie den Namen in die Notizen oder nutzen Sie „Bei … buchen“ auf der Seite Lehrkräfte. Wir tun unser Bestes.' },
       { q: 'Auf welcher Plattform findet der Unterricht statt?', a: 'Über Zoom oder Google Meet, mit einem interaktiven Whiteboard für Anmerkungen zur Rezitation und zum Schreiben.' },
       { q: 'Mein Kind ist 5 – ist das zu jung?', a: 'Überhaupt nicht. Ummah Cubs nimmt Kinder ab 5 Jahren auf – mit spielerischen 30-Minuten-Einheiten.' },
-      { q: 'Was passiert nach den zwei Stunden?', a: 'Wenn Sie weitermachen möchten, wählen Sie einen Monatstarif (ab 40 $). Sie können jederzeit pausieren oder kündigen.' },
+      { q: 'Was passiert nach den zwei Stunden?', a: `Wenn Sie weitermachen möchten, wählen Sie einen Monatstarif (ab ${P.from}). Sie können jederzeit pausieren oder kündigen.` },
     ],
   },
 };

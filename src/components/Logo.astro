@@ -12,7 +12,11 @@ interface Props {
   class?: string;
 }
 const { tone = 'ink', showSecondary = false, lang = 'en', class: className } = Astro.props;
-const id = `ua-g-${Math.random().toString(36).slice(2, 8)}`;
+// Unique per instance (the header, menu and footer each draw a logo) but deterministic,
+// so identical source builds byte-identical pages (stable ETags, verifiable refactors).
+const locals = Astro.locals as { uaLogoCount?: number };
+locals.uaLogoCount = (locals.uaLogoCount ?? 0) + 1;
+const id = `ua-g-${locals.uaLogoCount}`;
 ---
 
 <span class:list={['logo', `logo--${tone}`, `logo--${lang}`, className]}>

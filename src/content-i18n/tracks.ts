@@ -7,6 +7,10 @@ import type { Plan } from '@/data/pricing';
 import pagesDe from '@/locales/de/data/trackPages';
 import pagesFr from '@/locales/fr/data/trackPages';
 import pagesIt from '@/locales/it/data/trackPages';
+import { PRICES, prices } from '@/data/prices';
+
+const PE = prices('en');
+const PA = prices('ar');
 
 export type TrackPageKey = 'recitation' | 'hifz' | 'arabic' | 'kids' | 'islamic';
 
@@ -89,7 +93,7 @@ const EN: Record<TrackPageKey, TrackPageContent> = {
     related: ['tajweed-rules-for-beginners-a-simple-introduction-to-reciting-the-quran-correctly', 'why-tajweed-matters-5-real-benefits-of-reciting-the-quran-correctly', 'noon-sakinah-and-tanween-rules-explained-simply'],
     cta: { title: 'Hear the difference <span class="accent">in your first lesson.</span>', lede: 'Two free live Tajweed lessons with a certified teacher. No card, no commitment.' },
     schemaName: 'Online Quran Recitation & Tajweed Course',
-    from: 64,
+    from: PRICES.starter,
   },
   hifz: {
     path: '/quran-memorization-hifz/',
@@ -140,11 +144,11 @@ const EN: Record<TrackPageKey, TrackPageContent> = {
     related: ['how-long-does-it-take-to-memorize-the-quran-a-realistic-timeline', 'what-is-an-ijazah-understanding-quran-certification-and-sanad', 'the-itqan-method-explained-how-thematic-memorization-makes-hifz-easier'],
     cta: { title: 'Begin your Hifz journey <span class="accent">with two free lessons.</span>', lede: 'Meet a teacher with a real Sanad, feel the Itqan method, then decide.' },
     schemaName: 'Online Quran Memorization (Hifz) & Ijazah Program',
-    from: 96,
+    from: PRICES.gold,
   },
   arabic: {
     path: '/online-arabic-classes/',
-    meta: { title: 'Online Arabic Classes for Muslims | Noor Al-Bayan to Grammar | Ummah Academy', desc: 'Learn Qur’anic Arabic 1-on-1: Noor Al-Bayan reading from zero, Al-Ajrumiyyah grammar and conversation with bilingual Al-Azhar teachers. From $40/month.' },
+    meta: { title: 'Online Arabic Classes for Muslims | Noor Al-Bayan to Grammar | Ummah Academy', desc: `Learn Qur’anic Arabic 1-on-1: Noor Al-Bayan reading from zero, Al-Ajrumiyyah grammar and conversation with bilingual Al-Azhar teachers. From ${PE.from}/month.` },
     crumb: 'Arabic Language',
     eyebrow: 'Arabic Language',
     title: 'Read it. Understand it. <span class="accent">Speak it.</span>',
@@ -180,16 +184,16 @@ const EN: Record<TrackPageKey, TrackPageContent> = {
       { q: 'Do you teach grammar as well as reading?', a: 'Yes — after reading fluency, students move into Nahw and Sarf with Al-Ajrumiyyah, then conversation.' },
       { q: 'Are classes one-on-one?', a: 'Yes, always — every student learns with their own teacher.' },
       { q: 'How often are classes?', a: 'Typically 2–3 sessions a week, scheduled around your time zone.' },
-      { q: 'How much does it cost?', a: 'From $40 a month for 30-minute lessons; grammar and conversation from $64. Every plan starts with 2 free sessions.' },
+      { q: 'How much does it cost?', a: `From ${PE.from} a month for 30-minute lessons; grammar and conversation from ${PE.from60}. Every plan starts with 2 free sessions.` },
     ],
     related: ['how-to-learn-arabic-as-a-muslim-a-complete-beginners-guide', 'arabic-grammar-for-quran-nahw-and-sarf-explained-for-beginners', 'how-long-does-it-take-to-learn-quranic-arabic-a-realistic-timeline'],
     cta: { title: 'Your first two Arabic lessons <span class="accent">are on us.</span>', lede: 'Find your stage, meet your teacher, then decide. No card needed.' },
     schemaName: 'Online Qur’anic Arabic Classes',
-    from: 40,
+    from: PRICES.launch,
   },
   kids: {
     path: '/ummah-cubs-kids-islamic-studies/',
-    meta: { title: 'Online Quran & Islamic Studies for Kids (5–14) | Ummah Cubs | Ummah Academy', desc: 'Ummah Cubs: playful 30-minute 1-on-1 lessons in Qur’an reading, Arabic and Islamic values for children aged 5–14, with patient Al-Azhar teachers. From $40/month.' },
+    meta: { title: 'Online Quran & Islamic Studies for Kids (5–14) | Ummah Cubs | Ummah Academy', desc: `Ummah Cubs: playful 30-minute 1-on-1 lessons in Qur’an reading, Arabic and Islamic values for children aged 5–14, with patient Al-Azhar teachers. From ${PE.from}/month.` },
     crumb: 'Ummah Cubs',
     eyebrow: 'Ummah Cubs · ages 5–14',
     title: 'Lessons your child will <span class="accent">actually look forward to.</span>',
@@ -225,12 +229,12 @@ const EN: Record<TrackPageKey, TrackPageContent> = {
       { q: 'Are the teachers trained for children?', a: 'Yes. Our programme lead holds certification in Early Islamic Education, and Cubs teachers specialise in ages 5–14.' },
       { q: 'Can I request a female teacher for my daughter?', a: 'Yes — female teachers are available, in a fully private, faith-conscious setting.' },
       { q: 'How will I know my child is progressing?', a: 'A short report after each lesson, monthly achievement badges, and everything in one Family Portal account.' },
-      { q: 'How much does it cost?', a: 'From $40 a month, with 2 free sessions first. Not sure of the level? Take the free kids placement test.' },
+      { q: 'How much does it cost?', a: `From ${PE.from} a month, with 2 free sessions first. Not sure of the level? Take the free kids placement test.` },
     ],
     related: ['5-signs-your-child-is-ready-for-online-quran-classes', 'online-quran-classes-for-kids-a-complete-guide-for-parents', 'how-to-choose-the-right-quran-teacher-for-your-child'],
     cta: { title: 'Let your child meet their teacher — <span class="accent">free.</span>', lede: 'Two free lessons, no card. See how your child responds before deciding anything.' },
     schemaName: 'Ummah Cubs — Online Qur’an & Islamic Studies for Kids',
-    from: 40,
+    from: PRICES.launch,
   },
   islamic: {
     path: '/online-islamic-studies-classes/',
@@ -273,7 +277,7 @@ const EN: Record<TrackPageKey, TrackPageContent> = {
     related: ['how-to-learn-quran-online-a-complete-beginners-guide-2026', 'what-is-an-ijazah-understanding-quran-certification-and-sanad', 'online-quran-classes-across-time-zones-how-scheduling-actually-works'],
     cta: { title: 'Bring your questions <span class="accent">to your first free lesson.</span>', lede: 'Two free live lessons with an Al-Azhar scholar. No card, no commitment.' },
     schemaName: 'Online Islamic Studies for Adults',
-    from: 64,
+    from: PRICES.starter,
   },
 };
 
@@ -361,7 +365,7 @@ const AR: Record<TrackPageKey, TrackPageContent> = {
   },
   arabic: {
     ...EN.arabic,
-    meta: { title: 'دروس اللغة العربية أونلاين | من نور البيان إلى النحو | أكاديمية الأمة', desc: 'تعلّم عربية القرآن في حصص فردية: نور البيان للقراءة من الصفر، والنحو والصرف بالآجرومية، والمحادثة مع معلمين من الأزهر. تبدأ من ٤٠ دولارًا شهريًا.' },
+    meta: { title: 'دروس اللغة العربية أونلاين | من نور البيان إلى النحو | أكاديمية الأمة', desc: `تعلّم عربية القرآن في حصص فردية: نور البيان للقراءة من الصفر، والنحو والصرف بالآجرومية، والمحادثة مع معلمين من الأزهر. تبدأ من ${PA.from} شهريًا.` },
     crumb: 'اللغة العربية',
     eyebrow: 'اللغة العربية',
     title: 'اقرأها. افهمها. <span class="accent">تحدّث بها.</span>',
@@ -390,7 +394,7 @@ const AR: Record<TrackPageKey, TrackPageContent> = {
       { q: 'هل تدرّسون النحو أيضًا؟', a: 'نعم، بعد الطلاقة في القراءة ينتقل الطلاب إلى النحو والصرف بالآجرومية ثم المحادثة.' },
       { q: 'هل الحصص فردية؟', a: 'نعم دائمًا — لكل طالب معلمه.' },
       { q: 'كم حصة في الأسبوع؟', a: 'غالبًا من حصتين إلى ثلاث، في مواعيد تناسب توقيتك.' },
-      { q: 'كم التكلفة؟', a: 'تبدأ من ٤٠ دولارًا شهريًا لحصص ٣٠ دقيقة، والنحو والمحادثة من ٦٤ دولارًا. وكل خطة تبدأ بحصتين مجانيتين.' },
+      { q: 'كم التكلفة؟', a: `تبدأ من ${PA.from} شهريًا لحصص ٣٠ دقيقة، والنحو والمحادثة من ${PA.from60}. وكل خطة تبدأ بحصتين مجانيتين.` },
     ],
     cta: { title: 'أول حصتين في العربية <span class="accent">علينا.</span>', lede: 'اعرف مرحلتك، وتعرّف على معلمك، ثم قرّر. بدون بطاقة دفع.' },
   },
@@ -425,7 +429,7 @@ const AR: Record<TrackPageKey, TrackPageContent> = {
       { q: 'هل المعلمون مدرَّبون على تعليم الأطفال؟', a: 'نعم. تحمل مسؤولة البرنامج شهادة في التربية الإسلامية المبكرة، ومعلمو الأشبال متخصصون في سن ٥–١٤.' },
       { q: 'هل يمكنني طلب معلمة لابنتي؟', a: 'نعم، تتوفر معلمات في بيئة خاصة آمنة تراعي القيم.' },
       { q: 'كيف أعرف أن طفلي يتقدّم؟', a: 'تقرير قصير بعد كل حصة، وأوسمة إنجاز شهرية، وكل شيء في حساب واحد ببوابة الأسرة.' },
-      { q: 'كم التكلفة؟', a: 'تبدأ من ٤٠ دولارًا شهريًا، مع حصتين مجانيتين أولًا. لست متأكدًا من المستوى؟ جرّب اختبار الأطفال المجاني.' },
+      { q: 'كم التكلفة؟', a: `تبدأ من ${PA.from} شهريًا، مع حصتين مجانيتين أولًا. لست متأكدًا من المستوى؟ جرّب اختبار الأطفال المجاني.` },
     ],
     cta: { title: 'دع طفلك يتعرّف على معلمه — <span class="accent">مجانًا.</span>', lede: 'حصتان مجانيتان بدون بطاقة دفع. شاهد تفاعل طفلك قبل أن تقرر أي شيء.' },
   },

@@ -1,0 +1,333 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms@0.239.1/schema/sveltia-cms.json
+#
+# Sveltia CMS for ummahacademy.net — open /admin/ on the live site.
+# Editor guide (Arabic + English): docs/16-cms-guide.md
+#
+# How a change goes live:
+#   Save   → a draft on its own branch + pull request; Vercel builds a preview, CI runs the QA checks
+#   Publish → the pull request is merged into `main`, which deploys the live site
+# The build validates every field (src/content.config.ts, src/data/*.ts). An invalid edit
+# fails the build and the previous version of the site stays online.
+
+app_title: Ummah Academy · Content
+site_url: https://ummahacademy.net
+display_url: https://ummahacademy.net
+logo:
+  src: /favicon.svg
+
+backend:
+  name: github
+  repo: 3boalazm/Ummah-academy
+  branch: main
+  # sign in with a fine-grained GitHub token (no OAuth server needed) — see the guide
+  auth_methods: [token]
+  squash_merges: true
+  commit_messages:
+    create: 'Content: add {{collection}} “{{slug}}”'
+    update: 'Content: update {{collection}} “{{slug}}”'
+    delete: 'Content: delete {{collection}} “{{slug}}”'
+    uploadMedia: 'Content: upload “{{path}}”'
+    deleteMedia: 'Content: delete “{{path}}”'
+
+publish_mode: editorial_workflow
+
+media_folder: public/images/blog
+public_folder: /images/blog
+
+output:
+  # never write `updated: ''` — an empty date would fail the build
+  omit_empty_optional_fields: true
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+i18n:
+  structure: multiple_files
+  locales: [en, ar, de, fr, it]
+  default_locale: en
+
+collections:
+  # ── Articles ────────────────────────────────────────────────────────────────
+  - name: articles_en
+    label: Articles · English
+    label_singular: English article
+    description: Live at ummahacademy.net/<slug>/ — the slug is the address, so keep it short, lowercase and in English.
+    icon: article
+    folder: src/content/blog
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{title}}'
+      editable: true
+    summary: '{{title}}'
+    sortable_fields: [date, title]
+    preview_path: '{{slug}}/'
+    fields:
+      - { name: title, label: Title, widget: string, maxlength: 110, hint: 'Shown as the headline, in Google and on the social card. Aim for 50–70 characters.' }
+      - { name: description, label: Summary, widget: text, maxlength: 220, hint: 'One or two sentences (140–160 characters is ideal). Used under the title in Google and when the link is shared on WhatsApp.' }
+      - { name: date, label: Published, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', default: '{{now}}' }
+      - { name: updated, label: Last updated, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', required: false, hint: 'Set this when you change an article meaningfully; Google sees it.' }
+      - name: category
+        label: Category
+        widget: select
+        options: ['Getting Started', 'Tajweed', 'Hifz & Memorization', 'Arabic Language', 'Kids & Parents', 'Certification', 'Islamic Studies']
+      - name: track
+        label: Course it leads to
+        widget: select
+        hint: Decides the course card and the call to action at the end of the article.
+        options:
+          - { label: 'Qur’an & Tajweed', value: quran }
+          - { label: Arabic, value: arabic }
+          - { label: 'Ummah Cubs (kids)', value: kids }
+          - { label: Islamic Studies, value: islamic }
+          - { label: General, value: general }
+      - { name: author, label: Author, widget: string, required: false, default: Ummah Academy Editorial }
+      - { name: featured, label: Featured on the blog page, widget: boolean, required: false, default: false }
+      - { name: body, label: Article, widget: richtext, hint: 'Use Heading 2 for sections. Link to other pages with their address, e.g. /pricing/.' }
+
+  - name: articles_ar
+    label: مقالات · العربية (Arabic)
+    label_singular: مقال عربي
+    description: 'Live at ummahacademy.net/ar/blog/<slug>/. Type the slug in Latin letters, e.g. quran-for-kids-abroad.'
+    icon: article
+    folder: src/content/blog-ar
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      editable: true
+    summary: '{{title}}'
+    sortable_fields: [date, title]
+    preview_path: 'ar/blog/{{slug}}/'
+    fields:
+      - { name: title, label: العنوان (Title), widget: string, maxlength: 110 }
+      - { name: description, label: الملخص (Summary), widget: text, maxlength: 220, hint: 'جملة أو جملتان تظهران في جوجل وعند مشاركة الرابط على واتساب.' }
+      - { name: date, label: تاريخ النشر (Published), widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', default: '{{now}}' }
+      - { name: updated, label: آخر تحديث (Last updated), widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', required: false }
+      - name: category
+        label: التصنيف (Category)
+        widget: select
+        options: ['البداية', 'التجويد', 'الحفظ', 'اللغة العربية', 'الأطفال والأسرة', 'الإجازة والسند', 'الدراسات الإسلامية']
+      - name: track
+        label: الدورة المرتبطة (Course)
+        widget: select
+        options:
+          - { label: 'القرآن والتجويد', value: quran }
+          - { label: 'اللغة العربية', value: arabic }
+          - { label: 'أشبال الأمة (الأطفال)', value: kids }
+          - { label: 'الدراسات الإسلامية', value: islamic }
+          - { label: 'عام', value: general }
+      - name: translationOf
+        label: نفس الموضوع بالإنجليزية (English article on the same topic)
+        widget: relation
+        collection: articles_en
+        value_field: '{{slug}}'
+        search_fields: [title]
+        display_fields: [title]
+        required: false
+        hint: 'اختياري — يربط المقالين حتى يظهر زر تغيير اللغة ووسوم hreflang.'
+      - { name: author, label: الكاتب (Author), widget: string, required: false, default: 'فريق التحرير في أكاديمية الأمة' }
+      - { name: featured, label: مميز (Featured), widget: boolean, required: false, default: false }
+      - { name: body, label: المقال (Article), widget: richtext }
+
+  - name: articles_de
+    label: Artikel · Deutsch (German)
+    label_singular: Artikel
+    description: 'Live at ummahacademy.net/de/blog/<slug>/. Slug in German, lowercase, umlauts as ae/oe/ue (glossary: docs/11-i18n-glossary.md §6).'
+    icon: article
+    folder: src/content/blog-tr/de
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{title}}'
+      editable: true
+    summary: '{{title}}'
+    sortable_fields: [date, title]
+    preview_path: 'de/blog/{{slug}}/'
+    fields:
+      - { name: title, label: Titel, widget: string, maxlength: 110 }
+      - { name: description, label: Zusammenfassung, widget: text, maxlength: 220 }
+      - { name: date, label: Veröffentlicht, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', default: '{{now}}' }
+      - { name: updated, label: Aktualisiert, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', required: false }
+      - name: category
+        label: Kategorie
+        widget: select
+        options:
+          - { label: Erste Schritte, value: Getting Started }
+          - { label: Tajweed, value: Tajweed }
+          - { label: Hifz & Auswendiglernen, value: Hifz & Memorization }
+          - { label: Arabisch, value: Arabic Language }
+          - { label: Kinder & Eltern, value: Kids & Parents }
+          - { label: Ijaza & Zertifizierung, value: Certification }
+          - { label: Islamische Studien, value: Islamic Studies }
+      - name: track
+        label: Passender Kurs
+        widget: select
+        options:
+          - { label: Koran & Tajweed, value: quran }
+          - { label: Arabisch, value: arabic }
+          - { label: Ummah Cubs (Kinder), value: kids }
+          - { label: Islamische Studien, value: islamic }
+          - { label: Allgemein, value: general }
+      - { name: translationOf, label: Übersetzung von (englischer Artikel), widget: relation, collection: articles_en, value_field: '{{slug}}', search_fields: [title], display_fields: [title], hint: Pflichtfeld — verbindet die Sprachfassungen (Sprachmenü und hreflang). }
+      - { name: author, label: Autor, widget: string, default: Redaktion der Ummah Academy }
+      - { name: featured, label: Hervorgehoben, widget: boolean, required: false, default: false }
+      - { name: body, label: Artikel, widget: richtext }
+
+  - name: articles_fr
+    label: Articles · Français (French)
+    label_singular: Article
+    description: 'Live at ummahacademy.net/fr/blog/<slug>/. No-break spaces before ? ! : ; are added automatically.'
+    icon: article
+    folder: src/content/blog-tr/fr
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{title}}'
+      editable: true
+    summary: '{{title}}'
+    sortable_fields: [date, title]
+    preview_path: 'fr/blog/{{slug}}/'
+    fields:
+      - { name: title, label: Titre, widget: string, maxlength: 110 }
+      - { name: description, label: Résumé, widget: text, maxlength: 220 }
+      - { name: date, label: Publié le, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', default: '{{now}}' }
+      - { name: updated, label: Mis à jour le, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', required: false }
+      - name: category
+        label: Catégorie
+        widget: select
+        options:
+          - { label: Bien commencer, value: Getting Started }
+          - { label: Tajwid, value: Tajweed }
+          - { label: Hifz & mémorisation, value: Hifz & Memorization }
+          - { label: Langue arabe, value: Arabic Language }
+          - { label: Enfants & parents, value: Kids & Parents }
+          - { label: Ijaza & certification, value: Certification }
+          - { label: Sciences islamiques, value: Islamic Studies }
+      - name: track
+        label: Cours associé
+        widget: select
+        options:
+          - { label: Coran & tajwid, value: quran }
+          - { label: Arabe, value: arabic }
+          - { label: Ummah Cubs (enfants), value: kids }
+          - { label: Sciences islamiques, value: islamic }
+          - { label: Général, value: general }
+      - { name: translationOf, label: Traduction de (article anglais), widget: relation, collection: articles_en, value_field: '{{slug}}', search_fields: [title], display_fields: [title], hint: Obligatoire — relie les versions linguistiques (menu des langues et hreflang). }
+      - { name: author, label: Auteur, widget: string, default: Rédaction d’Ummah Academy }
+      - { name: featured, label: À la une, widget: boolean, required: false, default: false }
+      - { name: body, label: Article, widget: richtext }
+
+  - name: articles_it
+    label: Articoli · Italiano (Italian)
+    label_singular: Articolo
+    description: Live at ummahacademy.net/it/blog/<slug>/.
+    icon: article
+    folder: src/content/blog-tr/it
+    extension: md
+    format: frontmatter
+    create: true
+    identifier_field: title
+    slug:
+      template: '{{title}}'
+      editable: true
+    summary: '{{title}}'
+    sortable_fields: [date, title]
+    preview_path: 'it/blog/{{slug}}/'
+    fields:
+      - { name: title, label: Titolo, widget: string, maxlength: 110 }
+      - { name: description, label: Sommario, widget: text, maxlength: 220 }
+      - { name: date, label: Pubblicato il, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', default: '{{now}}' }
+      - { name: updated, label: Aggiornato il, widget: datetime, format: 'YYYY-MM-DDTHH:mm:ss', required: false }
+      - name: category
+        label: Categoria
+        widget: select
+        options:
+          - { label: Per iniziare, value: Getting Started }
+          - { label: Tajweed, value: Tajweed }
+          - { label: Hifz e memorizzazione, value: Hifz & Memorization }
+          - { label: Lingua araba, value: Arabic Language }
+          - { label: Bambini e genitori, value: Kids & Parents }
+          - { label: Ijaza e certificazione, value: Certification }
+          - { label: Studi islamici, value: Islamic Studies }
+      - name: track
+        label: Corso collegato
+        widget: select
+        options:
+          - { label: Corano e Tajweed, value: quran }
+          - { label: Arabo, value: arabic }
+          - { label: Ummah Cubs (bambini), value: kids }
+          - { label: Studi islamici, value: islamic }
+          - { label: Generale, value: general }
+      - { name: translationOf, label: Traduzione di (articolo inglese), widget: relation, collection: articles_en, value_field: '{{slug}}', search_fields: [title], display_fields: [title], hint: Obbligatorio — collega le versioni linguistiche (menu lingue e hreflang). }
+      - { name: author, label: Autore, widget: string, default: Redazione di Ummah Academy }
+      - { name: featured, label: In evidenza, widget: boolean, required: false, default: false }
+      - { name: body, label: Articolo, widget: richtext }
+
+  # ── FAQ (all five languages in one entry) ───────────────────────────────────
+  - name: faq
+    label: FAQ page
+    description: The questions on /faq/, edited side by side in all five languages. Every language must keep the same topics and the same number of questions — the build checks it.
+    icon: quiz
+    i18n: true
+    files:
+      - name: faq
+        label: Frequently asked questions (/faq/)
+        file: src/content/faq/{{locale}}.json
+        format: json
+        i18n: true
+        fields:
+          - name: groups
+            label: Topics
+            label_singular: Topic
+            widget: list
+            i18n: true
+            summary: '{{fields.title}}'
+            fields:
+              - { name: id, label: Anchor, widget: string, i18n: duplicate, pattern: ['^[a-z][a-z0-9-]*$', 'Lowercase letters, digits and dashes, e.g. pricing'], hint: 'Used in links like /faq/#pricing. The same in every language.' }
+              - { name: title, label: Topic title, widget: string, i18n: true }
+              - name: items
+                label: Questions
+                label_singular: Question
+                widget: list
+                i18n: true
+                summary: '{{fields.q}}'
+                fields:
+                  - { name: q, label: Question, widget: string, i18n: true }
+                  - name: a
+                    label: Answer
+                    widget: text
+                    i18n: true
+                    hint: 'Links: [pricing](/pricing/) — the address is turned into the right language automatically. Prices: {{from}} = cheapest plan, {{to}} = dearest, {{from60}} = cheapest 60-minute plan, {{launch}} … {{diamond}} = one plan; add :number for the figure alone, e.g. {{from:number}}. They always show the current price.'
+
+  # ── Prices (one place for every language) ───────────────────────────────────
+  - name: settings
+    label: Prices
+    description: Monthly prices in US dollars. Change a number and every page in all five languages follows — the pricing page, course cards, menus, page titles, FAQ answers and the booking form.
+    icon: payments
+    files:
+      - name: prices
+        label: Monthly plan prices (US $)
+        file: src/data/prices.json
+        format: json
+        fields:
+          - { name: currency, label: Currency, widget: hidden, default: USD }
+          - name: plans
+            label: Plans
+            widget: object
+            fields:
+              - { name: launch, label: 'Launch — 30 min, 2× a week (8 sessions)', widget: number, value_type: int, min: 1, max: 10000 }
+              - { name: consistent, label: 'Consistent — 30 min, 4× a week (16 sessions)', widget: number, value_type: int, min: 1, max: 10000 }
+              - { name: elite, label: 'Elite — 30 min, 5× a week (20 sessions)', widget: number, value_type: int, min: 1, max: 10000 }
+              - { name: starter, label: 'Starter — 60 min, 1× a week (4 sessions)', widget: number, value_type: int, min: 1, max: 10000 }
+              - { name: gold, label: 'Gold — 60 min, 2× a week (8 sessions)', widget: number, value_type: int, min: 1, max: 10000 }
+              - { name: diamond, label: 'Diamond — 60 min, 3× a week (12 sessions)', widget: number, value_type: int, min: 1, max: 10000 }

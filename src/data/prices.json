@@ -1,0 +1,11 @@
+{
+  "currency": "USD",
+  "plans": {
+    "launch": 40,
+    "consistent": 59,
+    "elite": 74,
+    "starter": 64,
+    "gold": 96,
+    "diamond": 128
+  }
+}

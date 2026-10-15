@@ -1,74 +1,9 @@
 /** FaqPage — Deutsch. */
-import { lp } from '@/i18n';
+import faq from '@/content/faq/de.json';
+import { faqGroups } from '@/data/faq';
 
 export default {
-  groups: [
-    {
-      id: 'start',
-      title: 'Erste Schritte',
-      items: [
-        { q: 'Wie schnell antworten Sie?', a: 'Per WhatsApp meist innerhalb von Minuten – spätestens nach 2 Stunden, in jeder Zeitzone.' },
-        { q: 'Sind die 2 Probestunden wirklich kostenlos?', a: 'Ja – vollkommen kostenlos, ohne Kreditkarte und ohne Verpflichtung.' },
-        { q: 'Was passiert nach der Probestunde?', a: 'Wenn Sie weitermachen möchten, wählen Sie einen Monatstarif. Wenn nicht, müssen Sie nichts kündigen.' },
-        { q: 'Kann ich mir eine bestimmte Lehrkraft wünschen?', a: 'Ja – nennen Sie bei der Buchung den Namen, und wir tun unser Bestes.' },
-      ],
-    },
-    {
-      id: 'method',
-      title: 'Kurse & Methode',
-      items: [
-        { q: 'Was ist, wenn ich kein Arabisch spreche?', a: 'Jede Lehrkraft unterrichtet zweisprachig auf Arabisch und Englisch; Unterricht auf Deutsch bieten wir derzeit nicht an. Viele Lernende beginnen bei null.' },
-        {
-          q: 'Was macht Ihren Ansatz anders?',
-          a: 'Die Itqan-Methode: Meisterschaft und Nachdenken (Tadabbur) statt bloßer Rezitation – thematische Versgruppen und Korrektur in Echtzeit statt stumpfer Wiederholung.',
-        },
-        {
-          q: 'Erhalte ich ein Zertifikat oder eine Ijaza?',
-          a: 'Alle Lernenden erhalten ein Zertifikat pro Stufe. Wer Rezitation oder Hifz lernt, kann auf eine förmliche Ijaza mit dokumentierter Kette bis zum Propheten ﷺ hinarbeiten.',
-        },
-      ],
-    },
-    {
-      id: 'teachers',
-      title: 'Lehrkräfte',
-      items: [
-        { q: 'Wer sind Ihre Lehrkräfte?', a: 'Absolventinnen und Absolventen der Al-Azhar-Universität mit Ijaza und Erfahrung mit arabischsprachigen wie nicht arabischsprachigen Lernenden.' },
-        { q: 'Kann ich eine Lehrerin für meine Tochter oder meine Frau wünschen?', a: 'Ja – eigene Lehrerinnen für Frauen und Kinder, in einem privaten Rahmen, der religiöse Werte achtet.' },
-      ],
-    },
-    {
-      id: 'schedule',
-      title: 'Termine & Technik',
-      items: [
-        { q: 'Auf welcher Plattform findet der Unterricht statt?', a: 'Über Zoom oder Google Meet, mit einem interaktiven Whiteboard für Tajweed-Markierungen.' },
-        { q: 'Was ist, wenn ich eine Einheit verpasse?', a: 'Mit 24 Stunden Vorlauf verlegen Sie kostenlos – eine verpasste Einheit ist also keine verlorene.' },
-        { q: 'Decken Sie meine Zeitzone ab?', a: 'Ja – unterrichtet wird rund um die Uhr, Sie buchen also die Zeit, die wirklich zu Ihnen passt.' },
-      ],
-    },
-    {
-      id: 'family',
-      title: 'Familie & Kinder',
-      items: [
-        { q: 'Mein Kind ist 5 – ist das zu jung?', a: 'Überhaupt nicht – Ummah Cubs nimmt Kinder ab 5 Jahren auf, mit kurzen, spielbasierten 30-Minuten-Einheiten.' },
-        {
-          q: 'Kann ich den Fortschritt meines Kindes verfolgen?',
-          a: 'Ein Bericht nach jeder Stunde und monatliche Abzeichen, mit einem Konto im Familienportal für alle Ihre Kinder; das Live-Dashboard und die Aufzeichnungsbibliothek folgen schrittweise.',
-        },
-      ],
-    },
-    {
-      id: 'pricing',
-      title: 'Preise & Zahlung',
-      items: [
-        {
-          q: 'Was kostet es?',
-          a: `Je nach Dauer und Häufigkeit der Einheiten zwischen 40 $ und 128 $ im Monat – jeder Tarif beginnt mit 2 kostenlosen Stunden. Siehe <a href="${lp('de', '/pricing/')}">Preise</a>.`,
-        },
-        { q: 'Kann ich kündigen oder pausieren?', a: 'Ja – jederzeit kündbar (wirksam zum Ende des Abrechnungsmonats), oder Sie pausieren Ihr Abo vorübergehend.' },
-        { q: 'Welche Zahlungsmethoden akzeptieren Sie?', a: 'Visa, Mastercard, PayPal, Banküberweisung, Western Union und MoneyGram.' },
-      ],
-    },
-  ],
+  groups: faqGroups('de', faq),
   C: {
     meta: {
       title: 'FAQ zum Koranunterricht | Ummah Academy',

@@ -4,6 +4,8 @@ name: QA
 
 on:
   push:
+    # CMS drafts (cms/** branches) are checked through their pull request instead
+    branches-ignore: ['cms/**']
     paths-ignore: ['docs/**', '**/*.md']
   pull_request:
     paths-ignore: ['docs/**', '**/*.md']
@@ -49,8 +51,8 @@ jobs:
             suites: canary overflow header
           - name: popovers, axe
             suites: popovers axe
-          - name: flows, touch
-            suites: flows touch
+          - name: flows, touch, cms
+            suites: flows touch cms
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -64,6 +66,9 @@ jobs:
           path: dist
       - name: Run suites (Chrome preinstalled on ubuntu-latest)
         run: node qa/run.mjs ${{ matrix.suites }}
+      - name: Summary
+        if: always()
+        run: test -f qa/report/latest.md && cat qa/report/latest.md >> "$GITHUB_STEP_SUMMARY" || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

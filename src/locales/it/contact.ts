@@ -1,4 +1,8 @@
 /** Contact — italiano. */
+import { prices } from '@/data/prices';
+
+const P = prices('it');
+
 export default {
   C: {
     allFaq: 'Tutte le domande frequenti',
@@ -27,7 +31,7 @@ export default {
       { q: 'Posso chiedere un insegnante in particolare?', a: 'Sì — scrivi il nome nelle note, oppure usa «Prenota con…» nella pagina Insegnanti. Faremo del nostro meglio.' },
       { q: 'Su quale piattaforma si svolgono le lezioni?', a: 'Su Zoom o Google Meet, con una lavagna interattiva per annotare la recitazione e la scrittura.' },
       { q: 'Mio figlio ha 5 anni: è troppo piccolo?', a: 'Per niente. Ummah Cubs accoglie i bambini dai 5 anni con lezioni giocose da 30 minuti.' },
-      { q: 'Cosa succede dopo le due lezioni?', a: 'Se vuoi continuare, scegli un piano mensile (da 40 $). Puoi mettere in pausa o disdire quando vuoi.' },
+      { q: 'Cosa succede dopo le due lezioni?', a: `Se vuoi continuare, scegli un piano mensile (da ${P.from}). Puoi mettere in pausa o disdire quando vuoi.` },
     ],
   },
 };

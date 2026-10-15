@@ -1,4 +1,8 @@
 /** Home — English (reference locale) copy. */
+import { prices } from '@/data/prices';
+
+const P = prices('en');
+
 export default {
   C: {
     meta: {
@@ -48,7 +52,7 @@ export default {
       itqan: ['The Itqan method', 'Verses grouped by theme and meaning, corrected live — memorisation that lasts, not recitation for show.', 'How it works'],
       safe: ['Safe for every family', 'Private 1-on-1 lessons, female teachers for women and girls, and a report after every session.'],
       time: ['Built around your clock', 'Morning in Sydney or evening in Toronto — book any time, with a WhatsApp reminder 15 minutes before.'],
-      price: ['From $40 a month', 'Transparent plans. Two free sessions first.', 'See pricing'],
+      price: [`From ${P.from} a month`, 'Transparent plans. Two free sessions first.', 'See pricing'],
     },
     how: {
       eyebrow: 'How it works',
@@ -82,7 +86,7 @@ export default {
         },
         {
           q: 'How much does it cost, and can I cancel?',
-          a: 'Plans run from $40 to $128 a month depending on session length and frequency. Cancel anytime (effective at the end of your billing month), pause with a subscription freeze, and reschedule with 24 hours’ notice.',
+          a: `Plans run from ${P.from} to ${P.to} a month depending on session length and frequency. Cancel anytime (effective at the end of your billing month), pause with a subscription freeze, and reschedule with 24 hours’ notice.`,
         },
         { q: 'Can I choose a female teacher?', a: 'Yes. Female teachers are available for women and girls — just choose “Female teacher” when you book.' },
         { q: 'Is my child too young?', a: 'Ummah Cubs welcomes children from age 5, with short, game-based 30-minute lessons designed for young attention spans.' },

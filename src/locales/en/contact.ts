@@ -1,4 +1,8 @@
 /** Contact — English (reference locale) copy. */
+import { prices } from '@/data/prices';
+
+const P = prices('en');
+
 export default {
   C: {
     allFaq: 'All frequently asked questions',
@@ -27,7 +31,7 @@ export default {
       { q: 'Can I request a specific teacher?', a: 'Yes — add their name in the notes, or use “Book with…” on the Teachers page. We’ll do our best to match you.' },
       { q: 'What platform are lessons on?', a: 'Zoom or Google Meet, with an interactive whiteboard for marking up recitation and writing.' },
       { q: 'My child is 5 — too young?', a: 'Not at all. Ummah Cubs welcomes children from age 5 with playful 30-minute lessons.' },
-      { q: 'What happens after the two sessions?', a: 'If you’d like to continue, you choose a monthly plan (from $40). You can cancel or pause anytime.' },
+      { q: 'What happens after the two sessions?', a: `If you’d like to continue, you choose a monthly plan (from ${P.from}). You can cancel or pause anytime.` },
     ],
   },
 };

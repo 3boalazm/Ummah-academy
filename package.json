@@ -9,18 +9,24 @@
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0",
     "check:links": "node scripts/check-links.mjs",
-    "verify": "npm run check:links && npm run check:i18n && npm run check:jsonld",
-    "qa": "npm run build && npm run verify && npm run check:cards",
+    "verify": "npm run check:links && npm run check:i18n && npm run check:jsonld && npm run check:sitemap",
+    "qa": "npm run build && npm run verify && npm run check:cards && npm run check:cms && npm run check:css && npm test",
     "pdfs": "node scripts/build-pdfs.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:jsonld": "node scripts/check-jsonld.mjs",
     "check:cards": "node scripts/check-cards.mjs",
-    "qa:browser": "node qa/run.mjs"
+    "check:cms": "node scripts/check-cms.mjs",
+    "check:sitemap": "node scripts/check-sitemap.mjs",
+    "check:css": "node scripts/check-css.mjs",
+    "test": "node --import ./scripts/lib/ts-register.mjs scripts/test-units.mjs",
+    "qa:browser": "node qa/run.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "engines": {
     "node": ">=20.19"
   },
   "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/geist": "^5.3.0",
@@ -29,7 +35,8 @@
     "@fontsource/instrument-serif": "^5.3.0",
     "@phosphor-icons/core": "^2.1.1",
     "astro": "^7.3.8",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "axe-core": "^4.14.0",
