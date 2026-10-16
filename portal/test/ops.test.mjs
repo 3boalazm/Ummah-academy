@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 import { localParts } from '../src/domain/time.mjs';
 import { sniffUpload, waDraftLink } from '../src/domain/ops.mjs';
 import { DEMO_PASSWORD, buildSeed } from '../src/domain/seed.mjs';
 import { createStore } from '../src/domain/store.mjs';
+import { loadStateFile } from '../src/domain/persistence.mjs';
 
 const NOW = new Date('2026-10-16T10:00:00.000Z');
 const seed = buildSeed(NOW);
@@ -159,4 +163,88 @@ test('production mode refuses the published demo passwords', () => {
     onCommit() {},
   });
   assert.throws(() => store.login('admin@ummahacademy.net', DEMO_PASSWORD.admin), /incorrect/i);
+});
+
+
+test('missing portal state is first-run only outside production', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
+  const file = path.join(dir, 'store.json');
+  try {
+    assert.equal(loadStateFile(file), null);
+    assert.throws(() => loadStateFile(file, { production: true }), /not initialized/i);
+    assert.equal(fs.existsSync(file), false);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('corrupt portal state fails closed and preserves original bytes', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
+  const file = path.join(dir, 'store.json');
+  const original = Buffer.from('{"meta": "incomplete"');
+  try {
+    fs.writeFileSync(file, original);
+    assert.throws(() => loadStateFile(file), /invalid JSON/i);
+    assert.deepEqual(fs.readFileSync(file), original);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('unreadable portal state fails closed instead of falling back to seed data', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
+  // Reading a directory as a file raises EISDIR on the Linux CI runner. This
+  // exercises the non-ENOENT I/O error path without relying on chmod/root rules.
+  try {
+    assert.throws(() => loadStateFile(dir), /Unable to read existing portal data file/i);
+    assert.equal(fs.statSync(dir).isDirectory(), true);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('valid JSON with an invalid portal schema is not treated as first run', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
+  const file = path.join(dir, 'store.json');
+  const original = Buffer.from(JSON.stringify({ meta: {}, users: [] }));
+  try {
+    fs.writeFileSync(file, original);
+    assert.throws(() => loadStateFile(file), /missing required collections/i);
+    assert.deepEqual(fs.readFileSync(file), original);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('production rejects demo-marked portal state without modifying it', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
+  const file = path.join(dir, 'store.json');
+  const state = buildSeed(NOW);
+  const original = Buffer.from(JSON.stringify(state));
+  try {
+    fs.writeFileSync(file, original);
+    assert.throws(() => loadStateFile(file, { production: true }), /marked as demo/i);
+    assert.deepEqual(fs.readFileSync(file), original);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+
+test('production admin cannot reset live portal state to demo seed', () => {
+  const state = buildSeed(NOW);
+  state.meta.demo = false;
+  state.meta.seededAt = '2026-01-01T00:00:00.000Z';
+  const store = createStore({
+    state: structuredClone(state),
+    now: () => NOW,
+    secret: 'production-test-secret',
+    production: true,
+    onCommit() {},
+  });
+  const before = store.snapshot();
+  const admin = store.actorById('usr_admin');
+  assert.ok(admin);
+  assert.throws(() => store.resetDemo(admin), /access/i);
+  assert.deepEqual(store.snapshot(), before);
 });
