@@ -33,3 +33,4 @@
 | 22 | [22-phase-0-route-inventory.md](22-phase-0-route-inventory.md) | Source-based inventory of portal HTTP routes and the authorization, record-scope, state-transition, and negative-test acceptance still required |
 | 23 | [23-portal-phase-2-domain-model.md](23-portal-phase-2-domain-model.md) | Operations portal Phase 2: domain relationship contract, synthetic-seed integrity tests, and remaining acceptance gates |
 | 24 | [24-portal-phase-3-authorization-minimization.md](24-portal-phase-3-authorization-minimization.md) | Operations portal Phase 3: role-specific teacher directory projections and privacy regression tests |
+| 29 | [29-phase-7-subscription-credit-idempotency.md](29-phase-7-subscription-credit-idempotency.md) | Phase 7.1: API idempotency route scoping, credit/payment baseline, acceptance gates and remaining business decisions |
