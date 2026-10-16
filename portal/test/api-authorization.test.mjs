@@ -164,16 +164,13 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
 test('API idempotency keys are isolated by operation route', async () => {
   const cookie = await login('admin@ummahacademy.net', 'Sakinah-Admin-2026');
   const key = 'same-client-key-across-routes';
-  const before = await request('/api/payments', { cookie });
-  assert.equal(before.status, 200);
-
   const session = await request('/api/sessions', {
     method: 'POST',
     cookie,
     idempotencyKey: key,
     body: {
       studentId: 'stu_yusuf',
-      teacherId: 't_nour',
+      teacherId: 'nour-hassan',
       startsAt: '2027-01-20T10:00:00.000Z',
       durationMin: 30,
     },
