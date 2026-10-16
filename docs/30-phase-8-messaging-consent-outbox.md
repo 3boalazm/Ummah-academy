@@ -23,7 +23,7 @@
 - Business/legal must approve consent language, valid evidence sources, record retention, communication windows, locale/template approval, child-related messaging policy and applicable jurisdiction requirements before production.
 - Consent metadata must be included in the production database migration and protected by transactional uniqueness/retention policy before real records are migrated.
 - Follow-up create/attempt/transition/change-request commands now use API idempotency keys so a retried request does not append duplicate attempt history.
-- The portal's new consent UI still needs a dedicated authenticated browser/accessibility journey; current site-wide marketing browser QA is not evidence for the operations portal.
+- A dedicated authenticated browser journey now covers guardian login and unknown → opt-in → opt-out using a temporary synthetic store; it never sends messages or touches production data. Full role-by-role browser coverage and a dedicated accessibility review of the operations portal remain open.
 - Full role-by-role browser QA, provider integration tests, operational alerts and successful CI are required before MSG-001/MSG-002 can be ACCEPTED.
 
 ## Verification commands
