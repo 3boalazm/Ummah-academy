@@ -19,6 +19,7 @@ const DEMO_PASSWORDS = new Set(Object.values(DEMO_PASSWORD));
 
 const SECRET_KEY = /password|secret|token|cvv|card|pan/i;
 const OPEN = new Set(['scheduled', 'confirmed']);
+const ATTENDANCE_STATUSES = new Set(['present', 'late', 'absent', 'excused']);
 
 export function createStore(options = {}) {
   const clock = options.now ?? (() => new Date());
@@ -844,7 +845,7 @@ export function createStore(options = {}) {
       return command(actor, null, () => {
         const session = must(state.sessions, sessionId);
         allow(actor, 'session.write', session);
-        if (!['present', 'late', 'absent', 'excused'].includes(input.status)) throw E.validation('Unknown attendance status.', 'حالة الحضور غير معروفة.');
+        if (!ATTENDANCE_STATUSES.has(input?.status)) throw E.validation('Unknown attendance status.', 'حالة الحضور غير معروفة.');
         const existing = state.attendance.find((a) => a.sessionId === session.id && a.studentId === session.studentId);
         const before = existing ? { status: existing.status } : null;
         if (existing) {
@@ -864,7 +865,8 @@ export function createStore(options = {}) {
         allow(actor, 'session.write', session);
         if (session.status === 'completed') throw E.already('completed', 'إكمالها');
         assertOpen(session);
-        if (input.attendance) {
+        if (input.attendance !== undefined && input.attendance !== null) {
+          if (!ATTENDANCE_STATUSES.has(input.attendance)) throw E.validation('Unknown attendance status.', 'حالة الحضور غير معروفة.');
           const existing = state.attendance.find((a) => a.sessionId === session.id && a.studentId === session.studentId);
           if (existing) {
             existing.status = input.attendance;
@@ -888,7 +890,11 @@ export function createStore(options = {}) {
         if (session.status !== 'completed') throw E.badState('Report comes after the session is completed.', 'التقرير يُرفع بعد اكتمال الحصة.');
         if (!input.summary || String(input.summary).trim().length < 3) throw E.validation('Summary is required.', 'ملخص الحصة مطلوب.');
         const existing = state.reports.find((r) => r.sessionId === session.id);
-        const before = existing ? { summary: existing.summary, status: existing.status } : null;
+        const reportAuditFields = (report) => report ? Object.fromEntries([
+          'status', 'summary', 'summaryAr', 'homework', 'homeworkAr', 'nextStep',
+          'nextStepAr', 'strengths', 'strengthsAr', 'improvements', 'improvementsAr', 'submittedAt',
+        ].map((field) => [field, report[field] ?? null])) : null;
+        const before = reportAuditFields(existing);
         const row = existing ?? { id: id('rpt'), sessionId: session.id, studentId: session.studentId, teacherId: session.teacherId };
         Object.assign(row, {
           status: 'submitted',
@@ -905,8 +911,10 @@ export function createStore(options = {}) {
           submittedAt: clock().toISOString(),
         });
         if (!existing) state.reports.push(row);
-        audit(actor, 'report.submitted', 'session', session.id, before, { summary: row.summary }, null, meta.requestId);
-        event(actor, 'report.submitted', { studentId: session.studentId, familyId: session.familyId, entityType: 'session', entityId: session.id, summary: 'Report submitted', summaryAr: 'رُفع تقرير الحصة' });
+        audit(actor, existing ? 'report.corrected' : 'report.submitted', 'session', session.id, before, reportAuditFields(row), input.reason ?? null, meta.requestId);
+        if (!existing) {
+          event(actor, 'report.submitted', { studentId: session.studentId, familyId: session.familyId, entityType: 'session', entityId: session.id, summary: 'Report submitted', summaryAr: 'رُفع تقرير الحصة' });
+        }
         for (const g of state.guardians.filter((g) => g.studentIds.includes(session.studentId))) {
           notify(g.userId, 'A lesson report is ready', 'تقرير الحصة جاهز', row.summary, row.summaryAr, `/app/sessions/${session.id}`);
         }
