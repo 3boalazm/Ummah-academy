@@ -14,6 +14,7 @@ import { loadStateFile } from './domain/persistence.mjs';
 import { sniffUpload } from './domain/ops.mjs';
 import { sessionCookie } from './domain/http-security.mjs';
 import { requestLogRecord } from './domain/observability.mjs';
+import { buildHealthReport } from './domain/health.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
@@ -196,6 +197,15 @@ const routes = [
     send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0, { production }) });
   }],
   ['GET', /^\/api\/health$/, async (_req, res) => send(res, 200, { ok: true, demo: store.demo })],
+  ['GET', /^\/api\/ready$/, async (_req, res) => {
+    const report = buildHealthReport({
+      state: store.snapshot(),
+      production,
+      secretConfigured: Boolean(process.env.PORTAL_SECRET),
+      dataFileReadable: fs.existsSync(dataFile) && fs.statSync(dataFile).isFile(),
+    });
+    return send(res, report.ready ? 200 : 503, report);
+  }],
   ['GET', /^\/api\/me$/, async (req, res, actor) => send(res, 200, { ...actor, demo: store.demo })],
   ['GET', /^\/api\/dashboard$/, async (_req, res, actor) => send(res, 200, store.dashboard(actor))],
   ['GET', /^\/api\/catalog$/, async (_req, res, actor) => send(res, 200, store.catalog(actor))],
@@ -357,7 +367,7 @@ const server = http.createServer(async (req, res) => {
         if (req.method !== method) continue;
         const match = pathname.match(re);
         if (!match) continue;
-        if (pathname === '/api/auth/login' || pathname === '/api/auth/logout' || pathname === '/api/health') return await handler(req, res);
+        if (pathname === '/api/auth/login' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
         const actor = actorFrom(req);
         if (!actor) return send(res, 401, { error: { code: 'unauthorized', message: 'Sign in required.', messageAr: 'يلزم تسجيل الدخول.' } });
         return await handler(req, res, actor, match);
