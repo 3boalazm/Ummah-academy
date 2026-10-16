@@ -10,7 +10,8 @@ Verify that the current operations domain keeps distinct entities distinct and t
 
 ## Work started
 
-- Added `portal/test/model-contract.test.mjs`.
+- Added `portal/test/model-contract.test.mjs` for synthetic-seed IDs and relationship integrity.
+- Added `portal/test/domain-boundaries.test.mjs` for negative command tests: cross-student enrollment, cross-subscription cycle/payment, and cross-family/session follow-up references must be rejected without leaving partial state.
 - Added unique-ID checks for the principal persisted collections.
 - Added relationship checks for:
   - guardian → family and guardian → authorized students;
@@ -25,7 +26,7 @@ Verify that the current operations domain keeps distinct entities distinct and t
   - attendance → session/student;
   - report → session/student/teacher;
   - asset and follow-up references where the current model defines them.
-- Added the new suite to `npm test` and `npm run test:portal`.
+- Added both suites to `npm test` and `npm run test:portal`.
 
 ## Acceptance boundaries
 
@@ -33,7 +34,7 @@ These checks currently exercise the **synthetic seed model**. They do not prove 
 
 Before this requirement can be accepted:
 1. CI must execute the new suite and report all checks passing.
-2. Add negative mutation tests that deliberately cross family/student/subscription boundaries and prove the command rejects the change without committing state.
+2. Expand negative mutation tests across every mutation family; the initial cross-entity cases are now implemented, but still require runtime acceptance.
 3. Review which relationships are historical snapshots versus live foreign keys (especially teacher assignment history, session substitutions, and reschedules).
 4. Move the accepted invariants into a production persistence schema with database constraints and migration/rollback tests once the database/runtime decision is approved.
 
