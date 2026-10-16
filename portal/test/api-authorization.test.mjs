@@ -191,6 +191,20 @@ test('API idempotency keys are isolated by operation route', async () => {
   assert.equal(repeatedSession.status, 201);
   assert.equal(repeatedSession.data.id, session.data.id, 'same route and key should replay the original session');
 
+  const mismatchedReplay = await request('/api/sessions', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: {
+      studentId: 'stu_yusuf',
+      teacherId: 'nour-hassan',
+      startsAt: '2027-01-21T10:00:00.000Z',
+      durationMin: 30,
+    },
+  });
+  assert.equal(mismatchedReplay.status, 409, 'same key with a different payload must be rejected');
+  assert.equal(mismatchedReplay.data?.error?.code, 'invalid_state');
+
   const payment = await request('/api/payments', {
     method: 'POST',
     cookie,
