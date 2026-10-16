@@ -435,6 +435,12 @@ export function createStore(options = {}) {
     const overlaps = findFamilyOverlaps(sessions);
     return {
       family,
+      myGuardian: g ? {
+        id: g.id,
+        whatsappConsent: g.whatsappConsent || 'unknown',
+        consentSource: g.consentSource || null,
+        consentAt: g.consentAt || null,
+      } : null,
       guardians: state.guardians
         .filter((x) => x.familyId === family.id)
         .filter((x) => actor.role !== 'guardian' || x.id === g.id || x.studentIds.some((id) => childIds.has(id)))
