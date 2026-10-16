@@ -136,7 +136,7 @@ Phase 0 is **not complete** until every unchecked deliverable above is either co
 
 ## 8. Recommended immediate action
 
-**Implementation started:** Pull request [#9](https://github.com/3boalazm/Ummah-academy/pull/9) adds a fail-closed state loader, rejects missing/demo state in production, disables the destructive demo-reset operation in production, and adds regression tests for missing, malformed, invalid-schema, unreadable, demo-marked, and production-reset cases. It is open and has not been merged. The GitHub Actions QA run is still in progress; Vercel's separate status remains failed due to a build-rate-limit/plan page. Do not mark the fix accepted until the workflow completes successfully and the diff is reviewed.
+**Implementation started:** Pull request [#9](https://github.com/3boalazm/Ummah-academy/pull/9) adds a fail-closed state loader, rejects missing/demo state in production, disables the destructive demo-reset operation in production, and adds regression tests for missing, malformed, invalid-schema, unreadable, demo-marked, and production-reset cases. It is open and has not been merged. On the latest commit, GitHub Actions **Build + static gates passed**, which includes the repository's `npm run qa` and test command; browser QA suites are still running. Vercel's separate status remains failed due to a build-rate-limit/plan page. Do not mark the fix accepted until the complete workflow passes and the diff is reviewed.
 
 After the state-loader fix is accepted, establish the production database and security architecture before connecting the public site or entering real child data.
 
