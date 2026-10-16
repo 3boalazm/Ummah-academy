@@ -76,3 +76,46 @@ test('follow-up creation rejects a session and subscription mismatch', () => {
     sessionId: IDS.sesOmarNext,
   }));
 });
+
+
+test('session creation rejects zero, negative, fractional and infinite durations without mutation', () => {
+  const { store, admin } = boot();
+  for (const durationMin of [0, -30, 1.5, Infinity]) {
+    assertRejectedWithoutMutation(store, () => store.createSession(admin, {
+      studentId: IDS.yusuf,
+      enrollmentId: IDS.enrYusuf,
+      teacherId: IDS.tSara,
+      startsAt: '2026-11-20T12:00:00.000Z',
+      durationMin,
+      reason: 'Invalid duration boundary test',
+    }));
+  }
+});
+
+test('recurring series rejects an invalid timezone and duration without mutation', () => {
+  const { store, admin } = boot();
+  for (const input of [
+    { studentId: IDS.yusuf, teacherId: IDS.tSara, startsAt: '2026-11-20T12:00:00.000Z', count: 2, timeZone: 'Mars/Olympus', durationMin: 30 },
+    { studentId: IDS.yusuf, teacherId: IDS.tSara, startsAt: '2026-11-20T12:00:00.000Z', count: 2, timeZone: 'Africa/Cairo', durationMin: 0 },
+  ]) {
+    assertRejectedWithoutMutation(store, () => store.createSeries(admin, input));
+  }
+});
+
+test('a conflict in a later recurring occurrence leaves the whole series untouched', () => {
+  const { store, admin } = boot();
+  const before = store.snapshot();
+  const existing = before.sessions.find((session) => session.id === IDS.sesYusufNext);
+  assert.ok(existing, 'fixture contains the known upcoming Yusuf session');
+  const first = new Date(new Date(existing.startsAt).getTime() - 14 * 86400000);
+  assert.throws(() => store.createSeries(admin, {
+    studentId: IDS.yusuf,
+    teacherId: existing.teacherId,
+    startsAt: first.toISOString(),
+    count: 3,
+    timeZone: before.students.find((student) => student.id === IDS.yusuf).timezone,
+    durationMin: existing.durationMin,
+    reason: 'Atomic series regression test',
+  }), (error) => error?.code === 'schedule_conflict');
+  assert.deepEqual(store.snapshot(), before, 'no earlier occurrence or audit entry may survive a failed series');
+});
