@@ -253,9 +253,12 @@ test('adjustment requires a reason and is audited', () => {
   const actor = admin();
   assert.throws(() => store.adjustCycle(actor, IDS.cycYusuf, { delta: 1, reason: 'no' }), /reason/i);
   const before = store.snapshot().audit.length;
-  store.adjustCycle(actor, IDS.cycYusuf, { delta: 1, reason: 'Makeup credit after a platform outage' });
+  const adjustment = { delta: 1, reason: 'Makeup credit after a platform outage' };
+  store.adjustCycle(actor, IDS.cycYusuf, adjustment, { idempotencyKey: 'cycle-adjust-once' });
+  store.adjustCycle(actor, IDS.cycYusuf, { ...adjustment, delta: 4 }, { idempotencyKey: 'cycle-adjust-once' });
   const cycle = store.getSubscription(actor, IDS.subYusuf).cycles.find((c) => c.id === IDS.cycYusuf);
   assert.equal(cycle.balance.allocated, 9);
+  assert.equal(cycle.adjustments.filter((a) => a.reason === adjustment.reason).length, 1);
   assert.equal(cycle.balance.remaining, 6);
   const row = store.snapshot().audit.at(-1);
   assert.equal(row.action, 'cycle.adjusted');
@@ -263,6 +266,27 @@ test('adjustment requires a reason and is audited', () => {
   assert.equal(row.after.allocated, 9);
   assert.ok(store.snapshot().audit.length > before);
 });
+
+
+test('subscription freeze and resume replay without repeating financial state changes', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  const frozen = store.freezeSubscription(actor, IDS.subYusuf, { reason: 'Family travel' }, { idempotencyKey: 'freeze-yusuf-once' });
+  const frozenAt = store.snapshot().cycles.find((c) => c.subscriptionId === IDS.subYusuf && c.status === 'frozen').frozenAt;
+  const auditAfterFreeze = store.snapshot().audit.filter((a) => a.action === 'subscription.frozen').length;
+  store.freezeSubscription(actor, IDS.subYusuf, { reason: 'Different retry payload must not apply twice' }, { idempotencyKey: 'freeze-yusuf-once' });
+  assert.equal(store.snapshot().cycles.find((c) => c.subscriptionId === IDS.subYusuf && c.status === 'frozen').frozenAt, frozenAt);
+  assert.equal(store.snapshot().audit.filter((a) => a.action === 'subscription.frozen').length, auditAfterFreeze);
+  assert.equal(frozen.subscription.status, 'paused');
+
+  store.resumeSubscription(actor, IDS.subYusuf, { reason: 'Family returned' }, { idempotencyKey: 'resume-yusuf-once' });
+  const resumedAt = store.snapshot().cycles.find((c) => c.subscriptionId === IDS.subYusuf && c.status === 'active').resumedAt;
+  const auditAfterResume = store.snapshot().audit.filter((a) => a.action === 'subscription.resumed').length;
+  store.resumeSubscription(actor, IDS.subYusuf, { reason: 'Duplicate retry' }, { idempotencyKey: 'resume-yusuf-once' });
+  assert.equal(store.snapshot().cycles.find((c) => c.subscriptionId === IDS.subYusuf && c.status === 'active').resumedAt, resumedAt);
+  assert.equal(store.snapshot().audit.filter((a) => a.action === 'subscription.resumed').length, auditAfterResume);
+});
+
 
 test('follow-up attempts append, and closing requires an outcome', () => {
   const { store, ops } = boot();
