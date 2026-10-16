@@ -33,6 +33,7 @@
 | 22 | [22-phase-0-route-inventory.md](22-phase-0-route-inventory.md) | Source-based inventory of portal HTTP routes and the authorization, record-scope, state-transition, and negative-test acceptance still required |
 | 23 | [23-portal-phase-2-domain-model.md](23-portal-phase-2-domain-model.md) | Operations portal Phase 2: domain relationship contract, synthetic-seed integrity tests, and remaining acceptance gates |
 | 24 | [24-portal-phase-3-authorization-minimization.md](24-portal-phase-3-authorization-minimization.md) | Operations portal Phase 3: role-specific teacher directory projections and privacy regression tests |
+| 25 | [25-phase-4-academic-model-audit.md](25-phase-4-academic-model-audit.md) | Phase 4: academic domain baseline, proposed entities, business decisions, and acceptance gates |
 | 26 | [26-phase-5-scheduling-integrity.md](26-phase-5-scheduling-integrity.md) | Phase 5 scheduling integrity: recurring-series atomicity, duration/time-zone validation, tests, and remaining teacher/scheduling acceptance gates |
 | 27 | [27-phase-5-reschedule-history.md](27-phase-5-reschedule-history.md) | Phase 5 reschedule history: multi-step chain preservation, conflict rollback, and remaining route/time-zone acceptance gates |
 | 28 | [28-phase-6-attendance-report-integrity.md](28-phase-6-attendance-report-integrity.md) | Phase 6.1: attendance status validation, report correction audit history, tests and remaining business-policy gates |
