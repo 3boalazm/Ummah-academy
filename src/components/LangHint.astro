@@ -118,4 +118,16 @@ const offers = targets
       animation: none;
     }
   }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .langhint {
+    background: linear-gradient(155deg, rgb(41 31 59 / 0.97), rgb(28 20 42 / 0.95));
+  }
+
+  :global([data-theme='dark']) .langhint__close {
+    background: rgb(255 255 255 / 0.09);
+  }
+
+  :global([data-theme='dark']) .langhint__close:hover {
+    background: rgb(255 255 255 / 0.15);
+  }
 </style>

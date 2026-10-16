@@ -19,6 +19,7 @@ import StickyCta from '@/components/StickyCta.astro';
 import Analytics from '@/components/Analytics.astro';
 import ConsentBanner from '@/components/ConsentBanner.astro';
 import LangHint from '@/components/LangHint.astro';
+import InstallPrompt from '@/components/InstallPrompt.astro';
 import { SITE } from '@/data/site';
 import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, type Lang, type Alternates } from '@/i18n';
 import { ogCardPath } from '@/data/og';
@@ -98,8 +99,17 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Runs before the first paint: the theme is already on <html> when CSS lands, so
+         switching to dark never flashes white. The choice is remembered per browser. -->
     <script is:inline>
       document.documentElement.classList.add('js');
+      try {
+        var stored = localStorage.getItem('ua:theme');
+        document.documentElement.dataset.theme =
+          stored === 'dark' || stored === 'light' ? stored : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light';
+      }
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -126,6 +136,12 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     <meta name="theme-color" content="#f4f1f8" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Installable as an app (manifest + worker in public/; pill in components/InstallPrompt.astro) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={t.siteName} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="alternate" type="application/rss+xml" title={`${t.siteName} — ${t.nav.blog}`} href={feed} />
     <link rel="preload" href={lang === 'ar' ? plexArabic : geistLatin} as="font" type="font/woff2" crossorigin />
 
@@ -145,8 +161,12 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     {sticky && <StickyCta lang={lang} />}
     {consent && <ConsentBanner lang={lang} />}
     <LangHint lang={lang} targets={targets} />
+    <InstallPrompt lang={lang} />
     <script>
       import '@/scripts/site';
+      import '@/scripts/theme';
+      import '@/scripts/install';
+      import '@/scripts/pwa';
     </script>
   </body>
 </html>

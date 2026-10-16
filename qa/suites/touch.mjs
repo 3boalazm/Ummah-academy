@@ -15,7 +15,10 @@ export const DEVICES = [
   { name: 'iPhone 15 Pro Max', width: 430, height: 932, dpr: 3, mobile: true, touch: true },
   { name: 'Pixel 7', width: 412, height: 915, dpr: 2.625, mobile: true, touch: true },
   { name: 'Galaxy S8', width: 360, height: 740, dpr: 4, mobile: true, touch: true },
+  { name: 'iPhone SE (landscape)', width: 667, height: 375, dpr: 2, mobile: true, touch: true },
   { name: 'iPad mini (portrait)', width: 768, height: 1024, dpr: 2, mobile: true, touch: true },
+  { name: 'Galaxy Tab S8 (portrait)', width: 800, height: 1280, dpr: 2, mobile: true, touch: true },
+  { name: 'iPad Air (landscape)', width: 1180, height: 820, dpr: 2, mobile: false, touch: true },
   { name: 'iPad Pro 12.9 (landscape)', width: 1366, height: 1024, dpr: 2, mobile: false, touch: true },
 ];
 

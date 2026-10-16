@@ -325,4 +325,16 @@ const C = COPY.C;
     font-size: 0.88rem;
     margin-top: 16px;
   }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .pt__bar {
+    background: rgb(255 255 255 / 0.12);
+  }
+
+  :global([data-theme='dark']) .pt__rec {
+    background:
+      radial-gradient(120% 100% at 100% 0%, rgb(109 158 214 / 0.24), transparent 60%),
+      radial-gradient(100% 100% at 0% 100%, rgb(200 123 128 / 0.2), transparent 60%),
+      rgb(255 255 255 / 0.07);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
 </style>

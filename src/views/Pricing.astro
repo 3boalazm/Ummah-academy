@@ -438,4 +438,24 @@ const ld = {
     font-weight: 620;
     font-size: 1.1rem;
   }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .finder__plan {
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgb(109 158 214 / 0.26), transparent 60%),
+      radial-gradient(100% 90% at 0% 100%, rgb(200 123 128 / 0.2), transparent 60%),
+      #241a34;
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.1),
+      0 24px 50px -30px rgb(0 0 0 / 0.85);
+  }
+
+  :global([data-theme='dark']) .plan--featured {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgb(109 158 214 / 0.24), transparent 55%),
+      radial-gradient(120% 80% at 0% 100%, rgb(200 123 128 / 0.2), transparent 55%),
+      var(--glass-fill-strong);
+    box-shadow:
+      0 0 0 2px rgb(185 140 232 / 0.5),
+      var(--shadow-lift);
+  }
 </style>

@@ -128,4 +128,9 @@ const teacher = showTeacher && t.teacher ? teacherById(t.teacher, lang) : undefi
     background: var(--grad-accent);
     box-shadow: 0 6px 14px -6px rgb(91 58 142 / 0.7);
   }
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .tcard__result {
+    background: rgb(127 220 174 / 0.12);
+    color: #8fe6b8;
+  }
 </style>

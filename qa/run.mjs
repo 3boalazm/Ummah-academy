@@ -7,7 +7,7 @@
  *   node qa/run.mjs overflow --lang=de,fr --widths=320,1024 --only=/pricing/
  *   node qa/run.mjs header --step=4            # coarser header scan (default 1 px)
  *
- * Suites: canary · overflow · header · popovers · axe · flows · touch · cms   (see qa/README.md)
+ * Suites: canary · overflow · header · popovers · axe · flows · touch · theme · pwa · offline · cms   (see qa/README.md)
  * Exit code 1 when anything fails. A JSON + Markdown report is written to qa/report/.
  */
 import fs from 'node:fs';
@@ -16,7 +16,7 @@ import { chromePath, launch } from './lib/browser.mjs';
 import { serve } from './lib/server.mjs';
 import { DIST, LANGS, listPages } from './lib/pages.mjs';
 
-const SUITES = ['canary', 'overflow', 'header', 'popovers', 'axe', 'flows', 'touch', 'cms'];
+const SUITES = ['canary', 'overflow', 'header', 'popovers', 'axe', 'flows', 'touch', 'theme', 'pwa', 'offline', 'cms'];
 
 const args = process.argv.slice(2);
 const flag = (name) => args.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];

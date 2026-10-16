@@ -55,6 +55,17 @@ export default {
   language: 'Lingua',
   langPartial: 'Se questa pagina non è ancora tradotta, il link apre la sezione più vicina.',
   langHint: { text: 'Questa pagina è disponibile anche in italiano.', cta: 'Leggi in italiano', close: 'Chiudi' },
+  theme: { toDark: 'Passa al tema scuro', toLight: 'Passa al tema chiaro' },
+  install: {
+    trigger: 'Scarica l’app',
+    title: 'Installa Ummah Academy',
+    body: 'Aggiungila alla schermata Home e aprila come un’app — senza download da uno store.',
+    confirm: 'Installa',
+    dismiss: 'Più tardi',
+    iosTitle: 'Installa su iPhone o iPad',
+    iosBody: 'Tocca il pulsante Condividi di Safari, poi «Aggiungi a Home».',
+    close: 'Chiudi',
+  },
   imprint: { title: 'Note legali', lede: 'Chi gestisce questo sito e come contattarci.', provider: 'Fornitore del servizio', representative: 'Rappresentato da', register: 'Iscrizione al registro', vat: 'Partita IVA', contact: 'Contatti' },
   footerLinks: {
     learn: ['Tutti i corsi', 'Recitazione del Corano & Tajweed', 'Hifz & ijaza', 'Lingua araba', 'Ummah Cubs (bambini)', 'Studi islamici'],

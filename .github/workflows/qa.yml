@@ -53,6 +53,8 @@ jobs:
             suites: popovers axe
           - name: flows, touch, cms
             suites: flows touch cms
+          - name: theme, pwa, offline
+            suites: theme pwa offline
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

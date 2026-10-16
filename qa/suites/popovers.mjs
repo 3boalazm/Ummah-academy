@@ -14,7 +14,12 @@ import { axeScoped } from './axe.mjs';
 const MEGA_WIDTHS = [860, 900, 980, 1024, 1100, 1180, 1280, 1366, 1440];
 const LANGMENU_WIDTHS = [320, 390, 768, 860, 1280];
 
-export function fits(sel, { children = false } = {}) {
+/**
+ * `tall` skips the "taller than the viewport" rule for surfaces that are *meant* to
+ * scroll inside their own container (the mobile <dialog> sheet): the caller checks
+ * that the container scrolls instead.
+ */
+export function fits(sel, { children = false, tall = false } = {}) {
   const el = document.querySelector(sel);
   if (!el) return [`${sel} missing`];
   const vw = document.documentElement.clientWidth;
@@ -23,7 +28,7 @@ export function fits(sel, { children = false } = {}) {
   const out = [];
   if (!r.width || !r.height) out.push(`${sel} not visible`);
   if (r.left < -1 || r.right > vw + 1) out.push(`${sel} outside viewport [${Math.round(r.left)}–${Math.round(r.right)} / ${vw}]`);
-  if (r.bottom > vh + 1 && getComputedStyle(el).overflowY === 'visible') out.push(`${sel} taller than viewport and not scrollable`);
+  if (!tall && r.bottom > vh + 1 && getComputedStyle(el).overflowY === 'visible') out.push(`${sel} taller than viewport and not scrollable`);
   if (children) {
     for (const c of el.querySelectorAll('*')) {
       const cr = c.getBoundingClientRect();
