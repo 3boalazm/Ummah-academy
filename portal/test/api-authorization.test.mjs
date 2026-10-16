@@ -31,7 +31,7 @@ async function request(route, { method = 'GET', cookie, body, customHeader = tru
   const response = await fetch(base + route, {
     method,
     headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined || method === 'GET' || method === 'HEAD' ? undefined : JSON.stringify(body),
   });
   const text = await response.text();
   let data;
