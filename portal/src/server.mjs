@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { issueSession, readSession } from './domain/auth.mjs';
 import { DomainError } from './domain/errors.mjs';
 import { createStore } from './domain/store.mjs';
+import { loadStateFile } from './domain/persistence.mjs';
 import { sniffUpload } from './domain/ops.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,11 +37,6 @@ function loadSecret() {
   return secret;
 }
 
-function loadState() {
-  if (!fs.existsSync(dataFile)) return null;
-  return JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-}
-
 function saveState(state) {
   fs.mkdirSync(path.dirname(dataFile), { recursive: true });
   const tmp = `${dataFile}.tmp`;
@@ -49,13 +45,13 @@ function saveState(state) {
 }
 
 const secret = loadSecret();
-const existing = (() => {
-  try {
-    return loadState();
-  } catch {
-    return null;
-  }
-})();
+let existing;
+try {
+  existing = loadStateFile(dataFile, { production });
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
 const store = createStore({
   secret,
   state: existing ?? undefined,
