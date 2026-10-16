@@ -47,6 +47,7 @@ test('placement and assessment records retain rubric version and append-only his
   add(state, 'placements', { id:'place_2', studentId:IDS.yusuf, courseId:IDS.cTajweed, rubricId:'rubric_v1', assessorId:IDS.tOmneya, occurredAt:new Date(NOW.getTime()+1000).toISOString(), outcome:'reassess', scores:[{criterionId:'accuracy',score:2}], supersedesId:'place_1' }, opts);
   add(state, 'assessmentDefinitions', { id:'assessment_v1', objectiveId:'obj_v1', rubricVersion:1, scale:[0,1,2,3,4] }, opts);
   add(state, 'assessmentAttempts', { id:'attempt_1', assessmentId:'assessment_v1', studentId:IDS.yusuf, assessorId:IDS.tSara, assessedAt:NOW.toISOString(), rubricVersion:1, score:3 }, opts);
+  assert.throws(() => add(state, 'assessmentAttempts', { id:'attempt_bad_version', assessmentId:'assessment_v1', studentId:IDS.yusuf, assessorId:IDS.tSara, assessedAt:NOW.toISOString(), rubricVersion:2, score:3 }, opts), /Academic record rejected/);
   assert.deepEqual(state.placements.map((p) => p.id), ['place_1','place_2']);
   assert.equal(validateAcademicState(state).ok, true);
 });
@@ -63,6 +64,8 @@ test('goals and homework require same-student relationships and reject partial w
   add(state, 'homeworkSubmissions', { id:'submission_1', assignmentId:'hw_1', studentId:IDS.yusuf, attemptNumber:1, status:'submitted', submittedAt:NOW.toISOString() }, opts);
   const before = structuredClone(state.homeworkSubmissions);
   assert.throws(() => add(state, 'homeworkSubmissions', { id:'submission_bad', assignmentId:'hw_1', studentId:IDS.layla, attemptNumber:1, status:'submitted', submittedAt:NOW.toISOString() }, opts), /Academic record rejected/);
+  assert.deepEqual(state.homeworkSubmissions, before);
+  assert.throws(() => add(state, 'homeworkSubmissions', { id:'submission_duplicate_attempt', assignmentId:'hw_1', studentId:IDS.yusuf, attemptNumber:1, status:'submitted', submittedAt:NOW.toISOString() }, opts), /Academic record rejected/);
   assert.deepEqual(state.homeworkSubmissions, before);
   assert.equal(validateAcademicState(state).ok, true);
 });
