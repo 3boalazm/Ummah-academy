@@ -229,3 +229,22 @@ test('production rejects demo-marked portal state without modifying it', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+
+test('production admin cannot reset live portal state to demo seed', () => {
+  const state = buildSeed(NOW);
+  state.meta.demo = false;
+  state.meta.seededAt = '2026-01-01T00:00:00.000Z';
+  const store = createStore({
+    state: structuredClone(state),
+    now: () => NOW,
+    secret: 'production-test-secret',
+    production: true,
+    onCommit() {},
+  });
+  const before = store.snapshot();
+  const admin = store.actorById('usr_admin');
+  assert.ok(admin);
+  assert.throws(() => store.resetDemo(admin), /access/i);
+  assert.deepEqual(store.snapshot(), before);
+});
