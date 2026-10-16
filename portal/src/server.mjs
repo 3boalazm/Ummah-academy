@@ -189,10 +189,10 @@ const routes = [
     const body = await readBody(req);
     const user = store.login(body.email, body.password);
     const token = issueSession(user.id, secret, SESSION_TTL);
-    send(res, 200, { user, demo: store.demo }, { 'set-cookie': sessionCookie(token) });
+    send(res, 200, { user, demo: store.demo }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
   }],
   ['POST', /^\/api\/auth\/logout$/, async (_req, res) => {
-    send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0) });
+    send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0, { production }) });
   }],
   ['GET', /^\/api\/health$/, async (_req, res) => send(res, 200, { ok: true, demo: store.demo })],
   ['GET', /^\/api\/me$/, async (req, res, actor) => send(res, 200, { ...actor, demo: store.demo })],
