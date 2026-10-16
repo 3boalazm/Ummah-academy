@@ -51,6 +51,12 @@ export function validateAcademicState(input) {
   for (const row of state.curricula) {
     if (!row.program || !row.version || !['draft', 'published', 'retired'].includes(row.status)) push('curricula', row, 'Invalid program/version/status');
   }
+  const curriculumVersions = new Set();
+  for (const row of state.curricula) {
+    const key = `${row.program}::${row.version}`;
+    if (curriculumVersions.has(key)) push('curricula', row, 'Duplicate program/version');
+    curriculumVersions.add(key);
+  }
   for (const row of state.curriculumLevels) check('curriculumLevels', row, 'curricula', row.curriculumId, 'curriculum');
   for (const row of state.curriculumUnits) check('curriculumUnits', row, 'curriculumLevels', row.levelId, 'level');
   for (const row of state.lessons) check('lessons', row, 'curriculumUnits', row.unitId, 'unit');
@@ -84,6 +90,9 @@ export function validateAcademicState(input) {
     check('assessmentAttempts', row, 'assessmentDefinitions', row.assessmentId, 'assessment');
     check('assessmentAttempts', row, 'students', row.studentId, 'student');
     if (!row.assessedAt || !row.assessorId || !row.rubricVersion || row.score == null) push('assessmentAttempts', row, 'Attempt needs score, rubric version, assessor and date');
+    const definition = find(state, 'assessmentDefinitions', row.assessmentId);
+    if (definition && row.rubricVersion !== definition.rubricVersion) push('assessmentAttempts', row, 'Attempt rubric version does not match assessment definition');
+    if (definition && !definition.scale.includes(row.score)) push('assessmentAttempts', row, 'Attempt score is outside the declared assessment scale');
   }
   for (const row of state.homeworkAssignments) {
     check('homeworkAssignments', row, 'students', row.studentId, 'student');
@@ -96,10 +105,14 @@ export function validateAcademicState(input) {
     const session = find(state, 'sessions', row.sessionId);
     if (session && session.studentId !== row.studentId) push('homeworkAssignments', row, 'Session belongs to another student');
   }
+  const submissionAttempts = new Set();
   for (const row of state.homeworkSubmissions) {
     check('homeworkSubmissions', row, 'homeworkAssignments', row.assignmentId, 'homework assignment');
     check('homeworkSubmissions', row, 'students', row.studentId, 'student');
     if (!row.submittedAt || !row.status || !row.attemptNumber || row.attemptNumber < 1) push('homeworkSubmissions', row, 'Submission needs attempt number, status and date');
+    const attemptKey = `${row.assignmentId}::${row.attemptNumber}`;
+    if (submissionAttempts.has(attemptKey)) push('homeworkSubmissions', row, 'Duplicate attempt number for homework assignment');
+    submissionAttempts.add(attemptKey);
     const assignment = find(state, 'homeworkAssignments', row.assignmentId);
     if (assignment && assignment.studentId !== row.studentId) push('homeworkSubmissions', row, 'Submission belongs to another student');
   }
