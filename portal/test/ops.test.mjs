@@ -191,6 +191,18 @@ test('corrupt portal state fails closed and preserves original bytes', () => {
   }
 });
 
+test('unreadable portal state fails closed instead of falling back to seed data', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
+  // Reading a directory as a file raises EISDIR on the Linux CI runner. This
+  // exercises the non-ENOENT I/O error path without relying on chmod/root rules.
+  try {
+    assert.throws(() => loadStateFile(dir), /Unable to read existing portal data file/i);
+    assert.equal(fs.statSync(dir).isDirectory(), true);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('valid JSON with an invalid portal schema is not treated as first run', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ua-portal-state-'));
   const file = path.join(dir, 'store.json');
