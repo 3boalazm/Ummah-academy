@@ -38,9 +38,9 @@ test('placement and assessment records retain rubric version and append-only his
   const { state, opts } = fixture();
   add(state, 'curricula', { id:'cur_v1', program:'Quran & Tajweed', version:1, status:'published' }, opts);
   add(state, 'curriculumLevels', { id:'lvl_v1', curriculumId:'cur_v1', code:'L1' }, opts);
-  add(state, 'lessons', { id:'lesson_v1', unitId: 'unit_v1' }, opts);
   // A curriculum unit is required between level and lesson.
   add(state, 'curriculumUnits', { id:'unit_v1', levelId:'lvl_v1', name:'Unit 1', nameAr:'الوحدة ١' }, opts);
+  add(state, 'lessons', { id:'lesson_v1', unitId: 'unit_v1' }, opts);
   add(state, 'objectives', { id:'obj_v1', lessonId:'lesson_v1', name:'Objective 1', nameAr:'هدف ١' }, opts);
   add(state, 'placementRubrics', { id:'rubric_v1', version:1, criteria:[{id:'accuracy',max:4}] }, opts);
   add(state, 'placements', { id:'place_1', studentId:IDS.yusuf, courseId:IDS.cTajweed, rubricId:'rubric_v1', assessorId:IDS.tSara, occurredAt:NOW.toISOString(), outcome:'placed', scores:[{criterionId:'accuracy',score:3}], recommendedLevelId:'lvl_v1' }, opts);
