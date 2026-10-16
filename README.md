@@ -37,6 +37,17 @@ CHROME_PATH=/path/to/chrome npm run pdfs   # regenerate the free worksheets → 
 
 Node ≥ 20.19.
 
+## Operations portal
+
+The marketing site is not the student system. The operations portal lives in [`portal/`](portal/README.md): students, families, teachers, a session ledger, subscriptions, follow-ups, enrolment, WhatsApp drafts, and server-checked permissions. It is a separate Node process, not part of the static Vercel build.
+
+```bash
+npm run portal       # http://localhost:8787
+npm run test:portal  # ledger, permissions, and journey tests
+```
+
+Demo sign-in is on the login screen. Do not put real children in it. The public “Sign in” links still follow `PUBLIC_PORTAL_URL` (WordPress today) until that host is cut over. Audit and acceptance notes: [`docs/19-operations-audit.md`](docs/19-operations-audit.md).
+
 ## Project map
 
 ```
