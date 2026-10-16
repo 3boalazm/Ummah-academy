@@ -1,107 +1,93 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
 # Builds a QA browser inside a container that has no Chrome, no apt and no
-# access to the usual browser CDNs — only the npm registry and github.com.
+# access to the usual browser CDNs — only the npm registry.
 #
-#   npm  : @sparticuz/chromium            -> the Chromium binary
-#   github: mozilla/nspr + mozilla/nss    -> the shared libraries it needs
+#   npm : @sparticuz/chromium
+#          bin/chromium.br   -> the Chromium binary (brotli-compressed)
+#          bin/al2023.tar.br -> the Amazon Linux 2023 shared libraries it
+#                               needs, *including* the real NSPR and NSS
+#                               (libnspr4, libplc4, libplds4, libnss3,
+#                               libnssutil3, libsoftokn3, libfreebl3…)
 #
-# Everything lands in $UA_CHROME_DIR (default /tmp/ua-chrome, i.e. outside the
-# repo, so nothing large is committed) and the script is idempotent: run it
-# again and it only rebuilds what is missing.
+# Both come out of the one package, so no GitHub clone, no source build and no
+# hand-written NSS stubs are involved. Everything lands in $UA_CHROME_DIR
+# (default /tmp/ua-chrome, outside the repo so nothing large is committed) and
+# the script is idempotent: run it again and it only rebuilds what is missing.
 #
 # Output (what the QA suites want):
 #   CHROME_PATH=$UA_CHROME_DIR/chrome   <- a wrapper that sets LD_LIBRARY_PATH
 #
 # Usage:
 #   bash scripts/qa-chrome-sandbox.sh
-#   UA_CHROME_DIR=/somewhere UA_CHROME_JOBS=8 bash scripts/qa-chrome-sandbox.sh
+#   UA_CHROME_DIR=/somewhere bash scripts/qa-chrome-sandbox.sh
+#   CHROME_PATH=$UA_CHROME_DIR/chrome npm run qa:browser
+#
+# Note: `chrome --dump-dom` never exits in some sandboxes (no /dev/shm, no
+# fontconfig cache). The smoke test is therefore the `canary` suite, which
+# launches the browser the same way puppeteer does — if that passes, the
+# browser is usable.
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
 WORK="${UA_CHROME_DIR:-/tmp/ua-chrome}"
-JOBS="${UA_CHROME_JOBS:-$(nproc 2>/dev/null || echo 4)}"
-NSPR_SHA=9b57e4e5b8f5c2bcdbbd7fd0c4eb8ce1f0ec1b4d   # NSPR_4_36_RTM-ish head, pinned for reproducibility
-NSS_SHA=NSS_3_107_RTM
-
 log() { printf '\033[2m·\033[0m %s\n' "$*" >&2; }
 mkdir -p "$WORK"
 
-# ---------------------------------------------------------------- Chromium binary
-# @sparticuz/chromium extracts the binary to /tmp/chromium. That path is not
-# guaranteed to survive, so the location is remembered in $WORK/chromium.path
-# and re-fetched whenever the recorded binary is missing.
-CHROMIUM="$(cat "$WORK/chromium.path" 2>/dev/null || true)"
-if [ ! -x "${CHROMIUM:-/nonexistent}" ]; then
-  log "fetching the Chromium binary (@sparticuz/chromium, an npm download)"
-  npm i --prefix "$WORK/npm" --no-audit --no-fund --silent @sparticuz/chromium
-  CHROMIUM="$(node --input-type=module -e "
-    import('$WORK/npm/node_modules/@sparticuz/chromium/build/index.js').then(async (m) => {
-      process.stdout.write(await m.default.executablePath());
-    });
-  ")"
-  printf '%s' "$CHROMIUM" > "$WORK/chromium.path"
+# ---------------------------------------------------------------- the package
+# Keep it outside the repository's node_modules: the run must not depend on the
+# project's lockfile, and ~70 MB of browser must not be committed.
+if [ ! -f "$WORK/pkg/package/bin/chromium.br" ]; then
+  log "fetching @sparticuz/chromium from the npm registry"
+  rm -rf "$WORK/pkg"
+  mkdir -p "$WORK/pkg"
+  ( cd "$WORK/pkg" && npm pack @sparticuz/chromium --silent >/dev/null )
+  tar xzf "$WORK/pkg"/*.tgz -C "$WORK/pkg"
 fi
-echo "$CHROMIUM" | grep -q '^/' || { echo "❌ could not resolve the Chromium binary" >&2; exit 1; }
+
+# ---------------------------------------------------------------- Chromium
+if [ ! -x "$WORK/chromium" ]; then
+  log "decompressing the Chromium binary"
+  node -e "
+    const fs = require('fs'), zlib = require('zlib');
+    const out = zlib.brotliDecompressSync(fs.readFileSync('$WORK/pkg/package/bin/chromium.br'));
+    fs.writeFileSync('$WORK/chromium', out, { mode: 0o755 });
+  "
+fi
 
 # ---------------------------------------------------------------- NSPR + NSS
-# Chromium links against libnspr4 / libnss3 / libnssutil3 / libsmime3 / libssl3.
-if [ ! -f "$WORK/nspr/dist/lib/libnspr4.so" ]; then
-  log "cloning NSPR"
-  [ -d "$WORK/nspr/.git" ] || git clone --depth 1 --branch "$NSPR_SHA" \
-    https://github.com/mozilla/nspr "$WORK/nspr" 2>/dev/null || \
-    git clone --depth 1 https://github.com/mozilla/nspr "$WORK/nspr"
+if [ ! -f "$WORK/libs/lib/libnss3.so" ] || [ ! -f "$WORK/libs/lib/libplc4.so" ]; then
+  log "unpacking the Amazon Linux 2023 libraries (real NSPR + NSS)"
+  rm -rf "$WORK/libs"
+  mkdir -p "$WORK/libs"
+  node -e "
+    const fs = require('fs'), zlib = require('zlib');
+    fs.writeFileSync('$WORK/libs.tar', zlib.brotliDecompressSync(fs.readFileSync('$WORK/pkg/package/bin/al2023.tar.br')));
+  "
+  tar xf "$WORK/libs.tar" -C "$WORK/libs"
+  rm -f "$WORK/libs.tar"
 fi
-if [ ! -f "$WORK/nspr/dist/lib/libnspr4.so" ]; then
-  log "building NSPR"
-  ( cd "$WORK/nspr" && ./configure --disable-debug --enable-optimize --prefix="$WORK/nspr/dist" >/dev/null && make -j"$JOBS" >/dev/null && make install >/dev/null )
-fi
-
-# NSS installs its shared libraries into the build tree, not into the source
-# tree: $WORK/dist/<platform>_OBJ/lib. NSS_SHA pins the branch to a release tag
-# so a source rebuild is reproducible.
-NSS_LIB_DIR="$(ls -d "$WORK"/dist/*/lib 2>/dev/null | head -1 || true)"
-if [ -z "${NSS_LIB_DIR:-}" ] || [ ! -f "$NSS_LIB_DIR/libnss3.so" ]; then
-  [ -d "$WORK/nss/.git" ] || { log "cloning NSS (a shallow clone is ~300 MB)"; \
-    git clone --depth 1 --branch "$NSS_SHA" https://github.com/mozilla/nss "$WORK/nss" 2>/dev/null || \
-    git clone --depth 1 https://github.com/mozilla/nss "$WORK/nss"; }
-  log "building NSS"
-  ( cd "$WORK/nss"
-    export NSPR_INCLUDE_DIR="$WORK/nspr/dist/include/nspr"
-    export NSPR_LIB_DIR="$WORK/nspr/dist/lib"
-    export BUILD_OPT=1 USE_64=1 NSS_ENABLE_WERROR=0 NSS_DISABLE_LIBPKIX=1
-    # coreconf first: it builds nsinstall, which every later step shells out to
-    make -C coreconf >/dev/null
-    make export >/dev/null
-    # coreconf cannot order the library directories on its own — build them in dependency order
-    for d in util sqlite dbm freebl softoken base certdb certhigh cryptohi dev pki jar pk11wrap pkcs12 pkcs7 nss smime ssl ckfw; do
-      make -C "lib/$d" all >/dev/null
-    done
-  )
-  NSS_LIB_DIR="$(ls -d "$WORK"/dist/*/lib 2>/dev/null | head -1 || true)"
-fi
-[ -f "$NSS_LIB_DIR/libnss3.so" ] || { echo "❌ NSS did not build — see the output above" >&2; exit 1; }
 
 # ---------------------------------------------------------------- wrapper
-# LD_LIBRARY_PATH has to point at the freshly built NSS/NSPR on every launch, so
-# CHROME_PATH points at this wrapper rather than at the Chromium binary itself.
+# LD_LIBRARY_PATH has to be set on every launch, so CHROME_PATH points at this
+# wrapper rather than at the Chromium binary itself. Anything the caller had is
+# kept at the end of the path.
 cat > "$WORK/chrome" <<EOF
 #!/bin/sh
-export LD_LIBRARY_PATH="$NSS_LIB_DIR:$WORK/nspr/dist/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
-exec "$CHROMIUM" "\$@"
+export LD_LIBRARY_PATH="$WORK/libs/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+exec "$WORK/chromium" "\$@"
 EOF
 chmod +x "$WORK/chrome"
 
 # ---------------------------------------------------------------- smoke test
-# --dump-dom on a data: URL is the smallest thing that proves the browser can
-# start, render and exit. Wrapped in a timeout: a browser that hangs must fail
-# loudly here instead of hanging every later suite.
-SMOKE=$(timeout 120 "$WORK/chrome" --headless=new --no-sandbox --disable-gpu \
-        --disable-dev-shm-usage --dump-dom 'data:text/html,<title>ok</title>' 2>/dev/null || true)
-case "$SMOKE" in
-  *ok*) ;;
-  *) echo "❌ the browser did not start — NSS/NSPR may be incomplete (libs in $NSS_LIB_DIR)" >&2; exit 1 ;;
-esac
+# canary is the smallest suite (it injects ten known bugs into a couple of
+# pages and expects every check to report them), and it exercises the same
+# launch path as every other suite.
+if [ "${UA_CHROME_SKIP_SMOKE:-0}" != "1" ]; then
+  log "smoke test: qa/run.mjs canary"
+  ( cd "$(dirname "$0")/.." && [ -d dist ] || ( echo "❌ run \`npm run build\` first" >&2; exit 1 ) )
+  ( cd "$(dirname "$0")/.." && CHROME_PATH="$WORK/chrome" node qa/run.mjs canary 2>&1 | tail -3 )
+fi
 
 echo "✓ QA browser ready"
 echo "  CHROME_PATH=$WORK/chrome"

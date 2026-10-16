@@ -2,7 +2,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const DIST = path.resolve('dist');
+/* Resolved from this file, not from the working directory: a probe run from elsewhere used to
+   serve nothing but 404s, and reported an empty — apparently clean — page. */
+export const DIST = path.resolve(import.meta.dirname, '../../dist');
 export const LANGS = ['en', 'ar', 'de', 'fr', 'it'];
 export const PREFIX = { en: '', ar: '/ar', de: '/de', fr: '/fr', it: '/it' };
 

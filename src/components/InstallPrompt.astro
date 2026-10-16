@@ -1,9 +1,17 @@
 ---
 /**
- * Install-as-an-app pill — bottom of the screen, on the inline-start edge
- * (bottom-left in LTR, bottom-right in RTL, mirroring the reading direction).
- * Hidden until the browser offers an install (or the visitor is on iOS Safari);
- * tapping it opens a small card with the install action. Behaviour: src/scripts/install.ts.
+ * Install-as-an-app affordance. Two placements, one behaviour
+ * (src/scripts/install.ts wires every instance on the page):
+ *
+ *   variant="pill" — floating pill on the bottom inline-start edge (bottom-left in LTR,
+ *                    bottom-right in RTL). Desktop only: it would fight the mobile action bar,
+ *                    which owns the bottom edge on phones.
+ *   variant="row"  — a row inside the mobile menu sheet, which expands into the same card
+ *                    in place. This is where phones install from, because the floating pill
+ *                    sat on top of the action bar and was hard to reach with a thumb.
+ *
+ * Both stay hidden until the browser offers an install (or the visitor is on iOS Safari, which
+ * has no programmatic install and gets the Share → Add to Home Screen steps instead.
  */
 import Icon from './Icon.astro';
 import { ui } from '@/locales';
@@ -11,19 +19,37 @@ import type { Lang } from '@/i18n';
 
 interface Props {
   lang?: Lang;
+  variant?: 'pill' | 'row';
 }
-const { lang = 'en' } = Astro.props;
+const { lang = 'en', variant = 'pill' } = Astro.props;
 const t = ui(lang).install;
+/* unique per instance: the page carries the desktop pill and the sheet row at the same time */
+const cardId = `ua-install-card-${variant}`;
 ---
 
-<div class="install" data-install>
-  <div class="install__card glass glass--strong" id="ua-install-card" data-install-card aria-labelledby="ua-install-title" hidden>
+<div class:list={['install', `install--${variant}`]} data-install data-install-variant={variant}>
+  {
+    variant === 'row' ? (
+      <button class="install__row" type="button" data-install-open aria-expanded="false" aria-controls={cardId}>
+        <Icon name="download-simple" weight="bold" />
+        <span>{t.trigger}</span>
+        <Icon name="caret-down" weight="bold" class="install__caret" />
+      </button>
+    ) : (
+      <button class="install__pill glass" type="button" data-install-open aria-expanded="false" aria-controls={cardId} tabindex="-1">
+        <Icon name="download-simple" weight="bold" />
+        <span>{t.trigger}</span>
+      </button>
+    )
+  }
+
+  <div class="install__card glass glass--strong" id={cardId} data-install-card aria-labelledby={`${cardId}-title`} hidden>
     <button class="install__close" type="button" data-install-close aria-label={t.close}>
       <Icon name="x" weight="bold" />
     </button>
 
     <div class="install__pane" data-install-native hidden>
-      <p class="install__title" id="ua-install-title">{t.title}</p>
+      <p class="install__title" id={`${cardId}-title`}>{t.title}</p>
       <p class="install__body">{t.body}</p>
       <div class="install__actions">
         <button class="btn btn--sm btn--primary" type="button" data-install-confirm>{t.confirm}</button>
@@ -42,23 +68,22 @@ const t = ui(lang).install;
       </div>
     </div>
   </div>
-
-  <button class="install__pill glass" type="button" data-install-open aria-expanded="false" aria-controls="ua-install-card" tabindex="-1">
-    <Icon name="download-simple" weight="bold" />
-    <span>{t.trigger}</span>
-  </button>
 </div>
 
 <style>
   .install {
+    display: none;
+  }
+
+  /* ---------- floating pill (desktop) ---------- */
+  .install--pill {
     position: fixed;
     inset-block-end: calc(14px + env(safe-area-inset-bottom));
     inset-inline-start: calc(14px + env(safe-area-inset-left));
     z-index: 30; /* under the sticky CTA (40), the language hint (45) and the header (50) */
-    display: none;
   }
 
-  .install[data-visible] {
+  .install--pill[data-visible] {
     display: block;
   }
 
@@ -100,6 +125,54 @@ const t = ui(lang).install;
     animation: install-in 0.28s var(--ease-out);
   }
 
+  /* ---------- row inside the mobile sheet ---------- */
+  .install--row[data-visible] {
+    display: block;
+  }
+
+  .install__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.7);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 540;
+    text-align: start;
+  }
+
+  .install__row :global(svg) {
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+
+  .install__row :global(.install__caret) {
+    width: 16px;
+    height: 16px;
+    margin-inline-start: auto;
+    color: var(--ink-3);
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .install__row[aria-expanded='true'] :global(.install__caret) {
+    transform: rotate(180deg);
+  }
+
+  /* the row's card opens in place, inside the scrollable sheet */
+  .install--row .install__card {
+    position: static;
+    width: auto;
+    margin-block-start: 8px;
+    animation: none;
+  }
+
   .install__close {
     position: absolute;
     inset-block-start: 8px;
@@ -136,7 +209,7 @@ const t = ui(lang).install;
   }
 
   .install__body {
-    margin-top: 6px;
+    margin-block-start: 6px;
     font-size: 0.9rem;
     line-height: 1.5;
     color: var(--ink-2);
@@ -156,7 +229,7 @@ const t = ui(lang).install;
     flex-wrap: wrap;
     align-items: center;
     gap: 6px 12px;
-    margin-top: 14px;
+    margin-block-start: 14px;
   }
 
   .install__later {
@@ -171,13 +244,22 @@ const t = ui(lang).install;
     text-underline-offset: 3px;
   }
 
-  /* The mobile action bar owns the bottom edge on phones — ride above it while it is up. */
-  :global(.sticky-cta.is-visible) ~ .install {
-    inset-block-end: calc(86px + env(safe-area-inset-bottom));
+  /* ---------- dark theme ---------- */
+  :global([data-theme='dark']) .install__row {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+
+  /* The mobile action bar owns the bottom edge on phones: the floating pill steps aside and
+     the sheet row (which lives inside the menu) does the job instead. */
+  @media (max-width: 859px) {
+    .install--pill[data-visible] {
+      display: none;
+    }
   }
 
   /* The consent banner (only with GTM configured) is full width at the bottom: clear it. */
-  :global(.consent:not([hidden])) ~ .install {
+  :global(.consent:not([hidden])) ~ .install--pill {
     inset-block-end: calc(170px + env(safe-area-inset-bottom));
   }
 </style>

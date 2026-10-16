@@ -106,10 +106,12 @@ const labels = { 'data-label-dark': t.toDark, 'data-label-light': t.toLight };
     grid-area: 1 / 1;
   }
 
+  /* Phones keep the full 44 px target — the header bar no longer hides the switch, and it is
+     the control a visitor complaining about dark mode goes looking for. */
   @media (max-width: 859px) {
     .theme-toggle {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
     }
   }
   /* ---------- Dark theme ---------- */

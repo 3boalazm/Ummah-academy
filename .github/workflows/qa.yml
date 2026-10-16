@@ -51,10 +51,14 @@ jobs:
             suites: canary overflow header
           - name: popovers, axe
             suites: popovers axe
-          - name: flows, touch, cms
-            suites: flows touch cms
+          - name: flows, touch, typography
+            suites: flows touch typography
+          - name: cms
+            suites: cms
           - name: theme, pwa, offline
             suites: theme pwa offline
+          - name: pixel contrast (both themes)
+            contrast: 1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -67,7 +71,13 @@ jobs:
           name: dist
           path: dist
       - name: Run suites (Chrome preinstalled on ubuntu-latest)
+        if: ${{ !matrix.contrast }}
         run: node qa/run.mjs ${{ matrix.suites }}
+      - name: Pixel contrast audit (axe cannot see text over gradients or glass)
+        if: ${{ matrix.contrast }}
+        run: |
+          node scripts/contrast-audit.mjs "/,/pricing/,/courses/,/about/,/teachers/,/blog/" dark
+          node scripts/contrast-audit.mjs "/,/pricing/,/courses/,/teachers/" light
       - name: Summary
         if: always()
         run: test -f qa/report/latest.md && cat qa/report/latest.md >> "$GITHUB_STEP_SUMMARY" || true

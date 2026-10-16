@@ -39,10 +39,14 @@ deploy, so a broken link, an English leak, a stale price or invalid structured d
 deploy** and the previous version stays live.
 
 **New in this phase:** `scripts/qa-chrome-sandbox.sh` — where there is no Chrome and no
-permission to install one (a bare container), the repository builds its own: the Chromium
-binary from `@sparticuz/chromium` plus NSPR/NSS from source, then prints
-`CHROME_PATH=/tmp/ua-chrome/chrome`. That is how the suites were run in the sandbox that wrote
-this phase.
+permission to install one (a bare container), the repository builds its own from the npm
+registry alone: `@sparticuz/chromium` ships both the Chromium binary (`bin/chromium.br`) and
+the Amazon Linux 2023 shared libraries it needs (`bin/al2023.tar.br`, which contains the real
+NSPR and NSS). The script decompresses both, writes a wrapper that sets `LD_LIBRARY_PATH`,
+prints `CHROME_PATH=/tmp/ua-chrome/chrome` and smoke-tests itself with the `canary` suite.
+(An earlier version cloned NSPR/NSS from GitHub and built them from source, and a later
+fallback hand-wrote stub libraries; both are gone — the npm package carries everything, and it
+is 22 s from nothing to a working browser.)
 
 ## 2 · W2 · A social card for every page
 

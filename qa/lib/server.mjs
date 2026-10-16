@@ -31,6 +31,8 @@ const MIME = {
 };
 
 export function serve(root) {
+  if (!fs.existsSync(root)) throw new Error(`serve(): ${root} does not exist — run \`npm run build\` first`);
+  if (!fs.existsSync(path.join(root, 'index.html'))) throw new Error(`serve(): ${root} has no index.html — is that really a built site?`);
   const resolveFile = (urlPath) => {
     const clean = decodeURIComponent(urlPath.split('?')[0].split('#')[0]);
     const abs = path.join(root, clean);

@@ -205,3 +205,68 @@ Same environment (headless Chromium built from `@sparticuz/chromium` plus NSPR/N
 **Still not tested (unchanged, and it needs a human or the business):** real devices and real
 screen readers (`docs/17-device-qa-protocol.md`), Search Console and Bing verification, field
 Core Web Vitals (needs traffic), and the app-store listings.
+
+## 9. Re-run after the post-review fixes: contrast, the switch, the menu, wrapping (16 Oct 2026)
+
+Triggered by the Academy's review of the first Phase-5 delivery: dark-mode contrast was wrong, the
+light/dark switch could not be found, the burger sheet's X did not close the menu, the install
+affordance had to move into the mobile menu, and paragraphs longer than two lines had to spread
+their words evenly. What changed, and why axe had said "0 violations" while the Academy could see
+the problem, is written up in `docs/18 §8–9` and `docs/REPORT.md §13`.
+
+**Environment note:** this re-run uses `@sparticuz/chromium` 153 with the real NSPR/NSS that ship in
+its `al2023.tar.br` (`bash scripts/qa-chrome-sandbox.sh` — npm only, no GitHub, no source build, no
+stubs; 22 s from nothing to a working browser). The earlier stubs were only ever a workaround for a
+sandbox without those libraries and are gone.
+
+**Static gates** — unchanged and green: 196 pages · **17,118 links, 0 broken** · 189 hreflang
+clusters with **0 English leaks** · **379 JSON-LD blocks, 0 errors** · 189 sitemap URLs · 195
+`og:image` checked · CMS config OK · 6 unit groups.
+
+**Browser suites — one run, 13 suites, 642 s, 0 failures**
+
+| Suite | Checked | Failures |
+|---|---:|---:|
+| `canary` (11 injected bugs) | 11 | 0 |
+| `overflow` | 1,940 page × width | 0 |
+| `header` | 5,605 layouts (320 → 1440 px × 5 languages) | 0 |
+| `popovers` | 125 open states | 0 |
+| `axe` | 194 pages, both themes | 0 |
+| `flows` | 10 end-to-end journeys | 0 |
+| `touch` | 355 device × page | 0 |
+| `theme` | 62 checks | 0 |
+| `pwa` | 93 checks | 0 |
+| `offline` | 7 checks | 0 |
+| `keyboard` | 209 checks | 0 |
+| `typography` **(new)** | 1,356 text blocks | 0 |
+| `cms` | 1 boot (local bundle) | 0 |
+
+**Pixel contrast audit (new, `scripts/contrast-audit.mjs`, and in CI as its own leg)**
+
+| Sweep | Text boxes measured | Below AA before the fixes | Below AA now |
+|---|---:|---:|---:|
+| Dark theme · 8 Arabic pages at 1280 × 900 | 1,435 | 10 findings / 6 distinct types (worst 1.09:1) | **0** |
+| Light theme · 4 pages | 830 | 6 distinct types (worst 1.09:1) | **0** |
+| Light surfaces still painted in dark mode · 14 pages | — | 3 (all the classroom mockup) | **0** |
+
+The audit is only trusted because it can fail: `CONTRAST_CONTROL='<css>'` injects a known-bad rule
+into the page and the audit has to report it. Both columns above were produced by the same method —
+the "before" column by injecting the pre-fix values back into the fixed build.
+
+**Bugs this re-run found and fixed (all in the design system, none in content):**
+
+1. Dark mode: floating glass cards over the pastel hero illustrations (1.1–2.9:1), chips over
+   artwork, a comparison table over the aurora, and the tertiary ink inside the dark night panels.
+2. Light mode: `--grad-accent-on` (the gradient white labels sit on) was aliased to the decorative
+   pastel gradient, so white-on-lilac measured 1.09:1; and light-mode `--ink-3` was too pale for the
+   tinted glass (3.5–4.1:1).
+3. The header bar could not hold the theme switch at 320–380 px once it became visible there: the
+   wordmark now stands down to the mark alone under 400 px, and the switch is a full 44 × 44 px.
+4. The desktop header poked 1 px outside its glass at exactly 860 px in Arabic.
+5. `text-wrap: pretty`, which the site had on every paragraph, does nothing (measured identical to
+   `auto`); the blocks that can be balanced now use `balance`, and prose keeps `pretty` on purpose.
+
+**Verified live in the browser, not only by suite:** the X closes the burger sheet (real tap, then
+`open=false`), the bar switch flips the theme on a 390 × 844 phone and remembers it, the install row
+lives inside the sheet and expands in place while the sheet scrolls, and the floating contact bar is
+untouched.
