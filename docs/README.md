@@ -32,3 +32,4 @@
 | 21 | [21-requirements-ledger.md](21-requirements-ledger.md) | Requirements and acceptance ledger with stable IDs, statuses, priorities, and test/evidence requirements across the academy operating system |
 | 22 | [22-phase-0-route-inventory.md](22-phase-0-route-inventory.md) | Source-based inventory of portal HTTP routes and the authorization, record-scope, state-transition, and negative-test acceptance still required |
 | 23 | [23-portal-phase-2-domain-model.md](23-portal-phase-2-domain-model.md) | Operations portal Phase 2: domain relationship contract, synthetic-seed integrity tests, and remaining acceptance gates |
+| 25 | [25-phase-4-academic-domain-implementation.md](25-phase-4-academic-domain-implementation.md) | Phase 4 academic data model: versioned curriculum, placement, goals, assessments, homework/submissions, validation tests, and remaining owner/production gates |
