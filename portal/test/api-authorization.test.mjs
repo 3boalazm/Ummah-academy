@@ -158,3 +158,19 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
   const family = await request('/api/families/fam_rahman', { cookie });
   assert.ok([403, 404].includes(family.status), `teacher must not read family financial profile, got ${family.status}`);
 });
+
+
+test('guardian and unrelated teacher cannot submit lesson reports through the API', async () => {
+  const guardianCookie = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const teacherCookie = await login('omneya@ummahacademy.net', 'Sakinah-Teach-2026');
+  const payload = { summary: 'Unauthorized report write attempt', homework: 'Not allowed' };
+
+  for (const [role, cookie] of [['guardian', guardianCookie], ['unrelated teacher', teacherCookie]]) {
+    const response = await request('/api/sessions/ses_yusuf_next/report', {
+      method: 'POST',
+      cookie,
+      body: payload,
+    });
+    assert.ok([403, 404].includes(response.status), `${role} must not write a report for a session outside their authority; got ${response.status}`);
+  }
+});
