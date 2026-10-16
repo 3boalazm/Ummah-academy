@@ -40,4 +40,4 @@ npm test
 npm run build
 ```
 
-Do not mark Phase 7 accepted until CI passes and subscription/credit invariants have negative, edge, authorization and retry tests. The route-scope fix is not sufficient by itself to claim full idempotency: same-route key reuse with a different payload and database-level concurrency protection remain open.
+Do not mark Phase 7 accepted until the complete CI suite passes and subscription/credit invariants have negative, edge, authorization and retry tests. Same-route key reuse with a different payload is now rejected and covered by regression tests. Database-level uniqueness/concurrency, webhook idempotency, the approved transition matrix, payment-provider/refund/reconciliation/tax-invoice workflows, and teacher compensation remain open.
