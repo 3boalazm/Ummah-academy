@@ -758,10 +758,19 @@ export function createStore(options = {}) {
         const sub = assertSchedulable(student.id);
         const enrollment = input.enrollmentId ? must(state.enrollments, input.enrollmentId) : state.enrollments.find((e) => e.studentId === student.id && e.status !== 'ended');
         if (!enrollment) throw E.validation('Enrollment required.', 'التسجيل في كورس مطلوب.');
+        if (enrollment.studentId !== student.id || enrollment.status === 'ended') {
+          throw E.validation('Enrollment does not belong to this student or is no longer active.', 'التسجيل لا يخص هذا الطالب أو أنه غير نشط.');
+        }
+        if (enrollment.courseId !== sub.courseId) {
+          throw E.validation('Enrollment and subscription courses do not match.', 'الكورس في التسجيل لا يطابق كورس الاشتراك.');
+        }
         const teacherId = input.teacherId || currentPrimary(state, student.id, enrollment.id)?.teacherId;
         if (!teacherId || !byId(state.teachers, teacherId)) throw E.validation('Teacher required.', 'المعلم مطلوب.');
         const cycle = input.cycleId ? must(state.cycles, input.cycleId) : activeCycle(student.id);
         if (!cycle) throw E.validation('No cycle to attach this session to.', 'لا توجد فترة اشتراك لربط الحصة بها.');
+        if (cycle.subscriptionId !== sub.id || cycle.planId !== sub.planId) {
+          throw E.validation('Billing cycle does not belong to this subscription.', 'فترة الفوترة لا تخص هذا الاشتراك.');
+        }
         const startsAt = new Date(input.startsAt);
         if (Number.isNaN(startsAt.getTime())) throw E.validation('Invalid start time.', 'موعد البداية غير صالح.');
         const durationMin = Number(input.durationMin || planBrief(sub.planId)?.minutes || 30);
@@ -1155,6 +1164,10 @@ export function createStore(options = {}) {
       return command(actor, meta.idempotencyKey, () => {
         allow(actor, 'payment.write', null);
         const sub = must(state.subscriptions, input.subscriptionId);
+        const cycle = input.cycleId ? must(state.cycles, input.cycleId) : null;
+        if (cycle && cycle.subscriptionId !== sub.id) {
+          throw E.validation('Billing cycle does not belong to this subscription.', 'فترة الفوترة لا تخص هذا الاشتراك.');
+        }
         if (!['pending', 'paid', 'failed', 'refunded'].includes(input.status)) throw E.validation('Unknown payment status.', 'حالة الدفع غير معروفة.');
         const amount = Number(input.amount);
         if (!Number.isFinite(amount) || amount < 0) throw E.validation('Amount is invalid.', 'المبلغ غير صالح.');
@@ -1201,12 +1214,40 @@ export function createStore(options = {}) {
         allow(actor, 'people.admin', null);
         if (!input.title || String(input.title).trim().length < 3) throw E.validation('Title is required.', 'عنوان المتابعة مطلوب.');
         const student = input.studentId ? must(state.students, input.studentId) : null;
+        const familyId = input.familyId || student?.familyId || null;
+        const teacher = input.teacherId ? must(state.teachers, input.teacherId) : null;
+        const subscription = input.subscriptionId ? must(state.subscriptions, input.subscriptionId) : null;
+        const session = input.sessionId ? must(state.sessions, input.sessionId) : null;
+        const assigneeId = input.assigneeId || IDS.ops;
+        if (familyId && !byId(state.families, familyId)) throw E.notFound();
+        if (student && familyId && student.familyId !== familyId) {
+          throw E.validation('Student and family do not match.', 'الطالب لا ينتمي إلى الأسرة المحددة.');
+        }
+        if (subscription && student && subscription.studentId !== student.id) {
+          throw E.validation('Subscription does not belong to this student.', 'الاشتراك لا يخص هذا الطالب.');
+        }
+        if (subscription && familyId && subscription.familyId !== familyId) {
+          throw E.validation('Subscription does not belong to this family.', 'الاشتراك لا يخص هذه الأسرة.');
+        }
+        if (session && student && session.studentId !== student.id) {
+          throw E.validation('Session does not belong to this student.', 'الحصة لا تخص هذا الطالب.');
+        }
+        if (session && familyId && session.familyId !== familyId) {
+          throw E.validation('Session does not belong to this family.', 'الحصة لا تخص هذه الأسرة.');
+        }
+        if (session && subscription && session.subscriptionId !== subscription.id) {
+          throw E.validation('Session and subscription do not match.', 'الحصة لا تتبع الاشتراك المحدد.');
+        }
+        if (session && teacher && session.teacherId !== teacher.id) {
+          throw E.validation('Teacher does not match the session.', 'المعلم المحدد لا يطابق معلم الحصة.');
+        }
+        if (!byId(state.users, assigneeId)) throw E.notFound();
         const row = {
           id: id('fu'),
           level: input.level || (student ? 'student' : 'family'),
           type: input.type || 'family',
           visibility: input.visibility || (input.type === 'teacher_ops' ? 'internal' : 'family'),
-          familyId: input.familyId || student?.familyId,
+          familyId,
           studentId: student?.id ?? null,
           teacherId: input.teacherId ?? null,
           subscriptionId: input.subscriptionId ?? null,
@@ -1215,7 +1256,7 @@ export function createStore(options = {}) {
           titleAr: input.titleAr || input.title,
           status: 'open',
           priority: input.priority || 'normal',
-          assigneeId: input.assigneeId || IDS.ops,
+          assigneeId,
           dueAt: input.dueAt || addMs(clock().toISOString(), 2 * 86400000),
           outcome: null,
           outcomeAr: null,
