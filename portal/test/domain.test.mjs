@@ -484,3 +484,61 @@ test('a conflicting reschedule leaves session history and audit unchanged', () =
   }), /overlaps/i);
   assert.deepEqual(store.snapshot(), before, 'failed reschedule must not mutate either session or audit history');
 });
+
+test('attendance accepts only declared statuses and invalid updates roll back', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  const before = store.snapshot();
+  assert.throws(() => store.markAttendance(actor, IDS.sesYusufNext, {
+    status: 'maybe',
+    reason: 'Invalid attendance state test',
+  }), /attendance status/i);
+  assert.deepEqual(store.snapshot(), before);
+
+  assert.throws(() => store.completeSession(actor, IDS.sesYusufNext, {
+    attendance: 'unknown',
+  }), /attendance status/i);
+  assert.deepEqual(store.snapshot(), before, 'invalid attendance must not complete a session, consume a credit or append audit');
+});
+
+test('report corrections preserve before/after content in audit without duplicating the report or submission event', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  const sessionId = IDS.sesYusufNext;
+
+  assert.throws(() => store.submitReport(actor, sessionId, {
+    summary: 'A report cannot precede completion',
+  }), /after the session is completed/i);
+
+  store.completeSession(actor, sessionId, { attendance: 'present' });
+  store.submitReport(actor, sessionId, {
+    summary: 'Read short vowels accurately',
+    homework: 'Practice the first page',
+    nextStep: 'Introduce long vowels',
+  });
+  store.submitReport(actor, sessionId, {
+    summary: 'Read short and long vowels accurately',
+    homework: 'Practice the second page',
+    nextStep: 'Review pronunciation',
+    reason: 'Corrected after teacher review',
+  });
+
+  const snapshot = store.snapshot();
+  const reports = snapshot.reports.filter((report) => report.sessionId === sessionId);
+  assert.equal(reports.length, 1);
+  assert.equal(reports[0].summary, 'Read short and long vowels accurately');
+  assert.equal(reports[0].homework, 'Practice the second page');
+
+  const changes = snapshot.audit.filter((row) => row.entityId === sessionId && ['report.submitted', 'report.corrected'].includes(row.action));
+  assert.equal(changes.length, 2);
+  assert.equal(changes[0].action, 'report.submitted');
+  assert.equal(changes[0].before, null);
+  assert.equal(changes[0].after.summary, 'Read short vowels accurately');
+  assert.equal(changes[1].action, 'report.corrected');
+  assert.equal(changes[1].reason, 'Corrected after teacher review');
+  assert.equal(changes[1].before.summary, 'Read short vowels accurately');
+  assert.equal(changes[1].before.homework, 'Practice the first page');
+  assert.equal(changes[1].after.summary, 'Read short and long vowels accurately');
+  assert.equal(changes[1].after.homework, 'Practice the second page');
+  assert.equal(snapshot.events.filter((event) => event.type === 'report.submitted' && event.entityId === sessionId).length, 1);
+});

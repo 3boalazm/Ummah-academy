@@ -258,3 +258,18 @@ test('API idempotency keys are isolated by operation route', async () => {
   assert.equal(payment.status, 201, JSON.stringify(payment.data));
   assert.ok(payment.data.payment?.id, 'payment endpoint must return a payment, not a replayed session result');
 });
+
+test('guardian and unrelated teacher cannot submit lesson reports through the API', async () => {
+  const guardianCookie = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const teacherCookie = await login('sara@ummahacademy.net', 'Sakinah-Teach-2026');
+  const payload = { summary: 'Unauthorized report write attempt', homework: 'Not allowed' };
+
+  for (const [role, cookie] of [['guardian', guardianCookie], ['unrelated teacher', teacherCookie]]) {
+    const response = await request('/api/sessions/ses_yusuf_next/report', {
+      method: 'POST',
+      cookie,
+      body: payload,
+    });
+    assert.ok([403, 404].includes(response.status), `${role} must not write a report for a session outside their authority; got ${response.status}`);
+  }
+});
