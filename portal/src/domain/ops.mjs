@@ -369,6 +369,12 @@ export function attachOps(api, bag) {
       guardian.phone = phone;
       const family = byId(state.families, guardian.familyId);
       if (family && (actor.role === 'admin' || actor.role === 'ops')) family.phone = phone;
+      for (const row of state.outbox.filter((item) => item.toUserId === guardian.userId && ['needs_phone', 'queued'].includes(item.status))) {
+        row.phone = phone;
+        row.waUrl = guardian.whatsappConsent === 'opted_in' && phone ? waDraftLink(phone, row.bodyAr || row.body) : null;
+        if (guardian.whatsappConsent !== 'opted_in') row.status = 'needs_consent';
+        else row.status = phone ? 'queued' : 'needs_phone';
+      }
       audit(actor, 'guardian.phone_changed', 'guardian', guardian.id, { phone: before }, { phone }, reason, meta.requestId);
       return { id: guardian.id, phone };
     });
