@@ -283,6 +283,12 @@ async function onForm(form) {
       toast(t('saved'));
       go(`/app/follow-ups/${body.id}`);
       return;
+    } else if (action === 'whatsapp-consent') {
+      await api('POST', `/api/guardians/${data.guardianId}/whatsapp-consent`, {
+        status: data.status,
+        reason: 'Guardian updated WhatsApp preference',
+      }, opt);
+      toast(t('saved'));
     } else if (action === 'reset') {
       if (!confirm(t('resetWarn'))) return;
       await api('POST', '/api/admin/reset-demo', {}, opt);
