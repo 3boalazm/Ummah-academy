@@ -105,29 +105,76 @@ test('a weekly series keeps the local clock across the Sydney DST change and rol
   assert.equal(store.snapshot().sessions.length, before);
 });
 
-test('WhatsApp drafts never use a missing phone and never claim delivery', () => {
+test('WhatsApp drafts require explicit opt-in and preserve the manual delivery lifecycle', () => {
   assert.equal(waDraftLink('', 'hello'), null);
   assert.equal(waDraftLink('+20 100 000 0000', 'مرحبا').startsWith('https://wa.me/201000000000?text='), true);
   assert.equal(waDraftLink('+971 50 276 0242', 'x'), null);
   const { store, admin } = boot();
   const actor = admin();
+
   const first = store.generateDrafts(actor);
   assert.equal(first.created > 0, true);
-  const rows = store.listOutbox(actor);
+  let rows = store.listOutbox(actor);
   assert.equal(rows.every((r) => r.deliveryConfirmed === false), true);
-  assert.equal(rows.every((r) => r.phone == null || r.waUrl?.includes(r.phone.replace('+', ''))), true);
-  assert.equal(rows.some((r) => r.status === 'needs_phone' && r.waUrl == null), true);
-  const second = store.generateDrafts(actor);
-  assert.equal(second.created, 0);
-  const queued = rows.find((r) => r.status === 'needs_phone');
+  assert.equal(rows.every((r) => r.status === 'needs_consent' ? r.waUrl == null : true), true);
+  const noConsent = rows.find((r) => r.status === 'needs_consent');
+  assert.ok(noConsent);
+  assert.throws(
+    () => store.markOutbox(actor, noConsent.id, { status: 'attempted', reason: 'Should not be possible' }),
+    /opted in/i,
+  );
+
+  store.setGuardianMessagingConsent(actor, 'grd_khalid', {
+    status: 'opted_in', source: 'recorded_verbal', reason: 'Synthetic test fixture records opt-in',
+  });
+  store.setGuardianPhone(actor, 'grd_khalid', { phone: '+971 50 276 0242', reason: 'This is the academy sender' });
   assert.throws(
     () => store.setGuardianPhone(actor, 'grd_khalid', { phone: '+971 50 276 0242', reason: 'This is the academy sender' }),
     /academy|sender/i,
   );
-  store.setGuardianPhone(actor, 'grd_khalid', { phone: '+1 555 010 0199', reason: 'Father added a demo number' });
-  const marked = store.markOutbox(actor, queued.id, { status: 'sent', reason: 'Staff opened WhatsApp themselves' });
-  assert.equal(marked.deliveryConfirmed, false);
-  assert.equal(marked.status, 'sent');
+  store.setGuardianPhone(actor, 'grd_khalid', { phone: '+1 555 010 0199', reason: 'Synthetic test contact phone' });
+  rows = store.listOutbox(actor);
+  const queued = rows.find((r) => r.toUserId === 'usr_khalid' && r.status === 'queued');
+  assert.ok(queued?.waUrl, 'opted-in recipient with a valid phone gets a manual draft link');
+  assert.equal(queued.deliveryConfirmed, false);
+
+  const opened = store.markOutbox(actor, queued.id, { status: 'opened' });
+  assert.equal(opened.status, 'opened');
+  const attempted = store.markOutbox(actor, queued.id, { status: 'attempted', reason: 'Staff started manual send' });
+  assert.equal(attempted.status, 'attempted');
+  const sent = store.markOutbox(actor, queued.id, { status: 'sent', reason: 'Staff confirmed message sent in WhatsApp' });
+  assert.equal(sent.deliveryConfirmed, false);
+  assert.equal(sent.status, 'sent');
+  assert.throws(() => store.markOutbox(actor, queued.id, { status: 'delivered', reason: 'No proof' }), /evidence/i);
+  const delivered = store.markOutbox(actor, queued.id, {
+    status: 'delivered', reason: 'Staff verified delivery receipt', deliveryEvidence: 'WhatsApp delivered indicator observed',
+  });
+  assert.equal(delivered.deliveryConfirmed, true);
+  assert.deepEqual(delivered.attempts.map((a) => a.to), ['opened', 'attempted', 'sent', 'delivered']);
+
+  const second = store.generateDrafts(actor);
+  assert.equal(second.created, 0, 'generation remains deduplicated');
+});
+
+test('WhatsApp opt-out cancels unsent drafts and clears the send link', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  store.setGuardianMessagingConsent(actor, 'grd_khalid', {
+    status: 'opted_in', source: 'signed_form', reason: 'Synthetic test consent record',
+  });
+  store.setGuardianPhone(actor, 'grd_khalid', { phone: '+1 555 010 0199', reason: 'Synthetic test contact phone' });
+  store.generateDrafts(actor);
+  let rows = store.listOutbox(actor);
+  const queued = rows.find((r) => r.toUserId === 'usr_khalid' && r.status === 'queued');
+  assert.ok(queued);
+  store.setGuardianMessagingConsent(actor, 'grd_khalid', {
+    status: 'opted_out', source: 'support_request', reason: 'Guardian asked to stop WhatsApp messages',
+  });
+  rows = store.listOutbox(actor);
+  const cancelled = rows.find((r) => r.id === queued.id);
+  assert.equal(cancelled.status, 'cancelled');
+  assert.equal(cancelled.waUrl, null);
+  assert.equal(cancelled.deliveryConfirmed, false);
 });
 
 test('export has no secrets and teachers cannot download the ledger', () => {
