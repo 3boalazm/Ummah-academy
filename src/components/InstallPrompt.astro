@@ -104,6 +104,12 @@ const cardId = `ua-install-card-${variant}`;
     animation: install-in 0.4s var(--ease-spring);
   }
 
+  /* Higher specificity than the shared .glass utility so the solid surface always wins. */
+  .install__pill.glass {
+    background: #2f2146;
+    color: #ffffff;
+  }
+
   .install__pill :global(svg) {
     width: 18px;
     height: 18px;
