@@ -73,6 +73,7 @@ Severity definitions: **P0** = stop production cut-over; **P1** = resolve before
 | P0-ENV-01 | Demo identities and passwords are documented in a public repository and shown in demo mode. | They are public demonstration credentials, not secrets. Any reachable demo instance can be accessed by anyone who knows them. | Verify production startup rejects demo credentials and seeded demo users, prove no public deployment uses demo mode, and document a controlled initial-admin bootstrap. |
 | P0-DEPLOY-01 | Portal is a separate process and is not part of the Vercel static build. The current public portal URL remains pointed at WordPress. | Deploying the marketing site does not deploy or operate the portal. A link cut-over alone would not create a production-ready service. | Select and deploy a supported persistent runtime; prove health checks, TLS, environment configuration, data persistence, backup/restore, and rollback. Keep public CTA unchanged until then. |
 | P0-DB-01 | Operational state is stored in a local JSON file without multi-server transactional guarantees. | Concurrent writes, process restarts, filesystem loss, and horizontal scaling can threaten consistency and availability. | Approve a persistent transactional database, migration/rollback plan, concurrency tests, and a tested restore procedure before real student/financial data. |
+| P0-RESET-01 | `resetDemo(actor)` in the inspected source allowed an admin to replace the current store with demo seed data even when `production: true`. | A production admin could overwrite live operational records with demo data from the demo-reset route. | PR #9 adds a production-mode refusal and a regression test that asserts the state remains unchanged; acceptance awaits CI and code review. |
 
 ### P1 — Resolve before production pilot
 
@@ -133,7 +134,7 @@ Phase 0 is **not complete** until every unchecked deliverable above is either co
 
 ## 8. Recommended immediate action
 
-**Implementation started:** Pull request [#9](https://github.com/3boalazm/Ummah-academy/pull/9) adds a fail-closed state loader, rejects missing/demo state in production, and adds regression tests for missing, malformed, invalid-schema, and demo-marked stores. It is open and has not been merged. The GitHub Actions QA run is still in progress; Vercel's separate status remains failed due to a build-rate-limit/plan page. Do not mark the fix accepted until the workflow completes successfully and the diff is reviewed.
+**Implementation started:** Pull request [#9](https://github.com/3boalazm/Ummah-academy/pull/9) adds a fail-closed state loader, rejects missing/demo state in production, disables the destructive demo-reset operation in production, and adds regression tests for missing, malformed, invalid-schema, unreadable, demo-marked, and production-reset cases. It is open and has not been merged. The GitHub Actions QA run is still in progress; Vercel's separate status remains failed due to a build-rate-limit/plan page. Do not mark the fix accepted until the workflow completes successfully and the diff is reviewed.
 
 After the state-loader fix is accepted, establish the production database and security architecture before connecting the public site or entering real child data.
 
