@@ -155,6 +155,35 @@ test('WhatsApp drafts require explicit opt-in and preserve the manual delivery l
   assert.equal(second.created, 0, 'generation remains deduplicated');
 });
 
+
+test('failed manual message attempts can be retried without erasing prior attempts', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  store.setGuardianMessagingConsent(actor, 'grd_khalid', {
+    status: 'opted_in', source: 'signed_form', reason: 'Synthetic test consent record',
+  });
+  store.setGuardianPhone(actor, 'grd_khalid', { phone: '+1 555 010 0199', reason: 'Synthetic test contact phone' });
+  store.generateDrafts(actor);
+  const queued = store.listOutbox(actor).find((r) => r.toUserId === 'usr_khalid' && r.status === 'queued');
+  assert.ok(queued);
+
+  store.markOutbox(actor, queued.id, { status: 'opened' });
+  store.markOutbox(actor, queued.id, { status: 'attempted', reason: 'First manual attempt' });
+  const failed = store.markOutbox(actor, queued.id, { status: 'failed', reason: 'WhatsApp reported temporary send failure' });
+  assert.equal(failed.status, 'failed');
+  assert.equal(failed.deliveryConfirmed, false);
+  assert.throws(
+    () => store.markOutbox(actor, queued.id, { status: 'sent', reason: 'Skip retry step' }),
+    /Cannot move a message/i,
+  );
+
+  store.markOutbox(actor, queued.id, { status: 'attempted', reason: 'Retry after temporary failure' });
+  const sent = store.markOutbox(actor, queued.id, { status: 'sent', reason: 'Staff confirmed retry was sent' });
+  assert.equal(sent.status, 'sent');
+  assert.equal(sent.deliveryConfirmed, false);
+  assert.deepEqual(sent.attempts.map((a) => a.to), ['opened', 'attempted', 'failed', 'attempted', 'sent']);
+});
+
 test('WhatsApp opt-out cancels unsent drafts and clears the send link', () => {
   const { store, admin } = boot();
   const actor = admin();
