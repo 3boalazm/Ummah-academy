@@ -103,14 +103,26 @@ export function createStore(options = {}) {
     });
   }
 
-  function replay(actor, key) {
+  function replay(actor, keyInput) {
+    if (!keyInput) return null;
+    const key = typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = typeof keyInput === 'object' ? keyInput.fingerprint : null;
     if (!key) return null;
     const hit = state.idempotency.find((i) => i.key === key && i.actorId === actor.id);
-    return hit ? structuredClone(hit.result) : null;
+    if (!hit) return null;
+    if (fingerprint && hit.fingerprint && hit.fingerprint !== fingerprint) {
+      throw E.badState(
+        'This idempotency key was already used with a different request payload.',
+        'استُخدم مفتاح منع التكرار هذا سابقًا مع بيانات طلب مختلفة.',
+      );
+    }
+    return structuredClone(hit.result);
   }
 
-  function command(actor, key, fn) {
-    const hit = replay(actor, key);
+  function command(actor, keyInput, fn) {
+    const key = typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = typeof keyInput === 'object' ? keyInput.fingerprint : null;
+    const hit = replay(actor, keyInput);
     if (hit) return { ...hit, replayed: true };
     const snapshot = structuredClone(state);
     try {
@@ -118,6 +130,7 @@ export function createStore(options = {}) {
       if (key) {
         state.idempotency.push({
           key,
+          fingerprint: fingerprint || null,
           actorId: actor.id,
           result: structuredClone(result),
           createdAt: clock().toISOString(),
@@ -1232,7 +1245,7 @@ export function createStore(options = {}) {
       return followDto(row);
     },
     createFollowUp(actor, input, meta = {}) {
-      return command(actor, meta.idempotencyKey, () => {
+      return command(actor, null, () => {
         allow(actor, 'people.admin', null);
         if (!input.title || String(input.title).trim().length < 3) throw E.validation('Title is required.', 'عنوان المتابعة مطلوب.');
         const student = input.studentId ? must(state.students, input.studentId) : null;
@@ -1296,7 +1309,7 @@ export function createStore(options = {}) {
       });
     },
     addAttempt(actor, followId, input, meta = {}) {
-      return command(actor, meta.idempotencyKey, () => {
+      return command(actor, null, () => {
         const row = must(state.followUps, followId);
         allow(actor, 'people.admin', null);
         if (!input.note || String(input.note).trim().length < 2) throw E.validation('Note is required.', 'ملاحظة المحاولة مطلوبة.');
@@ -1318,7 +1331,7 @@ export function createStore(options = {}) {
       });
     },
     transitionFollowUp(actor, followId, input, meta = {}) {
-      return command(actor, meta.idempotencyKey, () => {
+      return command(actor, null, () => {
         const row = must(state.followUps, followId);
         allow(actor, 'people.admin', null);
         const next = input.status;
@@ -1336,7 +1349,7 @@ export function createStore(options = {}) {
       });
     },
     createChangeRequest(actor, input, meta = {}) {
-      return command(actor, meta.idempotencyKey, () => {
+      return command(actor, null, () => {
         allow(actor, 'followup.request', null);
         const g = guardianOf(state, actor);
         if (!g) throw E.forbidden();
