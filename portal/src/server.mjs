@@ -246,6 +246,7 @@ const routes = [
   ['POST', /^\/api\/families$/, async (req, res, actor) => send(res, 201, store.enrollFamily(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/sessions\/series$/, async (req, res, actor) => send(res, 201, store.createSeries(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/guardians\/([^/]+)\/phone$/, async (req, res, actor, m) => send(res, 200, store.setGuardianPhone(actor, m[1], await readBody(req), meta(req)))],
+  ['POST', /^\/api\/guardians\/([^/]+)\/whatsapp-consent$/, async (req, res, actor, m) => send(res, 200, store.setGuardianMessagingConsent(actor, m[1], await readBody(req), meta(req)))],
   ['GET', /^\/api\/outbox$/, async (_req, res, actor) => send(res, 200, store.listOutbox(actor))],
   ['POST', /^\/api\/outbox\/drafts$/, async (req, res, actor) => send(res, 200, store.generateDrafts(actor, meta(req)))],
   ['POST', /^\/api\/outbox\/([^/]+)$/, async (req, res, actor, m) => send(res, 200, store.markOutbox(actor, m[1], await readBody(req), meta(req)))],
