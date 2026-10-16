@@ -87,6 +87,12 @@ function invoiceFrom(payment) {
   };
 }
 
+function firstValidDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) throw E.validation('Invalid start time.', 'موعد البداية غير صالح.');
+  return date;
+}
+
 export function attachOps(api, bag) {
   const { clock, allow, command, audit, event, notify, must, byId, requireReason } = bag;
   const stateOf = () => bag.state;
@@ -310,10 +316,20 @@ export function attachOps(api, bag) {
       const cycle = state.cycles.find((c) => c.subscriptionId === sub.id && c.status === 'active');
       if (!cycle) throw E.validation('No active cycle.', 'لا توجد فترة سارية.');
       const timeZone = input.timeZone || student.timezone;
-      const first = new Date(input.startsAt);
-      if (Number.isNaN(first.getTime())) throw E.validation('Invalid start time.', 'موعد البداية غير صالح.');
-      const durationMin = Number(input.durationMin || 30);
-      const created = [];
+      try {
+        new Intl.DateTimeFormat('en-US', { timeZone }).format(firstValidDate(input.startsAt));
+      } catch {
+        throw E.validation('Unknown time zone.', 'المنطقة الزمنية غير معروفة.');
+      }
+      const first = firstValidDate(input.startsAt);
+      const durationMin = Number(input.durationMin ?? 30);
+      if (!Number.isInteger(durationMin) || durationMin < 1) {
+        throw E.validation('Duration must be a positive whole number of minutes.', 'مدة الحصة يجب أن تكون عددًا صحيحًا موجبًا بالدقائق.');
+      }
+
+      // Build and validate the complete series before mutating shared state. A conflict
+      // on a later occurrence must never leave earlier occurrences persisted.
+      const planned = [];
       for (let i = 0; i < count; i++) {
         const starts = i === 0 ? first : addLocalWeeks(first.toISOString(), i, timeZone);
         const session = blankSession({
@@ -330,11 +346,12 @@ export function attachOps(api, bag) {
           durationMin,
           createdBy: actor.id,
         });
-        const hits = findHardConflicts(state.sessions, session);
+        const hits = findHardConflicts([...state.sessions, ...planned], session);
         if (hits.length) throw E.conflict({ conflicts: hits, index: i });
-        state.sessions.push(session);
-        created.push({ id: session.id, startsAt: session.startsAt });
+        planned.push(session);
       }
+      state.sessions.push(...planned);
+      const created = planned.map((session) => ({ id: session.id, startsAt: session.startsAt }));
       audit(actor, 'session.series_created', 'student', student.id, null, { count, ids: created.map((s) => s.id) }, input.reason || null, meta.requestId);
       return { sessions: created, timeZone };
     });
