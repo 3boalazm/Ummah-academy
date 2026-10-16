@@ -2,7 +2,7 @@
  * Operations portal HTTP server.
  * Bind 0.0.0.0 so the preview host can reach it. No frame-blocking headers.
  */
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -98,7 +98,9 @@ function readBody(req, max = 1_000_000) {
     req.on('end', () => {
       if (!chunks.length) return resolve({});
       try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+        const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        req.bodyFingerprint = createHash('sha256').update(JSON.stringify(parsed)).digest('hex');
+        resolve(parsed);
       } catch {
         reject(new DomainError('validation', 400, 'Invalid JSON.', 'JSON غير صالح.'));
       }
@@ -176,7 +178,10 @@ function meta(req) {
   const pathname = req.url instanceof URL ? req.url.pathname : new URL(req.url, 'http://localhost').pathname;
   return {
     requestId: randomBytes(8).toString('hex'),
-    idempotencyKey: suppliedKey ? `${req.method}:${pathname}:${suppliedKey}` : null,
+    idempotencyKey: suppliedKey ? {
+      key: `${req.method}:${pathname}:${suppliedKey}`,
+      fingerprint: req.bodyFingerprint || null,
+    } : null,
   };
 }
 
@@ -241,7 +246,6 @@ const routes = [
   ['POST', /^\/api\/families$/, async (req, res, actor) => send(res, 201, store.enrollFamily(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/sessions\/series$/, async (req, res, actor) => send(res, 201, store.createSeries(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/guardians\/([^/]+)\/phone$/, async (req, res, actor, m) => send(res, 200, store.setGuardianPhone(actor, m[1], await readBody(req), meta(req)))],
-  ['POST', /^\/api\/guardians\/([^/]+)\/whatsapp-consent$/, async (req, res, actor, m) => send(res, 200, store.setGuardianMessagingConsent(actor, m[1], await readBody(req), meta(req)))],
   ['GET', /^\/api\/outbox$/, async (_req, res, actor) => send(res, 200, store.listOutbox(actor))],
   ['POST', /^\/api\/outbox\/drafts$/, async (req, res, actor) => send(res, 200, store.generateDrafts(actor, meta(req)))],
   ['POST', /^\/api\/outbox\/([^/]+)$/, async (req, res, actor, m) => send(res, 200, store.markOutbox(actor, m[1], await readBody(req), meta(req)))],
