@@ -1232,7 +1232,7 @@ export function createStore(options = {}) {
       return followDto(row);
     },
     createFollowUp(actor, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         allow(actor, 'people.admin', null);
         if (!input.title || String(input.title).trim().length < 3) throw E.validation('Title is required.', 'عنوان المتابعة مطلوب.');
         const student = input.studentId ? must(state.students, input.studentId) : null;
@@ -1296,7 +1296,7 @@ export function createStore(options = {}) {
       });
     },
     addAttempt(actor, followId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const row = must(state.followUps, followId);
         allow(actor, 'people.admin', null);
         if (!input.note || String(input.note).trim().length < 2) throw E.validation('Note is required.', 'ملاحظة المحاولة مطلوبة.');
@@ -1318,7 +1318,7 @@ export function createStore(options = {}) {
       });
     },
     transitionFollowUp(actor, followId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const row = must(state.followUps, followId);
         allow(actor, 'people.admin', null);
         const next = input.status;
@@ -1336,7 +1336,7 @@ export function createStore(options = {}) {
       });
     },
     createChangeRequest(actor, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         allow(actor, 'followup.request', null);
         const g = guardianOf(state, actor);
         if (!g) throw E.forbidden();
