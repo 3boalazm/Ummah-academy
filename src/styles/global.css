@@ -2021,4 +2021,8 @@
     border-radius: var(--r-sm);
     padding: 0.35rem 0.55rem;
   }
+
+  :root[data-theme='dark'] .azhar .checklist li {
+    color: #fff !important;
+  }
 }
