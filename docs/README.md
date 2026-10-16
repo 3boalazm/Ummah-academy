@@ -31,3 +31,6 @@
 | 20 | [20-phase-0-baseline.md](20-phase-0-baseline.md) | Phase 0 source-based baseline: repo/deployment split, portal architecture, blockers, risk register, business decisions, and Phase 0 exit criteria |
 | 21 | [21-requirements-ledger.md](21-requirements-ledger.md) | Requirements and acceptance ledger with stable IDs, statuses, priorities, and test/evidence requirements across the academy operating system |
 | 22 | [22-phase-0-route-inventory.md](22-phase-0-route-inventory.md) | Source-based inventory of portal HTTP routes and the authorization, record-scope, state-transition, and negative-test acceptance still required |
+| 23 | [23-portal-phase-2-domain-model.md](23-portal-phase-2-domain-model.md) | Phase 2: synthetic domain contract and relationship integrity gates |
+| 24 | [24-portal-phase-3-authorization-minimization.md](24-portal-phase-3-authorization-minimization.md) | Phase 3: teacher-directory response minimization, role scope, and remaining authorization acceptance |
+| 25 | [25-phase-4-academic-model-audit.md](25-phase-4-academic-model-audit.md) | Phase 4: academic domain baseline, proposed entities, business decisions, and acceptance gates |
