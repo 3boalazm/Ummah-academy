@@ -60,9 +60,52 @@ const L = COPY.L;
 <style>
   .classroom {
     --radius: 28px;
+    /* Surfaces of the illustration, so the whole mockup follows the theme like the rest of
+       the design system instead of staying a white slab in dark mode. */
+    --cls-board: rgb(255 255 255 / 0.86);
+    --cls-board-rim: rgb(46 29 70 / 0.06);
+    --cls-board-ink: var(--aubergine-900);
+    --cls-mark-1: rgb(29 95 168 / 0.14);
+    --cls-mark-2: rgb(143 47 158 / 0.14);
+    --cls-mark-rule-1: rgb(29 95 168 / 0.5);
+    --cls-mark-rule-2: rgb(143 47 158 / 0.5);
+    --cls-tile-teacher: radial-gradient(80% 70% at 30% 20%, rgb(255 255 255 / 0.7), transparent 60%),
+      linear-gradient(160deg, #d9cff0, #c6d8f0);
+    --cls-tile-student: radial-gradient(80% 70% at 70% 20%, rgb(255 255 255 / 0.7), transparent 60%),
+      linear-gradient(160deg, #f3d9e4, #e2d6f1);
+    --cls-chip: rgb(255 255 255 / 0.85);
+    --cls-chip-ink: var(--accent-ink);
+    --cls-pill: rgb(255 255 255 / 0.8);
+    --cls-pill-ink: var(--ink-2);
+    --cls-tool: rgb(255 255 255 / 0.75);
+    --cls-tool-rim: rgb(46 29 70 / 0.06);
+    --cls-dot: rgb(46 29 70 / 0.14);
     padding: 12px;
     display: grid;
     gap: 10px;
+  }
+
+  /* Dark mode: the illustration is a "screen", so it goes dark too — a bright panel with
+     dark-theme ink on it was both ugly and unreadable. */
+  :global([data-theme='dark']) .classroom {
+    --cls-board: rgb(255 255 255 / 0.07);
+    --cls-board-rim: rgb(255 255 255 / 0.12);
+    --cls-board-ink: var(--ink);
+    --cls-mark-1: rgb(127 192 255 / 0.22);
+    --cls-mark-2: rgb(224 164 255 / 0.22);
+    --cls-mark-rule-1: rgb(127 192 255 / 0.6);
+    --cls-mark-rule-2: rgb(224 164 255 / 0.6);
+    --cls-tile-teacher: radial-gradient(80% 70% at 30% 20%, rgb(255 255 255 / 0.14), transparent 60%),
+      linear-gradient(160deg, #2b2352, #1d2c4a);
+    --cls-tile-student: radial-gradient(80% 70% at 70% 20%, rgb(255 255 255 / 0.14), transparent 60%),
+      linear-gradient(160deg, #3a2340, #2a2145);
+    --cls-chip: rgb(255 255 255 / 0.14);
+    --cls-chip-ink: #f0dcff;
+    --cls-pill: rgb(255 255 255 / 0.14);
+    --cls-pill-ink: var(--ink);
+    --cls-tool: rgb(255 255 255 / 0.12);
+    --cls-tool-rim: rgb(255 255 255 / 0.12);
+    --cls-dot: rgb(255 255 255 / 0.2);
   }
 
   .classroom__bar {
@@ -83,7 +126,7 @@ const L = COPY.L;
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: rgb(46 29 70 / 0.14);
+    background: var(--cls-dot);
   }
 
   .classroom__title {
@@ -125,8 +168,8 @@ const L = COPY.L;
     position: relative;
     padding: 26px 22px 20px;
     border-radius: 20px;
-    background: rgb(255 255 255 / 0.86);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+    background: var(--cls-board);
+    box-shadow: inset 0 0 0 1px var(--cls-board-rim);
     min-height: 220px;
     display: flex;
     flex-direction: column;
@@ -138,7 +181,7 @@ const L = COPY.L;
     font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.5rem);
     line-height: 1.9;
     text-align: center;
-    color: var(--aubergine-900);
+    color: var(--cls-board-ink);
   }
 
   .classroom__ayah mark {
@@ -148,11 +191,11 @@ const L = COPY.L;
   }
 
   .classroom__ayah .m1 {
-    background: rgb(29 95 168 / 0.14);
+    background: var(--cls-mark-1);
   }
 
   .classroom__ayah .m2 {
-    background: rgb(143 47 158 / 0.14);
+    background: var(--cls-mark-2);
   }
 
   .classroom__notes {
@@ -169,11 +212,11 @@ const L = COPY.L;
   }
 
   .sw1 {
-    background: rgb(29 95 168 / 0.5);
+    background: var(--cls-mark-rule-1);
   }
 
   .sw2 {
-    background: rgb(143 47 158 / 0.5);
+    background: var(--cls-mark-rule-2);
   }
 
   .classroom__ink {
@@ -208,15 +251,11 @@ const L = COPY.L;
   }
 
   .classroom__tile--teacher {
-    background:
-      radial-gradient(80% 70% at 30% 20%, rgb(255 255 255 / 0.7), transparent 60%),
-      linear-gradient(160deg, #d9cff0, #c6d8f0);
+    background: var(--cls-tile-teacher);
   }
 
   .classroom__tile--student {
-    background:
-      radial-gradient(80% 70% at 70% 20%, rgb(255 255 255 / 0.7), transparent 60%),
-      linear-gradient(160deg, #f3d9e4, #e2d6f1);
+    background: var(--cls-tile-student);
   }
 
   .classroom__avatar {
@@ -225,11 +264,11 @@ const L = COPY.L;
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgb(255 255 255 / 0.85);
+    background: var(--cls-chip);
     font-weight: 650;
     font-size: 0.85rem;
-    color: var(--accent-ink);
-    box-shadow: 0 6px 16px -8px rgb(46 29 70 / 0.5);
+    color: var(--cls-chip-ink);
+    box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.35);
   }
 
   .classroom__name {
@@ -243,8 +282,8 @@ const L = COPY.L;
     border-radius: var(--r-pill);
     font-size: 0.7rem;
     font-weight: 560;
-    background: rgb(255 255 255 / 0.8);
-    color: var(--ink-2);
+    background: var(--cls-pill);
+    color: var(--cls-pill-ink);
   }
 
   .classroom__name :global(svg) {
@@ -266,9 +305,9 @@ const L = COPY.L;
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: rgb(255 255 255 / 0.75);
+    background: var(--cls-tool);
     color: var(--ink-2);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--cls-tool-rim);
   }
 
   .classroom__toolbar :global(svg) {

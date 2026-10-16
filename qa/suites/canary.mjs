@@ -12,6 +12,7 @@ import { audit } from './touch.mjs';
 import { axeScoped } from './axe.mjs';
 import { darkContrast } from './theme.mjs';
 import { auditManifest } from './pwa.mjs';
+import { audit as auditText } from './typography.mjs';
 
 const CANARIES = [
   {
@@ -56,6 +57,19 @@ const CANARIES = [
     css: '#bk-first, .input { font-size: 13px !important; }',
     before: (page) => page.evaluate(() => document.querySelectorAll('[data-bstep]').forEach((s) => s.classList.add('is-active'))),
     run: (page) => page.evaluate(audit, true),
+  },
+  {
+    name: 'typography sees a paragraph with one word left on the last line',
+    width: 1280,
+    before: (page) =>
+      page.evaluate(() => {
+        const p = document.createElement('p');
+        p.id = 'canary-orphan';
+        p.style.cssText = 'width:190px;text-wrap:wrap;margin:12px 0';
+        p.textContent = 'A deliberately narrow paragraph whose final line is guaranteed to hold only a lonely word or two';
+        document.querySelector('main')?.appendChild(p);
+      }),
+    run: (page) => page.evaluate(auditText, 2),
   },
   {
     name: 'theme sees dark-on-dark text in dark mode',

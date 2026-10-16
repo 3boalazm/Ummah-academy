@@ -4,6 +4,7 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import LangMenu from './LangMenu.astro';
 import ThemeToggle from './ThemeToggle.astro';
+import InstallPrompt from './InstallPrompt.astro';
 import { portalLinks, waLink } from '@/data/site';
 import { getTracks } from '@/data/tracks';
 import { lp, basePath, price, type Lang, type LangTarget } from '@/i18n';
@@ -138,6 +139,9 @@ const isActive = (href: string) => path.startsWith(href);
         <a class="btn btn--glass btn--block" href={waLink()} target="_blank" rel="noopener">
           <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {t.whatsapp}
         </a>
+        {/* Installing as an app lives here on phones: the floating pill used to sit on top of
+            the action bar in the same corner, and a thumb reaches this row instead. */}
+        <InstallPrompt lang={lang} variant="row" />
         <LangMenu lang={lang} targets={targets} variant="sheet" />
         <ThemeToggle lang={lang} variant="row" />
         <div class="mobile-menu__foot">
@@ -153,7 +157,15 @@ const isActive = (href: string) => path.startsWith(href);
     position: fixed;
     inset: 12px 0 auto;
     z-index: 50;
+    /* The bar is a floating island: the empty space around it must not swallow clicks.
+       Everything interactive inside gets its own pointer-events, including the mobile
+       <dialog> below — a modal dialog in the top layer still hit-tests *inside* its
+       inherited pointer-events, so the inherited `none` made the whole menu dead. */
     pointer-events: none;
+  }
+
+  .site-header :is(a, button, summary, dialog) {
+    pointer-events: auto;
   }
 
   .site-header__bar {
@@ -673,15 +685,20 @@ const isActive = (href: string) => path.startsWith(href);
       padding: 0 8px;
     }
 
-    .site-header__actions :global(.theme-toggle) {
-      width: 40px;
-      height: 40px;
-    }
   }
 
   @media (min-width: 860px) and (max-width: 979px) {
     .site-header__brand :global(.logo__soft) {
       display: none;
+    }
+  }
+
+  /* Right at the breakpoint (860–899 px) the desktop bar has ~1 px less room in Arabic than it
+     needs, so the action block (and the CTA inside it) poked past the glass edge. Measured at
+     858/859/860/861/900 px in all five languages by qa/suites/header.mjs. */
+  @media (min-width: 860px) and (max-width: 899px) {
+    .site-header__bar {
+      padding-inline: 12px 6px;
     }
   }
 
@@ -754,11 +771,17 @@ const isActive = (href: string) => path.startsWith(href);
     }
   }
 
-  /* Phones: the bar is already full (brand + language + CTA + menu, measured at every
-     width from 320px by qa/suites/header.mjs), so the switch lives in the mobile sheet —
-     one tap away, with a label instead of an icon to guess at. */
-  @media (max-width: 859px) {
-    .site-header__actions :global(.theme-toggle) {
+  /* Phones keep the switch in the bar (a control nobody finds is a control that does not
+     exist) — it is 40 px there, and qa/suites/header.mjs measures every width from 320 px in
+     all five languages to prove the bar still fits. The labelled row stays in the sheet too,
+     where there is room for words. */
+
+  /* Very narrow phones (< 400 px): the wordmark stands down to the mark alone, so the bar keeps
+     the free-trial CTA *and* the theme switch instead of dropping either. The link keeps its
+     aria-label, and the name is still in the sheet, the footer and the page itself. Measured by
+     qa/suites/header.mjs at every width from 320 px in all five languages. */
+  @media (max-width: 399px) {
+    .site-header__brand :global(.logo__type) {
       display: none;
     }
   }

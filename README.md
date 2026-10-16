@@ -93,7 +93,7 @@ Start with [`docs/README.md`](docs/README.md). The two a non-developer will want
 Running the QA without Chrome installed (a bare container):
 
 ```bash
-bash scripts/qa-chrome-sandbox.sh     # builds a headless Chromium + NSS/NSPR, prints CHROME_PATH
+bash scripts/qa-chrome-sandbox.sh     # builds a headless Chromium + its NSS/NSPR from npm, prints CHROME_PATH
 ```
 
 ## Adding or editing content

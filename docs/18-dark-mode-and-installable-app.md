@@ -12,13 +12,13 @@
 
 | | Before | Now |
 |---|---|---|
-| Themes | One (light) | **Light + dark**, chosen per visitor: switch in the header (≥ 860 px) and as a labelled row in the mobile sheet (< 860 px) |
+| Themes | One (light) | **Light + dark**, chosen per visitor: the switch is in the header bar **at every width, phones included** (≥ 40 × 40 px, hit-tested), and the mobile sheet carries a second, labelled row so the choice is also visible inside the menu |
 | Theme choice | — | Remembered in `localStorage['ua:theme']`; with no choice, the **OS preference decides**. Applied by an inline script **before the first paint** — no white flash |
 | Dark coverage | — | Every token (surfaces, glass, ink, borders, shadows, gradients, form fields, buttons, chips, focus rings, `::selection`, `color-scheme` for scrollbars and native controls) plus every component that hard-codes a light surface |
 | Installable | No | **Yes**: `manifest.webmanifest`, 192/512/maskable icons, an iOS `apple-touch-icon`, and a service worker — Chrome/Edge/Android offer a real install; iOS Safari gets the Share → Add to Home Screen steps |
-| The install button | — | A small glass pill, **bottom-inline-start** (bottom-left in English, bottom-right in Arabic, mirroring the reading direction), that opens a card with the install action. It appears **only** when the browser offers an install (or on iOS) and never inside an already installed app |
+| The install affordance | — | Desktop: a small glass pill, **bottom-inline-start** (bottom-left in English, bottom-right in Arabic). Phones: a row inside the **mobile menu sheet** — the pill is `display: none` under 860 px, so it can never sit on top of the action bar. Both open the same card and appear **only** when the browser offers an install (or on iOS), never inside an already installed app |
 | Offline | — | The worker keeps visited pages, the stylesheet and immutable `/_astro` assets: an installed app opens the last page it knows instead of the browser's error screen |
-| QA suites | 8 | **11**: `theme`, `pwa`, `offline` added, each with a canary proving it can fail |
+| QA suites | 8 | **13**: `theme`, `pwa`, `offline`, `typography` added, plus a pixel contrast audit (`scripts/contrast-audit.mjs`). The canary injects a known bug for each new check, so a green run means something |
 
 ## 2 · How the theme is built
 
@@ -42,7 +42,7 @@ Everything runs on the **production build** (`dist/`, the same artifact Vercel s
 
 | Sweep | Coverage |
 |---|---|
-| `canary` | 10 injected bugs (a too-wide element, a wrapping CTA, an overflowing bar, a mega panel off-screen, tiny tap targets, an iOS-zoom field, unreadable dark-on-dark text, a broken manifest, an uncached page, an image without alt) — each must be reported |
+| `canary` | 11 injected bugs (a too-wide element, a wrapping CTA, an overflowing bar, a mega panel off-screen, tiny tap targets, an iOS-zoom field, unreadable dark-on-dark text, a broken manifest, an uncached page, an image without alt, a paragraph with an orphan last line) — each must be reported |
 | `overflow` | Every page × **10 widths** (320 → 1280 px, including the four unround widths that caught the card bug): nothing leaves the viewport, no text is cut off |
 | `header` | **Every width from 320 to 1440 px** × five languages: no overlap, CTA on one line, actions inside the bar |
 | `popovers` | Mega menu (9 widths), language popover (5 widths), language sheet, mobile `<dialog>`, language hint — **open**, fitting, closable (Escape + outside click), axe-clean |
@@ -65,7 +65,8 @@ Extra one-off sweeps (documented, not part of the gate):
 |---|---|
 | `npm run qa` (build + links + i18n + JSON-LD + cards + sitemap + CSS + CMS + units) | **green** — 195 pages built |
 | Internal links & fragments | **17,118 checked, 0 broken** |
-| Browser suites (11) | **0 failures, 533 s** — canary 10/10, overflow **1,940**, header 5,605, popovers 125, axe 194, flows 10, touch 355, theme 62, pwa 90, offline 7, cms 1 (one warning: the CDN is unreachable in the sandbox, see below) |
+| Browser suites (13) | **0 failures, 642 s** — canary 11/11, overflow **1,940**, header 5,605, popovers 125, axe 194, flows 10, touch 355, theme 62, pwa 93, offline 7, keyboard 209, typography **1,356 text blocks**, cms 1 (with the pinned bundle served locally, see below) |
+| Pixel contrast audit (`npm run qa:contrast`, also its own CI leg) | **0 findings**: 1,435 text boxes in dark mode over 8 pages, 830 in light mode over 4 — after the §8 fixes; the pre-fix build measures 10 and 6 findings with the same method |
 | Deep width sweep (one-off) | **194 pages × 20 widths (320 → 2560 px) = 3,880 layouts**, 0 overflows |
 | Header, 320 → 2560 px | **every pixel**, all five languages |
 | axe (WCAG 2.2 AA) | **0 violations** — light **and** dark, including open popovers in dark |
@@ -79,14 +80,92 @@ Extra one-off sweeps (documented, not part of the gate):
 > → the editor reaches its sign-in screen with our `config.yml`. In CI the same suite runs
 > against the CDN, where the browser enforces the SRI hash for real.
 
-## 6 · Three bugs the sweep caught (and fixed)
+## 6 · Bugs the sweep caught (and fixed)
 
 1. **A fifth control does not fit under 860 px.** The theme switch pushed the header bar past its own width at 320–375 px (Arabic, French and Italian first). Fix: below 860 px the switch lives in the mobile sheet as a labelled row; the header keeps one switch above it. The `header` suite verifies both halves.
 2. **Arabic overflows between 860 and 1099 px.** With the switch added, the Arabic header ran ~40 px over the bar in the window where the desktop nav has just appeared. Fix: tighter gaps and padding in that band — measured, not guessed, because the suite walks every pixel.
 3. **A course card CTA overflowed between 540 and 1180 px** (DE/FR/IT: "Kostenlos testen", "Essayer gratuitement"). The card grid changes column count at unround widths, so at 820 / 900 / 1180 px the card was narrower than the price plus the CTA. The standing sweep sampled 320 / 360 / 390 / 768 / 1024 / 1280 and missed it completely; the one-off 20-width sweep found it on five pages. Fix: the card foot wraps and the CTA takes the line below. `540 / 820 / 900 / 1180` are now part of the **default** overflow widths, so this family of bug is caught on every future run.
+
+4. **The switch was hidden on phones.** Below 860 px it had been removed from the header and only
+   existed as a row in the mobile sheet — so a visitor on a phone, exactly the person who complains
+   about dark mode, could not see it. It is back in the bar at every width (44 × 44 px), the sheet
+   row stays, and the header suite holds 320 → 1440 px in all five languages at zero failures.
+   Making room: under 400 px the wordmark stands down to the mark (the link keeps its `aria-label`),
+   and the 860–899 px band gets 2 px less padding — the Arabic bar poked 1 px past its glass there.
+5. **The burger sheet's X did nothing.** `dialog.mobile-menu` inherited `pointer-events: none` from
+   `.site-header`, so no tap ever reached the button. Fixed in the design system, then verified by
+   real taps (open → hit-test lands on the button → click closes it, `open=false`).
+6. **The install affordance moved into the mobile menu** (the Academy's call). Under 860 px the
+   floating pill is `display: none`, so it can no longer sit on top of the action bar; the row in
+   the sheet opens the same card in place, the sheet scrolls with it, "Not now" is still
+   remembered and a next page still hides it. Desktop keeps the pill. The floating contact bar was
+   explicitly left alone.
+7. **Dark-mode contrast, measured in pixels** — `docs/18 §8`: six distinct failures in dark mode and
+   six in light mode, all from real surfaces axe cannot evaluate (glass over artwork, gradients,
+   drifting aurora). Fixed at the token level, proven with a control that must fail.
+8. **Paragraph wrapping** — `docs/18 §9`: `pretty` was doing nothing (measured identical to `auto`),
+   `balance` doubles the average last-line fill (0.527 → 0.866). The short-text rule is now
+   `balance` with prose deliberately exempt, and the new `typography` suite keeps it that way.
 
 ## 7 · Not done (needs the business)
 
 - **A store listing.** The manifest makes the site installable. Shipping to Google Play (a Trusted Web Activity, $25 once, needs a signed key and a Play account) and the App Store (needs an Apple Developer account and a review) is a business decision, not a code one.
 - **Push notifications.** Nothing to notify yet; the worker has no push handler on purpose.
 - **Real devices.** Emulation is not a device. The checklist stays in `docs/06-launch-checklist.md` and the protocol in `docs/17-device-qa-protocol.md`.
+
+## 8 · The contrast audit: why axe says green and a visitor says "I can't read it"
+
+axe compares the computed `color` with the computed `background-color`. On this site almost nothing
+has a flat background — the panels are frosted glass over a pastel aurora, the hero cards float on
+illustrations, badges carry a gradient — so axe is structurally unable to see the failures. The
+report that mattered here came from the academy, not from a tool: *"الدارك مود مش مظبوط الكونتراست بتاعه"*.
+
+`scripts/contrast-audit.mjs` measures pixels instead:
+
+1. every visible text box is recorded with its computed colour, its border radius and its inline
+   decorations (a badge inside a paragraph is not the text's backdrop);
+2. the glyphs are **painted out** (`color: transparent`) before the screenshot, so the backdrop is
+   read from real pixels with no antialiased fringe to confuse it — the first three versions of this
+   script (mean of the box, dominant colour, dilated glyph mask) each produced false positives for
+   that reason, and each was discarded;
+3. the backdrop is the median of those pixels **and**, in the direction that hurts (brightest
+   quarter under light text, darkest under dark text), the worst part of a gradient;
+4. the verdict is the worse of the two, against WCAG AA (4.5:1, or 3:1 for large text);
+5. only text that is wholly on screen **and** wholly on top is measured (five hit-tested points):
+   a label halfway under the sticky header is a measurement error, not a contrast bug.
+
+The audit must be able to fail, or a green run means nothing: `CONTRAST_CONTROL` injects a rule after
+the page loads, and the audit has to report it. Both of the measurements below were taken with the
+same method — the "before" column is the same build with the old values injected.
+
+| Sweep (production build, real Chrome, Arabic pages at 1280 × 900) | Text boxes | Below AA, before | Below AA, now |
+|---|---|---|---|
+| Dark theme · 8 pages | 1,435 | **10 findings, 6 distinct types** (worst 1.09:1) | **0** |
+| Light theme · 4 pages | 830 | **6 distinct types** (worst 1.09:1) | **0** |
+| Surfaces still painted light in dark mode · 14 pages | — | **3** (all the classroom mockup) | **0** |
+
+What was actually wrong, and what fixed it:
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| 1.09–2.9:1 on the About and Teachers hero cards ("+١٠٠٠", "عام من تراث الأزهر العلمي", "خريجو الكليات") | the floating glass cards use a 10 % white fill — over a **pastel illustration** that is nearly transparent, and their light ink then sits on pale pink | those panels take the near-opaque dark fill in dark mode (`--glass-fill-strong`) |
+| 2.9:1 on chips over artwork | chips were an 8 % white tint | chips carry their own dark fill in dark mode; the accent chip gets a deep purple one |
+| a table header at 3.8:1 | the aurora drifting behind a translucent panel | the aurora blobs are dimmed ~35 % in dark mode, and a comparison table gets a calm near-opaque surface — it is read line by line |
+| 4.0–4.2:1 inside the dark night panels (footer, sanad chain) | the `.theme-night` palette's tertiary ink was too dark for its own backgrounds | lightened to `#c7bce0` |
+| 1.09:1 on the timeline counters in **light** mode (white on pale lilac) | `--grad-accent-on` — the gradient that carries white labels — was aliased to the *decorative* pastel gradient in light mode | it is now a genuinely dark gradient in both themes, and three components that painted white on the decorative one were switched to it |
+| 3.5–4.1:1 on light mode secondary text (breadcrumbs, captions, price units) | light-mode `--ink-3` was too pale for the tinted glass | darkened `#6a6182 → #5b5270` |
+
+## 9 · Space distribution in wrapped text
+
+**الطلب:** «أي فقرة أطول من سطرين، تتوزّع كلماتها بالتساوي على الأسطر». Measured before deciding: over
+32 text blocks, `text-wrap: pretty` behaves exactly like `auto` (average last-line fill 0.527 in both),
+while `text-wrap: balance` lifts it to 0.866 — two-line blocks 0.413 → 0.979, three-to-four-line blocks
+0.654 → 0.944. `balance` only works up to six lines (the engine gives up after that), so:
+
+- `:is(p, li, dd, dt, blockquote, figcaption, td, th, label, small) { text-wrap: balance }`;
+- long-form prose (`.prose`, `.legal` — blog bodies and the legal pages) keeps `pretty`, which
+  prevents a one-word orphan line without re-breaking every paragraph in an eight-line article.
+
+The `typography` suite holds the line: every text block of two to six lines must fill ≥ 45 % (two
+lines) or ≥ 40 % (three or more) of its box on its last line — at 1280 px on all 194 pages, and at
+390 px on each home page. `h*` keep `balance` unconditionally.

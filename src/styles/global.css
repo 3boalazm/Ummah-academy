@@ -33,7 +33,7 @@
     --bg: #f4f1f8;
     --ink: #1e1530;
     --ink-2: #4a4060;
-    --ink-3: #6a6182;
+    --ink-3: #5b5270;
     --line: rgb(46 29 70 / 0.1);
     --line-strong: rgb(46 29 70 / 0.18);
     --accent: var(--violet-600);
@@ -43,6 +43,9 @@
     --danger: #b3261e;
 
     --grad-accent: linear-gradient(100deg, #8f2f9e 0%, #5b3a8e 48%, #1d5fa8 100%);
+    /* Surfaces that carry white text (badges, counters, pills) use this one: the decorative
+       gradient above is a pastel in dark mode, and white on pastel measured 1.1:1. */
+    --grad-accent-on: linear-gradient(100deg, #8a4bbd 0%, #6f4bb4 48%, #2f6bb0 100%);
     --grad-dawn: linear-gradient(160deg, #f6eef4 0%, #ece7f6 45%, #e3edf8 100%);
 
     /* Type */
@@ -111,9 +114,12 @@
   :root[data-theme='dark'] {
     --bg: #140e20;
     --ink: #f4f0fb;
-    --ink-2: #cec5e0;
-    --ink-3: #a79dc0;
-    --line: rgb(255 255 255 / 0.12);
+    /* The page background is not flat black: glass panels over the aurora sit around
+       rgb(70 60 100), so secondary ink has to clear 4.5:1 against *that*, not against --bg.
+       Measured with a pixel-based pass (scripts/contrast-audit.mjs). */
+    --ink-2: #ded7ee;
+    --ink-3: #c6bee0;
+    --line: rgb(255 255 255 / 0.14);
     --line-strong: rgb(255 255 255 / 0.2);
     --accent: #b98ce8;
     --accent-ink: #d9bcff;
@@ -125,6 +131,9 @@
     --blush-100: #3b2a4d;
 
     --grad-accent: linear-gradient(100deg, #e0a4ff 0%, #b79bff 48%, #7fc0ff 100%);
+    /* White text sits on this one (badges, timeline numbers, step counters): it stays dark
+       enough for 4.5:1 in both themes. */
+    --grad-accent-on: linear-gradient(100deg, #8a4bbd 0%, #6f4bb4 48%, #2f6bb0 100%);
     --grad-dawn: linear-gradient(160deg, #1d1330 0%, #16102a 48%, #0f1626 100%);
 
     /* Glass: frosted dark instead of frosted white.
@@ -224,6 +233,25 @@
 
   p {
     margin: 0;
+  }
+
+  /*
+   * Space distribution. A block that wraps should fill its box evenly instead of leaving one
+   * or two words alone on the last line. `text-wrap: balance` does that — the engine applies
+   * it to blocks of up to six lines and ignores it beyond that, so long-form copy keeps
+   * wrapping naturally; headings (h1–h4) already opt in above.
+   * Measured on the built site: 2-line blocks go from 41% to 98% last-line fill, 3–4-line
+   * blocks from 65% to 94%, and 7+ line blocks are unchanged.
+   */
+  :is(p, li, dd, dt, blockquote, figcaption, td, th, label, small) {
+    text-wrap: balance;
+  }
+
+  /* Long-form prose is happier with orphan control than with balanced lines: it is where
+     paragraphs run to eight lines and more (the engine stops balancing past six anyway).
+     Scoped to the two prose containers — blog post bodies and the legal pages — so card
+     copy, which the cards wrap in <article> for semantics, still balances. */
+  :is(.prose, .legal) :is(p, li) {
     text-wrap: pretty;
   }
 
@@ -540,8 +568,10 @@
   /* Night theme (dark sections / panels) */
   .theme-night {
     --ink: #f4effb;
-    --ink-2: #d4cae6;
-    --ink-3: #ab9fc6;
+    --ink-2: #d9d0ea;
+    /* #ab9fc6 measured 4.0:1 on the footer band and 4.2:1 on the sanad panel — a tertiary
+       ink still has to be readable. */
+    --ink-3: #c7bce0;
     --line: rgb(255 255 255 / 0.1);
     --line-strong: rgb(255 255 255 / 0.18);
     --accent-ink: #e3c8ff;
@@ -1748,19 +1778,19 @@
 }
 
 [data-theme='dark'] .aurora__blob--1 {
-  background: radial-gradient(closest-side, rgb(107 63 160 / 0.5), rgb(107 63 160 / 0) 72%);
+  background: radial-gradient(closest-side, rgb(107 63 160 / 0.34), rgb(107 63 160 / 0) 72%);
 }
 
 [data-theme='dark'] .aurora__blob--2 {
-  background: radial-gradient(closest-side, rgb(29 95 168 / 0.45), rgb(29 95 168 / 0) 72%);
+  background: radial-gradient(closest-side, rgb(29 95 168 / 0.3), rgb(29 95 168 / 0) 72%);
 }
 
 [data-theme='dark'] .aurora__blob--3 {
-  background: radial-gradient(closest-side, rgb(143 47 158 / 0.34), rgb(143 47 158 / 0) 72%);
+  background: radial-gradient(closest-side, rgb(143 47 158 / 0.22), rgb(143 47 158 / 0) 72%);
 }
 
 [data-theme='dark'] .aurora__blob--4 {
-  background: radial-gradient(closest-side, rgb(200 123 128 / 0.16), rgb(200 123 128 / 0) 72%);
+  background: radial-gradient(closest-side, rgb(200 123 128 / 0.11), rgb(200 123 128 / 0) 72%);
 }
 
 [data-theme='dark'] .aurora__grain {
@@ -1814,15 +1844,32 @@
     0 0 0 6px rgb(185 140 232 / 0.16);
 }
 
+/* Chips sit over illustrations and over the aurora: at 8% white the artwork showed through and
+   took the label with it (measured 2.9:1 on the teachers hero), so they carry their own fill. */
 [data-theme='dark'] .chip:not(.theme-night *) {
-  background: rgb(255 255 255 / 0.08);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.13);
+  background: rgb(28 20 44 / 0.78);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
 }
 
 [data-theme='dark'] .chip--accent:not(.theme-night *) {
   color: var(--accent-ink);
-  background: rgb(185 140 232 / 0.14);
-  box-shadow: inset 0 0 0 1px rgb(185 140 232 / 0.26);
+  background: rgb(58 34 92 / 0.9);
+  box-shadow: inset 0 0 0 1px rgb(206 165 255 / 0.3);
+}
+
+/* A comparison table is read line by line, so its panel takes the calm near-opaque surface in
+   dark mode rather than letting the aurora drift behind the rows (a header cell measured 3.8:1
+   over the brightest spot). */
+[data-theme='dark'] .table-wrap.glass {
+  background: var(--glass-fill-strong);
+}
+
+/* Panels that float over a pastel illustration (About's stat cards, the teachers badges, the
+   home hero cards, a profile's "verified" seal): the thin glass fill let the artwork through and
+   the text measured 1.9–2.9:1 on it. In dark mode they take the near-opaque fill instead — the
+   same treatment the sticky bar and the mobile sheet already use. */
+[data-theme='dark'] :is(.a-card, .t-badge, .hero__card, .hero__verified, .tprof__verified) {
+  background: var(--glass-fill-strong);
 }
 
 [data-theme='dark'] .icon-badge:not(.theme-night *) {

@@ -21,7 +21,8 @@
     "check:css": "node scripts/check-css.mjs",
     "test": "node --import ./scripts/lib/ts-register.mjs scripts/test-units.mjs",
     "qa:browser": "node qa/run.mjs",
-    "indexnow": "node scripts/indexnow.mjs"
+    "indexnow": "node scripts/indexnow.mjs",
+    "qa:contrast": "node scripts/contrast-audit.mjs"
   },
   "engines": {
     "node": ">=20.19"

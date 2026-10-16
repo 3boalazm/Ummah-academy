@@ -90,18 +90,43 @@ export default async function theme({ browser, base, opts }) {
 
   /* 3 · phones: the row in the mobile sheet (the bar hides the switch below 860px) */
   for (const lang of opts.langs) {
-    const page = await newPage(browser, { width: 390, height: 844, mobile: true, touch: true });
+    const page = await newPage(browser, { width: 390, height: 844, mobile: true, touch: true, isolated: true });
     const url = PREFIX[lang] + '/';
     try {
       await open(page, base + url);
+      // start from a known theme: the previous section may have left one in storage
+      await page.evaluate(() => {
+        document.documentElement.dataset.theme = 'light';
+        try { localStorage.setItem('ua:theme', 'light'); } catch { /* ignore */ }
+      });
       checked += 1;
-      const barHidden = await page.$eval('.site-header__actions [data-theme-toggle]', (el) => getComputedStyle(el).display === 'none');
-      if (!barHidden) failures.push({ page: url, detail: 'the bar shows the switch at 390px — the header suite proves there is no room for it below 860px' });
+      /* On a phone the switch has to be *visible and tappable in the bar*: a control nobody
+         finds does not exist. The labelled row stays in the sheet as the second way in. */
+      const bar = await page.evaluate(() => {
+        const el = document.querySelector('.site-header__actions [data-theme-toggle]');
+        if (!el) return null;
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        const hit = r.width ? document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) : null;
+        return { display: cs.display, w: Math.round(r.width), h: Math.round(r.height), clickable: !!hit && (hit === el || el.contains(hit)) };
+      });
+      if (!bar || bar.display === 'none') failures.push({ page: url, detail: 'no theme switch in the header bar on a phone' });
+      else {
+        if (bar.w < 40 || bar.h < 40) failures.push({ page: url, detail: `the phone switch is ${bar.w}x${bar.h} — under the 40px the other bar buttons use` });
+        if (!bar.clickable) failures.push({ page: url, detail: 'the phone switch is covered by something else — a thumb cannot reach it' });
+        await page.click('.site-header__actions [data-theme-toggle]');
+        let s = await page.evaluate(state);
+        if (s.theme !== 'dark') failures.push({ page: url, detail: `bar switch on a phone → data-theme is "${s.theme}", expected "dark"` });
+        await page.click('.site-header__actions [data-theme-toggle]');
+        s = await page.evaluate(state);
+        if (s.theme !== 'light') failures.push({ page: url, detail: `second tap on the phone switch → "${s.theme}", expected "light"` });
+      }
+
       await page.click('[data-menu-open]');
       await page.waitForSelector('[data-menu][open]');
       const row = await page.$('.mobile-menu [data-theme-toggle]');
       if (!row) {
-        failures.push({ page: url, detail: 'no theme switch in the mobile sheet — phones would have no way to change theme' });
+        failures.push({ page: url, detail: 'no labelled theme row in the mobile sheet' });
       } else {
         await row.click();
         const s = await page.evaluate(state);
