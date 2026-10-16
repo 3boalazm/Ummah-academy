@@ -58,3 +58,10 @@ test('admin retains the detailed teacher directory required for operations', () 
   assert.ok(rows.length > 1);
   assert.equal(rows.every((row) => typeof row.activeStudents === 'number'), true);
 });
+
+test('directory public projection stays aligned with teacher detail projection', () => {
+  const { store, guardian } = boot();
+  for (const row of store.listTeachers(guardian)) {
+    assert.deepEqual(row, store.getTeacher(guardian, row.id).teacher);
+  }
+});
