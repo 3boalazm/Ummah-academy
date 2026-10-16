@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { NEXT_STEPS } from '@/data/next-steps';
+import { lp, typo, type Lang } from '@/i18n';
+import familyArt from '@/assets/art/family-stories.webp';
+import arabicArt from '@/assets/art/arabic-practice.webp';
+import teacherArt from '@/assets/art/teacher-welcome.webp';
+interface Props { lang?: Lang; }
+const { lang = 'en' } = Astro.props;
+const C = NEXT_STEPS[lang];
+const art = [familyArt, arabicArt, teacherArt];
+const routes = ['/courses/', '/placement-test/', '/contact/#book'];
+---
+
+<section class="section section--tight next-steps" aria-labelledby="next-steps-title">
+  <div class="container">
+    <div class="next-steps__head" data-reveal>
+      <span class="eyebrow">{typo(lang, C.eyebrow)}</span>
+      <h2 id="next-steps-title" class="h2">{typo(lang, C.title)}</h2>
+      <p class="lead">{typo(lang, C.lede)}</p>
+    </div>
+    <div class="grid grid-3">
+      {C.cards.map(([title, text, label], i) => (
+        <article class="next-step glass" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+          <div class="next-step__art" aria-hidden="true">
+            <Image src={art[i]} alt="" widths={[320, 480, 640]} sizes="(min-width: 960px) 360px, (min-width: 700px) 45vw, 90vw" />
+          </div>
+          <div class="next-step__copy">
+            <h3>{typo(lang, title)}</h3>
+            <p>{typo(lang, text)}</p>
+            <a class:list={['btn', i === 2 ? 'btn--primary' : 'btn--glass']} href={lp(lang, routes[i])} data-track="next-step">
+              {typo(lang, label)} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .next-steps { padding-block-end: clamp(48px, 7vw, 88px); }
+  .next-steps__head { display: grid; gap: 14px; max-width: 760px; margin-block-end: 28px; }
+  .next-steps__head .eyebrow { justify-self: start; }
+  .next-step { overflow: hidden; display: flex; flex-direction: column; --radius: var(--r-lg); }
+  .next-step__art { margin: 8px 8px 0; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9; background: #eee5da; }
+  .next-step__art :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .next-step__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 22px; flex: 1; }
+  .next-step__copy h3 { font-size: clamp(1.15rem, 1.05rem + .35vw, 1.4rem); }
+  .next-step__copy p { color: var(--ink-2); margin-block-end: 6px; }
+  .next-step__copy a { margin-block-start: auto; max-width: 100%; white-space: normal; }
+  @media (max-width: 599px) {
+    .next-step { flex-direction: row; align-items: stretch; }
+    .next-step__art { flex: 0 0 29%; margin: 8px 0 8px; margin-inline-start: 8px; aspect-ratio: auto; border-radius: 18px; }
+    .next-step__art :global(img) { object-position: 48% center; }
+    .next-step__copy { padding: 18px 14px; gap: 10px; min-width: 0; }
+    .next-step__copy a { font-size: .85rem; padding: 10px 12px; }
+  }
+</style>

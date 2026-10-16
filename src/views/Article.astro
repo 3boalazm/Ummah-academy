@@ -43,6 +43,8 @@ const url = new URL(path, SITE.url).href;
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
+  '@id': `${url}#article`,
+  isPartOf: { '@id': `${url}#webpage` },
   headline: d.title,
   description: d.description,
   datePublished: d.date.toISOString(),

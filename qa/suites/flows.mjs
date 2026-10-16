@@ -4,6 +4,7 @@
  *     message is in the visitor's language and ends with the bilingual language line.
  *  2. Placement test: every track, answered to the end → result with a level, a
  *     recommendation, a prefilled booking link and a WhatsApp share.
+ *  3. Illustrated next-step choices preserve the visitor language and reach real pages.
  */
 import { newPage, open } from '../lib/browser.mjs';
 import { PREFIX } from '../lib/pages.mjs';
@@ -103,6 +104,35 @@ async function placement(browser, base, lang) {
   return problems;
 }
 
+async function nextSteps(browser, base, lang) {
+  const problems = [];
+  const page = await newPage(browser, { width: 390, height: 844, mobile: true, touch: true });
+  const routes = ['/courses/', '/placement-test/', '/contact/#book'];
+  try {
+    for (let i = 0; i < routes.length; i++) {
+      await open(page, `${base}${PREFIX[lang]}/resources/`);
+      const count = await page.$$eval('.next-step a', (els) => els.length);
+      if (count !== 3) { problems.push(`expected 3 next-step choices, got ${count}`); break; }
+      const expected = `${PREFIX[lang]}${routes[i]}`;
+      const href = await page.$eval(`.next-step:nth-child(${i + 1}) a`, (el) => el.getAttribute('href'));
+      if (href !== expected) problems.push(`choice ${i + 1}: expected ${expected}, got ${href}`);
+      await page.locator(`.next-step:nth-child(${i + 1}) a`).scroll();
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'load' }),
+        page.locator(`.next-step:nth-child(${i + 1}) a`).click(),
+      ]);
+      const destination = new URL(page.url());
+      if (`${destination.pathname}${destination.hash}` !== expected) problems.push(`choice ${i + 1} landed on ${destination.pathname}${destination.hash}`);
+      if (await page.$$eval('h1', (els) => els.length) !== 1) problems.push(`choice ${i + 1}: missing destination heading`);
+    }
+  } catch (e) {
+    problems.push(`error: ${e.message}`);
+  } finally {
+    await page.close();
+  }
+  return problems;
+}
+
 export default async function flows({ browser, base, opts }) {
   const failures = [];
   let checked = 0;
@@ -110,6 +140,7 @@ export default async function flows({ browser, base, opts }) {
     for (const [name, fn] of [
       ['booking', booking],
       ['placement', placement],
+      ['next steps', nextSteps],
     ]) {
       const problems = await fn(browser, base, lang);
       checked++;
