@@ -133,3 +133,12 @@ Phase 0 is **not complete** until every unchecked deliverable above is either co
 ## 8. Recommended immediate action
 
 Fix and test **P0-DATA-01** first in an isolated branch: a pre-existing unreadable/corrupt store must stop startup with a clear error and must never be replaced automatically by seed data. Preserve the original file for recovery. Then establish the production database and security architecture before connecting the public site or entering real child data.
+
+
+## 9. Live pull-request check observed after opening this audit
+
+- Pull request [#8](https://github.com/3boalazm/Ummah-academy/pull/8) is open and contains documentation-only changes.
+- The combined commit status currently reports the **Vercel check as failed**. Its status target identifies a Vercel build-rate-limit/plan limit page.
+- The repository QA workflow filters out documentation-only pull requests, so the normal static/browser QA jobs may not run for this PR. This is a CI coverage gap for docs-only changes, not proof that application tests passed or failed.
+- No application test suite was executed by this audit. Do not interpret the observed Vercel status as an application regression: it indicates the deployment/check could not pass because of the reported build-rate limit, but the actual Vercel project configuration and deployment logs still need direct inspection.
+- Phase 0 remains open until the build limit and CI behavior are confirmed, and the remaining verification tasks in §6 are completed or explicitly deferred.
