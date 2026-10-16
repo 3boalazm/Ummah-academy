@@ -120,8 +120,8 @@ export function createStore(options = {}) {
   }
 
   function command(actor, keyInput, fn) {
-    const key = typeof keyInput === 'object' ? keyInput.key : keyInput;
-    const fingerprint = typeof keyInput === 'object' ? keyInput.fingerprint : null;
+    const key = keyInput && typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = keyInput && typeof keyInput === 'object' ? keyInput.fingerprint : null;
     const hit = replay(actor, keyInput);
     if (hit) return { ...hit, replayed: true };
     const snapshot = structuredClone(state);
