@@ -19,7 +19,7 @@
 |---|---|---|
 | SUB-001 — separate subscription, enrollment, payment and student states | Distinct collections and domain operations exist in source | Define and test allowed transition tables; prevent invalid combinations and stale state |
 | SUB-002 — credit ledger | Balance is derived from cycle allocations, adjustments and eligible session outcomes; scheduled sessions do not consume credits | Reconcile all edge cases with the approved attendance/cancellation policy from Phase 6 |
-| SUB-003 — idempotency | Domain commands replay keyed results; API keys include method + path; session, payment, freeze/resume and cycle-adjustment replay regression coverage exists | Reject same-route key reuse with a different payload; durable uniqueness/transaction guarantees require a production DB |
+| SUB-003 — idempotency | Domain commands replay keyed results; API keys include method + path + request-body fingerprint; session replay, changed-payload rejection, cross-route isolation, payment, freeze/resume and cycle-adjustment regression coverage exists | Durable uniqueness/transaction guarantees and webhook idempotency require a production DB/provider integration |
 | FIN-001 — payments | Manual ledger records support pending/paid/failed/refunded statuses; invoice notes explicitly say this is not a card charge or tax document | Payment provider, webhook signatures, refund workflow, reconciliation, invoice/tax requirements and business approval remain open |
 | FIN-002 — teacher compensation | No complete compensation engine is accepted | Business must approve rates, trials, substitutes, cancellation treatment, adjustments and approval authority |
 
