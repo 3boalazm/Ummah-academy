@@ -176,3 +176,8 @@ The route table is a first-pass inventory, not proof that every route's resource
 - The public UI and routes support a demonstration “room”; source explicitly says it is not a real video call.
 
 These observations require runtime/negative testing before they become final security conclusions.
+
+
+## 11. QA finding outside the portal patch
+
+The latest GitHub Actions run for PR #9 passed **Build + static gates**, including `npm run qa` and the automated tests. One browser QA job, **pixel contrast (both themes)**, failed on unchanged marketing-site UI: the Arabic “حمّل التطبيق” install CTA measured 1.15:1 on one route and 1.41:1 on another, below the 4.5:1 AA target for normal-sized text. A third measurement was 3.71:1. The PR changes only portal code/tests and portal README, so this failure is unrelated to the portal fix, but it remains a repository QA blocker and should be corrected in a focused UI change. Other browser suites were still running at the time of this note.
