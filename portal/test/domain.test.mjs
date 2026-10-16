@@ -411,3 +411,51 @@ test('no-show by the student consumes a credit; teacher no-show does not', () =>
   store.markNoShow(actor, slot.id, { party: 'teacher', reason: 'Teacher lost power' });
   assert.equal(store.getStudent(actor, IDS.omarM).balance.total.consumed, before);
 });
+
+
+test('reschedule chains preserve the first original time and link every move', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  const initial = store.snapshot().sessions.find((s) => s.id === IDS.sesYusufNext);
+  const first = store.rescheduleSession(actor, initial.id, {
+    startsAt: new Date(NOW.getTime() + 50 * 86400000).toISOString(),
+    reason: 'First schedule change',
+  });
+  const second = store.rescheduleSession(actor, first.to.id, {
+    startsAt: new Date(NOW.getTime() + 57 * 86400000).toISOString(),
+    reason: 'Second schedule change',
+  });
+  const snapshot = store.snapshot();
+  const byId = (id) => snapshot.sessions.find((s) => s.id === id);
+  assert.equal(byId(initial.id).status, 'rescheduled');
+  assert.equal(byId(initial.id).rescheduledToId, first.to.id);
+  assert.equal(byId(first.to.id).status, 'rescheduled');
+  assert.equal(byId(first.to.id).rescheduledFromId, initial.id);
+  assert.equal(byId(first.to.id).rescheduledToId, second.to.id);
+  assert.equal(byId(second.to.id).rescheduledFromId, first.to.id);
+  assert.equal(byId(second.to.id).originalStartsAt, initial.startsAt);
+  assert.equal(byId(first.to.id).originalStartsAt, initial.startsAt);
+  assert.equal(byId(initial.id).originalStartsAt, initial.startsAt);
+  const events = snapshot.audit.filter((row) => row.action === 'session.rescheduled');
+  assert.ok(events.some((row) => row.reason === 'First schedule change'));
+  assert.ok(events.some((row) => row.reason === 'Second schedule change'));
+});
+
+test('a conflicting reschedule leaves session history and audit unchanged', () => {
+  const { store, admin } = boot();
+  const actor = admin();
+  const original = store.snapshot().sessions.find((s) => s.id === IDS.sesYusufNext);
+  const occupied = store.createSession(actor, {
+    studentId: IDS.amina,
+    teacherId: original.teacherId,
+    startsAt: new Date(NOW.getTime() + 60 * 86400000).toISOString(),
+    durationMin: 30,
+    reason: 'Create a slot to test conflict rollback',
+  });
+  const before = store.snapshot();
+  assert.throws(() => store.rescheduleSession(actor, IDS.sesYusufNext, {
+    startsAt: occupied.startsAt,
+    reason: 'This move must be rejected',
+  }), /overlaps/i);
+  assert.deepEqual(store.snapshot(), before, 'failed reschedule must not mutate either session or audit history');
+});

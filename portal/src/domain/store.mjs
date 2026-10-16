@@ -795,7 +795,10 @@ export function createStore(options = {}) {
         }
         const startsAt = new Date(input.startsAt);
         if (Number.isNaN(startsAt.getTime())) throw E.validation('Invalid start time.', 'موعد البداية غير صالح.');
-        const durationMin = Number(input.durationMin || planBrief(sub.planId)?.minutes || 30);
+        const durationMin = Number(input.durationMin ?? planBrief(sub.planId)?.minutes ?? 30);
+        if (!Number.isInteger(durationMin) || durationMin < 1) {
+          throw E.validation('Duration must be a positive whole number of minutes.', 'مدة الحصة يجب أن تكون عددًا صحيحًا موجبًا بالدقائق.');
+        }
         const session = {
           id: id('ses'),
           studentId: student.id,
