@@ -1409,6 +1409,7 @@ export function createStore(options = {}) {
       return { pass: checks.every((c) => c.pass), checks };
     },
     resetDemo(actor) {
+      if (options.production) throw E.forbidden();
       allow(actor, 'demo.reset', null);
       state = buildSeed(clock());
       state.outbox = [];
