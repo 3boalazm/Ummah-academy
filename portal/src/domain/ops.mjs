@@ -100,6 +100,21 @@ export function attachOps(api, bag) {
   function ensure(state) {
     state.outbox ??= [];
     for (const g of state.guardians) g.phone ??= null;
+    for (const row of state.outbox) {
+      row.attempts ??= [];
+      const guardian = state.guardians.find((g) => g.userId === row.toUserId);
+      const consent = guardian?.whatsappConsent || 'unknown';
+      // Old queued records are not evidence of consent. Fail closed on upgrade.
+      if (consent !== 'opted_in' && ['queued', 'opened', 'attempted'].includes(row.status)) {
+        row.status = consent === 'opted_out' ? 'cancelled' : 'needs_consent';
+        row.waUrl = null;
+        row.deliveryConfirmed = false;
+      }
+      if (consent === 'opted_in' && row.status === 'needs_consent') {
+        row.status = row.phone ? 'queued' : 'needs_phone';
+        row.waUrl = row.phone ? waDraftLink(row.phone, row.bodyAr || row.body) : null;
+      }
+    }
   }
 
   function blankSession(partial) {
@@ -357,7 +372,7 @@ export function attachOps(api, bag) {
     });
 
   api.setGuardianPhone = (actor, guardianId, input, meta = {}) =>
-    command(actor, null, () => {
+    command(actor, meta.idempotencyKey, () => {
       const state = stateOf();
       ensure(state);
       const guardian = must(state.guardians, guardianId);
@@ -371,8 +386,77 @@ export function attachOps(api, bag) {
       guardian.phone = phone;
       const family = byId(state.families, guardian.familyId);
       if (family && (actor.role === 'admin' || actor.role === 'ops')) family.phone = phone;
+      for (const row of state.outbox.filter((item) => item.toUserId === guardian.userId && ['needs_phone', 'queued'].includes(item.status))) {
+        row.phone = phone;
+        row.waUrl = guardian.whatsappConsent === 'opted_in' && phone ? waDraftLink(phone, row.bodyAr || row.body) : null;
+        if (guardian.whatsappConsent !== 'opted_in') row.status = 'needs_consent';
+        else row.status = phone ? 'queued' : 'needs_phone';
+      }
       audit(actor, 'guardian.phone_changed', 'guardian', guardian.id, { phone: before }, { phone }, reason, meta.requestId);
       return { id: guardian.id, phone };
+    });
+
+  api.setGuardianMessagingConsent = (actor, guardianId, input, meta = {}) =>
+    command(actor, meta.idempotencyKey, () => {
+      const state = stateOf();
+      ensure(state);
+      const guardian = must(state.guardians, guardianId);
+      const self = actor.guardianId === guardian.id;
+      if (!self) allow(actor, 'people.admin', null);
+      const status = input.status;
+      if (!['opted_in', 'opted_out', 'unknown'].includes(status)) {
+        throw E.validation('Unknown WhatsApp consent status.', 'حالة موافقة واتساب غير معروفة.');
+      }
+      const source = self ? 'guardian_portal' : input.source;
+      if (!['guardian_portal', 'signed_form', 'recorded_verbal', 'support_request'].includes(source)) {
+        throw E.validation('A valid consent source is required.', 'مصدر الموافقة مطلوب.');
+      }
+      if (status === 'opted_in' && source === 'support_request') {
+        throw E.validation('A support request cannot establish opt-in consent.', 'طلب الدعم لا يثبت الموافقة على الاشتراك.');
+      }
+      const reason = requireReason(input.reason || (self ? 'Guardian updated WhatsApp preference' : ''));
+      if (status === 'opted_in' && !self && !['signed_form', 'recorded_verbal'].includes(source)) {
+        throw E.validation('Opt-in must be backed by a signed form or recorded verbal consent.', 'يجب توثيق الموافقة بنموذج موقّع أو موافقة شفهية مسجلة.');
+      }
+      const before = {
+        whatsappConsent: guardian.whatsappConsent || 'unknown',
+        consentSource: guardian.consentSource || null,
+        consentAt: guardian.consentAt || null,
+      };
+      guardian.whatsappConsent = status;
+      guardian.consentSource = source;
+      guardian.consentAt = status === 'unknown' ? null : clock().toISOString();
+      guardian.consentRecordedBy = actor.id;
+      guardian.consentReason = reason;
+      for (const row of state.outbox.filter((item) => item.toUserId === guardian.userId)) {
+        row.attempts ??= [];
+        if (status === 'opted_out') {
+          if (!['sent', 'delivered', 'cancelled'].includes(row.status)) {
+            row.status = 'cancelled';
+            row.waUrl = null;
+            row.cancelledAt = clock().toISOString();
+            row.cancelReason = 'Recipient opted out';
+            row.attempts.push({ at: clock().toISOString(), actorId: actor.id, from: 'consent-change', to: 'cancelled', reason: 'Recipient opted out' });
+          }
+        } else if (status === 'unknown') {
+          if (['queued', 'opened', 'attempted'].includes(row.status)) {
+            row.status = 'needs_consent';
+            row.waUrl = null;
+          }
+        } else if (status === 'opted_in' && row.status === 'needs_consent') {
+          row.status = row.phone ? 'queued' : 'needs_phone';
+          row.waUrl = row.phone ? waDraftLink(row.phone, row.bodyAr || row.body) : null;
+        }
+      }
+      audit(actor, 'guardian.whatsapp_consent_changed', 'guardian', guardian.id, before, {
+        whatsappConsent: status, consentSource: source, consentAt: guardian.consentAt,
+      }, reason, meta.requestId);
+      return {
+        id: guardian.id,
+        whatsappConsent: guardian.whatsappConsent,
+        consentSource: guardian.consentSource,
+        consentAt: guardian.consentAt,
+      };
     });
 
   api.listOutbox = (actor) => {
@@ -384,9 +468,10 @@ export function attachOps(api, bag) {
       .reverse()
       .map((row) => ({
         ...row,
-        deliveryConfirmed: false,
-        noteAr: 'مسودة. فتح الرابط لا يعني أن الرسالة أُرسلت، وتسجيل الإرسال لا يؤكد الوصول.',
-        noteEn: 'Draft. Opening the link does not send it, and marking sent does not confirm delivery.',
+        attempts: (row.attempts || []).map((attempt) => ({ ...attempt })),
+        deliveryConfirmed: row.status === 'delivered' && Boolean(row.deliveryEvidence),
+        noteAr: 'مسودة يدوية. لا يتم الإرسال آليًا؛ الوصول لا يُؤكَّد إلا بدليل موثّق.',
+        noteEn: 'Manual draft only. Nothing is sent automatically; delivery is confirmed only with recorded evidence.',
       }));
   };
 
@@ -402,7 +487,21 @@ export function attachOps(api, bag) {
       const push = (row) => {
         const key = `${row.kind}:${row.relatedId}:${row.toUserId || 'none'}`;
         if (state.outbox.some((o) => o.dedupeKey === key && o.status !== 'cancelled')) return;
-        state.outbox.push({ ...row, id: id('out'), dedupeKey: key, status: row.phone ? 'queued' : 'needs_phone', createdAt: now.toISOString(), sentAt: null, deliveryConfirmed: false });
+        const recipient = state.guardians.find((g) => g.userId === row.toUserId);
+        if (!recipient || recipient.whatsappConsent === 'opted_out') return;
+        const consent = recipient.whatsappConsent || 'unknown';
+        const status = consent !== 'opted_in' ? 'needs_consent' : row.phone ? 'queued' : 'needs_phone';
+        state.outbox.push({
+          ...row,
+          id: id('out'),
+          dedupeKey: key,
+          status,
+          waUrl: status === 'queued' ? waDraftLink(row.phone, row.bodyAr || row.body) : null,
+          attempts: [],
+          createdAt: now.toISOString(),
+          sentAt: null,
+          deliveryConfirmed: false,
+        });
         created += 1;
       };
       for (const session of state.sessions) {
@@ -458,22 +557,78 @@ export function attachOps(api, bag) {
     });
 
   api.markOutbox = (actor, outboxId, input, meta = {}) =>
-    command(actor, null, () => {
+    command(actor, meta.idempotencyKey, () => {
       const state = stateOf();
       ensure(state);
       allow(actor, 'people.admin', null);
       const row = must(state.outbox, outboxId);
       const next = input.status;
-      if (!['opened', 'sent', 'cancelled'].includes(next)) throw E.validation('Unknown outbox status.', 'حالة غير معروفة.');
-      if (next === 'sent') requireReason(input.reason || '');
-      const before = row.status;
-      row.status = next;
-      if (next === 'sent') {
-        row.sentAt = clock().toISOString();
-        row.deliveryConfirmed = false;
-        row.sentBy = actor.id;
+      if (!['opened', 'attempted', 'sent', 'failed', 'delivered', 'cancelled'].includes(next)) {
+        throw E.validation('Unknown outbox status.', 'حالة غير معروفة.');
       }
-      audit(actor, 'outbox.marked', 'outbox', row.id, { status: before }, { status: next, deliveryConfirmed: false }, input.reason || null, meta.requestId);
+      const recipient = state.guardians.find((g) => g.userId === row.toUserId);
+      const consent = recipient?.whatsappConsent || 'unknown';
+      if (['opened', 'attempted', 'sent', 'delivered'].includes(next) && consent !== 'opted_in') {
+        throw E.badState('Recipient has not opted in to WhatsApp messages.', 'المستلم لم يوافق على رسائل واتساب.');
+      }
+      if (['opened', 'attempted', 'sent', 'delivered'].includes(next) && (!row.phone || !waDraftLink(row.phone, row.bodyAr || row.body))) {
+        throw E.badState('A valid recipient phone is required.', 'رقم هاتف صالح للمستلم مطلوب.');
+      }
+      const transitions = {
+        needs_consent: ['cancelled'],
+        needs_phone: ['cancelled'],
+        queued: ['opened', 'attempted', 'cancelled'],
+        opened: ['attempted', 'sent', 'failed', 'cancelled'],
+        attempted: ['sent', 'failed', 'cancelled'],
+        failed: ['attempted', 'cancelled'],
+        sent: ['delivered'],
+        delivered: [],
+        cancelled: [],
+      };
+      if (!(transitions[row.status] || []).includes(next)) {
+        throw E.badState(`Cannot move a message from ${row.status} to ${next}.`, 'انتقال حالة الرسالة غير مسموح.');
+      }
+      const reason = ['attempted', 'sent', 'failed', 'delivered', 'cancelled'].includes(next)
+        ? requireReason(input.reason || '')
+        : (input.reason || null);
+      if (next === 'delivered' && (!input.deliveryEvidence || String(input.deliveryEvidence).trim().length < 4)) {
+        throw E.validation('Delivery evidence is required to confirm delivery.', 'دليل الوصول مطلوب لتأكيد التسليم.');
+      }
+      const before = row.status;
+      const at = clock().toISOString();
+      row.attempts ??= [];
+      row.attempts.push({
+        at,
+        actorId: actor.id,
+        from: before,
+        to: next,
+        reason,
+        deliveryEvidence: next === 'delivered' ? String(input.deliveryEvidence).trim() : null,
+      });
+      row.status = next;
+      row.lastAttemptAt = ['attempted', 'failed'].includes(next) ? at : row.lastAttemptAt || null;
+      if (next === 'sent') {
+        row.sentAt = at;
+        row.sentBy = actor.id;
+        row.deliveryConfirmed = false;
+      }
+      if (next === 'failed') {
+        row.failureReason = reason;
+        row.failedAt = at;
+      }
+      if (next === 'delivered') {
+        row.deliveredAt = at;
+        row.deliveryEvidence = String(input.deliveryEvidence).trim();
+        row.deliveryConfirmed = true;
+      }
+      if (next === 'cancelled') {
+        row.cancelledAt = at;
+        row.cancelReason = reason;
+        row.waUrl = null;
+      }
+      audit(actor, 'outbox.transitioned', 'outbox', row.id, { status: before }, {
+        status: next, deliveryConfirmed: row.status === 'delivered' && Boolean(row.deliveryEvidence),
+      }, reason, meta.requestId);
       return row;
     });
 

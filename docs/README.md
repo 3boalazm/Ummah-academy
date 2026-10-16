@@ -35,3 +35,10 @@
 | 24 | [24-portal-phase-3-authorization-minimization.md](24-portal-phase-3-authorization-minimization.md) | Operations portal Phase 3: role-specific teacher directory projections and privacy regression tests |
 | 26 | [26-phase-5-scheduling-integrity.md](26-phase-5-scheduling-integrity.md) | Phase 5 scheduling integrity: recurring-series atomicity, duration/time-zone validation, tests, and remaining teacher/scheduling acceptance gates |
 | 27 | [27-phase-5-reschedule-history.md](27-phase-5-reschedule-history.md) | Phase 5 reschedule history: multi-step chain preservation, conflict rollback, and remaining route/time-zone acceptance gates |
+| 29 | [29-phase-7-subscription-credit-idempotency.md](29-phase-7-subscription-credit-idempotency.md) | Phase 7.1: API idempotency route scoping, credit/payment baseline, acceptance gates and remaining business decisions |
+| 30 | [30-phase-8-messaging-consent-outbox.md](30-phase-8-messaging-consent-outbox.md) | Phase 8.1: consent-gated manual outbox, append-only send attempts, delivery evidence and provider/legal gates |
+| 31 | [31-phase-9-production-readiness.md](31-phase-9-production-readiness.md) | Phase 9: production readiness validation, regression gates, and evidence-based no-go decision |
+| 32 | [32-phase-10-observability-operations.md](32-phase-10-observability-operations.md) | Phase 10: request correlation, privacy-safe structured logs, and runtime operations gates |
+| 33 | [33-phase-11-backup-restore-rehearsal.md](33-phase-11-backup-restore-rehearsal.md) | Phase 11: verified local backup creation, safe overwrite refusal, and restore-candidate validation |
+| 34 | [34-phase-12-health-readiness.md](34-phase-12-health-readiness.md) | Phase 12: privacy-safe readiness checks and operational health endpoint |
+| 35 | [35-phase-13-graceful-shutdown.md](35-phase-13-graceful-shutdown.md) | Phase 13: bounded graceful shutdown, signal handling and operational limits |

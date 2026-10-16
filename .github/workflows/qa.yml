@@ -1,5 +1,5 @@
 # Quality gates on every push and pull request (see qa/README.md).
-# 1. build + static gates   2. browser suites in three parallel jobs on the runner's Chrome
+# 1. build + static gates   2. marketing browser suites   3. authenticated portal consent journey
 name: QA
 
 on:
@@ -37,6 +37,21 @@ jobs:
           name: dist
           path: dist
           retention-days: 3
+
+  portal-consent:
+    name: Portal QA · guardian messaging consent
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Authenticated guardian opt-in / opt-out journey
+        run: node qa/portal-consent.mjs
 
   browser:
     name: Browser QA · ${{ matrix.name }}

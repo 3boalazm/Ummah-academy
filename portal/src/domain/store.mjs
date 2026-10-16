@@ -103,14 +103,26 @@ export function createStore(options = {}) {
     });
   }
 
-  function replay(actor, key) {
+  function replay(actor, keyInput) {
+    if (!keyInput) return null;
+    const key = typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = typeof keyInput === 'object' ? keyInput.fingerprint : null;
     if (!key) return null;
     const hit = state.idempotency.find((i) => i.key === key && i.actorId === actor.id);
-    return hit ? structuredClone(hit.result) : null;
+    if (!hit) return null;
+    if (fingerprint && hit.fingerprint && hit.fingerprint !== fingerprint) {
+      throw E.badState(
+        'This idempotency key was already used with a different request payload.',
+        'استُخدم مفتاح منع التكرار هذا سابقًا مع بيانات طلب مختلفة.',
+      );
+    }
+    return structuredClone(hit.result);
   }
 
-  function command(actor, key, fn) {
-    const hit = replay(actor, key);
+  function command(actor, keyInput, fn) {
+    const key = keyInput && typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = keyInput && typeof keyInput === 'object' ? keyInput.fingerprint : null;
+    const hit = replay(actor, keyInput);
     if (hit) return { ...hit, replayed: true };
     const snapshot = structuredClone(state);
     try {
@@ -118,6 +130,7 @@ export function createStore(options = {}) {
       if (key) {
         state.idempotency.push({
           key,
+          fingerprint: fingerprint || null,
           actorId: actor.id,
           result: structuredClone(result),
           createdAt: clock().toISOString(),
@@ -422,6 +435,12 @@ export function createStore(options = {}) {
     const overlaps = findFamilyOverlaps(sessions);
     return {
       family,
+      myGuardian: g ? {
+        id: g.id,
+        whatsappConsent: g.whatsappConsent || 'unknown',
+        consentSource: g.consentSource || null,
+        consentAt: g.consentAt || null,
+      } : null,
       guardians: state.guardians
         .filter((x) => x.familyId === family.id)
         .filter((x) => actor.role !== 'guardian' || x.id === g.id || x.studentIds.some((id) => childIds.has(id)))
@@ -1120,7 +1139,7 @@ export function createStore(options = {}) {
       });
     },
     freezeSubscription(actor, subscriptionId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const sub = must(state.subscriptions, subscriptionId);
         allow(actor, 'subscription.write', sub);
         const reason = requireReason(input.reason);
@@ -1136,7 +1155,7 @@ export function createStore(options = {}) {
       });
     },
     resumeSubscription(actor, subscriptionId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const sub = must(state.subscriptions, subscriptionId);
         allow(actor, 'subscription.write', sub);
         const reason = requireReason(input.reason);
@@ -1154,7 +1173,7 @@ export function createStore(options = {}) {
       });
     },
     cancelSubscription(actor, subscriptionId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const sub = must(state.subscriptions, subscriptionId);
         allow(actor, 'subscription.write', sub);
         const reason = requireReason(input.reason);
@@ -1171,7 +1190,7 @@ export function createStore(options = {}) {
       });
     },
     adjustCycle(actor, cycleId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const cycle = must(state.cycles, cycleId);
         const sub = must(state.subscriptions, cycle.subscriptionId);
         allow(actor, 'subscription.write', sub);
@@ -1235,7 +1254,7 @@ export function createStore(options = {}) {
       return followDto(row);
     },
     createFollowUp(actor, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         allow(actor, 'people.admin', null);
         if (!input.title || String(input.title).trim().length < 3) throw E.validation('Title is required.', 'عنوان المتابعة مطلوب.');
         const student = input.studentId ? must(state.students, input.studentId) : null;
@@ -1299,7 +1318,7 @@ export function createStore(options = {}) {
       });
     },
     addAttempt(actor, followId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const row = must(state.followUps, followId);
         allow(actor, 'people.admin', null);
         if (!input.note || String(input.note).trim().length < 2) throw E.validation('Note is required.', 'ملاحظة المحاولة مطلوبة.');
@@ -1321,7 +1340,7 @@ export function createStore(options = {}) {
       });
     },
     transitionFollowUp(actor, followId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const row = must(state.followUps, followId);
         allow(actor, 'people.admin', null);
         const next = input.status;
@@ -1339,7 +1358,7 @@ export function createStore(options = {}) {
       });
     },
     createChangeRequest(actor, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         allow(actor, 'followup.request', null);
         const g = guardianOf(state, actor);
         if (!g) throw E.forbidden();

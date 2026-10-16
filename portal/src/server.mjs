@@ -2,7 +2,7 @@
  * Operations portal HTTP server.
  * Bind 0.0.0.0 so the preview host can reach it. No frame-blocking headers.
  */
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -12,6 +12,10 @@ import { DomainError } from './domain/errors.mjs';
 import { createStore } from './domain/store.mjs';
 import { loadStateFile } from './domain/persistence.mjs';
 import { sniffUpload } from './domain/ops.mjs';
+import { sessionCookie } from './domain/http-security.mjs';
+import { requestLogRecord } from './domain/observability.mjs';
+import { buildHealthReport } from './domain/health.mjs';
+import { closeServerGracefully } from './domain/graceful-shutdown.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
@@ -98,7 +102,9 @@ function readBody(req, max = 1_000_000) {
     req.on('end', () => {
       if (!chunks.length) return resolve({});
       try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+        const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        req.bodyFingerprint = createHash('sha256').update(JSON.stringify(parsed)).digest('hex');
+        resolve(parsed);
       } catch {
         reject(new DomainError('validation', 400, 'Invalid JSON.', 'JSON غير صالح.'));
       }
@@ -127,10 +133,6 @@ function actorFrom(req) {
   const payload = readSession(cookies(req).ua_portal, secret);
   if (!payload) return null;
   return store.actorById(payload.sub);
-}
-
-function sessionCookie(token, maxAge = SESSION_TTL) {
-  return `ua_portal=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
 }
 
 const MIME = {
@@ -170,9 +172,16 @@ function q(url) {
 }
 
 function meta(req) {
+  const suppliedKey = String(req.headers['idempotency-key'] || '').trim();
+  // Idempotency is scoped to the HTTP operation so reusing a client key on a
+  // different endpoint cannot replay an unrelated command result.
+  const pathname = req.url instanceof URL ? req.url.pathname : new URL(req.url, 'http://localhost').pathname;
   return {
     requestId: randomBytes(8).toString('hex'),
-    idempotencyKey: req.headers['idempotency-key'] || null,
+    idempotencyKey: suppliedKey ? {
+      key: `${req.method}:${pathname}:${suppliedKey}`,
+      fingerprint: req.bodyFingerprint || null,
+    } : null,
   };
 }
 
@@ -183,12 +192,28 @@ const routes = [
     const body = await readBody(req);
     const user = store.login(body.email, body.password);
     const token = issueSession(user.id, secret, SESSION_TTL);
-    send(res, 200, { user, demo: store.demo }, { 'set-cookie': sessionCookie(token) });
+    send(res, 200, { user, demo: store.demo }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
   }],
   ['POST', /^\/api\/auth\/logout$/, async (_req, res) => {
-    send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0) });
+    send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0, { production }) });
   }],
   ['GET', /^\/api\/health$/, async (_req, res) => send(res, 200, { ok: true, demo: store.demo })],
+  ['GET', /^\/api\/ready$/, async (_req, res) => {
+    let dataFileReadable = false;
+    try {
+      dataFileReadable = fs.statSync(dataFile).isFile();
+      if (dataFileReadable) fs.accessSync(dataFile, fs.constants.R_OK);
+    } catch {
+      dataFileReadable = false;
+    }
+    const report = buildHealthReport({
+      state: store.snapshot(),
+      production,
+      secretConfigured: Boolean(process.env.PORTAL_SECRET),
+      dataFileReadable,
+    });
+    return send(res, report.ready ? 200 : 503, report);
+  }],
   ['GET', /^\/api\/me$/, async (req, res, actor) => send(res, 200, { ...actor, demo: store.demo })],
   ['GET', /^\/api\/dashboard$/, async (_req, res, actor) => send(res, 200, store.dashboard(actor))],
   ['GET', /^\/api\/catalog$/, async (_req, res, actor) => send(res, 200, store.catalog(actor))],
@@ -237,6 +262,7 @@ const routes = [
   ['POST', /^\/api\/families$/, async (req, res, actor) => send(res, 201, store.enrollFamily(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/sessions\/series$/, async (req, res, actor) => send(res, 201, store.createSeries(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/guardians\/([^/]+)\/phone$/, async (req, res, actor, m) => send(res, 200, store.setGuardianPhone(actor, m[1], await readBody(req), meta(req)))],
+  ['POST', /^\/api\/guardians\/([^/]+)\/whatsapp-consent$/, async (req, res, actor, m) => send(res, 200, store.setGuardianMessagingConsent(actor, m[1], await readBody(req), meta(req)))],
   ['GET', /^\/api\/outbox$/, async (_req, res, actor) => send(res, 200, store.listOutbox(actor))],
   ['POST', /^\/api\/outbox\/drafts$/, async (req, res, actor) => send(res, 200, store.generateDrafts(actor, meta(req)))],
   ['POST', /^\/api\/outbox\/([^/]+)$/, async (req, res, actor, m) => send(res, 200, store.markOutbox(actor, m[1], await readBody(req), meta(req)))],
@@ -321,6 +347,20 @@ function room(_req, res, actor, sessionId) {
 }
 
 const server = http.createServer(async (req, res) => {
+  const requestId = randomBytes(8).toString('hex');
+  const startedAt = process.hrtime.bigint();
+  res.setHeader('x-request-id', requestId);
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+    const record = requestLogRecord({
+      requestId,
+      method: req.method,
+      pathname: req.url instanceof URL ? req.url.pathname : String(req.url || '/').split('?')[0],
+      statusCode: res.statusCode,
+      durationMs,
+    });
+    console.log(JSON.stringify(record));
+  });
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname.replace(/\/+$/, '') || '/';
@@ -335,7 +375,7 @@ const server = http.createServer(async (req, res) => {
         if (req.method !== method) continue;
         const match = pathname.match(re);
         if (!match) continue;
-        if (pathname === '/api/auth/login' || pathname === '/api/auth/logout' || pathname === '/api/health') return await handler(req, res);
+        if (pathname === '/api/auth/login' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
         const actor = actorFrom(req);
         if (!actor) return send(res, 401, { error: { code: 'unauthorized', message: 'Sign in required.', messageAr: 'يلزم تسجيل الدخول.' } });
         return await handler(req, res, actor, match);
@@ -356,3 +396,19 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, HOST, () => {
   console.log(`portal listening on http://${HOST}:${PORT}`);
 });
+
+let shuttingDown = false;
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(JSON.stringify({ event: 'portal.shutdown.started', signal }));
+  const result = await closeServerGracefully(server, {
+    timeoutMs: Number(process.env.PORTAL_SHUTDOWN_TIMEOUT_MS || 10_000),
+    onTimeout: () => console.error(JSON.stringify({ event: 'portal.shutdown.timeout' })),
+  });
+  console.log(JSON.stringify({ event: 'portal.shutdown.finished', timedOut: result.timedOut }));
+  if (result.timedOut) process.exitCode = 1;
+}
+
+process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
+process.on('SIGINT', () => { void shutdown('SIGINT'); });

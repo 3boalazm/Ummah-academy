@@ -21,9 +21,10 @@ async function freePort() {
   return port;
 }
 
-async function request(route, { method = 'GET', cookie, body, customHeader = true } = {}) {
+async function request(route, { method = 'GET', cookie, body, customHeader = true, idempotencyKey } = {}) {
   const headers = {};
   if (cookie) headers.cookie = cookie;
+  if (idempotencyKey) headers['idempotency-key'] = idempotencyKey;
   if (method === 'POST' || method === 'PATCH') {
     headers['content-type'] = 'application/json';
     if (customHeader) headers['x-ua-request'] = '1';
@@ -105,7 +106,7 @@ const protectedRoutes = [
   ['POST','/api/requests'], ['GET','/api/audit'], ['GET','/api/integrity'], ['GET','/api/acceptance'],
   ['GET','/api/notifications'], ['POST','/api/notifications/notif_missing/read'],
   ['POST','/api/assets'], ['POST','/api/assets/ast_yusuf/token'], ['GET','/api/assets/ast_yusuf/content?token=invalid'],
-  ['POST','/api/sessions/series'], ['POST','/api/guardians/grd_khalid/phone'],
+  ['POST','/api/sessions/series'], ['POST','/api/guardians/grd_khalid/phone'], ['POST','/api/guardians/grd_fatima/whatsapp-consent'],
   ['GET','/api/outbox'], ['POST','/api/outbox/drafts'], ['POST','/api/outbox/draft_missing'],
   ['GET','/api/invoices'], ['GET','/api/export/students'], ['POST','/api/admin/reset-demo'],
 ];
@@ -178,4 +179,82 @@ test('reschedule API rejects guardian and teacher roles before changing a sessio
   assert.equal(guardianBefore.status, guardianAfter.status);
   assert.equal(guardianBefore.data.startsAt, guardianAfter.data.startsAt);
   assert.equal(guardianBefore.data.status, guardianAfter.data.status);
+});
+
+test('guardian can update only their own WhatsApp consent and opt-out is recorded', async () => {
+  const cookie = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const family = await request('/api/families/fam_rahman', { cookie });
+  assert.equal(family.status, 200);
+  assert.equal(family.data.myGuardian.id, 'grd_fatima');
+  assert.equal(family.data.myGuardian.whatsappConsent, 'unknown');
+  assert.ok(family.data.guardians.every((g) => !('whatsappConsent' in g)), 'guardian must not read another guardian consent record');
+  const own = await request('/api/guardians/grd_fatima/whatsapp-consent', {
+    method: 'POST',
+    cookie,
+    body: { status: 'opted_out', reason: 'I do not want WhatsApp messages' },
+  });
+  assert.equal(own.status, 200, JSON.stringify(own.data));
+  assert.equal(own.data.whatsappConsent, 'opted_out');
+  assert.equal(own.data.consentSource, 'guardian_portal');
+
+  const other = await request('/api/guardians/grd_khalid/whatsapp-consent', {
+    method: 'POST',
+    cookie,
+    body: { status: 'opted_in', reason: 'Attempt to change another guardian' },
+  });
+  assert.ok([403, 404].includes(other.status), `guardian must not change another guardian's consent; got ${other.status}`);
+});
+
+test('API idempotency keys are isolated by operation route', async () => {
+  const cookie = await login('admin@ummahacademy.net', 'Sakinah-Admin-2026');
+  const key = 'same-client-key-across-routes';
+  const session = await request('/api/sessions', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: {
+      studentId: 'stu_yusuf',
+      teacherId: 'nour-hassan',
+      startsAt: '2027-01-20T10:00:00.000Z',
+      durationMin: 30,
+    },
+  });
+  assert.equal(session.status, 201, JSON.stringify(session.data));
+
+  const repeatedSession = await request('/api/sessions', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: {
+      studentId: 'stu_yusuf',
+      teacherId: 'nour-hassan',
+      startsAt: '2027-01-20T10:00:00.000Z',
+      durationMin: 30,
+    },
+  });
+  assert.equal(repeatedSession.status, 201);
+  assert.equal(repeatedSession.data.id, session.data.id, 'same route and key should replay the original session');
+
+  const mismatchedReplay = await request('/api/sessions', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: {
+      studentId: 'stu_yusuf',
+      teacherId: 'nour-hassan',
+      startsAt: '2027-01-21T10:00:00.000Z',
+      durationMin: 30,
+    },
+  });
+  assert.equal(mismatchedReplay.status, 409, 'same key with a different payload must be rejected');
+  assert.equal(mismatchedReplay.data?.error?.code, 'invalid_state');
+
+  const payment = await request('/api/payments', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: { subscriptionId: 'sub_yusuf', amount: 1, status: 'pending', reason: 'Idempotency route-scope test' },
+  });
+  assert.equal(payment.status, 201, JSON.stringify(payment.data));
+  assert.ok(payment.data.payment?.id, 'payment endpoint must return a payment, not a replayed session result');
 });
