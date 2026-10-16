@@ -151,3 +151,56 @@ The extra ~1.6 KB of HTML compared with Phase 3 comes from the five `hreflang` l
 - **Translations:** careful and glossary-driven, but not yet signed off by native reviewers (ABO-52). Religious passages are listed for the academic review (ABO-39).
 - **Browsers:** German hyphenation (`hyphens: auto`) depends on the browser's dictionaries. Chromium and Safari support German; a few long compounds may still break with `overflow-wrap` on older engines. To verify on real devices (ABO-42).
 
+## 8. Phase 5 re-run: the quality bar, the second theme and the app (16 Oct 2026)
+
+Same environment (headless Chromium built from `@sparticuz/chromium` plus NSPR/NSS from source, `package.json`-less static server over `dist/`), but **everything now runs from inside the repository**: `qa/run.mjs` plus 12 suites, and the static gates grew (`check:cards`, `check:cms`, `check:css`, `check:sitemap`, 6 unit groups). See `docs/14-phase5-changelog.md` for what each suite is for and `docs/18-dark-mode-and-installable-app.md` for the dark-mode and installable-app work.
+
+**Static gates**
+
+| Gate | Result |
+|---|---|
+| Build | ✅ **195 pages**, 184 of them with their own social card (largest 98 KB) |
+| Internal links and fragments | ✅ **17,118 links, 0 broken** |
+| i18n | ✅ 195 pages · 189 hreflang clusters · **0 English leaks** on DE/FR/IT |
+| Structured data | ✅ **379 JSON-LD blocks, 0 errors** |
+| Sitemap | ✅ 189 URLs (= every indexable page), 189 with alternates matching the pages exactly |
+| Social cards | ✅ 195 `og:image` checked, 0 errors, budget respected |
+| CMS config | ✅ 7 collections, 79 articles match their fields, Sveltia `0.239.1` pinned with SRI |
+| CSS prefixes | ✅ The Safari/iOS 16.4+ features relied on are present |
+| Unit groups | ✅ 6 groups |
+
+**Browser suites — one run, 12 suites, 632 s**
+
+| Suite | Checked | Failures |
+|---|---:|---:|
+| canary (10 injected bugs) | 10 | 0 |
+| overflow (pages × widths) | 1,940 | 0 |
+| header (layouts 320 → 1440, every pixel × 5 languages) | 5,605 | 0 |
+| popovers (open states) | 125 | 0 |
+| axe (WCAG 2.2 AA + best practice) | 194 | 0 |
+| flows | 10 | 0 |
+| touch (10 devices) | 355 | 0 |
+| theme (light ⇄ dark) | 62 | 0 |
+| pwa | 90 | 0 |
+| offline | 7 | 0 |
+| **keyboard** (structure on 194 pages + 6 journeys) | 209 | 0 |
+| cms | 1 | 0 (1 environment warning — see below) |
+
+**One-off deep sweeps (documented, not part of the gate)**
+
+- **Overflow:** 194 pages × **20 widths** (320 → 2560 px) = **3,880 layouts, 0 overflows**.
+- **Header:** every pixel from 320 to 1440 px × five languages (the gate), plus a 1450 → 2560 px pass above it.
+- **Keyboard journeys:** a booking made with nothing but Tab, Enter, Space, Escape and the arrow keys, from step 1 to `/thank-you/` and on into the WhatsApp message.
+
+**Bugs this phase found and fixed:** the theme switch did not fit the header at 320–375 px; the Arabic header overflowed between 860 and 1099 px; a course card's CTA overflowed at 540/820/900/1180 px (now default widths in the gate); the booking wizard's step-1 error was visible but not announced (`aria-invalid` + `aria-describedby` on the radio group, cleared on change).
+
+> **Environment limitation, stated honestly:** this sandbox has no route to `unpkg.com`, so the
+> `cms` suite reports a warning instead of loading the pinned bundle from the CDN. The same
+> package was fetched from the npm registry and the suite re-run against it
+> (`SVELTIA_BUNDLE=<path> node qa/run.mjs cms`) — the editor boots to its sign-in screen with our
+> `config.yml`, and the file's hash matches the SRI in `public/admin/index.html`. CI reaches the
+> CDN, so the browser enforces the hash there for real.
+
+**Still not tested (unchanged, and it needs a human or the business):** real devices and real
+screen readers (`docs/17-device-qa-protocol.md`), Search Console and Bing verification, field
+Core Web Vitals (needs traffic), and the app-store listings.
