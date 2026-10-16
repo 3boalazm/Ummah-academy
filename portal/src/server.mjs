@@ -198,11 +198,18 @@ const routes = [
   }],
   ['GET', /^\/api\/health$/, async (_req, res) => send(res, 200, { ok: true, demo: store.demo })],
   ['GET', /^\/api\/ready$/, async (_req, res) => {
+    let dataFileReadable = false;
+    try {
+      dataFileReadable = fs.statSync(dataFile).isFile();
+      if (dataFileReadable) fs.accessSync(dataFile, fs.constants.R_OK);
+    } catch {
+      dataFileReadable = false;
+    }
     const report = buildHealthReport({
       state: store.snapshot(),
       production,
       secretConfigured: Boolean(process.env.PORTAL_SECRET),
-      dataFileReadable: fs.existsSync(dataFile) && fs.statSync(dataFile).isFile(),
+      dataFileReadable,
     });
     return send(res, report.ready ? 200 : 503, report);
   }],
