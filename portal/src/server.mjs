@@ -13,6 +13,7 @@ import { createStore } from './domain/store.mjs';
 import { loadStateFile } from './domain/persistence.mjs';
 import { sniffUpload } from './domain/ops.mjs';
 import { sessionCookie } from './domain/http-security.mjs';
+import { requestLogRecord } from './domain/observability.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
@@ -328,6 +329,20 @@ function room(_req, res, actor, sessionId) {
 }
 
 const server = http.createServer(async (req, res) => {
+  const requestId = randomBytes(8).toString('hex');
+  const startedAt = process.hrtime.bigint();
+  res.setHeader('x-request-id', requestId);
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+    const record = requestLogRecord({
+      requestId,
+      method: req.method,
+      pathname: req.url instanceof URL ? req.url.pathname : String(req.url || '/').split('?')[0],
+      statusCode: res.statusCode,
+      durationMs,
+    });
+    console.log(JSON.stringify(record));
+  });
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname.replace(/\/+$/, '') || '/';
