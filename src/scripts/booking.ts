@@ -146,6 +146,25 @@ export function initBooking(): void {
     }
   };
 
+  /**
+   * Step 1 marks its errors on the fieldset (the radios are visually hidden behind their
+   * labels). A screen reader entering the group has to hear *why* it is invalid, so the
+   * group itself carries aria-invalid + aria-describedby pointing at the visible error.
+   */
+  const setGroupInvalid = (name: 'learner' | 'course', bad: boolean) => {
+    const group = steps[0].querySelector<HTMLElement>(`.booking__${name === 'learner' ? 'learners' : 'courses'}`);
+    const err = steps[0].querySelector<HTMLElement>(`[data-err="${name}"]`);
+    if (!group || !err) return;
+    if (!err.id) err.id = `bk-err-${name}`;
+    // a valueless aria-invalid="" reads as "false" to assistive tech — always write the value
+    if (bad) group.setAttribute('aria-invalid', 'true');
+    else group.removeAttribute('aria-invalid');
+    const ids = new Set((group.getAttribute('aria-describedby') || '').split(' ').filter(Boolean));
+    bad ? ids.add(err.id) : ids.delete(err.id);
+    if (ids.size) group.setAttribute('aria-describedby', Array.from(ids).join(' '));
+    else group.removeAttribute('aria-describedby');
+  };
+
   const validate = (idx: number): HTMLElement | null => {
     const step = steps[idx];
     if (idx === 0) {
@@ -153,6 +172,8 @@ export function initBooking(): void {
       const noCourse = !value('course');
       step.toggleAttribute('data-invalid-learner', noLearner);
       step.toggleAttribute('data-invalid-course', noCourse);
+      setGroupInvalid('learner', noLearner);
+      setGroupInvalid('course', noCourse);
       if (noLearner) return step.querySelector<HTMLElement>('input[name="learner"]');
       if (noCourse) return step.querySelector<HTMLElement>('input[name="course"]');
       return null;
@@ -196,7 +217,9 @@ export function initBooking(): void {
   );
   form.querySelectorAll('input[name="learner"], input[name="course"]').forEach((r) =>
     r.addEventListener('change', () => {
-      steps[0].removeAttribute(r.getAttribute('name') === 'learner' ? 'data-invalid-learner' : 'data-invalid-course');
+      const name = r.getAttribute('name') as 'learner' | 'course';
+      steps[0].removeAttribute(name === 'learner' ? 'data-invalid-learner' : 'data-invalid-course');
+      setGroupInvalid(name, false);
     })
   );
   form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('#bk-first, #bk-country, #bk-wa').forEach((el) =>

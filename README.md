@@ -30,7 +30,7 @@ npm run dev        # http://localhost:4321
 npm run build      # → dist/ (195 pages; production builds fail on a half-translated locale)
 npm run preview    # serve the production build
 npm run qa         # build + internal link/fragment checker + i18n checker + CSS + CMS + units
-npm run qa:browser # the browser suites (canary, overflow, header, popovers, axe, flows, touch, theme, pwa, offline, cms)
+npm run qa:browser # the browser suites (canary, overflow, header, popovers, axe, flows, touch, theme, pwa, offline, keyboard, cms)
 npm run pwa:icons  # regenerate the app icons in public/icons/ (only after a brand change)
 CHROME_PATH=/path/to/chrome npm run pdfs   # regenerate the free worksheets → public/downloads/
 ```
@@ -85,7 +85,16 @@ Vercel (`vercel.json`): the framework preset is Astro, the output goes to `dist/
 
 ## Documentation
 
-Start with [`docs/README.md`](docs/README.md).
+Start with [`docs/README.md`](docs/README.md). The two a non-developer will want:
+
+- [`docs/16-cms-guide.md`](docs/16-cms-guide.md) — editing content and prices yourself (Arabic + English).
+- [`docs/17-device-qa-protocol.md`](docs/17-device-qa-protocol.md) — the 30-minute real-device and screen-reader pass before launch.
+
+Running the QA without Chrome installed (a bare container):
+
+```bash
+bash scripts/qa-chrome-sandbox.sh     # builds a headless Chromium + NSS/NSPR, prints CHROME_PATH
+```
 
 ## Adding or editing content
 
