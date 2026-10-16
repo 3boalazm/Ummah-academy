@@ -45,7 +45,7 @@ Data is written to `portal/data/store.json` (gitignored). Delete that file to re
 
 Enrolment (`/app/onboard`) opens a two-lesson trial and does not enable the child's login. A weekly series keeps the local clock across DST; a conflict rolls the whole series back. WhatsApp (`/app/outbox`) is a draft queue: `wa.me` opens on the staff device only when a family phone is already on file. The academy number `+971 50 276 0242` is the sender, not a family recipient. Marking a draft sent does not confirm delivery. Invoices are derived from payments. CSV export is staff-only and contains no passwords. Uploads accept PDF, PNG, JPEG or plain text up to 1 MB, and reject video bytes.
 
-`PORTAL_ENV=production` refuses to start without `PORTAL_SECRET`, and refuses the published demo passwords.
+`PORTAL_ENV=production` refuses to start without `PORTAL_SECRET`, without a pre-provisioned state file, or with a state file marked as demo data. Missing state is treated as first-run only outside production; unreadable, malformed, or structurally invalid existing state causes startup to fail without replacing the original file. Production bootstrap/migration must be an explicit operator-controlled procedure. The portal also refuses the published demo passwords.
 
 ## Not production
 
