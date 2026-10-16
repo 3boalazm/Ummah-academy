@@ -103,14 +103,26 @@ export function createStore(options = {}) {
     });
   }
 
-  function replay(actor, key) {
+  function replay(actor, keyInput) {
+    if (!keyInput) return null;
+    const key = typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = typeof keyInput === 'object' ? keyInput.fingerprint : null;
     if (!key) return null;
     const hit = state.idempotency.find((i) => i.key === key && i.actorId === actor.id);
-    return hit ? structuredClone(hit.result) : null;
+    if (!hit) return null;
+    if (fingerprint && hit.fingerprint && hit.fingerprint !== fingerprint) {
+      throw E.badState(
+        'This idempotency key was already used with a different request payload.',
+        'استُخدم مفتاح منع التكرار هذا سابقًا مع بيانات طلب مختلفة.',
+      );
+    }
+    return structuredClone(hit.result);
   }
 
-  function command(actor, key, fn) {
-    const hit = replay(actor, key);
+  function command(actor, keyInput, fn) {
+    const key = typeof keyInput === 'object' ? keyInput.key : keyInput;
+    const fingerprint = typeof keyInput === 'object' ? keyInput.fingerprint : null;
+    const hit = replay(actor, keyInput);
     if (hit) return { ...hit, replayed: true };
     const snapshot = structuredClone(state);
     try {
@@ -118,6 +130,7 @@ export function createStore(options = {}) {
       if (key) {
         state.idempotency.push({
           key,
+          fingerprint: fingerprint || null,
           actorId: actor.id,
           result: structuredClone(result),
           createdAt: clock().toISOString(),
