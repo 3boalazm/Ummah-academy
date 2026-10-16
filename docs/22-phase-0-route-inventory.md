@@ -95,8 +95,9 @@ For every row above, the next review must record:
 
 ## Source-review concerns already identified
 
-- Teacher and guardian list permissions return broad list-level access decisions in `permissions.mjs`; the store must be checked to prove the returned rows are filtered before response.
-- Student list is also allowed at the action level for teacher, guardian, and student; prove the actual list implementation never returns other students.
+- Student list action is permitted at the list level for teacher, guardian, and student, but `listStudents` filters every row through `can(actor, 'student.read', resource, state)`; verify this behavior with multi-family negative tests and direct API calls.
+- Session list action is permitted at the list level, but `listSessions` applies `visibleSessions`; verify historical/current teacher assignment and guardian-child edge cases with direct API tests.
+- **Role breadth concern:** the ops branch in `can()` allows every action except demo reset before the lower-role denylist is evaluated. Confirm whether ops should be able to perform finance, assignment, audit, and other privileged actions; replace with explicit permissions after business approval.
 - `/api/acceptance` and `/api/integrity` require explicit production behavior, not only role checks.
 - **Critical finding:** `resetDemo(actor)` previously allowed an admin to replace state with demo seed data even in production. PR #9 adds a production guard and a regression test; do not consider this closed until CI and review pass.
 - Upload metadata is committed before file bytes are written. A disk-write failure can leave a record without a file; the route needs compensation/cleanup and a regression test.
