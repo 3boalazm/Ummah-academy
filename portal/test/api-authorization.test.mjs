@@ -158,3 +158,24 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
   const family = await request('/api/families/fam_rahman', { cookie });
   assert.ok([403, 404].includes(family.status), `teacher must not read family financial profile, got ${family.status}`);
 });
+
+
+test('reschedule API rejects guardian and teacher roles before changing a session', async () => {
+  const startsAt = new Date('2027-02-01T12:00:00.000Z').toISOString();
+  const body = { startsAt, reason: 'Authorization regression test' };
+  const guardian = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const guardianBefore = await request('/api/sessions/ses_yusuf_next', { cookie: guardian });
+  const guardianMove = await request('/api/sessions/ses_yusuf_next/reschedule', {
+    method: 'POST', cookie: guardian, body,
+  });
+  assert.ok([403, 404].includes(guardianMove.status), `guardian must not reschedule, got ${guardianMove.status}`);
+  const teacher = await login('omneya@ummahacademy.net', 'Sakinah-Teach-2026');
+  const teacherMove = await request('/api/sessions/ses_yusuf_next/reschedule', {
+    method: 'POST', cookie: teacher, body,
+  });
+  assert.ok([403, 404].includes(teacherMove.status), `teacher must not reschedule through the admin scheduling command, got ${teacherMove.status}`);
+  const guardianAfter = await request('/api/sessions/ses_yusuf_next', { cookie: guardian });
+  assert.equal(guardianBefore.status, guardianAfter.status);
+  assert.equal(guardianBefore.data.startsAt, guardianAfter.data.startsAt);
+  assert.equal(guardianBefore.data.status, guardianAfter.data.status);
+});
