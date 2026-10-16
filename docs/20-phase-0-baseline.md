@@ -79,6 +79,7 @@ Severity definitions: **P0** = stop production cut-over; **P1** = resolve before
 | ID | Finding | Required next step |
 |---|---|---|
 | P1-AUTH-01 | Session cookie is set as HttpOnly and SameSite=Lax, but the inspected cookie builder does not add the Secure attribute. | Make cookie attributes environment-aware; require Secure under HTTPS; test login/logout, expiry, rotation, invalidation, and proxy/TLS behavior. |
+| P1-AUTH-04 | Logout clears the browser cookie, but sessions are signed/stateless and the inspected auth module has no server-side revocation list. A copied token can remain valid until expiry (12 hours in the server configuration). | Add a revocation/version strategy or shorten/rotate sessions according to an explicit threat model; test logout, account disablement, role changes and secret rotation against previously issued tokens. |
 | P1-AUTH-02 | Login throttling uses an in-memory per-process map. | Define proxy/IP trust rules and distributed rate limiting or an explicitly constrained single-instance control; test bypass and reset behavior. |
 | P1-AUTH-03 | CSRF protection, origin checks, security headers/CSP, and authorization coverage have not been fully verified across every mutation route. | Build a route/mutation inventory and test direct API access, CSRF, session fixation, IDOR, role boundaries, and file access. Do not infer coverage from UI hiding. |
 | P1-DATA-02 | File-backed storage and asset files have no demonstrated backup/restore or retention lifecycle. | Define storage ownership, encryption, backups, restore drills, access logs, retention, deletion, and orphan cleanup. |
@@ -142,3 +143,31 @@ Fix and test **P0-DATA-01** first in an isolated branch: a pre-existing unreadab
 - The repository QA workflow filters out documentation-only pull requests, so the normal static/browser QA jobs may not run for this PR. This is a CI coverage gap for docs-only changes, not proof that application tests passed or failed.
 - No application test suite was executed by this audit. Do not interpret the observed Vercel status as an application regression: it indicates the deployment/check could not pass because of the reported build-rate limit, but the actual Vercel project configuration and deployment logs still need direct inspection.
 - Phase 0 remains open until the build limit and CI behavior are confirmed, and the remaining verification tasks in §6 are completed or explicitly deferred.
+
+
+## 10. API and authentication surface — source review
+
+The HTTP server has a centralized route table and, for API routes, requires an authenticated actor except for login, logout, and health. POST/PATCH API requests require the custom `x-ua-request: 1` header; the CSV export route checks it as well. This is a useful baseline control, but it does not replace full CSRF, origin, authorization, and deployment-header verification.
+
+### Route groups found in `portal/src/server.mjs`
+
+- Identity: login, logout, current actor (`/api/me`), health.
+- Read surfaces: dashboard, catalog, search, students, families, teachers, sessions, subscriptions, follow-ups, audit, integrity, acceptance, notifications, invoices, outbox.
+- Student/session operations: student PATCH; create/confirm/attendance/complete/report/cancel/reschedule/no-show/substitute sessions; recurring series; room.
+- Subscription/finance operations: renew/freeze/resume/cancel subscriptions, cycle adjustments, record payment.
+- Staff operations: change teacher assignment, create follow-ups, add attempts, transition follow-ups, change requests, guardian phone updates, generate/update WhatsApp drafts, CSV export, demo reset.
+- Assets: upload, issue temporary asset token, read asset content.
+
+The route table is a first-pass inventory, not proof that every route's resource-level authorization is correct. The next audit step must map each route to its domain action, allowed roles, resource scope, mutation invariants, idempotency behavior, and tests.
+
+### Specific source-level notes
+
+- Password hashing uses Node `scryptSync`; session and asset tokens use HMAC-SHA256 signatures and expiry claims.
+- Session cookie builder includes `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Max-Age`, but not `Secure`.
+- Logout expires the cookie in the response; there is no evident server-side session revocation in the inspected token module.
+- Login rate limiting is held in a process-local `Map`, so it is not shared between instances or durable across restarts.
+- `/api/health` is intentionally unauthenticated and returns `ok` plus a demo-mode boolean; verify this is acceptable for the chosen host.
+- Upload handling registers the asset record and then writes file bytes. Failure handling should be tested so a disk write failure cannot leave misleading metadata or untracked files.
+- The public UI and routes support a demonstration “room”; source explicitly says it is not a real video call.
+
+These observations require runtime/negative testing before they become final security conclusions.
