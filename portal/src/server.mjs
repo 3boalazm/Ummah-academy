@@ -170,9 +170,13 @@ function q(url) {
 }
 
 function meta(req) {
+  const suppliedKey = String(req.headers['idempotency-key'] || '').trim();
+  // Idempotency is scoped to the HTTP operation so reusing a client key on a
+  // different endpoint cannot replay an unrelated command result.
+  const pathname = req.url instanceof URL ? req.url.pathname : new URL(req.url, 'http://localhost').pathname;
   return {
     requestId: randomBytes(8).toString('hex'),
-    idempotencyKey: req.headers['idempotency-key'] || null,
+    idempotencyKey: suppliedKey ? `${req.method}:${pathname}:${suppliedKey}` : null,
   };
 }
 
