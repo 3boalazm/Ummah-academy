@@ -12,6 +12,7 @@ import { DomainError } from './domain/errors.mjs';
 import { createStore } from './domain/store.mjs';
 import { loadStateFile } from './domain/persistence.mjs';
 import { sniffUpload } from './domain/ops.mjs';
+import { sessionCookie } from './domain/http-security.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
@@ -129,10 +130,6 @@ function actorFrom(req) {
   const payload = readSession(cookies(req).ua_portal, secret);
   if (!payload) return null;
   return store.actorById(payload.sub);
-}
-
-function sessionCookie(token, maxAge = SESSION_TTL) {
-  return `ua_portal=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
 }
 
 const MIME = {
