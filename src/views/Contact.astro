@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import welcomeArt from '@/assets/art/teacher-welcome.webp';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import BookingWizard from '@/components/BookingWizard.astro';
 import Faq from '@/components/Faq.astro';
@@ -29,6 +31,9 @@ const C = COPY.C;
         <BookingWizard lang={lang} />
       </div>
       <div class="book-hero__aside" data-reveal style="--reveal-delay:.12s">
+        <div class="book-hero__art" aria-hidden="true">
+          <Image src={welcomeArt} alt="" widths={[360, 560, 720]} sizes="(min-width: 1000px) 420px, 90vw" />
+        </div>
         <ul role="list" class="book-gets">
           {
             C.gets.map(([icon, h, p]) => (
@@ -82,6 +87,24 @@ const C = COPY.C;
 </BaseLayout>
 
 <style>
+  .book-hero__art {
+    overflow: hidden;
+    border-radius: 24px;
+    margin-block-end: 24px;
+    border: 1px solid rgb(91 58 142 / 0.1);
+  }
+  .book-hero__art :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  /* Keep the booking form ahead of decorative art on narrow screens. */
+  @media (max-width: 999px) {
+    .book-hero__art { display: none; }
+  }
+
   .book-hero {
     padding-top: clamp(28px, 4vw, 56px);
     scroll-margin-top: calc(var(--header-h) + 8px);

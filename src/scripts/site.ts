@@ -8,6 +8,25 @@ import { captureAttribution } from './attribution';
 const root = document.documentElement;
 captureAttribution();
 
+/* Responsive tables must also be scrollable by keyboard, not only by touch.
+ * Only add a tab stop while content actually overflows; preserve authored ones.
+ * ResizeObserver keeps this correct after a viewport or font-size change.
+ */
+const tableScrollers = [...document.querySelectorAll<HTMLElement>('.table-wrap, .prose table')]
+  .filter((el) => !el.hasAttribute('tabindex'));
+const updateTableFocus = () => {
+  tableScrollers.forEach((el) => {
+    if (el.scrollWidth > el.clientWidth + 1) el.setAttribute('tabindex', '0');
+    else el.removeAttribute('tabindex');
+  });
+};
+updateTableFocus();
+document.fonts.ready.then(updateTableFocus);
+if ('ResizeObserver' in window) {
+  const tableObserver = new ResizeObserver(updateTableFocus);
+  tableScrollers.forEach((el) => tableObserver.observe(el));
+}
+
 /* Header: condensed glass once the page scrolls */
 const onScroll = () => {
   if (window.scrollY > 12) root.setAttribute('data-scrolled', '');

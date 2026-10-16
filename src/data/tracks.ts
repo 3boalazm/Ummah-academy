@@ -1,7 +1,7 @@
-import quranImg from '@/assets/art/track-quran.jpg';
-import arabicImg from '@/assets/art/track-arabic.jpg';
-import kidsImg from '@/assets/art/track-kids.jpg';
-import islamicImg from '@/assets/art/track-islamic.jpg';
+import quranImg from '@/assets/art/recitation-lesson.webp';
+import arabicImg from '@/assets/art/arabic-practice.webp';
+import kidsImg from '@/assets/art/kids-learning.webp';
+import islamicImg from '@/assets/art/family-stories.webp';
 import type { Lang } from '@/i18n';
 import { PRICES } from '@/data/prices';
 import tracksDe from '@/locales/de/data/tracks';

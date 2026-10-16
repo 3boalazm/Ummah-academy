@@ -12,10 +12,10 @@ export default {
       desc: `Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs for kids and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. From ${P.from}/month, 2 free sessions.`,
     },
     eyebrow: 'Courses',
-    title: 'Every course, <span class="accent">one clear path.</span>',
-    lede: 'Four tracks — Qur’an & Tajweed, Arabic, Ummah Cubs and Islamic Studies — taught live 1-on-1 by Al-Azhar teachers. Start with two free sessions.',
+    title: 'Start with your goal. <span class="accent">Find your path.</span>',
+    lede: 'Explore Quran, Arabic, children’s learning and Islamic studies. Compare the programmes, read the details, then try two lessons with a teacher before subscribing.',
     chooserTitle: 'Which programme is right for me?',
-    chooserLede: 'A quick comparison — or take the placement test for a personal recommendation.',
+    chooserLede: 'Find your goal in the table, then explore the programme below. If you are unsure, start with the short placement test.',
     cols: ['Programme', 'Best for', 'Beginner friendly', 'Main goal'],
     rows: [
       ['Quran Recitation & Tajweed', '/quran-recitation-course/', 'Anyone who wants to recite correctly', 'Yes', 'Correct pronunciation and Tajweed rules'],
