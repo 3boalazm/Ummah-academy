@@ -1,6 +1,6 @@
 # Operations Phase 3 — authorization response minimization
 
-**Status:** In progress — role-specific teacher directory projections and response-shape tests added; CI pending.  
+**Status:** Implementation and portal test suite validated by the static QA job; full repository QA is not green. Run `38969479881` (workflow #64) completed the `Build + static gates` job successfully, which runs `npm run qa` and includes `npm test` / `portal/test/teacher-directory.test.mjs`. The separate marketing pixel-contrast job failed on the existing “حمّل التطبيق” CTA; three browser jobs were still in progress at last inspection. This is not a claim that every Phase 3 authorization route is accepted.  
 **Scope:** Authenticated operations portal APIs under `portal/`. This is separate from the marketing-site redesign phases.  
 **Requirement:** `AUTH-011` in [the requirements ledger](21-requirements-ledger.md).
 
