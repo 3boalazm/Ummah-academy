@@ -712,6 +712,28 @@ export function createStore(options = {}) {
     },
     listTeachers(actor) {
       allow(actor, 'teacher.read', null);
+      const publicTeacher = (t) => ({
+        id: t.id,
+        name: t.name,
+        nameAr: t.nameAr,
+        specialty: t.specialty,
+        specialtyAr: t.specialtyAr,
+        role: t.role,
+        roleAr: t.roleAr,
+        ijazah: t.ijazah,
+        timezone: t.timezone,
+      });
+      if (actor.role === 'guardian' || actor.role === 'student') {
+        return state.teachers.map(publicTeacher);
+      }
+      if (actor.role === 'teacher') {
+        return state.teachers
+          .filter((t) => t.id === actor.teacherId)
+          .map((t) => ({
+            ...t,
+            activeStudents: state.assignments.filter((a) => a.teacherId === t.id && a.kind === 'primary' && !a.endAt).length,
+          }));
+      }
       return state.teachers.map((t) => ({
         ...t,
         activeStudents: state.assignments.filter((a) => a.teacherId === t.id && a.kind === 'primary' && !a.endAt).length,
