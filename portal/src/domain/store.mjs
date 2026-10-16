@@ -1117,7 +1117,7 @@ export function createStore(options = {}) {
       });
     },
     freezeSubscription(actor, subscriptionId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const sub = must(state.subscriptions, subscriptionId);
         allow(actor, 'subscription.write', sub);
         const reason = requireReason(input.reason);
@@ -1133,7 +1133,7 @@ export function createStore(options = {}) {
       });
     },
     resumeSubscription(actor, subscriptionId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const sub = must(state.subscriptions, subscriptionId);
         allow(actor, 'subscription.write', sub);
         const reason = requireReason(input.reason);
@@ -1151,7 +1151,7 @@ export function createStore(options = {}) {
       });
     },
     cancelSubscription(actor, subscriptionId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const sub = must(state.subscriptions, subscriptionId);
         allow(actor, 'subscription.write', sub);
         const reason = requireReason(input.reason);
@@ -1168,7 +1168,7 @@ export function createStore(options = {}) {
       });
     },
     adjustCycle(actor, cycleId, input, meta = {}) {
-      return command(actor, null, () => {
+      return command(actor, meta.idempotencyKey, () => {
         const cycle = must(state.cycles, cycleId);
         const sub = must(state.subscriptions, cycle.subscriptionId);
         allow(actor, 'subscription.write', sub);
