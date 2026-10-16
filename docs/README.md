@@ -39,3 +39,4 @@
 | 32 | [32-phase-10-observability-operations.md](32-phase-10-observability-operations.md) | Phase 10: request correlation, privacy-safe structured logs, and runtime operations gates |
 | 33 | [33-phase-11-backup-restore-rehearsal.md](33-phase-11-backup-restore-rehearsal.md) | Phase 11: verified local backup creation, safe overwrite refusal, and restore-candidate validation |
 | 34 | [34-phase-12-health-readiness.md](34-phase-12-health-readiness.md) | Phase 12: privacy-safe readiness checks and operational health endpoint |
+| 35 | [35-phase-13-graceful-shutdown.md](35-phase-13-graceful-shutdown.md) | Phase 13: bounded graceful shutdown, signal handling and operational limits |
