@@ -133,7 +133,9 @@ Phase 0 is **not complete** until every unchecked deliverable above is either co
 
 ## 8. Recommended immediate action
 
-Fix and test **P0-DATA-01** first in an isolated branch: a pre-existing unreadable/corrupt store must stop startup with a clear error and must never be replaced automatically by seed data. Preserve the original file for recovery. Then establish the production database and security architecture before connecting the public site or entering real child data.
+**Implementation started:** Pull request [#9](https://github.com/3boalazm/Ummah-academy/pull/9) adds a fail-closed state loader, rejects missing/demo state in production, and adds regression tests for missing, malformed, invalid-schema, and demo-marked stores. It is open and has not been merged. The GitHub Actions QA run is still in progress; Vercel's separate status remains failed due to a build-rate-limit/plan page. Do not mark the fix accepted until the workflow completes successfully and the diff is reviewed.
+
+After the state-loader fix is accepted, establish the production database and security architecture before connecting the public site or entering real child data.
 
 
 ## 9. Live pull-request check observed after opening this audit
