@@ -29,7 +29,7 @@ export async function launch() {
   return puppeteer.launch({
     executablePath,
     headless: true,
-    protocolTimeout: 120_000,
+    protocolTimeout: 240_000,
     args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--font-render-hinting=none', '--hide-scrollbars', '--mute-audio', '--no-first-run'],
   });
 }
