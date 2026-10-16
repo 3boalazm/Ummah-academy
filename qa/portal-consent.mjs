@@ -97,6 +97,9 @@ try {
     return dto.myGuardian?.whatsappConsent === 'opted_in';
   }, { timeout: 10_000 });
 
+  // The API can reflect the committed consent before the client has re-rendered its form.
+  // Wait for the UI state itself instead of racing the DOM immediately after polling the API.
+  await page.waitForSelector('form[data-action="whatsapp-consent"] input[name="status"][value="opted_out"]', { timeout: 10_000 });
   await page.evaluate(() => {
     const form = [...document.querySelectorAll('form[data-action="whatsapp-consent"]')]
       .find((item) => item.querySelector('input[name="status"]')?.value === 'opted_out');
