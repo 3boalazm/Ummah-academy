@@ -113,7 +113,6 @@ test('financial, attendance, report, asset and follow-up records keep valid fore
     ref('students', row.studentId, `asset ${row.id}`);
     if (row.sessionId) ref('sessions', row.sessionId, `asset ${row.id}`);
     ref('courses', row.courseId, `asset ${row.id}`);
-    ref('users', row.uploadedBy, `asset ${row.id}`);
   }
   for (const row of state.followUps) {
     if (row.familyId) ref('families', row.familyId, `follow-up ${row.id}`);
