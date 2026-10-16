@@ -292,7 +292,8 @@ test('follow-up attempts append, and closing requires an outcome', () => {
   const { store, ops } = boot();
   const actor = ops();
   const before = store.getFollowUp(actor, IDS.fuLayla).attempts.length;
-  store.addAttempt(actor, IDS.fuLayla, { note: 'Third call, still deciding.', channel: 'call' });
+  store.addAttempt(actor, IDS.fuLayla, { note: 'Third call, still deciding.', channel: 'call' }, { idempotencyKey: 'layla-followup-attempt-once' });
+  store.addAttempt(actor, IDS.fuLayla, { note: 'Retry payload must not append again.', channel: 'call' }, { idempotencyKey: 'layla-followup-attempt-once' });
   const after = store.getFollowUp(actor, IDS.fuLayla);
   assert.equal(after.attempts.length, before + 1);
   assert.ok(after.attempts.some((a) => a.note.includes('Second call')) || after.attempts.length >= 3);
