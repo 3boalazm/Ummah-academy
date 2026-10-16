@@ -21,9 +21,10 @@ async function freePort() {
   return port;
 }
 
-async function request(route, { method = 'GET', cookie, body, customHeader = true } = {}) {
+async function request(route, { method = 'GET', cookie, body, customHeader = true, idempotencyKey } = {}) {
   const headers = {};
   if (cookie) headers.cookie = cookie;
+  if (idempotencyKey) headers['idempotency-key'] = idempotencyKey;
   if (method === 'POST' || method === 'PATCH') {
     headers['content-type'] = 'application/json';
     if (customHeader) headers['x-ua-request'] = '1';
@@ -157,4 +158,34 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
   assert.ok([403, 404].includes(invoices.status), `teacher must not read invoices, got ${invoices.status}`);
   const family = await request('/api/families/fam_rahman', { cookie });
   assert.ok([403, 404].includes(family.status), `teacher must not read family financial profile, got ${family.status}`);
+});
+
+
+test('API idempotency keys are isolated by operation route', async () => {
+  const cookie = await login('admin@ummahacademy.net', 'Sakinah-Admin-2026');
+  const key = 'same-client-key-across-routes';
+  const before = await request('/api/payments', { cookie });
+  assert.equal(before.status, 200);
+
+  const session = await request('/api/sessions', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: {
+      studentId: 'stu_yusuf',
+      teacherId: 't_nour',
+      startsAt: '2027-01-20T10:00:00.000Z',
+      durationMin: 30,
+    },
+  });
+  assert.equal(session.status, 201, JSON.stringify(session.data));
+
+  const payment = await request('/api/payments', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: { subscriptionId: 'sub_yusuf', amount: 1, status: 'pending', reason: 'Idempotency route-scope test' },
+  });
+  assert.equal(payment.status, 201, JSON.stringify(payment.data));
+  assert.ok(payment.data.payment?.id, 'payment endpoint must return a payment, not a replayed session result');
 });
