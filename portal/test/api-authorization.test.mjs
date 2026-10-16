@@ -164,6 +164,11 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
 
 test('guardian can update only their own WhatsApp consent and opt-out is recorded', async () => {
   const cookie = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const family = await request('/api/families/fam_rahman', { cookie });
+  assert.equal(family.status, 200);
+  assert.equal(family.data.myGuardian.id, 'grd_fatima');
+  assert.equal(family.data.myGuardian.whatsappConsent, 'unknown');
+  assert.ok(family.data.guardians.every((g) => !('whatsappConsent' in g)), 'guardian must not read another guardian consent record');
   const own = await request('/api/guardians/grd_fatima/whatsapp-consent', {
     method: 'POST',
     cookie,
