@@ -1,6 +1,6 @@
 # Operations Phase 2 — Domain model contract
 
-**Status:** In progress — contract tests added; CI/runtime acceptance pending.  
+**Status:** In progress — the latest GitHub Actions static gate passed (run 57); full repository QA is not green because the marketing-site pixel-contrast job failed and two browser jobs were still running at last check.  
 **Scope:** The operations portal under `portal/`, not the already-shipped marketing-site Phase 2 redesign.  
 **Requirement:** `OPS-003` in [the requirements ledger](21-requirements-ledger.md).
 
