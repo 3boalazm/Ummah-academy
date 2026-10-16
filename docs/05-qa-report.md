@@ -189,8 +189,9 @@ Same environment (headless Chromium built from `@sparticuz/chromium` plus NSPR/N
 **One-off deep sweeps (documented, not part of the gate)**
 
 - **Overflow:** 194 pages × **20 widths** (320 → 2560 px) = **3,880 layouts, 0 overflows**.
-- **Header:** every pixel from 320 to 1440 px × five languages (the gate), plus a 1450 → 2560 px pass above it.
+- **Header:** every pixel from 320 to 1440 px × five languages (the gate, 5,605 layouts), plus **1450 → 2560 px every 2 px × five languages = 2,780 more layouts** — 0 failures in both.
 - **Keyboard journeys:** a booking made with nothing but Tab, Enter, Space, Escape and the arrow keys, from step 1 to `/thank-you/` and on into the WhatsApp message.
+- **CMS with the real bundle** (`npm pack @sveltia/cms@0.239.1`, `SVELTIA_BUNDLE=… node qa/run.mjs cms`): the editor reaches its sign-in screen against our `config.yml`.
 
 **Bugs this phase found and fixed:** the theme switch did not fit the header at 320–375 px; the Arabic header overflowed between 860 and 1099 px; a course card's CTA overflowed at 540/820/900/1180 px (now default widths in the gate); the booking wizard's step-1 error was visible but not announced (`aria-invalid` + `aria-describedby` on the radio group, cleared on change).
 

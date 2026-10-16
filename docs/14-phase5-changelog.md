@@ -153,7 +153,7 @@ Recorded from the run that closed the phase (`qa/report/latest.md`):
 | Build | **195 pages** · 184 own social cards · largest 98 KB |
 | Static gates | links **17,118 checked, 0 broken** · JSON-LD 379 blocks, 0 errors · sitemap 189 URLs with hreflang · i18n 189 clusters, 0 English leaks · cards, CSS, CMS, 6 unit groups: green |
 | Browser suites | canary 10 · overflow 1,940 · header 5,605 · popovers 125 · axe 194 · flows 10 · touch 355 · theme 62 · pwa 90 · offline 7 · **keyboard 209** · cms 1 (+1 environment warning) — **0 failures** |
-| Deep one-off sweep | 194 pages × 20 widths = 3,880 layouts, 0 overflows; header 320 → 2560 px |
+| Deep one-off sweep | 194 pages × 20 widths (320 → 2560 px) = **3,880 layouts, 0 overflows**; header every pixel 320 → 1440 px + every 2 px 1450 → 2560 px (5,605 + 2,780 layouts), 0 failures |
 | Bugs found by the phase's own gates | 3 layout (header ×2, card CTA ×1) + 1 accessibility (booking step-1 error) |
 
 > **Environment note (honest limitation):** the sandbox that ran this has no route to
