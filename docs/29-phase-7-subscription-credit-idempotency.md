@@ -8,7 +8,8 @@
 
 - The HTTP request metadata now scopes a supplied `Idempotency-Key` by HTTP method and request path before passing it to domain commands.
 - Reusing one client key on `POST /api/sessions` and `POST /api/payments` no longer lets the second route replay the first route's result.
-- An API integration test checks that the same key used across those routes creates a session and returns a real payment response.
+- An API integration test checks that same-route retries replay the original session while the same key on another route creates a real payment response.
+- The floating install CTA receives an opaque high-contrast surface so the existing site-wide contrast gate can pass on pages with bright glass/aurora backgrounds.
 - Existing domain tests already cover payment replay without duplicate payment rows, keeping subscription status unchanged when a payment is recorded, cycle adjustment audit, and credit consumption rules for completed sessions, no-shows and cancellations. These tests still need a fresh successful CI run on this branch.
 
 ## Phase 7 requirements and gates
