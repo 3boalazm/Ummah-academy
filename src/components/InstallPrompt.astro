@@ -95,7 +95,9 @@ const cardId = `ua-install-card-${variant}`;
     min-height: 44px;
     padding: 0 16px;
     border: 0;
-    color: var(--ink);
+    /* Keep the floating install CTA legible over the site's changing glass/aurora backdrop. */
+    background: #2f2146;
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 560;
     white-space: nowrap;
