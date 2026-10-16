@@ -95,11 +95,19 @@ const cardId = `ua-install-card-${variant}`;
     min-height: 44px;
     padding: 0 16px;
     border: 0;
-    color: var(--ink);
+    /* Keep the floating install CTA legible over the site's changing glass/aurora backdrop. */
+    background: #2f2146;
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 560;
     white-space: nowrap;
     animation: install-in 0.4s var(--ease-spring);
+  }
+
+  /* Higher specificity than the shared .glass utility so the solid surface always wins. */
+  .install__pill.glass {
+    background: #2f2146;
+    color: #ffffff;
   }
 
   .install__pill :global(svg) {
