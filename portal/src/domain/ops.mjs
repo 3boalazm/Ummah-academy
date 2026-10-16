@@ -315,13 +315,13 @@ export function attachOps(api, bag) {
       if (!byId(state.teachers, teacherId)) throw E.validation('Teacher required.', 'المعلم مطلوب.');
       const cycle = state.cycles.find((c) => c.subscriptionId === sub.id && c.status === 'active');
       if (!cycle) throw E.validation('No active cycle.', 'لا توجد فترة سارية.');
+      const first = firstValidDate(input.startsAt);
       const timeZone = input.timeZone || student.timezone;
       try {
-        new Intl.DateTimeFormat('en-US', { timeZone }).format(firstValidDate(input.startsAt));
+        new Intl.DateTimeFormat('en-US', { timeZone }).format(first);
       } catch {
         throw E.validation('Unknown time zone.', 'المنطقة الزمنية غير معروفة.');
       }
-      const first = firstValidDate(input.startsAt);
       const durationMin = Number(input.durationMin ?? 30);
       if (!Number.isInteger(durationMin) || durationMin < 1) {
         throw E.validation('Duration must be a positive whole number of minutes.', 'مدة الحصة يجب أن تكون عددًا صحيحًا موجبًا بالدقائق.');
