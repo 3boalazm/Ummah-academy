@@ -162,7 +162,7 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
 
 test('guardian and unrelated teacher cannot submit lesson reports through the API', async () => {
   const guardianCookie = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
-  const teacherCookie = await login('omneya@ummahacademy.net', 'Sakinah-Teach-2026');
+  const teacherCookie = await login('sara@ummahacademy.net', 'Sakinah-Teach-2026');
   const payload = { summary: 'Unauthorized report write attempt', homework: 'Not allowed' };
 
   for (const [role, cookie] of [['guardian', guardianCookie], ['unrelated teacher', teacherCookie]]) {
