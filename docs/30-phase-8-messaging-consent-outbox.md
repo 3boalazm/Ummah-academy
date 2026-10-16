@@ -1,6 +1,6 @@
 # Phase 8.1 — consent-gated messaging and manual outbox integrity
 
-**Status:** Initial implementation slice on `phase-8/messaging-consent-outbox`; CI verification pending.
+**Status:** Phase 8.1 implementation slice on `phase-8/messaging-consent-outbox-v2`; build/static gates pass on the current PR head, while browser QA is still running.
 **Scope:** Message consent, draft generation, manual-send lifecycle, delivery evidence, retries and auditability.
 **Non-goal:** This does not connect a WhatsApp provider and does not send messages automatically.
 
