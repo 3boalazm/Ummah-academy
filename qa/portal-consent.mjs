@@ -46,6 +46,14 @@ async function waitForServer() {
 
 try {
   await waitForServer();
+  const healthProbe = await fetch(`${base}/api/health`);
+  const requestId = healthProbe.headers.get('x-request-id');
+  if (!healthProbe.ok || !/^[a-f0-9]{16}$/.test(requestId || '')) {
+    throw new Error('Health probe must return an X-Request-Id correlation header.');
+  }
+  if (!serverOutput.includes(requestId) || !serverOutput.includes('"event":"http.request"')) {
+    throw new Error('Server must emit a structured access log with the health probe request ID.');
+  }
   browser = await launch();
   const page = await newPage(browser, { width: 1280, height: 900 });
   const pageErrors = [];
