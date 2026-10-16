@@ -97,7 +97,8 @@ For every row above, the next review must record:
 
 - Teacher and guardian list permissions return broad list-level access decisions in `permissions.mjs`; the store must be checked to prove the returned rows are filtered before response.
 - Student list is also allowed at the action level for teacher, guardian, and student; prove the actual list implementation never returns other students.
-- `/api/acceptance`, `/api/integrity`, and demo reset require explicit production behavior, not only role checks.
+- `/api/acceptance` and `/api/integrity` require explicit production behavior, not only role checks.
+- **Critical finding:** `resetDemo(actor)` previously allowed an admin to replace state with demo seed data even in production. PR #9 adds a production guard and a regression test; do not consider this closed until CI and review pass.
 - Upload metadata is committed before file bytes are written. A disk-write failure can leave a record without a file; the route needs compensation/cleanup and a regression test.
 - A custom header is checked for POST/PATCH, but no comprehensive deployed CSRF/CORS/origin test is recorded yet.
 - The in-memory rate limiter is per-process, and logout does not visibly revoke a previously copied signed session token.
