@@ -1214,10 +1214,10 @@ export function createStore(options = {}) {
         allow(actor, 'people.admin', null);
         if (!input.title || String(input.title).trim().length < 3) throw E.validation('Title is required.', 'عنوان المتابعة مطلوب.');
         const student = input.studentId ? must(state.students, input.studentId) : null;
-        const familyId = input.familyId || student?.familyId || null;
         const teacher = input.teacherId ? must(state.teachers, input.teacherId) : null;
         const subscription = input.subscriptionId ? must(state.subscriptions, input.subscriptionId) : null;
         const session = input.sessionId ? must(state.sessions, input.sessionId) : null;
+        const familyId = input.familyId || student?.familyId || subscription?.familyId || session?.familyId || null;
         const assigneeId = input.assigneeId || IDS.ops;
         if (familyId && !byId(state.families, familyId)) throw E.notFound();
         if (student && familyId && student.familyId !== familyId) {
@@ -1237,6 +1237,9 @@ export function createStore(options = {}) {
         }
         if (session && subscription && session.subscriptionId !== subscription.id) {
           throw E.validation('Session and subscription do not match.', 'الحصة لا تتبع الاشتراك المحدد.');
+        }
+        if (session && subscription && session.familyId !== subscription.familyId) {
+          throw E.validation('Session and subscription families do not match.', 'أسرة الحصة لا تطابق أسرة الاشتراك.');
         }
         if (session && teacher && session.teacherId !== teacher.id) {
           throw E.validation('Teacher does not match the session.', 'المعلم المحدد لا يطابق معلم الحصة.');
