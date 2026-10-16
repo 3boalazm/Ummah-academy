@@ -51,6 +51,14 @@ try {
   if (!healthProbe.ok || !/^[a-f0-9]{16}$/.test(requestId || '')) {
     throw new Error('Health probe must return an X-Request-Id correlation header.');
   }
+  // The response's finish handler writes the access record asynchronously
+  // relative to fetch() resolving. Wait briefly for that record instead of
+  // racing stdout capture against the response lifecycle.
+  const logDeadline = Date.now() + 2_000;
+  while (Date.now() < logDeadline &&
+    (!serverOutput.includes(requestId) || !serverOutput.includes('"event":"http.request"'))) {
+    await delay(25);
+  }
   if (!serverOutput.includes(requestId) || !serverOutput.includes('"event":"http.request"')) {
     throw new Error('Server must emit a structured access log with the health probe request ID.');
   }
