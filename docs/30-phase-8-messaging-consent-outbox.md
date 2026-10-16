@@ -13,7 +13,7 @@
 - The manual lifecycle is explicit: `needs_consent`, `needs_phone`, `queued`, `opened`, `attempted`, `sent`, `failed`, `delivered`, `cancelled`.
 - Only documented state transitions are accepted. Failed attempts can be retried; each transition appends actor, time, prior/next status and reason.
 - `sent` does not mean delivered. `delivered` requires recorded evidence, and only then is `deliveryConfirmed` true.
-- API route and domain tests cover consent gating, opt-out cancellation, state transitions, evidence requirement, attempt history and guardian ownership.
+- API route and domain tests cover consent gating, opt-out cancellation, state transitions, evidence requirement, attempt history, guardian ownership, and retry-safe follow-up attempt appends.
 
 ## Safety and business gates still open
 
@@ -21,6 +21,7 @@
 - The outbox remains a manual draft workflow. Staff must use the approved external process; this code does not open or send WhatsApp on its own.
 - Business/legal must approve consent language, valid evidence sources, record retention, communication windows, locale/template approval, child-related messaging policy and applicable jurisdiction requirements before production.
 - Consent metadata must be included in the production database migration and protected by transactional uniqueness/retention policy before real records are migrated.
+- Follow-up create/attempt/transition/change-request commands now use API idempotency keys so a retried request does not append duplicate attempt history.
 - Full role-by-role browser QA, provider integration tests, operational alerts and successful CI are required before MSG-001/MSG-002 can be ACCEPTED.
 
 ## Verification commands
