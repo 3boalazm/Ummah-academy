@@ -25,7 +25,7 @@ No application feature work should start ahead of resolving the critical data-du
 | Recent activity | Commit history | Latest merge adds the operations portal (PR #6) |
 | Open pull requests | GitHub pull request listing | None open at audit time |
 | Branches | GitHub branch listing | `main` plus four remaining `arena/*` branches; inspect whether stale before deleting any |
-| Branch protection | Branch listing metadata | `main` was reported as not protected; verify rulesets/permissions in GitHub settings |
+| Branch protection | GitHub branch-protection endpoint | Current connection returned 403 for branch-protection inspection; protection/ruleset status remains unverified and must be checked in repository settings |
 | Marketing build | `package.json`, `vercel.json` | Astro build to `dist/`; Vercel runs build + static verification |
 | CI | `.github/workflows/qa.yml` | Static QA plus browser QA matrix; docs-only pull requests are ignored by the workflow path filter |
 | Portal runtime | `package.json`, `portal/README.md` | `npm run portal`; independent Node process, not included in the Astro/Vercel build |
