@@ -127,7 +127,6 @@ test('WhatsApp drafts require explicit opt-in and preserve the manual delivery l
   store.setGuardianMessagingConsent(actor, 'grd_khalid', {
     status: 'opted_in', source: 'recorded_verbal', reason: 'Synthetic test fixture records opt-in',
   });
-  store.setGuardianPhone(actor, 'grd_khalid', { phone: '+971 50 276 0242', reason: 'This is the academy sender' });
   assert.throws(
     () => store.setGuardianPhone(actor, 'grd_khalid', { phone: '+971 50 276 0242', reason: 'This is the academy sender' }),
     /academy|sender/i,
