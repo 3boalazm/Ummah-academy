@@ -34,3 +34,4 @@
 | 23 | [23-portal-phase-2-domain-model.md](23-portal-phase-2-domain-model.md) | Operations portal Phase 2: domain relationship contract, synthetic-seed integrity tests, and remaining acceptance gates |
 | 24 | [24-portal-phase-3-authorization-minimization.md](24-portal-phase-3-authorization-minimization.md) | Operations portal Phase 3: role-specific teacher directory projections and privacy regression tests |
 | 29 | [29-phase-7-subscription-credit-idempotency.md](29-phase-7-subscription-credit-idempotency.md) | Phase 7.1: API idempotency route scoping, credit/payment baseline, acceptance gates and remaining business decisions |
+| 30 | [30-phase-8-messaging-consent-outbox.md](30-phase-8-messaging-consent-outbox.md) | Phase 8.1: consent-gated manual outbox, append-only send attempts, delivery evidence and provider/legal gates |
