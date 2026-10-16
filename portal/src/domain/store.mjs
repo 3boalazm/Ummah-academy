@@ -14,6 +14,7 @@ import {
 import { IDS, DEMO_PASSWORD, buildSeed } from './seed.mjs';
 import { attachOps } from './ops.mjs';
 import { addMs } from './time.mjs';
+import { ensureAcademicCollections } from './academic.mjs';
 
 const DEMO_PASSWORDS = new Set(Object.values(DEMO_PASSWORD));
 
@@ -26,6 +27,7 @@ export function createStore(options = {}) {
   const secret = options.secret ?? 'dev-portal-secret-change-me';
   const onCommit = options.onCommit ?? (() => {});
   let state = structuredClone(options.state ?? buildSeed(clock()));
+  ensureAcademicCollections(state);
   state.outbox ??= [];
   for (const g of state.guardians) g.phone ??= null;
   for (const f of state.families) f.phone ??= null;
