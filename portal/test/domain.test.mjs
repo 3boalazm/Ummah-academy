@@ -444,9 +444,10 @@ test('reschedule chains preserve the first original time and link every move', (
 test('a conflicting reschedule leaves session history and audit unchanged', () => {
   const { store, admin } = boot();
   const actor = admin();
+  const original = store.snapshot().sessions.find((s) => s.id === IDS.sesYusufNext);
   const occupied = store.createSession(actor, {
     studentId: IDS.amina,
-    teacherId: IDS.tSara,
+    teacherId: original.teacherId,
     startsAt: new Date(NOW.getTime() + 60 * 86400000).toISOString(),
     durationMin: 30,
     reason: 'Create a slot to test conflict rollback',
