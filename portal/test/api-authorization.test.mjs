@@ -177,6 +177,20 @@ test('API idempotency keys are isolated by operation route', async () => {
   });
   assert.equal(session.status, 201, JSON.stringify(session.data));
 
+  const repeatedSession = await request('/api/sessions', {
+    method: 'POST',
+    cookie,
+    idempotencyKey: key,
+    body: {
+      studentId: 'stu_yusuf',
+      teacherId: 'nour-hassan',
+      startsAt: '2027-01-20T10:00:00.000Z',
+      durationMin: 30,
+    },
+  });
+  assert.equal(repeatedSession.status, 201);
+  assert.equal(repeatedSession.data.id, session.data.id, 'same route and key should replay the original session');
+
   const payment = await request('/api/payments', {
     method: 'POST',
     cookie,
