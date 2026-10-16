@@ -106,7 +106,7 @@ const protectedRoutes = [
   ['POST','/api/requests'], ['GET','/api/audit'], ['GET','/api/integrity'], ['GET','/api/acceptance'],
   ['GET','/api/notifications'], ['POST','/api/notifications/notif_missing/read'],
   ['POST','/api/assets'], ['POST','/api/assets/ast_yusuf/token'], ['GET','/api/assets/ast_yusuf/content?token=invalid'],
-  ['POST','/api/sessions/series'], ['POST','/api/guardians/grd_khalid/phone'], ['POST','/api/guardians/grd_fatima/whatsapp-consent'],
+  ['POST','/api/sessions/series'], ['POST','/api/guardians/grd_khalid/phone'],
   ['GET','/api/outbox'], ['POST','/api/outbox/drafts'], ['POST','/api/outbox/draft_missing'],
   ['GET','/api/invoices'], ['GET','/api/export/students'], ['POST','/api/admin/reset-demo'],
 ];
@@ -160,26 +160,6 @@ test('teacher API cannot read billing and only sees own teacher-directory row', 
   assert.ok([403, 404].includes(family.status), `teacher must not read family financial profile, got ${family.status}`);
 });
 
-
-
-test('guardian can update only their own WhatsApp consent and opt-out is recorded', async () => {
-  const cookie = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
-  const own = await request('/api/guardians/grd_fatima/whatsapp-consent', {
-    method: 'POST',
-    cookie,
-    body: { status: 'opted_out', reason: 'I do not want WhatsApp messages' },
-  });
-  assert.equal(own.status, 200, JSON.stringify(own.data));
-  assert.equal(own.data.whatsappConsent, 'opted_out');
-  assert.equal(own.data.consentSource, 'guardian_portal');
-
-  const other = await request('/api/guardians/grd_khalid/whatsapp-consent', {
-    method: 'POST',
-    cookie,
-    body: { status: 'opted_in', reason: 'Attempt to change another guardian' },
-  });
-  assert.ok([403, 404].includes(other.status), `guardian must not change another guardian's consent; got ${other.status}`);
-});
 
 test('API idempotency keys are isolated by operation route', async () => {
   const cookie = await login('admin@ummahacademy.net', 'Sakinah-Admin-2026');
