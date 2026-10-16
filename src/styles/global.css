@@ -2016,7 +2016,8 @@
 
   :root[data-theme='dark'] .azhar .checklist li,
   :root[data-theme='dark'] .bento__sanad > p {
-    background: #1e1530;
+    background: #1e1530 !important;
+    background-image: none !important;
     border-radius: var(--r-sm);
     padding: 0.35rem 0.55rem;
   }
