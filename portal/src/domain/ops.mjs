@@ -355,7 +355,7 @@ export function attachOps(api, bag) {
     });
 
   api.setGuardianPhone = (actor, guardianId, input, meta = {}) =>
-    command(actor, null, () => {
+    command(actor, meta.idempotencyKey, () => {
       const state = stateOf();
       ensure(state);
       const guardian = must(state.guardians, guardianId);
