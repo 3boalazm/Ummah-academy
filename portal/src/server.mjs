@@ -15,6 +15,7 @@ import { sniffUpload } from './domain/ops.mjs';
 import { sessionCookie } from './domain/http-security.mjs';
 import { requestLogRecord } from './domain/observability.mjs';
 import { buildHealthReport } from './domain/health.mjs';
+import { closeServerGracefully } from './domain/graceful-shutdown.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
@@ -395,3 +396,19 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, HOST, () => {
   console.log(`portal listening on http://${HOST}:${PORT}`);
 });
+
+let shuttingDown = false;
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(JSON.stringify({ event: 'portal.shutdown.started', signal }));
+  const result = await closeServerGracefully(server, {
+    timeoutMs: Number(process.env.PORTAL_SHUTDOWN_TIMEOUT_MS || 10_000),
+    onTimeout: () => console.error(JSON.stringify({ event: 'portal.shutdown.timeout' })),
+  });
+  console.log(JSON.stringify({ event: 'portal.shutdown.finished', timedOut: result.timedOut }));
+  if (result.timedOut) process.exitCode = 1;
+}
+
+process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
+process.on('SIGINT', () => { void shutdown('SIGINT'); });
