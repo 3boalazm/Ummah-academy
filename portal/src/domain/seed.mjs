@@ -621,6 +621,11 @@ export function buildSeed(now = new Date()) {
       submittedAt: at(-4, 12, 0, cairo),
     })),
   ];
+  for (const report of reports) {
+    report.reviewStatus = 'approved';
+    report.reviewedAt = report.submittedAt;
+    report.reviewedBy = I.ops;
+  }
 
   const users = [
     user(I.admin, 'admin', 'admin@ummahacademy.net', pw('admin'), 'Huda El-Sayed', 'هدى السيد', cairo, {}),

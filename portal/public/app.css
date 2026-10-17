@@ -190,6 +190,16 @@ textarea { min-height: 88px; resize: vertical; }
 }
 :lang(ar) .metric .n { font-family: var(--font); font-weight: 700; }
 .grid-2 { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 14px; }
+.lesson-time {
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  line-height: 1.15;
+  margin: 0 0 4px;
+}
+:lang(ar) .lesson-time { font-family: var(--font); font-weight: 700; }
+.progress-card h2 { font-size: 1.25rem; }
+.progress-card h3 { margin: 0 0 8px; font-size: 0.92rem; color: var(--ink-3); }
+ul.plain { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .card, .panel { padding: 16px; }
 .stack { display: grid; gap: 12px; }
@@ -249,4 +259,69 @@ th { font-size: 0.78rem; color: var(--ink-3); font-weight: 700; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+}
+
+/* Ummah Admin OS chrome — academy workspace, not a WordPress clone. */
+body.console { --side: 248px; }
+body.console .console-shell {
+  grid-template-columns: var(--side) 1fr;
+  grid-template-rows: 52px 1fr;
+  min-height: 100dvh;
+}
+body.console .adminbar {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 12px;
+  height: 52px; padding: 0 14px;
+  background: var(--aubergine-900); color: #f4f0fb;
+  font-size: 14px;
+}
+body.console .adminbar a, body.console .adminbar .who-bar, body.console .adminbar .brand { color: #f4f0fb; text-decoration: none; }
+body.console .adminbar .search { flex: 1; max-width: 420px; }
+body.console .adminbar input { background: rgb(255 255 255 / 0.08); color: #fff; border-color: rgb(255 255 255 / 0.16); }
+body.console .adminbar .btn { color: #f4f0fb; border-color: rgb(255 255 255 / 0.2); }
+body.console .grow { flex: 1; }
+body.console .who-bar { font-size: 13px; opacity: 0.85; }
+body.console .side {
+  background: var(--aubergine-950); color: #f4f0fb; border: 0; border-radius: 0;
+  padding: 8px 0 24px; backdrop-filter: none;
+}
+body.console .nav a {
+  color: #f4f0fb; border-radius: 10px; margin: 0 10px; padding: 8px 12px; font-weight: 500; font-size: 13px;
+}
+body.console .nav a[aria-current='page'], body.console .nav a:hover { background: var(--violet-600); }
+body.console .nav-label {
+  margin: 16px 16px 4px; font-size: 11px; letter-spacing: 0.08em; color: var(--gold-400); text-transform: uppercase;
+}
+body.console .nav-group { display: grid; gap: 2px; }
+body.console .collapse-btn { margin: 12px; color: #c6bee0; border-color: rgb(255 255 255 / 0.16); }
+body.console .content { max-width: none; padding: 16px 20px 48px; }
+.metabox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.metabox h2 {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 0; padding: 10px 14px; font-size: 15px;
+  border-bottom: 1px solid var(--line);
+}
+.metabox-body { padding: 12px 14px; }
+.metabox.closed .metabox-body { display: none; }
+.metabox-toggle { border: 0; background: transparent; cursor: pointer; }
+.glance { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.glance a { text-decoration: none; }
+.screen-options, .help-panel {
+  background: var(--glass-strong); border: 1px solid var(--line); padding: 12px; margin-bottom: 12px;
+  display: flex; flex-wrap: wrap; gap: 12px; border-radius: var(--r);
+}
+.workflow { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.admit-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.admit-card { padding: 10px 0; border-bottom: 1px solid var(--line); }
+body.collapsed { --side: 52px; }
+body.collapsed .nav-label, body.collapsed .nav a { font-size: 0; padding: 10px 0; }
+body.collapsed .nav a { text-align: center; }
+body.collapsed .nav a::first-letter { font-size: 13px; }
+@media (max-width: 1100px) {
+  .admit-board { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 980px) {
+  .metabox-grid { grid-template-columns: 1fr; }
+  body.console .console-shell { grid-template-columns: 1fr; }
+  .admit-board { grid-template-columns: 1fr; }
 }

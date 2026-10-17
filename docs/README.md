@@ -45,3 +45,6 @@
 | 33 | [33-phase-11-backup-restore-rehearsal.md](33-phase-11-backup-restore-rehearsal.md) | Phase 11: verified local backup creation, safe overwrite refusal, and restore-candidate validation |
 | 34 | [34-phase-12-health-readiness.md](34-phase-12-health-readiness.md) | Phase 12: privacy-safe readiness checks and operational health endpoint |
 | 35 | [35-phase-13-graceful-shutdown.md](35-phase-13-graceful-shutdown.md) | Phase 13: bounded graceful shutdown, signal handling and operational limits |
+| 36 | [36-wp-gap-next-steps.md](36-wp-gap-next-steps.md) | Combined next steps from the WordPress pages + plugins audits: what this cut shipped, what is business-blocked, what is never ported |
+| 37 | [37-business-questionnaire.md](37-business-questionnaire.md) | Launch decisions the code cannot invent: payments, email, CRM, analytics, legal entity, currency, teachers, portal cut-over |
+| 38 | [38-academy-operating-system.md](38-academy-operating-system.md) | Proposed academy OS: one backend, three web consoles (owner / teacher / family), academic and business state machines |

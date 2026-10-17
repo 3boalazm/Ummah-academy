@@ -110,11 +110,11 @@ const TEACHERS_AR: Teacher[] = [
 
 /** Text-only overlay (German/French/Italian): ids, names, credentials data and flags stay in EN. */
 export type TeacherText = Pick<Teacher, 'role' | 'specialty' | 'bio' | 'bestFor' | 'credentials'>;
-export type TestimonialText = Pick<Testimonial, 'quote' | 'result' | 'location' | 'program'>;
 export interface PeopleText {
   teachers: Record<string, TeacherText>;
-  testimonials: TestimonialText[];
 }
+export type { Testimonial } from './reviews';
+export { getTestimonials, TESTIMONIALS } from './reviews';
 const OVERLAY: Partial<Record<Lang, PeopleText>> = { de: peopleDe, fr: peopleFr, it: peopleIt };
 
 const teachersFor = new Map<Lang, Teacher[]>();
@@ -137,41 +137,3 @@ export const getTeachers = (lang: Lang = 'en'): Teacher[] => {
 };
 export const teacherById = (id: string, lang: Lang = 'en') => getTeachers(lang).find((t) => t.id === id);
 export const TEACHERS = TEACHERS_EN;
-
-export interface Testimonial {
-  quote: string;
-  result: string;
-  name: string;
-  initials: string;
-  location: string;
-  program: string;
-  track: 'quran' | 'arabic' | 'kids' | 'islamic';
-  /** set only when the quote itself names the teacher */
-  teacher?: string;
-}
-
-const T_EN: Testimonial[] = [
-  { quote: 'My son used to dread Quran lessons. Now he reminds ME about his session time! Teacher Nour makes every class an adventure he genuinely looks forward to.', result: 'Now excited for every Quran class', name: 'Sarah Al-Mansouri', initials: 'SA', location: 'London, UK', program: 'Ummah Cubs', track: 'kids', teacher: 'nour-hassan' },
-  { quote: 'After years of struggling, I finally recited Surah Al-Fatiha correctly for the first time. Alhamdulillah — Teacher Omneya’s patience changed everything.', result: 'Recited Al-Fatiha correctly for the first time', name: 'Amina Bergström', initials: 'AB', location: 'Toronto, Canada', program: 'Tajweed', track: 'quran', teacher: 'omneya-ali' },
-  { quote: 'As a father of three, the Family Portal lets me track all my children’s learning in one place. Detailed reports after every session — truly exceptional.', result: 'Tracks 3 children in one place', name: 'Khalid Rahman', initials: 'KR', location: 'Houston, USA', program: 'Family plan', track: 'kids' },
-  { quote: 'I live in Australia and was worried about timezones. They scheduled my sessions at 7am and even send WhatsApp reminders. Very professional team.', result: '7am sessions across time zones', name: 'Omar Al-Farsi', initials: 'OF', location: 'Sydney, Australia', program: 'Memorisation', track: 'quran' },
-  { quote: 'My Arabic went from absolute zero to reading the Quran in just 6 months using Noor Al-Bayan. The Itqan approach is simply extraordinary.', result: 'Reading the Qur’an within 6 months', name: 'Yasmin Dubois', initials: 'YD', location: 'Paris, France', program: 'Arabic', track: 'arabic' },
-];
-
-const T_AR: Testimonial[] = [
-  { ...T_EN[0], quote: 'كان ابني يتهرّب من حصص القرآن، والآن هو من يذكّرني بموعد حصته! المعلمة نور تجعل كل حصة مغامرة ينتظرها بشوق.', result: 'أصبح متحمسًا لكل حصة قرآن', name: 'سارة المنصوري', location: 'لندن، المملكة المتحدة', program: 'أشبال الأمة' },
-  { ...T_EN[1], quote: 'بعد سنوات من المحاولة، قرأت سورة الفاتحة قراءة صحيحة لأول مرة. الحمد لله — صبر المعلمة أمنية غيّر كل شيء.', result: 'قرأت الفاتحة صحيحة لأول مرة', name: 'أمينة بيرغستروم', location: 'تورونتو، كندا', program: 'التجويد' },
-  { ...T_EN[2], quote: 'بصفتي أبًا لثلاثة أطفال، تتيح لي بوابة الأسرة متابعة تعلّمهم جميعًا في مكان واحد، مع تقارير مفصّلة بعد كل حصة.', result: 'يتابع ٣ أطفال من مكان واحد', name: 'خالد رحمن', location: 'هيوستن، الولايات المتحدة', program: 'خطة الأسرة' },
-  { ...T_EN[3], quote: 'أعيش في أستراليا وكنت قلقًا من فارق التوقيت، فجدولوا حصصي في السابعة صباحًا ويرسلون تذكيرًا عبر واتساب. فريق محترف جدًا.', result: 'حصص السابعة صباحًا رغم فارق التوقيت', name: 'عمر الفارسي', location: 'سيدني، أستراليا', program: 'الحفظ' },
-  { ...T_EN[4], quote: 'انتقلت من الصفر تمامًا في العربية إلى قراءة القرآن خلال ستة أشهر فقط بمنهج نور البيان. منهج الإتقان استثنائي حقًا.', result: 'تقرأ القرآن خلال ٦ أشهر', name: 'ياسمين دوبوا', location: 'باريس، فرنسا', program: 'العربية' },
-];
-
-export const getTestimonials = (lang: Lang = 'en'): Testimonial[] => {
-  if (lang === 'en') return T_EN;
-  if (lang === 'ar') return T_AR;
-  const x = OVERLAY[lang];
-  if (!x) return T_EN;
-  if (x.testimonials.length !== T_EN.length) throw new Error(`[people] ${lang} testimonials: expected ${T_EN.length}`);
-  return T_EN.map((t, i) => ({ ...t, ...x.testimonials[i] }));
-};
-export const TESTIMONIALS = T_EN;

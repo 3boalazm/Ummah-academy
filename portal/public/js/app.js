@@ -1,6 +1,19 @@
 import { api, errText, esc, localToIso, state, t, toast } from './util.js';
 import { downloadExport, handleOps, viewInvoices, viewNotes, viewOnboard, viewOutbox } from './ops-ui.js';
 import {
+  viewAcademic,
+  viewAdmissions,
+  viewFiles,
+  viewGovernance,
+  viewPeople,
+  viewPlacements,
+  viewSettings,
+  viewStack,
+  viewTools,
+  viewWebsite,
+  viewWorkspace,
+} from './console-ui.js';
+import {
   markSvg,
   viewAudit,
   viewDashboard,
@@ -19,11 +32,15 @@ import {
   viewSubscriptions,
   viewTeacher,
   viewTeachers,
+  viewToday,
+  viewHome,
 } from './views.js';
 
 const VIEWS = {
   login: viewLogin,
   dashboard: viewDashboard,
+  today: viewToday,
+  home: viewHome,
   students: viewStudents,
   student: viewStudent,
   families: viewFamilies,
@@ -42,6 +59,17 @@ const VIEWS = {
   outbox: viewOutbox,
   invoices: viewInvoices,
   notes: viewNotes,
+  workspace: viewWorkspace,
+  academic: viewAcademic,
+  admissions: viewAdmissions,
+  website: viewWebsite,
+  governance: viewGovernance,
+  placements: viewPlacements,
+  files: viewFiles,
+  people: viewPeople,
+  settings: viewSettings,
+  stack: viewStack,
+  tools: viewTools,
   missing: viewMissing,
 };
 
@@ -49,6 +77,8 @@ const ROUTES = [
   { re: /^\/login\/?$/, id: 'login', auth: false },
   { re: /^\/$/, id: 'root', auth: false },
   { re: /^\/app\/?$/, id: 'dashboard' },
+  { re: /^\/app\/today\/?$/, id: 'today' },
+  { re: /^\/app\/home\/?$/, id: 'home' },
   { re: /^\/app\/students\/?$/, id: 'students' },
   { re: /^\/app\/students\/([^/]+)\/?$/, id: 'student' },
   { re: /^\/app\/families\/?$/, id: 'families' },
@@ -67,6 +97,16 @@ const ROUTES = [
   { re: /^\/app\/outbox\/?$/, id: 'outbox' },
   { re: /^\/app\/invoices\/?$/, id: 'invoices' },
   { re: /^\/app\/notifications\/?$/, id: 'notes' },
+  { re: /^\/app\/academic\/?$/, id: 'academic' },
+  { re: /^\/app\/website\/?$/, id: 'website' },
+  { re: /^\/app\/admissions\/?$/, id: 'admissions' },
+  { re: /^\/app\/governance\/?$/, id: 'governance' },
+  { re: /^\/app\/placements\/?$/, id: 'placements' },
+  { re: /^\/app\/files\/?$/, id: 'files' },
+  { re: /^\/app\/users\/?$/, id: 'people' },
+  { re: /^\/app\/settings\/?$/, id: 'settings' },
+  { re: /^\/app\/stack\/?$/, id: 'stack' },
+  { re: /^\/app\/tools\/?$/, id: 'tools' },
 ];
 
 function go(href) {
@@ -76,63 +116,143 @@ function go(href) {
   render();
 }
 
+function isConsole() {
+  return state.me?.role === 'admin' || state.me?.role === 'ops';
+}
+
 function navItems() {
   const role = state.me.role;
-  const items = [['/app', t('overview')]];
+  const items = [];
+  if (role === 'teacher') items.push(['/app/today', t('today')]);
+  if (role === 'guardian' || role === 'student') items.push(['/app/home', t('home')]);
+  items.push(['/app', t('overview')]);
   if (role === 'student') items.push([`/app/students/${state.me.studentId}`, t('myFile')]);
   if (role === 'guardian') items.push([`/app/families/${state.me.familyId}`, t('myFamily')]);
-  if (role === 'admin' || role === 'ops' || role === 'teacher') items.push(['/app/students', t('students')]);
-  if (role === 'admin' || role === 'ops') {
-    items.push(['/app/families', t('families')]);
-    items.push(['/app/teachers', t('teachers')]);
-  }
+  if (role === 'teacher') items.push(['/app/students', t('students')]);
   items.push(['/app/schedule', t('schedule')]);
-  if (role !== 'student') items.push(['/app/subscriptions', t('subscriptions')]);
-  if (role !== 'student') items.push(['/app/follow-ups', t('followups')]);
-  if (role === 'admin' || role === 'ops') {
-    items.push(['/app/onboard', state.lang === 'ar' ? 'تسجيل' : 'Enrol']);
-    items.push(['/app/outbox', state.lang === 'ar' ? 'واتساب' : 'WhatsApp']);
-    items.push(['/app/invoices', state.lang === 'ar' ? 'فواتير' : 'Invoices']);
-    items.push(['/app/audit', t('audit')]);
-    items.push(['/app/health', t('health')]);
+  if (role === 'teacher') {
+    items.push(['/app/subscriptions', t('subscriptions')]);
+    items.push(['/app/follow-ups', t('followups')]);
   }
   items.push(['/app/notifications', state.lang === 'ar' ? 'تنبيهات' : 'Alerts']);
   return items;
 }
 
+function consoleNav() {
+  const ar = state.lang === 'ar';
+  return [
+    { label: ar ? 'مساحة العمل' : 'Workspace', items: [
+      ['/app', t('overview')],
+      ['/app/today', t('today')],
+    ] },
+    { label: ar ? 'مدير الموقع' : 'Website', items: [
+      ['/app/website', t('websiteMenu')],
+    ] },
+    { label: ar ? 'تشغيل الأكاديمية' : 'Academy Ops', items: [
+      ['/app/students', t('students')],
+      ['/app/families', t('families')],
+      ['/app/teachers', t('teachers')],
+      ['/app/academic', t('academicMenu')],
+      ['/app/placements', t('placementsMenu')],
+      ['/app/schedule', t('schedule')],
+      ['/app/subscriptions', t('subscriptions')],
+      ['/app/invoices', ar ? 'فواتير' : 'Invoices'],
+      ['/app/files', t('assets')],
+      ['/app/outbox', ar ? 'واتساب' : 'WhatsApp'],
+    ] },
+    { label: ar ? 'القبول' : 'Admissions', items: [
+      ['/app/admissions', t('admissionsMenu')],
+      ['/app/follow-ups', t('followups')],
+      ['/app/onboard', ar ? 'تسجيل' : 'Enrol'],
+    ] },
+    { label: ar ? 'الفريق والحوكمة' : 'Team & Governance', items: [
+      ['/app/users', t('usersMenu')],
+      ['/app/governance', t('governanceMenu')],
+      ['/app/audit', t('audit')],
+      ['/app/health', t('health')],
+      ['/app/settings', t('settingsMenu')],
+      ['/app/tools', t('toolsMenu')],
+      ['/app/stack', t('stackMenu')],
+      ['/app/notifications', ar ? 'تنبيهات' : 'Alerts'],
+    ] },
+  ];
+}
+
+function linkCurrent(path, href) {
+  return path === href.replace(/\/$/, '') || (href !== '/app' && path.startsWith(href));
+}
+
 function shell(body) {
   const path = location.pathname.replace(/\/$/, '') || '/';
-  const links = navItems()
-    .map(([href, label]) => {
-      const current = path === href.replace(/\/$/, '') || (href !== '/app' && path.startsWith(href));
-      return `<a href="${esc(href)}" ${current ? 'aria-current="page"' : ''}>${esc(label)}</a>`;
+  const name = state.lang === 'ar' ? state.me.nameAr || state.me.name : state.me.name;
+  const search = `<form class="search" data-action="search"><label class="sr">${esc(t('search'))}</label><input name="q" placeholder="${esc(t('search'))}" value="${esc(new URLSearchParams(location.search).get('q') || '')}"><button class="btn small" type="submit">${esc(t('search'))}</button></form>`;
+  if (!isConsole()) {
+    const links = navItems()
+      .map(([href, label]) => `<a href="${esc(href)}" ${linkCurrent(path, href) ? 'aria-current="page"' : ''}>${esc(label)}</a>`)
+      .join('');
+    return `<div class="shell">
+      <aside class="side">
+        <a class="brand" href="/app">${markSvg()}<span>${esc(t('brand'))}</span></a>
+        <nav class="nav" aria-label="Main">${links}</nav>
+        <div class="who">
+          <strong>${esc(name)}</strong>
+          <span class="small">${esc(state.me.role)} · ${esc(state.tz)}</span>
+          <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
+        </div>
+      </aside>
+      <div class="main">
+        <header class="top">
+          <button class="btn ghost small menu-btn" type="button" data-cmd="menu">${esc(t('menu'))}</button>
+          ${search}
+          <button class="btn ghost small" type="button" data-cmd="lang">${esc(t('lang'))}</button>
+          <button class="btn ghost small" type="button" data-cmd="theme">${esc(t('theme'))}</button>
+        </header>
+        <div class="content"><p class="banner">${esc(t('demoNote'))}</p>${body}</div>
+      </div>
+    </div>`;
+  }
+  const groups = consoleNav()
+    .map((g) => {
+      const items = g.items.map(([href, label]) => `<a href="${esc(href)}" title="${esc(label)}" ${linkCurrent(path, href) ? 'aria-current="page"' : ''}>${esc(label)}</a>`).join('');
+      return `<div class="nav-group">${g.label ? `<p class="nav-label">${esc(g.label)}</p>` : ''}${items}</div>`;
     })
     .join('');
-  const name = state.lang === 'ar' ? state.me.nameAr || state.me.name : state.me.name;
-  return `<div class="shell">
+  const screen = state.screenOpen
+    ? `<div class="screen-options">${['queues', 'admissions', 'reports', 'review', 'health', 'memberships', 'activity'].map((id) => `<label><input type="checkbox" data-cmd="widget" data-id="${id}" ${state.hiddenWidgets.includes(id) ? '' : 'checked'}> ${esc(id)}</label>`).join('')}</div>`
+    : '';
+  const help = state.helpOpen
+    ? `<div class="help-panel"><p>${esc(state.lang === 'ar' ? 'نظام تشغيل أكاديمية الأمة: موقع + أكاديمية + قبول + حوكمة في واجهة واحدة. المحتوى عبر سفيلتيا وطلب GitHub. التشغيل على هذه البوابة. ليست ووردبريس وليست أربعة أنظمة.' : 'Ummah Admin OS: website, academy, admissions and governance in one shell. Content via Sveltia and a GitHub PR. Operations stay on this portal. Not WordPress, not four systems.')}</p></div>`
+    : '';
+  return `<div class="shell console-shell">
+    <header class="adminbar">
+      <a class="brand" href="/app">${markSvg()}<span>${esc(state.lang === 'ar' ? 'نظام التشغيل' : 'Admin OS')}</span></a>
+      <a href="/app/onboard">+ ${esc(state.lang === 'ar' ? 'تسجيل' : 'Enrol')}</a>
+      ${search}
+      <span class="grow"></span>
+      <button class="btn ghost small" type="button" data-cmd="lang">${esc(t('lang'))}</button>
+      <button class="btn ghost small" type="button" data-cmd="theme">${esc(t('theme'))}</button>
+      <span class="who-bar">${esc(name)} · ${esc(state.me.role)}</span>
+      <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
+    </header>
     <aside class="side">
-      <a class="brand" href="/app">${markSvg()}<span>${esc(t('brand'))}</span></a>
-      <nav class="nav" aria-label="Main">${links}</nav>
-      <div class="who">
-        <strong>${esc(name)}</strong>
-        <span class="small">${esc(state.me.role)} · ${esc(state.tz)}</span>
-        <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
-      </div>
+      <button class="btn ghost small menu-btn" type="button" data-cmd="menu">${esc(t('menu'))}</button>
+      <nav class="nav" aria-label="Main">${groups}</nav>
+      <button class="btn ghost small collapse-btn" type="button" data-cmd="collapse">${esc(state.collapsedNav ? (state.lang === 'ar' ? 'توسيع' : 'Expand') : t('menu'))}</button>
     </aside>
     <div class="main">
-      <header class="top">
-        <button class="btn ghost small menu-btn" type="button" data-cmd="menu">${esc(t('menu'))}</button>
-        <form class="search" data-action="search"><label class="sr">${esc(t('search'))}</label><input name="q" placeholder="${esc(t('search'))}" value="${esc(new URLSearchParams(location.search).get('q') || '')}"><button class="btn small" type="submit">${esc(t('search'))}</button></form>
-        <button class="btn ghost small" type="button" data-cmd="lang">${esc(t('lang'))}</button>
-        <button class="btn ghost small" type="button" data-cmd="theme">${esc(t('theme'))}</button>
-      </header>
-      <div class="content"><p class="banner">${esc(t('demoNote'))}</p>${body}</div>
+      <div class="content">
+        <p class="banner">${esc(t('demoNote'))}</p>
+        ${screen}${help}
+        ${body}
+      </div>
     </div>
   </div>`;
 }
 
 async function render() {
   document.body.classList.remove('nav-open');
+  try { state.hiddenWidgets = JSON.parse(localStorage.getItem('ua:widgets') || '[]'); } catch { state.hiddenWidgets = []; }
+  state.collapsedNav = localStorage.getItem('ua:nav-collapse') === '1';
   const path = location.pathname;
   const route = ROUTES.find((r) => r.re.test(path)) || { id: 'missing', re: /$/ };
   const params = path.match(route.re)?.slice(1) || [];
@@ -170,6 +290,8 @@ async function render() {
     html = `<div class="banner bad">${esc(errText(error))}</div><p><a href="/app">${esc(t('back'))}</a></p>`;
   }
   app.innerHTML = route.id === 'login' ? html : shell(html);
+  document.body.classList.toggle('console', route.id !== 'login' && isConsole());
+  document.body.classList.toggle('collapsed', state.collapsedNav);
   document.title = state.lang === 'ar' ? 'بوابة أكاديمية الأمة' : 'Ummah Academy portal';
 }
 
@@ -219,6 +341,9 @@ async function onForm(form) {
       toast(t('saved'));
     } else if (action === 'report') {
       await api('POST', `/api/sessions/${data.id}/report`, data, opt);
+      toast(t('saved'));
+    } else if (action === 'approve-report') {
+      await api('POST', `/api/sessions/${data.id}/report/approve`, {}, opt);
       toast(t('saved'));
     } else if (action === 'cancel-session') {
       await api('POST', `/api/sessions/${data.id}/cancel`, { reason: data.reason, party: data.party }, opt);
@@ -328,6 +453,32 @@ document.addEventListener('click', async (event) => {
     await api('POST', '/api/auth/logout', {});
     state.me = null;
     location.replace('/login');
+  }
+  if (name === 'collapse') {
+    state.collapsedNav = !state.collapsedNav;
+    localStorage.setItem('ua:nav-collapse', state.collapsedNav ? '1' : '0');
+    render();
+  }
+  if (name === 'screen-options') {
+    state.screenOpen = !state.screenOpen;
+    state.helpOpen = false;
+    render();
+  }
+  if (name === 'help-panel') {
+    state.helpOpen = !state.helpOpen;
+    state.screenOpen = false;
+    render();
+  }
+  if (name === 'widget') {
+    const id = cmd.dataset.id;
+    const set = new Set(state.hiddenWidgets);
+    if (cmd.checked) set.delete(id); else set.add(id);
+    state.hiddenWidgets = [...set];
+    localStorage.setItem('ua:widgets', JSON.stringify(state.hiddenWidgets));
+    render();
+  }
+  if (name === 'toggle-box') {
+    cmd.closest('.metabox')?.classList.toggle('closed');
   }
   if (name === 'fill') {
     const form = document.querySelector('form[data-action="login"]');

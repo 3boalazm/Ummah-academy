@@ -25,12 +25,5 @@ const people: PeopleText = {
       credentials: ['Zertifiziert – frühe islamische Bildung', '7 Jahre mit 5- bis 14-Jährigen', 'Arabisch & Englisch'],
     },
   },
-  testimonials: [
-    { quote: 'Früher hatte mein Sohn Angst vor dem Koranunterricht. Heute erinnert ER MICH an seine Stunde! Lehrerin Nour macht jede Stunde zu einem Abenteuer, auf das er sich wirklich freut.', result: 'Freut sich jetzt auf jede Koranstunde', location: 'London, Großbritannien', program: 'Ummah Cubs' },
-    { quote: 'Nach Jahren voller Mühe habe ich die Sura Al-Fatiha zum ersten Mal korrekt rezitiert. Alhamdulillah – die Geduld von Lehrerin Omneya hat alles verändert.', result: 'Al-Fatiha zum ersten Mal korrekt rezitiert', location: 'Toronto, Kanada', program: 'Tajweed' },
-    { quote: 'Als Vater von drei Kindern kann ich im Familienportal das Lernen aller meiner Kinder an einem Ort verfolgen. Ausführliche Berichte nach jeder Stunde – wirklich hervorragend.', result: 'Verfolgt 3 Kinder an einem Ort', location: 'Houston, USA', program: 'Familientarif' },
-    { quote: 'Ich lebe in Australien und hatte Sorge wegen der Zeitzonen. Sie haben meine Stunden auf 7 Uhr morgens gelegt und schicken sogar Erinnerungen per WhatsApp. Ein sehr professionelles Team.', result: 'Stunden um 7 Uhr – über Zeitzonen hinweg', location: 'Sydney, Australien', program: 'Auswendiglernen' },
-    { quote: 'Mit Noor Al-Bayan bin ich in nur 6 Monaten von null Arabisch zum Koranlesen gekommen. Der Itqan-Ansatz ist einfach außergewöhnlich.', result: 'Liest den Koran nach 6 Monaten', location: 'Paris, Frankreich', program: 'Arabisch' },
-  ],
 };
 export default people;

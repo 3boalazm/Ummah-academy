@@ -28,6 +28,7 @@ export default {
   footerNote: 'Plus de 50 pays · Des cours à toute heure',
   privacy: 'Politique de confidentialité',
   terms: 'Conditions d’utilisation',
+  accessibility: 'Accessibilité',
   careers: 'Carrières',
   library: 'Bibliothèque gratuite',
   sticky: { book: 'Essai gratuit', wa: 'WhatsApp' },
@@ -71,6 +72,21 @@ export default {
   footerLinks: {
     learn: ['Tous les cours', 'Récitation du Coran & tajwid', 'Hifz & ijaza', 'Langue arabe', 'Ummah Cubs (enfants)', 'Sciences islamiques'],
     academy: ['À propos', 'Nos enseignants', 'Tarifs', 'Espace famille', 'Enseigner chez nous'],
-    resources: ['Test de niveau', 'Blog', 'Bibliothèque gratuite', 'FAQ', 'Essai gratuit / contact'],
+    resources: ['Test de niveau', 'Blog', 'Bibliothèque gratuite', 'Témoignages', 'FAQ', 'Essai gratuit / contact'],
+  },
+  search: {
+    open: 'Rechercher sur le site',
+    close: 'Fermer la recherche',
+    placeholder: 'Cours, articles, questions…',
+    hint: 'Saisissez au moins deux lettres.',
+    empty: 'Aucun résultat. Essayez un autre mot.',
+    unavailable: 'La recherche est disponible sur le site publié. Elle n’est pas indexée en développement local.',
+  },
+  fx: {
+    label: 'Devise',
+    billed: 'La facturation se fait en dollars américains.',
+    indicative: 'Les montants aident à la lecture ; ce n’est pas un cours en direct.',
+    asOf: 'Taux indicatifs au 17 octobre 2026.',
+    codes: { USD: 'Dollar US', EUR: 'Euro', GBP: 'Livre sterling', AED: 'Dirham des EAU', SAR: 'Riyal saoudien' },
   },
 };

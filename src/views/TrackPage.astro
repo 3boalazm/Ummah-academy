@@ -16,7 +16,8 @@ import { getTracks } from '@/data/tracks';
 import { getTeachers, getTestimonials } from '@/data/people';
 import { getPlans, perSession } from '@/data/pricing';
 import { trialLink } from '@/data/site';
-import { lp, price, num, type Lang } from '@/i18n';
+import Money from '@/components/Money.astro';
+import { lp, num, type Lang } from '@/i18n';
 import { copy, ui } from '@/locales';
 
 interface Props {
@@ -78,7 +79,7 @@ const ld = {
         </dl>
         <div class="glance__price">
           <span>{L.from}</span>
-          <strong>{price(lang, C.from)}</strong>
+          <strong><Money usd={C.from} lang={lang} /></strong>
           <span>{t.perMonth}</span>
         </div>
       </aside>
@@ -181,14 +182,14 @@ const ld = {
                 {p.name} {p.badge && <span class="rplan__badge">{p.badge}</span>}
               </span>
               <span class="rplan__price">
-                {price(lang, p.price)}
+                <Money usd={p.price} lang={lang} />
                 <small>{t.perMonth}</small>
               </span>
               <span class="rplan__meta">
                 {p.sessionsLabel} · {num(lang, p.minutes)} {t.min}
               </span>
               <span class="rplan__unit">
-                {t.approx}{price(lang, perSession(p))} {L.perSession}
+                {t.approx}<Money usd={perSession(p)} lang={lang} /> {L.perSession}
               </span>
               <span class="rplan__go">
                 {L.choose} <Icon name="arrow-right" weight="bold" class="icon-arrow" />

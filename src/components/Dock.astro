@@ -11,6 +11,7 @@
  * Phones: it rides above the sticky action bar while that bar is showing.
  */
 import LangMenu from './LangMenu.astro';
+import CurrencyMenu from './CurrencyMenu.astro';
 import InstallPrompt from './InstallPrompt.astro';
 import type { Lang, LangTarget } from '@/i18n';
 
@@ -23,6 +24,7 @@ const { lang, targets } = Astro.props;
 
 <div class="dock" data-dock>
   <LangMenu lang={lang} targets={targets} variant="dock" />
+  <CurrencyMenu lang={lang} variant="dock" />
   <InstallPrompt lang={lang} variant="pill" />
 </div>
 

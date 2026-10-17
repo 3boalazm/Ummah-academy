@@ -30,6 +30,7 @@
 | **Artikel · Deutsch / Articles · Français / Articoli · Italiano** | نفس المقالات بالألمانية والفرنسية والإيطالية | الأدلة والاصطلاحات في `docs/11-i18n-glossary.md` |
 | **FAQ page** | أسئلة `/faq/` بالخمس لغات | **كل لغة يجب أن تحتوي نفس المواضيع وبنفس عدد الأسئلة** — البناء يتحقق من ذلك ويفشل إن اختلفت |
 | **Prices** | أسعار الخطط الستة بالدولار | رقم واحد يكفي: تتغير كل الصفحات والبطاقات والأسئلة المكرّرة ونموذج الحجز تلقائيًا |
+| **Family stories** | الشهادات على `/reviews/` والرئيسية | نفس العدد ونفس `id` في كل لغة. موافقة الأسرة شرط قبل اسم جديد |
 
 **صلاحيات لا يقبلها البناء:** لا تعدّل `id` في أسئلة FAQ (هو المُعرّف المستخدم في روابط
 `/faq/#pricing`)، ولا المسافات في الرابط (slug)، ولا تلصق صورًا أكبر من 400 KB.
@@ -98,6 +99,7 @@
 | **Artikel · Deutsch / Articles · Français / Articoli · Italiano** | The same articles in DE/FR/IT | Voice and terminology: `docs/11-i18n-glossary.md` |
 | **FAQ page** | The questions on `/faq/`, all five languages side by side | **Every language keeps the same topics and the same number of questions** — the build fails otherwise |
 | **Prices** | The six monthly prices in US dollars | One number changes the pricing page, course cards, menus, page titles, FAQ answers and the booking form |
+| **Family stories** | Quotes on `/reviews/` and Home | Same count and `id` in every language. Written consent before a new name |
 
 The build rejects: a changed FAQ `id` (it is the anchor in `/faq/#pricing`), a changed slug,
 or an image over ~400 KB.

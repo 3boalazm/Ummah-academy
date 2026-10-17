@@ -17,6 +17,7 @@ const ar = lang === 'ar';
 const COPY = copy(lang).familyPortal;
 const C = COPY.C;
 const M = C.mock;
+const P = C.preview;
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -75,6 +76,34 @@ const M = C.mock;
           ))
         }
       </ol>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="preview-title">
+    <div class="container">
+      <SectionHead id="preview-title" eyebrow={P.eyebrow} title={P.title} lede={P.lede} />
+      <p class="chip chip--accent portal-sample">{P.sample}</p>
+      <div class="grid grid-2 preview-grid">
+        <article class="card glass preview-card" data-reveal>
+          <p class="portal__label">{P.academicTitle}</p>
+          <h3>{P.academicChild}</h3>
+          <dl class="preview-dl">
+            {P.academicRows.map((row) => (
+              <div>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+        <article class="card glass preview-card" data-reveal style="--reveal-delay:.08s">
+          <p class="portal__label">{P.placementTitle}</p>
+          <h3>{P.placementChild}</h3>
+          <p class="preview-level">{P.placementLevel}</p>
+          <p class="preview-date">{P.placementDate}</p>
+          <p>{P.placementNote}</p>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -281,5 +310,56 @@ const M = C.mock;
 
   :global([data-theme='dark']) .pf__num {
     color: rgb(201 160 255 / 0.36);
+  }
+
+  .portal-sample {
+    margin: 0 0 22px;
+    width: fit-content;
+  }
+
+  .preview-card {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+
+  .preview-card h3 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .preview-dl {
+    display: grid;
+    gap: 10px;
+    margin: 8px 0 0;
+  }
+
+  .preview-dl div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+
+  .preview-dl dt {
+    color: var(--ink-2);
+  }
+
+  .preview-dl dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .preview-level {
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .preview-date {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-3);
   }
 </style>

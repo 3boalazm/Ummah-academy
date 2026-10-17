@@ -142,7 +142,7 @@ if (tiltRoot && matchMedia('(hover: hover) and (prefers-reduced-motion: no-prefe
 }
 
 /* Language menu (<details>): one open at a time, outside click / Escape close it */
-const langMenus = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-langmenu]'));
+const langMenus = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-langmenu], [data-fxmenu]'));
 langMenus.forEach((d) => {
   d.addEventListener('toggle', () => {
     if (d.open) langMenus.forEach((o) => o !== d && (o.open = false));

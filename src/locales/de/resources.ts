@@ -21,6 +21,9 @@ export default {
     pages: (n: number) => `${n} ${n === 1 ? 'Seite' : 'Seiten'}`,
     free: 'Kostenlos',
     langs: 'Englisch · Arabisch',
+    filtersLabel: 'Arbeitsblätter filtern',
+    filtersEmpty: 'Keine Arbeitsblätter in dieser Gruppe. Wählen Sie einen anderen Filter.',
+    filters: { all: 'Alle', tajweed: 'Tajweed', arabic: 'Arabisch', hifz: 'Hifz', kids: 'Kinder' },
     waText: (t: string) => `Assalamu alaikum, bitte schicken Sie mir das kostenlose Material: ${t}`,
     cta: {
       eyebrow: 'Nächster Schritt',

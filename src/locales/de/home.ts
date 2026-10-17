@@ -66,7 +66,7 @@ export default {
       ],
     },
     tracks: { eyebrow: 'Kurse', title: 'Vier Wege hinein. <span class="accent">Beginnen Sie dort, wo Sie stehen.</span>', lede: 'Vom ersten arabischen Buchstaben bis zur vollständigen Ijaza.' },
-    stories: { eyebrow: 'Erfahrungen', title: 'Familien in über 50 Ländern, <span class="accent">ein Klassenzimmer nach dem anderen.</span>', note: 'Erfahrungsberichte, aus dem Englischen übersetzt.' },
+    stories: { eyebrow: 'Erfahrungen', title: 'Familien in über 50 Ländern, <span class="accent">ein Klassenzimmer nach dem anderen.</span>', note: 'Erfahrungsberichte, aus dem Englischen übersetzt.', all: 'Alle Erfahrungen lesen' },
     pricing: {
       eyebrow: 'Preise',
       title: 'Einfache Preise. <span class="accent">Zuerst zwei kostenlose Stunden.</span>',

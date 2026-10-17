@@ -63,9 +63,11 @@ export const TRANSLATED_ROUTES = [
   '/online-islamic-studies-classes/',
   '/blog/',
   '/resources/',
+  '/reviews/',
   '/family-portal/',
   '/privacy-policy/',
   '/terms-of-service/',
+  '/accessibility/',
   // Teacher profiles — keep in sync with src/data/people.ts (asserted at build time)
   '/teachers/omneya-ali/',
   '/teachers/sara-ahmed/',

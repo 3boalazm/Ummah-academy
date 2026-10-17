@@ -5,6 +5,10 @@ export const state = {
   lang: document.documentElement.lang === 'en' ? 'en' : 'ar',
   theme: document.documentElement.dataset.theme || 'light',
   tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Africa/Cairo',
+  hiddenWidgets: [],
+  collapsedNav: false,
+  helpOpen: false,
+  screenOpen: false,
 };
 
 export function t(key) {

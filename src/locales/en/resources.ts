@@ -21,6 +21,9 @@ export default {
     pages: (n: number) => `${n} page${n === 1 ? '' : 's'}`,
     free: 'Free',
     langs: 'English · Arabic',
+    filtersLabel: 'Filter worksheets',
+    filtersEmpty: 'No worksheets in this group. Choose another filter.',
+    filters: { all: 'All', tajweed: 'Tajweed', arabic: 'Arabic', hifz: 'Hifz', kids: 'Kids' },
     waText: (t: string) => `Assalamu alaikum, please send me the free resource: ${t}`,
     cta: {
       eyebrow: 'Next step',

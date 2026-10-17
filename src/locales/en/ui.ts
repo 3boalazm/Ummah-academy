@@ -28,6 +28,7 @@ export default {
   footerNote: 'Serving 50+ countries · Lessons around the clock',
   privacy: 'Privacy Policy',
   terms: 'Terms of Service',
+  accessibility: 'Accessibility',
   careers: 'Careers',
   library: 'Free library',
   sticky: { book: 'Book free trial', wa: 'WhatsApp' },
@@ -72,6 +73,21 @@ export default {
   footerLinks: {
     learn: ['All courses', 'Quran Recitation & Tajweed', 'Hifz & Ijazah', 'Arabic Language', 'Ummah Cubs (kids)', 'Islamic Studies'],
     academy: ['About us', 'Our teachers', 'Pricing', 'Family Portal', 'Teach with us'],
-    resources: ['Placement test', 'Blog', 'Free library', 'FAQ', 'Book a trial / contact'],
+    resources: ['Placement test', 'Blog', 'Free library', 'Family stories', 'FAQ', 'Book a trial / contact'],
+  },
+  search: {
+    open: 'Search the site',
+    close: 'Close search',
+    placeholder: 'Search courses, articles, questions…',
+    hint: 'Type at least two letters.',
+    empty: 'No matches. Try another word.',
+    unavailable: 'Search is ready on the published site. It is not indexed during local development.',
+  },
+  fx: {
+    label: 'Currency',
+    billed: 'You are billed in US dollars.',
+    indicative: 'These figures are a reading aid, not a live market rate.',
+    asOf: 'Indicative rates as of 17 Oct 2026.',
+    codes: { USD: 'US dollar', EUR: 'Euro', GBP: 'Pound sterling', AED: 'UAE dirham', SAR: 'Saudi riyal' },
   },
 };

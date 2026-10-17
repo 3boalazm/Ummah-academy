@@ -26,6 +26,13 @@ This list is intended to ensure every route is included in the next authorizatio
 | GET | `/api/health` | Public response minimization and deployment health semantics |
 | GET | `/api/me` | Current actor only; no credential/hash leakage |
 | GET | `/api/dashboard` | Role-scoped counts and summaries |
+| GET | `/api/teacher/day` | Teacher calendar-day: today’s sessions, pending reports, current assigned roster. Staff may pass `teacherId`; teachers cannot open another teacher’s day |
+| GET | `/api/homework` | Homework assignments scoped to assigned / granted / self student |
+| GET | `/api/homework/:id` | Single homework record, same student scope |
+| GET | `/api/progress` | Family/student hub: next lesson, last report, homework, remaining credits. Guardian-scoped; teachers forbidden |
+| GET | `/api/progress/:studentId` | One child’s progress card, same student scope |
+| GET | `/api/console` | Owner/ops Admin OS (`view=workspace|website|admissions|governance|people|academic|placements|assets|settings|stack`). Teachers and families forbidden |
+| POST | `/api/sessions/:id/report/approve` | Admin/ops approve a submitted lesson report before the family sees it |
 | GET | `/api/catalog` | Publicly safe course/plan data by authenticated role |
 | GET | `/api/search` | Search result scoping and data leakage |
 | GET | `/api/students` | List scoping, filters, pagination and export parity |

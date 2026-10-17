@@ -20,6 +20,7 @@ import Analytics from '@/components/Analytics.astro';
 import ConsentBanner from '@/components/ConsentBanner.astro';
 import LangHint from '@/components/LangHint.astro';
 import Dock from '@/components/Dock.astro';
+import SearchDialog from '@/components/SearchDialog.astro';
 import { SITE } from '@/data/site';
 import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, lp, type Lang, type Alternates } from '@/i18n';
 import { ogCardPath } from '@/data/og';
@@ -181,6 +182,7 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     <a class="skip-link" href="#main">{t.skip}</a>
     <Aurora />
     <Header lang={lang} targets={targets} />
+    <SearchDialog lang={lang} />
     <main id="main">
       <slot />
     </main>
@@ -194,6 +196,8 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
       import '@/scripts/theme';
       import '@/scripts/install';
       import '@/scripts/pwa';
+      import '@/scripts/currency';
+      import '@/scripts/search';
     </script>
   </body>
 </html>

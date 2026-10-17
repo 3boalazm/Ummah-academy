@@ -66,7 +66,7 @@ export default {
       ],
     },
     tracks: { eyebrow: 'Courses', title: 'Four ways in. <span class="accent">Start where you are.</span>', lede: 'Build reading skills, improve recitation, memorise, or explore Arabic and Islamic studies. Start with your goal.' },
-    stories: { eyebrow: 'Stories', title: 'Learning together, <span class="accent">in families’ own words.</span>', note: '' },
+    stories: { eyebrow: 'Stories', title: 'Learning together, <span class="accent">in families’ own words.</span>', note: '', all: 'Read every story' },
     pricing: {
       eyebrow: 'Pricing',
       title: 'Simple pricing. <span class="accent">Two free sessions first.</span>',

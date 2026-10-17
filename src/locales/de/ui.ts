@@ -28,6 +28,7 @@ export default {
   footerNote: 'Familien in über 50 Ländern · Unterricht rund um die Uhr',
   privacy: 'Datenschutzerklärung',
   terms: 'Nutzungsbedingungen',
+  accessibility: 'Barrierefreiheit',
   careers: 'Karriere',
   library: 'Kostenlose Bibliothek',
   sticky: { book: 'Kostenlos testen', wa: 'WhatsApp' },
@@ -71,6 +72,21 @@ export default {
   footerLinks: {
     learn: ['Alle Kurse', 'Koranrezitation & Tajweed', 'Hifz & Ijaza', 'Arabisch', 'Ummah Cubs (Kinder)', 'Islamische Studien'],
     academy: ['Über uns', 'Unsere Lehrkräfte', 'Preise', 'Familienportal', 'Bei uns unterrichten'],
-    resources: ['Einstufungstest', 'Blog', 'Kostenlose Bibliothek', 'FAQ', 'Probestunde / Kontakt'],
+    resources: ['Einstufungstest', 'Blog', 'Kostenlose Bibliothek', 'Erfahrungen', 'FAQ', 'Probestunde / Kontakt'],
+  },
+  search: {
+    open: 'Website durchsuchen',
+    close: 'Suche schließen',
+    placeholder: 'Kurse, Artikel, Fragen suchen…',
+    hint: 'Mindestens zwei Buchstaben eingeben.',
+    empty: 'Keine Treffer. Bitte ein anderes Wort versuchen.',
+    unavailable: 'Die Suche steht auf der veröffentlichten Website bereit. Lokal wird kein Index gebaut.',
+  },
+  fx: {
+    label: 'Währung',
+    billed: 'Abgerechnet wird in US-Dollar.',
+    indicative: 'Die Beträge dienen nur der Orientierung, kein Live-Kurs.',
+    asOf: 'Richtwerte vom 17. Oktober 2026.',
+    codes: { USD: 'US-Dollar', EUR: 'Euro', GBP: 'Pfund Sterling', AED: 'VAE-Dirham', SAR: 'Saudi-Riyal' },
   },
 };

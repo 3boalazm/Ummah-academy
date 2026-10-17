@@ -88,13 +88,16 @@ after(async () => {
 });
 
 const protectedRoutes = [
-  ['GET','/api/me'], ['GET','/api/dashboard'], ['GET','/api/catalog'], ['GET','/api/search'],
+  ['GET','/api/me'], ['GET','/api/dashboard'], ['GET','/api/teacher/day'], ['GET','/api/homework'],
+  ['GET','/api/homework/hw_missing'], ['GET','/api/progress'], ['GET','/api/progress/stu_yusuf'],
+  ['GET','/api/console'], ['GET','/api/catalog'], ['GET','/api/search'],
   ['GET','/api/students'], ['GET','/api/students/stu_yusuf'], ['PATCH','/api/students/stu_yusuf'],
   ['GET','/api/families'], ['GET','/api/families/fam_rahman'], ['POST','/api/families'],
   ['GET','/api/teachers'], ['GET','/api/teachers/omneya-ali'],
   ['GET','/api/sessions'], ['POST','/api/sessions'], ['GET','/api/sessions/ses_yusuf_next'],
   ['POST','/api/sessions/ses_yusuf_next/confirm'], ['POST','/api/sessions/ses_yusuf_next/attendance'],
   ['POST','/api/sessions/ses_yusuf_next/complete'], ['POST','/api/sessions/ses_yusuf_next/report'],
+  ['POST','/api/sessions/ses_yusuf_next/report/approve'],
   ['POST','/api/sessions/ses_yusuf_next/cancel'], ['POST','/api/sessions/ses_yusuf_next/reschedule'],
   ['POST','/api/sessions/ses_yusuf_next/no-show'], ['POST','/api/sessions/ses_yusuf_next/substitute'],
   ['GET','/api/sessions/ses_yusuf_next/room'], ['GET','/api/subscriptions'], ['GET','/api/subscriptions/sub_yusuf'],
@@ -146,6 +149,37 @@ test('guardian API cannot read another family student by guessed ID and sees min
     assert.equal('userId' in teacher, false);
     assert.equal('activeStudents' in teacher, false);
   }
+});
+
+test('family hub API is scoped to granted children and hidden from teachers', async () => {
+  const fatima = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const hub = await request('/api/progress', { cookie: fatima });
+  assert.equal(hub.status, 200, JSON.stringify(hub.data));
+  const ids = hub.data.children.map((c) => c.student.id);
+  assert.ok(ids.includes('stu_yusuf'));
+  assert.ok(ids.includes('stu_layla'));
+  assert.ok(!ids.includes('stu_adam'));
+  const adam = await request('/api/progress/stu_adam', { cookie: fatima });
+  assert.ok([403, 404].includes(adam.status), `Fatima must not open Adam, got ${adam.status}`);
+  const teacher = await login('omneya@ummahacademy.net', 'Sakinah-Teach-2026');
+  const teacherHub = await request('/api/progress', { cookie: teacher });
+  assert.ok([403, 404].includes(teacherHub.status), `teacher must not read the family hub, got ${teacherHub.status}`);
+});
+
+test('teacher day API is scoped to the signed-in teacher and hidden from the family', async () => {
+  const teacher = await login('omneya@ummahacademy.net', 'Sakinah-Teach-2026');
+  const day = await request('/api/teacher/day', { cookie: teacher });
+  assert.equal(day.status, 200, JSON.stringify(day.data));
+  assert.equal(day.data.teacher.id, 'omneya-ali');
+  assert.ok(Array.isArray(day.data.today));
+  assert.ok(Array.isArray(day.data.roster));
+  assert.ok(day.data.roster.every((row) => row.student?.id));
+  assert.equal(day.data.roster.some((row) => row.student.id === 'stu_layla'), false);
+  const other = await request('/api/teacher/day?teacherId=sara-ahmed', { cookie: teacher });
+  assert.ok([403, 404].includes(other.status), `teacher must not open another teacher’s day, got ${other.status}`);
+  const guardian = await login('fatima.rahman@example.com', 'Sakinah-Family-2026');
+  const familyDay = await request('/api/teacher/day', { cookie: guardian });
+  assert.ok([403, 404].includes(familyDay.status), `guardian must not read teacher day, got ${familyDay.status}`);
 });
 
 test('teacher API cannot read billing and only sees own teacher-directory row', async () => {
