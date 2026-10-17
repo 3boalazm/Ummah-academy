@@ -49,7 +49,6 @@ export const SITE = {
 
 export const portalLinks = {
   login: `${SITE.portalBase.replace(/\/$/, '')}/login/`,
-  register: `${SITE.portalBase.replace(/\/$/, '')}/register/student-access/`,
 };
 
 export function waLink(text?: string): string {

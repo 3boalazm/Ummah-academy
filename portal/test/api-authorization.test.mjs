@@ -112,6 +112,8 @@ const protectedRoutes = [
   ['POST','/api/sessions/series'], ['POST','/api/guardians/grd_khalid/phone'], ['POST','/api/guardians/grd_fatima/whatsapp-consent'],
   ['GET','/api/outbox'], ['POST','/api/outbox/drafts'], ['POST','/api/outbox/draft_missing'],
   ['GET','/api/invoices'], ['GET','/api/export/students'], ['POST','/api/admin/reset-demo'],
+  ['GET','/api/profile'], ['PATCH','/api/profile'], ['POST','/api/profile/password'],
+  ['GET','/api/students/stu_yusuf/learning'], ['GET','/api/performance'],
 ];
 
 test('every inventoried protected API route rejects anonymous direct requests', async () => {
@@ -127,6 +129,7 @@ test('state-changing API requests require the custom request header before handl
     ['POST','/api/families'], ['PATCH','/api/students/stu_yusuf'],
     ['POST','/api/sessions/ses_yusuf_next/complete'], ['POST','/api/payments'],
     ['POST','/api/assets'], ['POST','/api/admin/reset-demo'],
+    ['PATCH','/api/profile'], ['POST','/api/profile/password'],
   ]) {
     const response = await request(route, { method, body: {}, customHeader: false });
     assert.equal(response.status, 400, `${method} ${route} should reject a missing request header`);

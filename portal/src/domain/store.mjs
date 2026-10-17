@@ -13,6 +13,7 @@ import {
 } from './policy.mjs';
 import { IDS, DEMO_PASSWORD, buildSeed } from './seed.mjs';
 import { attachOps } from './ops.mjs';
+import { attachProfiles } from './profiles.mjs';
 import { addMs, localParts } from './time.mjs';
 import { appendAcademicRecord, ensureAcademicCollections } from './academic.mjs';
 
@@ -2189,6 +2190,17 @@ export function createStore(options = {}) {
     byId,
     requireReason,
     readToken: (token) => readAssetToken(token, secret, clock().getTime()),
+  });
+  attachProfiles(api, {
+    get state() { return state; },
+    clock,
+    command,
+    audit,
+    event,
+    must,
+    byId,
+    production: Boolean(options.production),
+    isDemoPassword: (value) => DEMO_PASSWORDS.has(String(value || '')),
   });
   return api;
 }

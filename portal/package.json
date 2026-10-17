@@ -1,0 +1,15 @@
+{
+  "name": "ummah-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ummah Academy operations portal (no runtime dependencies).",
+  "main": "src/server.mjs",
+  "scripts": {
+    "build": "node --check src/server.mjs",
+    "start": "node src/server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

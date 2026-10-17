@@ -1,5 +1,6 @@
 import { api, errText, esc, localToIso, state, t, toast } from './util.js';
 import { downloadExport, handleOps, viewInvoices, viewNotes, viewOnboard, viewOutbox } from './ops-ui.js';
+import { handleProfile, pt, viewLearning, viewPerformance, viewProfile } from './profile-ui.js';
 import {
   viewAcademic,
   viewAdmissions,
@@ -70,6 +71,9 @@ const VIEWS = {
   settings: viewSettings,
   stack: viewStack,
   tools: viewTools,
+  profile: viewProfile,
+  learning: viewLearning,
+  performance: viewPerformance,
   missing: viewMissing,
 };
 
@@ -80,7 +84,10 @@ const ROUTES = [
   { re: /^\/app\/today\/?$/, id: 'today' },
   { re: /^\/app\/home\/?$/, id: 'home' },
   { re: /^\/app\/students\/?$/, id: 'students' },
+  { re: /^\/app\/students\/([^/]+)\/learning\/?$/, id: 'learning' },
   { re: /^\/app\/students\/([^/]+)\/?$/, id: 'student' },
+  { re: /^\/app\/profile\/?$/, id: 'profile' },
+  { re: /^\/app\/performance\/?$/, id: 'performance' },
   { re: /^\/app\/families\/?$/, id: 'families' },
   { re: /^\/app\/families\/([^/]+)\/?$/, id: 'family' },
   { re: /^\/app\/teachers\/?$/, id: 'teachers' },
@@ -127,6 +134,7 @@ function navItems() {
   if (role === 'guardian' || role === 'student') items.push(['/app/home', t('home')]);
   items.push(['/app', t('overview')]);
   if (role === 'student') items.push([`/app/students/${state.me.studentId}`, t('myFile')]);
+  if (role === 'student') items.push([`/app/students/${state.me.studentId}/learning`, pt('learningProfile')]);
   if (role === 'guardian') items.push([`/app/families/${state.me.familyId}`, t('myFamily')]);
   if (role === 'teacher') items.push(['/app/students', t('students')]);
   items.push(['/app/schedule', t('schedule')]);
@@ -135,6 +143,7 @@ function navItems() {
     items.push(['/app/follow-ups', t('followups')]);
   }
   items.push(['/app/notifications', state.lang === 'ar' ? 'تنبيهات' : 'Alerts']);
+  items.push(['/app/profile', pt('profile')]);
   return items;
 }
 
@@ -169,6 +178,7 @@ function consoleNav() {
       ['/app/users', t('usersMenu')],
       ['/app/governance', t('governanceMenu')],
       ['/app/audit', t('audit')],
+      ['/app/performance', pt('performance')],
       ['/app/health', t('health')],
       ['/app/settings', t('settingsMenu')],
       ['/app/tools', t('toolsMenu')],
@@ -195,7 +205,7 @@ function shell(body) {
         <a class="brand" href="/app">${markSvg()}<span>${esc(t('brand'))}</span></a>
         <nav class="nav" aria-label="Main">${links}</nav>
         <div class="who">
-          <strong>${esc(name)}</strong>
+          <a href="/app/profile" class="who-link"><strong>${esc(name)}</strong></a>
           <span class="small">${esc(state.me.role)} · ${esc(state.tz)}</span>
           <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
         </div>
@@ -207,7 +217,7 @@ function shell(body) {
           <button class="btn ghost small" type="button" data-cmd="lang">${esc(t('lang'))}</button>
           <button class="btn ghost small" type="button" data-cmd="theme">${esc(t('theme'))}</button>
         </header>
-        <div class="content"><p class="banner">${esc(t('demoNote'))}</p>${body}</div>
+        <div class="content">${state.me.demo === false ? '' : `<p class="banner">${esc(t('demoNote'))}</p>`}${body}</div>
       </div>
     </div>`;
   }
@@ -231,7 +241,7 @@ function shell(body) {
       <span class="grow"></span>
       <button class="btn ghost small" type="button" data-cmd="lang">${esc(t('lang'))}</button>
       <button class="btn ghost small" type="button" data-cmd="theme">${esc(t('theme'))}</button>
-      <span class="who-bar">${esc(name)} · ${esc(state.me.role)}</span>
+      <a class="who-bar" href="/app/profile">${esc(name)} · ${esc(state.me.role)}</a>
       <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
     </header>
     <aside class="side">
@@ -241,7 +251,7 @@ function shell(body) {
     </aside>
     <div class="main">
       <div class="content">
-        <p class="banner">${esc(t('demoNote'))}</p>
+        ${state.me.demo === false ? '' : `<p class="banner">${esc(t('demoNote'))}</p>`}
         ${screen}${help}
         ${body}
       </div>
@@ -308,7 +318,7 @@ async function onForm(form) {
   try {
     if (action === 'login') {
       const res = await api('POST', '/api/auth/login', { email: data.email, password: data.password });
-      state.me = res.user;
+      state.me = { ...res.user, demo: res.demo };
       state.tz = res.user.timezone || state.tz;
       history.pushState({}, '', '/app');
       await render();
@@ -320,6 +330,13 @@ async function onForm(form) {
     }
     if (action === 'upload') data.file = form.querySelector('input[type="file"]')?.files?.[0];
     if (action === 'create-session' && Number(data.count) > 1) action = 'series';
+    const profileResult = await handleProfile(action, data, opt);
+    if (profileResult) {
+      if (profileResult.keepForm) return;
+      delete form.dataset.key;
+      await render();
+      return;
+    }
     const opsResult = await handleOps(action, data, opt);
     if (opsResult) {
       delete form.dataset.key;

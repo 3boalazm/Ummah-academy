@@ -2,6 +2,7 @@ import { chip, dayKey, esc, fmt, initials, money, nm, num, state, t, tx } from '
 import { api } from './util.js';
 import { phoneForms, uploadForm } from './ops-ui.js';
 import { viewWorkspace } from './console-ui.js';
+import { pt } from './profile-ui.js';
 
 const staff = () => state.me?.role === 'admin' || state.me?.role === 'ops';
 
@@ -17,6 +18,10 @@ function tabs(current, items) {
       return `<a href="${esc(u.pathname + u.search)}" ${current === id ? 'aria-current="page"' : ''}>${esc(label)}</a>`;
     })
     .join('')}</div>`;
+}
+
+function learningLink(s) {
+  return `<a class="btn primary small" href="/app/students/${esc(s.id)}/learning">${esc(pt('learningProfile'))}</a>`;
 }
 
 function person(href, row, sub) {
@@ -296,7 +301,7 @@ export async function viewStudent({ params, query }) {
   if (familyViewer) {
     const progress = tab === 'overview' ? await api('GET', `/api/progress/${s.id}`) : null;
     const body = tab === 'overview' ? progressCardHtml(progress.child) : await panel(tab, dto);
-    return `${head(nm(s), s.level || '')}${tabs(tab, items)}<div class="stack">${body}</div>`;
+    return `${head(nm(s), s.level || '', learningLink(s))}${tabs(tab, items)}<div class="stack">${body}</div>`;
   }
   const header = `<section class="panel">
     <div class="row" style="justify-content:space-between">
@@ -313,7 +318,7 @@ export async function viewStudent({ params, query }) {
     <p class="formula">${esc(state.lang === 'ar' ? dto.balance.formulaAr : dto.balance.formulaEn)}</p>
     <p class="small">${esc(t('teacher'))}: ${esc(nm(dto.primaryTeacher))} · ${esc(t('next'))}: ${dto.nextSession ? esc(fmt(dto.nextSession.startsAt, s.timezone)) : esc(t('none'))}</p>
   </section>`;
-  return `${head(nm(s), s.level || '')}${header}${tabs(tab, items)}<div class="stack">${await panel(tab, dto)}</div>`;
+  return `${head(nm(s), s.level || '', learningLink(s))}${header}${tabs(tab, items)}<div class="stack">${await panel(tab, dto)}</div>`;
 }
 
 async function panel(tab, dto) {
