@@ -198,6 +198,14 @@ export default async function pwa({ browser, base, pages }) {
       if (!s.visible) failures.push({ page: '/', detail: 'beforeinstallprompt fired but the pill stayed hidden' });
       if (s.pill && !s.pill.inView) failures.push({ page: '/', detail: `pill outside the viewport / too small: ${JSON.stringify(s.pill)}` });
 
+      // the dock: the language button sits directly above the install button, on the same edge
+      const stacked = await page.evaluate(() => {
+        const lang = document.querySelector('[data-dock] .langmenu__btn')?.getBoundingClientRect();
+        const pill = document.querySelector('[data-dock] .install__pill')?.getBoundingClientRect();
+        return lang && pill ? { above: lang.bottom <= pill.top + 1, gap: Math.round(pill.top - lang.bottom), sameEdge: Math.abs(lang.left - pill.left) < 2 } : null;
+      });
+      if (!stacked || !stacked.above || !stacked.sameEdge || stacked.gap > 24) failures.push({ page: '/', detail: `the language button is not stacked above the install button: ${JSON.stringify(stacked)}` });
+
       await page.click('.install--pill [data-install-open]');
       s = await page.evaluate(pillState);
       if (s.expanded !== 'true' || s.cardHidden !== false) failures.push({ page: '/', detail: `tapping the pill did not open the card: ${JSON.stringify(s)}` });
@@ -210,6 +218,9 @@ export default async function pwa({ browser, base, pages }) {
       await page.click('.install--pill [data-install-dismiss]');
       s = await page.evaluate(pillState);
       if (s.visible || s.dismissed !== 'dismissed') failures.push({ page: '/', detail: `"Not now" did not hide the pill or remember it: ${JSON.stringify(s)}` });
+      // with the install button gone, the language button drops to the corner
+      const fromBottom = await page.evaluate(() => Math.round(document.documentElement.clientHeight - document.querySelector('[data-dock] .langmenu__btn').getBoundingClientRect().bottom));
+      if (fromBottom > 20) failures.push({ page: '/', detail: `the language button did not drop to the corner once the install button went away (${fromBottom}px from the bottom)` });
 
       await open(page, base + '/pricing/');
       await page.evaluate(offerInstall);

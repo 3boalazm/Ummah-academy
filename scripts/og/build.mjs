@@ -7,7 +7,7 @@
  *   title    ← the page's <h1> (the .accent phrase gets the brand gradient)
  *   kicker   ← BreadcrumbList (parent section) + BlogPosting.articleSection
  *   subtitle ← Person.jobTitle on teacher profiles
- *   cta      ← the header's "book a free trial" label, already in the page's language
+ *   cta      ← the "book a free trial" label (data-og-cta on the menu sheet's booking link), already in the page's language
  *
  * A card that fails to render never fails the deploy: that page falls back to the default
  * card and a warning is logged. `npm run check:cards` is the gate that catches it.
@@ -78,7 +78,7 @@ export function extract(html, pathname) {
   const same = (a, b) => a.trim().toLocaleLowerCase(lang) === b.trim().toLocaleLowerCase(lang);
   const headline = title.map((s) => s.text).join('');
   const kicker = [parent, section].filter((k) => k && !same(k, headline)).join(' · ');
-  const cta = strip(html.match(/class="cta-long"[^>]*>([\s\S]*?)<\/span>/)?.[1] ?? '').trim();
+  const cta = decode(html.match(/\sdata-og-cta="([^"]*)"/)?.[1] ?? '').trim();
   return {
     lang,
     title,

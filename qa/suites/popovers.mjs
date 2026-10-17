@@ -2,7 +2,7 @@
  * popovers — everything that opens must fit and be accessible OPEN.
  * Phase 4 lesson: the mega-menu bug existed since v2 and every closed-state sweep missed it.
  *  - mega menu (≥ 860 px): panel inside the viewport, every child inside the panel, titles not clipped
- *  - language menu: header popover (≥ 860 px) and the bottom sheet below that
+ *  - language menu: the bottom-left dock pill, its popover opening upwards (every width)
  *  - mobile menu <dialog>
  *  - language hint: shown in the visitor's language, inside the viewport
  * Each open state is also scanned with axe (scoped to the popover).
@@ -28,6 +28,7 @@ export function fits(sel, { children = false, tall = false } = {}) {
   const out = [];
   if (!r.width || !r.height) out.push(`${sel} not visible`);
   if (r.left < -1 || r.right > vw + 1) out.push(`${sel} outside viewport [${Math.round(r.left)}–${Math.round(r.right)} / ${vw}]`);
+  if (r.top < -1) out.push(`${sel} starts above the viewport [top ${Math.round(r.top)}]`);
   if (!tall && r.bottom > vh + 1 && getComputedStyle(el).overflowY === 'visible') out.push(`${sel} taller than viewport and not scrollable`);
   if (children) {
     for (const c of el.querySelectorAll('*')) {
@@ -86,7 +87,7 @@ export default async function popovers({ browser, base, opts }) {
       await page.close();
     }
 
-    // 2 · language menu: popover (≥ 860) / sheet (< 860)
+    // 2 · language menu: the dock pill's popover opens upwards at every width
     {
       const page = await newPage(browser, { width: 1280 });
       await open(page, url);
@@ -94,19 +95,19 @@ export default async function popovers({ browser, base, opts }) {
       for (const w of LANGMENU_WIDTHS) {
         await page.setViewport({ width: w, height: 800 });
         await page.evaluate(() => {
-          const d = document.querySelector('.site-header [data-langmenu]');
+          const d = document.querySelector('[data-dock] [data-langmenu]');
           if (d) d.open = true;
         });
         const visibleMenu = await page.evaluate(() => {
-          const d = document.querySelector('.site-header [data-langmenu]');
+          const d = document.querySelector('[data-dock] [data-langmenu]');
           return d && getComputedStyle(d).display !== 'none';
         });
         if (!visibleMenu) continue;
-        record(label, `language menu @${w}`, await page.evaluate(fits, '.site-header [data-langmenu] .langmenu__panel', { children: true }));
-        const count = await page.evaluate(() => document.querySelectorAll('.site-header [data-langmenu] [data-lang-choice]').length);
+        record(label, `language menu @${w}`, await page.evaluate(fits, '[data-dock] [data-langmenu] .langmenu__panel', { children: true }));
+        const count = await page.evaluate(() => document.querySelectorAll('[data-dock] [data-langmenu] [data-lang-choice]').length);
         if (count !== 5) record(label, `language menu @${w}`, [`${count} languages listed, expected 5`]);
       }
-      record(label, 'language menu axe', await axeScoped(page, '.site-header [data-langmenu]'));
+      record(label, 'language menu axe', await axeScoped(page, '[data-dock] [data-langmenu]'));
       await page.close();
     }
 

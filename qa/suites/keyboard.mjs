@@ -181,7 +181,7 @@ export default async function keyboard({ browser, base, pages, opts }) {
       if (!afterEsc.back) failures.push({ page: '/', detail: 'Escape does not return focus to the Courses button' });
 
       checked += 1;
-      if (!(await tabTo(page, '[data-langmenu] > summary', 30))) failures.push({ page: '/', detail: 'the language menu is not reachable with Tab' });
+      if (!(await tabTo(page, '[data-langmenu] > summary', 400))) failures.push({ page: '/', detail: 'the language menu is not reachable with Tab' });
       await page.keyboard.press('Enter');
       if (!(await page.evaluate(() => document.querySelector('[data-langmenu]')?.open))) failures.push({ page: '/', detail: 'Enter does not open the language menu' });
       await page.keyboard.press('Escape');

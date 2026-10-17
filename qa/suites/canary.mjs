@@ -22,9 +22,9 @@ const CANARIES = [
     run: (page) => page.evaluate(measure),
   },
   {
-    name: 'header sees a wrapping CTA',
+    name: 'header sees an action block wider than the bar',
     width: 390,
-    css: '.site-header__cta { white-space: normal !important; width: 64px !important; flex: none !important; } .site-header__cta .cta-short { display: inline !important; white-space: normal !important; }',
+    css: '.site-header__actions { min-width: 600px !important; flex: none !important; }',
     run: (page) => page.evaluate(check),
   },
   {
@@ -46,7 +46,7 @@ const CANARIES = [
     name: 'touch sees a tiny crowded tap target',
     width: 375,
     mobile: true,
-    css: '.site-header__actions { gap: 0 !important; } .menu-btn { width: 14px !important; height: 14px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; } .site-header__cta { height: 14px !important; min-height: 0 !important; padding: 0 2px !important; }',
+    css: '.site-header__actions { gap: 0 !important; } .menu-btn { width: 14px !important; height: 14px !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; }',
     run: (page) => page.evaluate(audit, true),
   },
   {
@@ -110,7 +110,7 @@ const CANARIES = [
     before: (page) =>
       page.evaluate(() => {
         const img = document.createElement('img');
-        img.src = '/favicon.svg';
+        img.src = '/icons/icon-192.png';
         img.width = 40;
         img.height = 40;
         img.id = 'canary-img';

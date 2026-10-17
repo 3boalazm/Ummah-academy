@@ -64,7 +64,7 @@ t('social card path and extraction', () => {
   assert.equal(ogCardPath('/quran-recitation-course/'), '/og/quran-recitation-course.jpg');
   const html = `<html lang="en"><h1 class="x">Recite the Qur’an <span class="accent">correctly &amp; well.</span></h1>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"position":1,"name":"Home"},{"position":2,"name":"Courses"},{"position":3,"name":"Recitation"}]}</script>
-    <span class="cta-long" x>Book free trial</span></html>`;
+    <a href="/contact/#book" data-og-cta="Book free trial">Book 2 free sessions</a></html>`;
   const card = extract(html, '/quran-recitation-course/');
   assert.deepEqual(card.title, [{ text: 'Recite the Qur’an ' }, { text: 'correctly & well.', accent: true }]);
   assert.equal(card.kicker, 'Courses');

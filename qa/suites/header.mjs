@@ -2,8 +2,9 @@
  * header — the header bar must fit at EVERY width, in every language.
  * Five label lengths (EN/AR/DE/FR/IT) break at different widths, so sparse samples
  * miss bugs (Phase 4 lesson): we scan densely, 1 px at a time by default.
- * Checks per width: nothing overflows the bar, brand / nav / actions don't overlap,
- * the CTA stays on one line and inside the bar.
+ * Checks per width: nothing overflows the bar, brand / nav / actions don't overlap, the logo
+ * stands alone at the start edge (no wordmark), and the bar no longer carries the trial button
+ * or the language menu (they live in the menu sheet and the bottom dock).
  */
 import { newPage, open } from '../lib/browser.mjs';
 import { PREFIX, pool } from '../lib/pages.mjs';
@@ -18,9 +19,8 @@ export function check() {
   const brand = bar.querySelector('.site-header__brand');
   const nav = bar.querySelector('.nav');
   const actions = bar.querySelector('.site-header__actions');
-  const cta = bar.querySelector('.site-header__cta');
   if (bar.scrollWidth > bar.clientWidth + 1) out.push(`bar scrollWidth ${bar.scrollWidth} > ${bar.clientWidth}`);
-  for (const [name, el] of [['brand', brand], ['nav', nav], ['actions', actions], ['cta', cta]]) {
+  for (const [name, el] of [['brand', brand], ['nav', nav], ['actions', actions]]) {
     if (!visible(el)) continue;
     const r = el.getBoundingClientRect();
     if (r.left < b.left - 1 || r.right > b.right + 1) out.push(`${name} outside bar [${Math.round(r.left)}–${Math.round(r.right)} vs ${Math.round(b.left)}–${Math.round(b.right)}]`);
@@ -33,15 +33,14 @@ export function check() {
   if (visible(brand) && visible(actions) && overlap(brand, actions)) out.push('brand overlaps actions');
   if (visible(nav) && visible(brand) && overlap(nav, brand)) out.push('nav overlaps brand');
   if (visible(nav) && visible(actions) && overlap(nav, actions)) out.push('nav overlaps actions');
-  if (visible(cta)) {
-    const label = [...cta.querySelectorAll('span')].find((s) => getComputedStyle(s).display !== 'none') || cta;
-    const range = document.createRange();
-    range.selectNodeContents(label);
-    const lines = new Set([...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top))).size;
-    if (lines > 1 || cta.getBoundingClientRect().height > 48) out.push(`CTA wraps (${lines} lines, ${Math.round(cta.getBoundingClientRect().height)}px)`);
-    if (cta.scrollWidth > cta.clientWidth + 1) out.push('CTA text clipped');
+  // the logo stands alone: no name beside it, flush with the start edge of the bar
+  if (brand) {
+    if (brand.textContent.trim()) out.push('brand carries text — the logo must stand alone');
+    const r = brand.getBoundingClientRect();
+    const gap = rtl ? b.right - r.right : r.left - b.left;
+    if (gap > 40) out.push(`brand is ${Math.round(gap)}px from the start edge of the bar`);
   }
-  void rtl;
+  if (bar.querySelector('.site-header__cta, [data-langmenu]')) out.push('the bar still carries the trial button or the language menu');
   return out;
 }
 

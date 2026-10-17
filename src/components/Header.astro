@@ -32,7 +32,7 @@ const isActive = (href: string) => path.startsWith(href);
 <header class="site-header" data-header>
   <div class="site-header__bar glass">
     <a class="site-header__brand" href={lp(lang, '/')} aria-label={t.homeLabel}>
-      <Logo lang={lang} />
+      <Logo />
     </a>
 
     <nav class="nav hide-mobile" aria-label={t.primaryNav}>
@@ -91,11 +91,7 @@ const isActive = (href: string) => path.startsWith(href);
 
     <div class="site-header__actions">
       <ThemeToggle lang={lang} />
-      <LangMenu lang={lang} targets={targets} />
       <a class="nav__signin hide-mobile" href={portalLinks.login}>{t.signIn}</a>
-      <a class="btn btn--sm btn--primary site-header__cta" href={lp(lang, '/contact/') + '#book'} data-track="header">
-        <span class="cta-long">{t.bookTrial}</span><span class="cta-short">{t.bookTrialShort}</span>
-      </a>
       <button class="menu-btn" type="button" aria-label={t.menuOpen} aria-haspopup="dialog" data-menu-open>
         <Icon name="list" weight="bold" />
       </button>
@@ -105,7 +101,7 @@ const isActive = (href: string) => path.startsWith(href);
   <dialog class="mobile-menu" aria-label={t.menu} data-menu>
     <div class="mobile-menu__sheet glass glass--strong">
       <div class="mobile-menu__top">
-        <Logo lang={lang} />
+        <Logo />
         <button class="menu-btn menu-btn--close" type="button" aria-label={t.menuClose} data-menu-close>
           <Icon name="x" weight="bold" />
         </button>
@@ -135,7 +131,7 @@ const isActive = (href: string) => path.startsWith(href);
         <li><a href={lp(lang, '/faq/')}>{t.nav.faq}</a></li>
       </ul>
       <div class="mobile-menu__cta">
-        <a class="btn btn--primary btn--block" href={lp(lang, '/contact/') + '#book'}>{t.book2}</a>
+        <a class="btn btn--primary btn--block" href={lp(lang, '/contact/') + '#book'} data-og-cta={t.bookTrial}>{t.book2}</a>
         <a class="btn btn--glass btn--block" href={waLink()} target="_blank" rel="noopener">
           <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {t.whatsapp}
         </a>
@@ -292,12 +288,6 @@ const isActive = (href: string) => path.startsWith(href);
     position: absolute;
     inset: -3px;
     border-radius: inherit;
-  }
-
-  /* the CTA is wide already: extend its hit area vertically only, so it never steals taps
-     from the language pill or the menu button beside it (4–6 px gaps on phones) */
-  .site-header__cta::after {
-    inset: -4px 0;
   }
 
   @media (min-width: 860px) {
@@ -639,32 +629,9 @@ const isActive = (href: string) => path.startsWith(href);
       gap: 4px;
     }
 
-    .site-header__actions .btn--sm {
-      padding-inline: 0.9em;
-    }
-
     .menu-btn {
       width: 40px;
       height: 40px;
-    }
-
-    .site-header__actions :global(.langmenu__btn) {
-      padding: 0 8px 0 10px;
-    }
-  }
-
-  /* CTA label: short until there is room for the long one (German/French/Italian run ~30% longer) */
-  .site-header__cta .cta-long {
-    display: none;
-  }
-
-  @media (min-width: 1100px) {
-    .site-header__cta .cta-long {
-      display: inline;
-    }
-
-    .site-header__cta .cta-short {
-      display: none;
     }
   }
 
@@ -687,117 +654,26 @@ const isActive = (href: string) => path.startsWith(href);
 
   }
 
-  @media (min-width: 860px) and (max-width: 979px) {
-    .site-header__brand :global(.logo__soft) {
-      display: none;
-    }
-  }
-
   /* Right at the breakpoint (860–899 px) the desktop bar has ~1 px less room in Arabic than it
-     needs, so the action block (and the CTA inside it) poked past the glass edge. Measured at
-     858/859/860/861/900 px in all five languages by qa/suites/header.mjs. */
+     needs, so the action block poked past the glass edge. Measured at 858/859/860/861/900 px in
+     all five languages by qa/suites/header.mjs. */
   @media (min-width: 860px) and (max-width: 899px) {
     .site-header__bar {
       padding-inline: 12px 6px;
     }
   }
 
-  /* phones: the language pill becomes a globe (the code stays for screen readers) */
-  @media (max-width: 459px) {
-    .site-header__actions :global(.langmenu__btn) {
-      padding: 0 11px;
-      gap: 0;
-    }
-
-    .site-header__actions :global(.langmenu__code) {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
-
-    .site-header__actions :global(.langmenu__caret) {
-      display: none;
-    }
-
-    .site-header__actions .btn--sm {
-      padding-inline: 0.8em;
-      font-size: 0.86rem;
-    }
-  }
-
-  /* Phones and tablets (<860px): the CTA never wraps — the wordmark gives way instead.
-     " Academy" drops onto a clipped second line and the Arabic name stacks onto two lines,
-     only when space actually runs out. Robust to any label length or fallback font in all
-     five languages (replaces fixed per-width breakpoints). */
+  /* Phones and tablets (<860px): the bar is just the mark, the theme switch and the menu button,
+     so it always fits — qa/suites/header.mjs measures every width from 320 px in all five
+     languages. The language switch lives in the bottom-left dock (components/Dock.astro) and,
+     labelled, in the menu sheet. */
   @media (max-width: 859px) {
     .site-header__brand {
       flex: 0 1 auto;
     }
 
-    .site-header__brand :global(.logo__name:not(.logo__name--ar)) {
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      row-gap: 12px;
-      height: 1.3em;
-      line-height: 1.3;
-      overflow: hidden;
-    }
-
-    .site-header__brand :global(.logo__soft) {
-      margin-inline-start: 0.26em;
-    }
-
-    .site-header__brand :global(.logo__name--ar) {
-      white-space: normal;
-      line-height: 1.1;
-    }
-
     .site-header__actions {
       flex: none;
-    }
-
-    .site-header__cta {
-      white-space: nowrap;
-    }
-  }
-
-  @media (max-width: 339px) {
-    .site-header__cta {
-      display: none;
-    }
-  }
-
-  /* Phones keep the switch in the bar (a control nobody finds is a control that does not
-     exist) — it is 40 px there, and qa/suites/header.mjs measures every width from 320 px in
-     all five languages to prove the bar still fits. The labelled row stays in the sheet too,
-     where there is room for words. */
-
-  /* Very narrow phones (< 400 px): the wordmark stands down to the mark alone, so the bar keeps
-     the free-trial CTA *and* the theme switch instead of dropping either. The link keeps its
-     aria-label, and the name is still in the sheet, the footer and the page itself. Measured by
-     qa/suites/header.mjs at every width from 320 px in all five languages. */
-  @media (max-width: 399px) {
-    .site-header__brand :global(.logo__type) {
-      display: none;
-    }
-  }
-
-  @media (max-width: 420px) {
-    .site-header__brand :global(.logo) {
-      gap: 8px;
-    }
-
-    .site-header__brand :global(.logo__mark) {
-      width: 30px;
-      height: 30px;
-    }
-
-    .site-header__brand :global(.logo__name) {
-      font-size: 1rem;
     }
   }
   /* ---------- Dark theme ---------- */

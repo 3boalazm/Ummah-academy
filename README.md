@@ -62,7 +62,7 @@ src/
   content/blog/     English articles → /<slug>/
   content/blog-ar/  Arabic articles → /ar/blog/<slug>/ (optional translationOf: <english-slug>)
   content/blog-tr/  de/ fr/ it/ translated articles → /<lang>/blog/<localised-slug>/ (translationOf required)
-  components/       design-system components (Header, LangMenu, ThemeToggle, InstallPrompt, LangHint, BookingWizard, TrackCard…)
+  components/       design-system components (Header, Logo, Dock, LangMenu, ThemeToggle, InstallPrompt, LangHint, BookingWizard, TrackCard…)
   data/             single source of truth: site/contact, tracks, pricing, people, placement test, countries
   layouts/          BaseLayout (SEO head, hreflang, JSON-LD, fonts, aurora, header/footer)
   scripts/          client islands: site.ts, booking.ts, placement.ts, theme.ts, install.ts, pwa.ts, attribution.ts, analytics.ts

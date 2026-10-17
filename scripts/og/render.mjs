@@ -169,13 +169,11 @@ async function gradientFill(mask) {
 const CARD = { w: 828, h: 518, y: 56, r: 40 };
 const cardX = (rtl) => (rtl ? W - 56 - CARD.w : 56);
 
-const LOGO = (size) =>
-  svg(
-    `<defs><linearGradient id="lg" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8f2f9e"/><stop offset=".5" stop-color="#4a2f72"/><stop offset="1" stop-color="#1d5fa8"/></linearGradient></defs>
-     <g transform="scale(${size / 40})"><rect x="8.5" y="8.5" width="23" height="23" rx="5.5" fill="url(#lg)"/><rect x="8.5" y="8.5" width="23" height="23" rx="5.5" fill="url(#lg)" transform="rotate(45 20 20)"/><path d="M15.6 27.2v-6.1a4.4 4.4 0 0 1 8.8 0v6.1z" fill="#fff" fill-opacity=".95"/><circle cx="20" cy="17.2" r="1.25" fill="url(#lg)"/></g>`,
-    size,
-    size
-  );
+/** The brand logo (src/assets/brand/logo-ink.svg), LOGO_H px tall; its width follows the artboard ratio. */
+const LOGO_H = 58;
+const LOGO_W = Math.round(LOGO_H * (184.13 / 321.59));
+const LOGO_SVG = fs.readFileSync(path.resolve(HERE, '../../src/assets/brand/logo-ink.svg'));
+const LOGO = () => sharp(LOGO_SVG, { density: 300 }).resize({ height: LOGO_H }).png().toBuffer();
 
 const baseCache = new Map();
 async function base(rtl) {
@@ -228,13 +226,13 @@ async function base(rtl) {
       CARD.w,
       CARD.h
     );
-    const logo = LOGO(46);
+    const logo = await LOGO();
     return sharp(backdrop)
       .composite([
         await clipTo(shadow, CARD.w + 120, CARD.h + 120, x - 60, CARD.y - 60 + 22),
         { input: frost, left: x, top: CARD.y },
         { input: tint, left: x, top: CARD.y },
-        { input: logo, left: rtl ? x + CARD.w - 58 - 46 : x + 58, top: CARD.y + 50 },
+        { input: logo, left: rtl ? x + CARD.w - 58 - LOGO_W : x + 58, top: CARD.y + 50 },
       ])
       .png()
       .toBuffer();
@@ -272,7 +270,7 @@ export async function renderCard({ lang, title, kicker, subtitle, url, cta }) {
     : await text(
         `<span font_family="Geist" font_weight="600" size="${pt(28)}" letter_spacing="${pt(-0.6)}" foreground="${C.ink}">Ummah<span font_weight="500" foreground="${C.ink2}"> Academy</span></span>`
       );
-  layers.push(layer(wordmark, rtl ? right - 46 - 16 - wordmark.width : left + 46 + 16, CARD.y + 50 + (46 - wordmark.height) / 2));
+  layers.push(layer(wordmark, rtl ? right - LOGO_W - 16 - wordmark.width : left + LOGO_W + 16, CARD.y + 50 + (LOGO_H - wordmark.height) / 2));
 
   let y = CARD.y + 140;
 

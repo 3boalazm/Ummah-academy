@@ -19,7 +19,7 @@ import StickyCta from '@/components/StickyCta.astro';
 import Analytics from '@/components/Analytics.astro';
 import ConsentBanner from '@/components/ConsentBanner.astro';
 import LangHint from '@/components/LangHint.astro';
-import InstallPrompt from '@/components/InstallPrompt.astro';
+import Dock from '@/components/Dock.astro';
 import { SITE } from '@/data/site';
 import { LANGS, LOCALE, basePath, dirOf, mirrorAlternates, langTargets, lp, type Lang, type Alternates } from '@/i18n';
 import { ogCardPath } from '@/data/og';
@@ -77,7 +77,7 @@ const org = {
   name: SITE.name,
   alternateName: SITE.nameAr,
   url: SITE.url,
-  logo: `${SITE.url}/favicon.svg`,
+  logo: `${SITE.url}/icons/icon-512.png`,
   email: SITE.email,
   description: SITE.description,
   // languages of instruction and support (not of this website) — see SITE.teachingLanguages
@@ -160,9 +160,10 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     {verify.google && <meta name="google-site-verification" content={verify.google} />}
     {verify.bing && <meta name="msvalidate.01" content={verify.bing} />}
     <meta name="theme-color" content="#f4f1f8" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <!-- Installable as an app (manifest + worker in public/; pill in components/InstallPrompt.astro) -->
+    <!-- Installable as an app (manifest + worker in public/; install pill in components/InstallPrompt.astro, shown in components/Dock.astro) -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -187,7 +188,7 @@ const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '
     {sticky && <StickyCta lang={lang} />}
     {consent && <ConsentBanner lang={lang} />}
     <LangHint lang={lang} targets={targets} />
-    <InstallPrompt lang={lang} />
+    <Dock lang={lang} targets={targets} />
     <script>
       import '@/scripts/site';
       import '@/scripts/theme';

@@ -3,9 +3,9 @@
  * Install-as-an-app affordance. Two placements, one behaviour
  * (src/scripts/install.ts wires every instance on the page):
  *
- *   variant="pill" — floating pill on the bottom inline-start edge (bottom-left in LTR,
- *                    bottom-right in RTL). Desktop only: it would fight the mobile action bar,
- *                    which owns the bottom edge on phones.
+ *   variant="pill" — pill in the floating dock on the bottom inline-start edge (bottom-left in
+ *                    LTR, bottom-right in RTL), under the language button. Desktop only: it
+ *                    would fight the mobile action bar, which owns the bottom edge on phones.
  *   variant="row"  — a row inside the mobile menu sheet, which expands into the same card
  *                    in place. This is where phones install from, because the floating pill
  *                    sat on top of the action bar and was hard to reach with a thumb.
@@ -76,11 +76,10 @@ const cardId = `ua-install-card-${variant}`;
   }
 
   /* ---------- floating pill (desktop) ---------- */
+  /* positioned by the bottom-left dock (components/Dock.astro), which stacks it under the
+     language button; relative so the open card can anchor above it */
   .install--pill {
-    position: fixed;
-    inset-block-end: calc(14px + env(safe-area-inset-bottom));
-    inset-inline-start: calc(14px + env(safe-area-inset-left));
-    z-index: 30; /* under the sticky CTA (40), the language hint (45) and the header (50) */
+    position: relative;
   }
 
   .install--pill[data-visible] {
@@ -264,10 +263,5 @@ const cardId = `ua-install-card-${variant}`;
     .install--pill[data-visible] {
       display: none;
     }
-  }
-
-  /* The consent banner (only with GTM configured) is full width at the bottom: clear it. */
-  :global(.consent:not([hidden])) ~ .install--pill {
-    inset-block-end: calc(170px + env(safe-area-inset-bottom));
   }
 </style>

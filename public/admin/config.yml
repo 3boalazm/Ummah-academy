@@ -13,7 +13,7 @@ app_title: Ummah Academy · Content
 site_url: https://ummahacademy.net
 display_url: https://ummahacademy.net
 logo:
-  src: /favicon.svg
+  src: /icons/icon-192.png
 
 backend:
   name: github

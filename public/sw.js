@@ -13,12 +13,12 @@
  * Bump VERSION whenever a cached response's shape changes; old caches are dropped
  * on activate. Registered from src/scripts/pwa.ts (secure contexts only, not in dev).
  */
-const VERSION = 'ua-2026-10-15a';
+const VERSION = 'ua-2026-10-17a';
 const RUNTIME = `ua-runtime-${VERSION}`;
 const MAX_CACHED_PAGES = 240;
 
 /* Everything the installed app needs to open: the home page and its chrome. */
-const SHELL = ['/', '/manifest.webmanifest', '/favicon.svg', '/apple-touch-icon.png', '/icons/icon-192.png', '/icons/icon-512.png'];
+const SHELL = ['/', '/manifest.webmanifest', '/favicon.ico', '/apple-touch-icon.png', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

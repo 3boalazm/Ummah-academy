@@ -1,0 +1,59 @@
+---
+/**
+ * The floating stack on the bottom inline-start edge (bottom-left in LTR, bottom-right in RTL):
+ *
+ *   [ language ]   ← always there
+ *   [ install  ]   ← only while the browser offers to install the app (desktop; phones install
+ *                    from the menu sheet), hidden for good once the app is installed
+ *
+ * The stack is a plain column anchored to the bottom, so the moment the install button goes away
+ * — installed, dismissed, or never offered — the language button simply sits in the corner.
+ * Phones: it rides above the sticky action bar while that bar is showing.
+ */
+import LangMenu from './LangMenu.astro';
+import InstallPrompt from './InstallPrompt.astro';
+import type { Lang, LangTarget } from '@/i18n';
+
+interface Props {
+  lang: Lang;
+  targets: LangTarget[];
+}
+const { lang, targets } = Astro.props;
+---
+
+<div class="dock" data-dock>
+  <LangMenu lang={lang} targets={targets} variant="dock" />
+  <InstallPrompt lang={lang} variant="pill" />
+</div>
+
+<style>
+  .dock {
+    position: fixed;
+    inset-block-end: calc(14px + env(safe-area-inset-bottom));
+    inset-inline-start: calc(14px + env(safe-area-inset-left));
+    z-index: 30; /* under the sticky CTA (40), the language hint (45) and the header (50) */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    transition: inset-block-end 0.4s var(--ease-out);
+  }
+
+  /* Phones: the sticky action bar owns the bottom edge once it slides in — stack above it. */
+  @media (max-width: 859px) {
+    :global(body:has(.sticky-cta.is-visible)) .dock {
+      inset-block-end: calc(84px + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* The consent banner (only with GTM configured) is full width at the bottom: clear it. */
+  :global(.consent:not([hidden])) ~ .dock.dock {
+    inset-block-end: calc(170px + env(safe-area-inset-bottom));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dock {
+      transition: none;
+    }
+  }
+</style>

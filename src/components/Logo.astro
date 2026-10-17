@@ -1,101 +1,72 @@
 ---
 /**
- * Proposed refreshed identity: an eight-point star (Rub el Hizb — the marker
- * used inside the Mushaf) holding an open arch — "a doorway into the Qur'an".
- * Swap for the legacy logo by replacing this single component.
+ * The Ummah Academy logo: the calligraphic "أمة" inside an arch. It is the whole identity —
+ * no wordmark is typeset beside it, so the same component works in the header bar, the mobile
+ * sheet and the footer.
+ *
+ * Two colourways ship as SVG (src/assets/brand): `logo-ink.svg` (#281547) for light surfaces and
+ * `logo-white.svg` for dark ones. `tone="ink"` follows the theme (ink in light, white in dark);
+ * `tone="light"` is always white, for surfaces that are always dark (the night footer).
  */
-import type { Lang } from '@/i18n';
+import inkLogo from '@/assets/brand/logo-ink.svg';
+import whiteLogo from '@/assets/brand/logo-white.svg';
+
 interface Props {
   tone?: 'ink' | 'light';
-  showSecondary?: boolean;
-  lang?: Lang;
+  size?: 'md' | 'lg';
+  /** Accessible name. Omit when the logo sits inside a link that already has a label. */
+  label?: string;
   class?: string;
 }
-const { tone = 'ink', showSecondary = false, lang = 'en', class: className } = Astro.props;
-// Unique per instance (the header, menu and footer each draw a logo) but deterministic,
-// so identical source builds byte-identical pages (stable ETags, verifiable refactors).
-const locals = Astro.locals as { uaLogoCount?: number };
-locals.uaLogoCount = (locals.uaLogoCount ?? 0) + 1;
-const id = `ua-g-${locals.uaLogoCount}`;
+const { tone = 'ink', size = 'md', label, class: className } = Astro.props;
+// the two colourways share one artboard ratio, so one width/height pair serves both
+const { width, height } = inkLogo;
+const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' };
 ---
 
-<span class:list={['logo', `logo--${tone}`, `logo--${lang}`, className]}>
-  <svg class="logo__mark" viewBox="0 0 40 40" width="34" height="34" aria-hidden="true" focusable="false">
-    <defs>
-      <linearGradient id={id} x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#8f2f9e"></stop>
-        <stop offset="0.5" stop-color="#4a2f72"></stop>
-        <stop offset="1" stop-color="#1d5fa8"></stop>
-      </linearGradient>
-    </defs>
-    <rect x="8.5" y="8.5" width="23" height="23" rx="5.5" fill={`url(#${id})`}></rect>
-    <rect x="8.5" y="8.5" width="23" height="23" rx="5.5" fill={`url(#${id})`} transform="rotate(45 20 20)"></rect>
-    <path d="M15.6 27.2v-6.1a4.4 4.4 0 0 1 8.8 0v6.1z" fill="#fff" fill-opacity="0.95"></path>
-    <circle cx="20" cy="17.2" r="1.25" fill={`url(#${id})`}></circle>
-  </svg>
-  <span class="logo__type">
-    {
-      lang === 'ar' ? (
-        <span class="logo__name logo__name--ar">أكاديمية الأمة</span>
-      ) : (
-        <span class="logo__name">
-          Ummah<span class="logo__soft"> Academy</span>
-        </span>
-      )
-    }
-    {showSecondary && (lang === 'ar' ? <span class="logo__sub">Ummah Academy</span> : <span class="logo__sub" lang="ar">أكاديمية الأمة</span>)}
-  </span>
+<span class:list={['logo', `logo--${tone}`, `logo--${size}`, className]} {...a11y}>
+  {tone === 'ink' && <img class="logo__img logo__img--ink" src={inkLogo.src} width={width} height={height} alt="" decoding="async" />}
+  <img class="logo__img logo__img--white" src={whiteLogo.src} width={width} height={height} alt="" decoding="async" />
 </span>
 
 <style>
   .logo {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    color: var(--ink);
-    line-height: 1;
+    line-height: 0;
+    --logo-h: 44px;
   }
-  .logo__mark {
-    flex: none;
-    filter: drop-shadow(0 6px 10px rgb(91 58 142 / 0.35));
+
+  .logo--lg {
+    --logo-h: 76px;
   }
-  .logo__type {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+
+  .logo__img {
+    display: block;
+    height: var(--logo-h);
+    width: auto;
   }
-  .logo__name {
-    font-weight: 650;
-    font-size: 1.12rem;
-    letter-spacing: -0.03em;
-    white-space: nowrap;
+
+  /* ink on light surfaces, white on dark ones */
+  .logo--ink .logo__img--white {
+    display: none;
   }
-  .logo__name--ar {
-    font-family: var(--font-arabic);
-    font-weight: 700;
-    letter-spacing: 0;
-    font-size: 1.15rem;
+
+  :global([data-theme='dark']) .logo--ink .logo__img--ink {
+    display: none;
   }
-  .logo__soft {
-    font-weight: 450;
-    color: var(--ink-2);
+
+  :global([data-theme='dark']) .logo--ink .logo__img--white {
+    display: block;
   }
-  .logo__sub {
-    font-family: var(--font-arabic);
-    font-size: 0.78rem;
-    color: var(--ink-3);
-    letter-spacing: 0;
-  }
-  .logo--ar .logo__sub {
-    font-family: var(--font-sans);
-  }
-  .logo--light {
-    color: #fff;
-  }
-  .logo--light .logo__soft {
-    color: rgb(255 255 255 / 0.72);
-  }
-  .logo--light .logo__sub {
-    color: rgb(255 255 255 / 0.6);
+
+  @media (max-width: 859px) {
+    .logo {
+      --logo-h: 40px;
+    }
+
+    .logo--lg {
+      --logo-h: 68px;
+    }
   }
 </style>

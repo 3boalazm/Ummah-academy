@@ -1,8 +1,10 @@
 ---
 /**
- * Language menu — one component, three placements.
+ * Language menu — one component, four placements.
  *  header: a glass pill that opens a frosted popover (native <details>, so it works without JS;
  *          site.ts adds outside-click / Escape / one-open-at-a-time).
+ *  dock:   the same pill, floating bottom-left above the install button (components/Dock.astro);
+ *          the popover opens upwards.
  *  sheet:  five chips inside the mobile menu.
  *  footer: an inline row of language names.
  * Every link points at the true translation of the current page when one exists
@@ -15,7 +17,7 @@ import { ui } from '@/locales';
 interface Props {
   lang: Lang;
   targets: LangTarget[];
-  variant?: 'header' | 'sheet' | 'footer';
+  variant?: 'header' | 'dock' | 'sheet' | 'footer';
 }
 const { lang, targets, variant = 'header' } = Astro.props;
 const t = ui(lang);
@@ -23,8 +25,8 @@ const partial = targets.some((x) => !x.exact);
 ---
 
 {
-  variant === 'header' && (
-    <details class="langmenu" data-langmenu>
+  (variant === 'header' || variant === 'dock') && (
+    <details class:list={['langmenu', { 'langmenu--dock': variant === 'dock' }]} data-langmenu>
       <summary class="langmenu__btn">
         <Icon name="globe" weight="bold" />
         <span class="langmenu__code">{LOCALE[lang].short}</span>
@@ -189,6 +191,40 @@ const partial = targets.some((x) => !x.exact);
 
   :global([dir='rtl']) .langmenu__panel {
     transform-origin: top left;
+  }
+
+  /* ── dock: floats over the page bottom-left, so it brings its own opaque surface and its
+     popover opens upwards, anchored to the pill's start edge (never off-screen, LTR or RTL) ── */
+  .langmenu--dock .langmenu__btn {
+    height: 44px;
+    padding: 0 12px 0 14px;
+    background: rgb(255 255 255 / 0.94);
+    box-shadow:
+      inset 0 0 0 1px rgb(46 29 70 / 0.1),
+      var(--shadow-lift);
+  }
+
+  .langmenu--dock .langmenu__panel {
+    position: absolute;
+    top: auto;
+    bottom: calc(100% + 10px);
+    inset-inline: 0 auto;
+    width: min(250px, calc(100vw - 28px));
+    max-height: min(420px, calc(100dvh - 190px));
+    overflow-y: auto;
+    transform-origin: bottom left;
+    animation-name: langmenu-up;
+  }
+
+  :global([dir='rtl']) .langmenu--dock .langmenu__panel {
+    transform-origin: bottom right;
+  }
+
+  @keyframes langmenu-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+    }
   }
 
   @keyframes langmenu-in {
@@ -372,7 +408,8 @@ const partial = targets.some((x) => !x.exact);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .langmenu__panel {
+    .langmenu__panel,
+    .langmenu--dock .langmenu__panel {
       animation: none;
     }
   }
@@ -385,6 +422,16 @@ const partial = targets.some((x) => !x.exact);
   :global([data-theme='dark']) .langmenu__btn:hover,
   :global([data-theme='dark']) .langmenu[open] .langmenu__btn {
     background: rgb(255 255 255 / 0.16);
+  }
+
+  /* the dock pill floats over page content: keep it solid in the dark theme too */
+  :global([data-theme='dark']) .langmenu--dock .langmenu__btn {
+    background: rgb(41 31 59 / 0.96);
+  }
+
+  :global([data-theme='dark']) .langmenu--dock .langmenu__btn:hover,
+  :global([data-theme='dark']) .langmenu--dock[open] .langmenu__btn {
+    background: rgb(62 48 88 / 0.98);
   }
 
   :global([data-theme='dark']) .langmenu__panel {
