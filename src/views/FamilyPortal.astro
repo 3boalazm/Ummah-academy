@@ -4,7 +4,7 @@ import PageHero from '@/components/PageHero.astro';
 import SectionHead from '@/components/SectionHead.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
-import { portalLinks, trialLink, waLink } from '@/data/site';
+import { portalLinks, waLink } from '@/data/site';
 import { num, pct, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
@@ -23,7 +23,7 @@ const P = C.preview;
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
   <PageHero eyebrow={C.eyebrow} title={C.title} lede={C.lede} crumbs={[{ label: C.crumb }]} lang={lang}>
     <Fragment slot="actions">
-      <a class="btn btn--primary" href={trialLink({}, lang)}>{C.create} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+      <a class="btn btn--primary" href={portalLinks.register}>{C.create} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
       <a class="btn btn--glass" href={portalLinks.login}>{C.signIn}</a>
     </Fragment>
     <Fragment slot="visual">
@@ -107,7 +107,7 @@ const P = C.preview;
     </div>
   </section>
 
-  <CtaPanel lang={lang} eyebrow={C.ctaEyebrow} title={C.ctaTitle} lede={C.ctaLede} primary={{ label: C.create, href: trialLink({}, lang) }} secondary={{ label: C.ask, href: waLink() }} ticks={[]} />
+  <CtaPanel lang={lang} eyebrow={C.ctaEyebrow} title={C.ctaTitle} lede={C.ctaLede} primary={{ label: C.create, href: portalLinks.register }} secondary={{ label: C.ask, href: waLink() }} ticks={[]} />
 </BaseLayout>
 
 <style>

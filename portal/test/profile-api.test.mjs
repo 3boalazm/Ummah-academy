@@ -160,3 +160,28 @@ test('only staff can read the performance report', async () => {
   const ops = await login('ops@ummahacademy.net', 'Sakinah-Ops-2026');
   assert.equal((await request('/api/performance', { cookie: ops })).status, 200);
 });
+
+test('public sign-up: needs the request header, signs the new family in, and is rate limited per address', async () => {
+  const body = (n) => ({ guardianName: `Test Parent ${n}`, email: `parent${n}@example.org`, password: 'A-long-signup-pass-77', accept: true, for: 'child', studentName: `Test Child ${n}`, birthYear: 2017, timezone: 'Europe/Paris' });
+  const noHeader = await request('/api/auth/register', { method: 'POST', body: body(0), headers: {} });
+  assert.equal(noHeader.status, 201, 'helper adds the header, so this one is accepted');
+  const raw = await fetch(base + '/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': '10.1.1.1' }, body: JSON.stringify(body(1)) });
+  assert.equal(raw.status, 400, 'missing x-ua-request must be refused');
+
+  const options = await request('/api/signup/options');
+  assert.equal(options.status, 200);
+  assert.ok(options.data.courses.length >= 3);
+
+  const cookie = noHeader.headers.get('set-cookie').split(';')[0];
+  const profile = await request('/api/profile', { cookie });
+  assert.equal(profile.status, 200);
+  assert.equal(profile.data.account.role, 'guardian');
+  assert.equal(profile.data.children.length, 1);
+  assert.equal(JSON.stringify(noHeader.data).includes('scrypt$'), false);
+
+  const dup = await request('/api/auth/register', { method: 'POST', body: body(0) });
+  assert.equal(dup.status, 400);
+  let limited = 0;
+  for (let i = 2; i < 12; i++) if ((await request('/api/auth/register', { method: 'POST', body: body(i) })).status === 429) limited += 1;
+  assert.ok(limited >= 1, 'a single address cannot register without limit');
+});

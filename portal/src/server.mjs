@@ -102,6 +102,7 @@ function clientIp(req) {
 const rateLimited = makeLimiter(20, 10 * 60 * 1000);
 const passwordLimited = makeLimiter(8, 10 * 60 * 1000);
 const beaconLimited = makeLimiter(240, 60 * 1000);
+const registerLimited = makeLimiter(5, 60 * 60 * 1000);
 
 // Real-user performance beacons from the marketing site. Aggregates only; see domain/rum.mjs.
 const rum = createRum({ file: path.join(path.dirname(dataFile), 'rum.json') });
@@ -281,6 +282,15 @@ const routes = [
     const user = store.login(body.email, body.password);
     const token = issueSession(user.id, secret, SESSION_TTL, Date.now(), store.sessionVersion(user.id));
     send(res, 200, { user, demo: store.demo }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
+  }],
+  ['GET', /^\/api\/signup\/options$/, async (_req, res) => send(res, 200, store.signupOptions())],
+  ['POST', /^\/api\/auth\/register$/, async (req, res) => {
+    if (registerLimited(clientIp(req))) {
+      return send(res, 429, { error: { code: 'rate_limited', message: 'Too many sign-ups from this address. Try again later.', messageAr: 'محاولات تسجيل كثيرة من هذا العنوان. حاول لاحقًا.' } });
+    }
+    const created = store.register(await readBody(req), meta(req));
+    const token = issueSession(created.user.id, secret, SESSION_TTL, Date.now(), store.sessionVersion(created.user.id));
+    send(res, 201, { user: created.user, demo: store.demo }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
   }],
   ['POST', /^\/api\/auth\/logout$/, async (_req, res) => {
     send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0, { production }) });
@@ -487,7 +497,7 @@ const server = http.createServer(async (req, res) => {
         if (req.method !== method) continue;
         const match = pathname.match(re);
         if (!match) continue;
-        if (pathname === '/api/auth/login' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
+        if (pathname === '/api/auth/login' || pathname === '/api/auth/register' || pathname === '/api/signup/options' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
         const actor = actorFrom(req);
         if (!actor) return send(res, 401, { error: { code: 'unauthorized', message: 'Sign in required.', messageAr: 'يلزم تسجيل الدخول.' } });
         return await handler(req, res, actor, match);

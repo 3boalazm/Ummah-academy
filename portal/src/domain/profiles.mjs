@@ -13,10 +13,10 @@ import { currentPrimary, grantedStudentIds, guardianOf } from './permissions.mjs
 
 export const PASSWORD_MIN = 10;
 const LOCALES = new Set(['ar', 'en']);
-const NAME_RE = /^[^\p{C}<>]{2,80}$/u;
+export const NAME_RE = /^[^\p{C}<>]{2,80}$/u;
 const BASE_FIELDS = ['locale', 'timezone'];
 
-function validTimezone(tz) {
+export function validTimezone(tz) {
   if (typeof tz !== 'string' || tz.length > 64) return false;
   if (tz !== 'UTC' && !tz.includes('/')) return false;
   try {

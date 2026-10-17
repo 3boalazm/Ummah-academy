@@ -1,6 +1,7 @@
 import { api, errText, esc, localToIso, state, t, toast } from './util.js';
 import { downloadExport, handleOps, viewInvoices, viewNotes, viewOnboard, viewOutbox } from './ops-ui.js';
 import { handleProfile, pt, viewLearning, viewPerformance, viewProfile } from './profile-ui.js';
+import { handleSignup, viewRegister } from './signup-ui.js';
 import {
   viewAcademic,
   viewAdmissions,
@@ -39,6 +40,7 @@ import {
 
 const VIEWS = {
   login: viewLogin,
+  register: viewRegister,
   dashboard: viewDashboard,
   today: viewToday,
   home: viewHome,
@@ -79,6 +81,7 @@ const VIEWS = {
 
 const ROUTES = [
   { re: /^\/login\/?$/, id: 'login', auth: false },
+  { re: /^\/register\/?$/, id: 'register', auth: false },
   { re: /^\/$/, id: 'root', auth: false },
   { re: /^\/app\/?$/, id: 'dashboard' },
   { re: /^\/app\/today\/?$/, id: 'today' },
@@ -299,8 +302,8 @@ async function render() {
     }
     html = `<div class="banner bad">${esc(errText(error))}</div><p><a href="/app">${esc(t('back'))}</a></p>`;
   }
-  app.innerHTML = route.id === 'login' ? html : shell(html);
-  document.body.classList.toggle('console', route.id !== 'login' && isConsole());
+  app.innerHTML = route.auth === false ? html : shell(html);
+  document.body.classList.toggle('console', route.auth !== false && isConsole());
   document.body.classList.toggle('collapsed', state.collapsedNav);
   document.title = state.lang === 'ar' ? 'بوابة أكاديمية الأمة' : 'Ummah Academy portal';
 }
@@ -330,6 +333,11 @@ async function onForm(form) {
     }
     if (action === 'upload') data.file = form.querySelector('input[type="file"]')?.files?.[0];
     if (action === 'create-session' && Number(data.count) > 1) action = 'series';
+    const signupResult = await handleSignup(action, data);
+    if (signupResult) {
+      go(signupResult.go);
+      return;
+    }
     const profileResult = await handleProfile(action, data, opt);
     if (profileResult) {
       if (profileResult.keepForm) return;

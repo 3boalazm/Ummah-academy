@@ -46,10 +46,14 @@ Environment variables (no secrets in the panel):
 | `PORTAL_TRUST_PROXY` | `1` (rate limits count the visitor, not the host's proxy) |
 | `PORTAL_RUM_ORIGINS` | optional; defaults to `https://ummahacademy.net,https://www.ummahacademy.net` |
 
-The Node runtime sees only its own domain folder, not the rest of the home directory. Redeploy code: Websites → **Reupload** → *Upload new files* → *Save and redeploy*. If the app will not start, **Runtime logs** says why; a missing secret prints a diagnostic with the paths it could see (never the secret).
+The Node runtime sees only its own domain folder, not the rest of the home directory. Redeploy code: Websites → **Reupload** → *Upload new files* → *Save and redeploy*. **Give every archive a new file name** (e.g. `portal-app-<HHMMSS>.tar.gz`): re-uploading the same name once redeployed the old code. If the app will not start, **Runtime logs** says why; a missing secret prints a diagnostic with the paths it could see (never the secret).
 
 ## After the first deploy
 
 1. Sign in as the admin and change the password from **My profile**. Delete `portal/.provision/credentials.txt`.
 2. The performance screen fills as visitors browse; the first numbers appear after the first real visit.
 3. Add one sentence about anonymous speed measurement to the privacy policy (legal review).
+
+## Sign-up
+
+`https://portal.ummahacademy.net/register/` is open to the public (parent for a child, or an adult 16+ for themselves). It creates the account, the family and a trial student, and one internal follow-up for the owner; it does not create an enrolment, subscription, lesson or a child login. Limits: 5 sign-ups per hour per address, 60 per day overall (`SIGNUP_DAILY_CAP`), honeypot field, terms/privacy consent recorded on the user. There is no email verification yet (no mail provider): a sign-up proves nothing about the address, so staff confirm by WhatsApp/phone before enrolling.

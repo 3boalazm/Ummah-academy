@@ -374,3 +374,14 @@ body.console .adminbar a.who-bar:hover { text-decoration: underline; }
   .metrics.five { grid-template-columns: repeat(2, 1fr); }
   .metrics.three { grid-template-columns: 1fr; }
 }
+
+/* ── Sign-up ───────────────────────────────────────────────────────────── */
+.register-card { align-items: start; }
+.reg-form { max-height: none; }
+.seg-choice { border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; display: grid; gap: 8px; margin: 0; }
+.seg-choice > b { font-size: 0.88rem; }
+.seg-choice label { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+.seg-choice input, .check input { width: auto; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 500; }
+.hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; overflow: hidden; }
+[hidden] { display: none !important; }

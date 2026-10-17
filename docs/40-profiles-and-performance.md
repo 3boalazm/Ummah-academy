@@ -56,3 +56,7 @@ The first core of the profiling system lives inside the existing portal. Three s
 ### Not in this core
 
 Persistent database (the store is still the JSON rehearsal file — not for real children, see `19-operations-audit.md`), email for password reset, 2FA, avatars/uploads for profiles, and the admin-side editing of a student's learning goals. Each is a separate decision or a later phase.
+
+## Sign-up (added later the same day)
+
+`/register` on the portal: public sign-up for families and adult learners. See `docs/41-hostinger-deploy.md` § Sign-up for the limits. Domain code: `portal/src/domain/signup.mjs`; the site’s "Create Family Account" buttons point to it.

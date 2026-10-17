@@ -116,6 +116,7 @@ export async function viewLogin() {
         <label>${esc(t('password'))}<input name="password" type="password" autocomplete="current-password" required ${demo ? 'value="Sakinah-Admin-2026"' : ''}></label>
         <button class="btn primary" type="submit">${esc(t('signIn'))}</button>
       </form>
+      <p class="small">${esc(state.lang === 'ar' ? 'ليس لديك حساب؟' : 'No account yet?')} <a href="/register">${esc(state.lang === 'ar' ? 'إنشاء حساب جديد' : 'Create one')}</a></p>
       ${demo ? `<p class="small">${esc(t('pick'))}</p><div class="accounts">${accounts.map(btn).join('')}</div><details><summary class="small">${esc(t('moreAccounts'))}</summary><div class="accounts">${more.map(btn).join('')}</div></details>` : ''}
     </div>
   </section></main>`;
@@ -126,7 +127,7 @@ function mark() {
 }
 
 export async function viewDashboard() {
-  if (state.me.role === 'guardian' || state.me.role === 'student') return viewHome({});
+  if (state.me.role === 'guardian' || state.me.role === 'student') return viewHome({ query: {} });
   if (state.me.role === 'admin' || state.me.role === 'ops') return viewWorkspace();
   const data = await api('GET', '/api/dashboard');
   const metrics = (data.metrics || [])
@@ -219,6 +220,7 @@ export async function viewToday({ query }) {
   ].map((m) => `<a class="metric" href="${esc(m.href)}"><span class="small">${esc(t('m_' + m.id))}</span><span class="n">${num(m.value)}</span></a>`).join('');
   return `${head(t('today'), `${nm(data.teacher)} · ${esc(data.date)} · ${esc(teacherTz)}`)}
     <p class="muted">${esc(state.lang === 'ar' ? data.noteAr : data.noteEn)}</p>
+    ${waiting ? `<div class="banner ok">${esc(state.lang === 'ar' ? 'تم استلام تسجيلك. سيتواصل معك فريق الأكاديمية قريبًا لتحديد المعلم وموعد الحصتين التجريبيتين المجانيتين.' : 'We received your sign-up. The academy team will contact you soon to choose a teacher and book the two free trial lessons.')}</div>` : ''}
     <div class="metrics">${metrics}</div>
     <div class="row" style="margin-top:12px">
       <a class="btn ghost small" href="/app/today">${esc(t('m_today'))}</a>
@@ -249,6 +251,7 @@ export async function viewHome({ query }) {
   const upcoming = (data.upcoming || [])
     .map((s) => person(`/app/sessions/${s.id}`, s.student, `${fmt(s.startsAt, s.timezone || state.tz)} · ${nm(s.teacher)}`))
     .join('') || `<p class="empty">${esc(t('none'))}</p>`;
+  const waiting = state.me.role === 'guardian' && (data.children || []).length > 0 && (data.children || []).every((c) => !c.nextSession && !c.lastHeld && c.axes?.academicStatus === 'trial');
   const cards = (data.children || []).map(progressCardHtml).join('') || `<p class="empty">${esc(t('empty'))}</p>`;
   const request = state.me.role === 'guardian' && data.children?.length
     ? `<form class="form panel" data-action="request"><h2>${esc(t('request'))}</h2><label>${esc(t('student'))}<select name="studentId">${data.children.map((c) => `<option value="${esc(c.student.id)}">${esc(nm(c.student))}</option>`).join('')}</select></label><label>${esc(t('kind'))}<select name="kind"><option value="schedule">${esc(t('reschedule'))}</option><option value="teacher">${esc(t('changeTeacher'))}</option></select></label><label>${esc(t('reason'))}<textarea name="reason" required minlength="3"></textarea></label><button class="btn primary" type="submit">${esc(t('save'))}</button></form>`

@@ -94,7 +94,7 @@ function firstValidDate(value) {
 }
 
 export function attachOps(api, bag) {
-  const { clock, allow, command, audit, event, notify, must, byId, requireReason } = bag;
+  const { clock, allow, command, audit, event, notify, must, byId, requireReason, defaultAssignee } = bag;
   const stateOf = () => bag.state;
 
   function ensure(state) {
@@ -289,7 +289,7 @@ export function attachOps(api, bag) {
         titleAr: `تحويل تجربة ${input.studentNameAr || input.studentName}`,
         status: 'open',
         priority: 'normal',
-        assigneeId: IDS.ops,
+        assigneeId: defaultAssignee(actor),
         dueAt: new Date(clock().getTime() + 3 * 86400000).toISOString(),
         outcome: null,
         outcomeAr: null,
@@ -307,7 +307,7 @@ export function attachOps(api, bag) {
         summary: 'Family enrolled on a two-lesson trial',
         summaryAr: 'سُجّلت الأسرة على تجربتين',
       });
-      notify(IDS.ops, 'New trial family', 'أسرة تجريبية جديدة', follow.title, follow.titleAr, `/app/families/${familyId}`);
+      notify(follow.assigneeId, 'New trial family', 'أسرة تجريبية جديدة', follow.title, follow.titleAr, `/app/families/${familyId}`);
       return { familyId, studentId, guardianId, userId, subscriptionId: subId, cycleId, followUpId: follow.id, loginEnabled: false, sessionsAllocated: 2 };
     });
 
