@@ -27,6 +27,10 @@ Synthetic data only. The passwords are on the login screen because this process 
 | Adult | `omar.alfarsi@example.com` | `Sakinah-Family-2026` | 07:00 Sydney, including across the October DST change |
 | Adult | `yasmin.dubois@example.com` | `Sakinah-Family-2026` | Frozen plan. Remaining credits stay. New sessions are blocked |
 
+## Profiles and performance
+
+`/app/profile` (every role), `/app/students/:id/learning` (same access as the student record) and `/app/performance` (admin and ops). Real-user Core Web Vitals arrive at `POST /api/rum` from the marketing site and are stored as anonymous daily histograms. Details: `docs/40-profiles-and-performance.md`.
+
 ## What a number means
 
 Remaining sessions are not a stored counter. For each cycle:

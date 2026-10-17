@@ -8,3 +8,6 @@ node_modules/
 .claude/settings.local.json
 qa/report/
 portal/data/
+ummah-hostinger-deploy.zip
+deploy-parts/
+portal/.provision/

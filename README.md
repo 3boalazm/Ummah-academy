@@ -89,6 +89,8 @@ With none of the analytics variables set, the site ships **no third-party script
 
 ## Deploy
 
+**Production runs on Hostinger** (site in `public_html`, portal as a Node Web App): see [`docs/41-hostinger-deploy.md`](docs/41-hostinger-deploy.md). The Vercel notes below still describe `vercel.json`, which `npm run build:hostinger` converts to `.htaccess`.
+
 Vercel (`vercel.json`): the framework preset is Astro, the output goes to `dist/`, trailing slashes are on, and legacy WordPress URLs get 301s and security headers.
 
 - The site **never redirects by browser language**. The in-page language hint suggests a translation instead.

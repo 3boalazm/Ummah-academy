@@ -39,8 +39,8 @@ export function unsign(token, secret) {
   }
 }
 
-export function issueSession(userId, secret, ttlSec, now = Date.now()) {
-  return sign({ sub: userId, exp: now + ttlSec * 1000, kind: 'session' }, secret);
+export function issueSession(userId, secret, ttlSec, now = Date.now(), pv = 0) {
+  return sign({ sub: userId, exp: now + ttlSec * 1000, kind: 'session', pv }, secret);
 }
 
 export function readSession(token, secret, now = Date.now()) {

@@ -13,6 +13,8 @@ import {
 } from './policy.mjs';
 import { IDS, DEMO_PASSWORD, buildSeed } from './seed.mjs';
 import { attachOps } from './ops.mjs';
+import { attachProfiles } from './profiles.mjs';
+import { attachSignup } from './signup.mjs';
 import { attachIntake } from './intake.mjs';
 import { addMs, localParts } from './time.mjs';
 import { appendAcademicRecord, ensureAcademicCollections } from './academic.mjs';
@@ -1048,6 +1050,15 @@ export function createStore(options = {}) {
     if (hits.length) throw E.conflict({ conflicts: hits });
   }
 
+  /** The person new leads and family requests go to: the demo ops user if present, else any active ops, else any active admin. */
+  function defaultAssignee(fallbackActor = null) {
+    const active = (u) => u && u.status === 'active';
+    const demoOps = byId(state.users, IDS.ops);
+    if (active(demoOps)) return demoOps.id;
+    const staff = state.users.find((u) => u.role === 'ops' && active(u)) ?? state.users.find((u) => u.role === 'admin' && active(u));
+    return staff?.id ?? fallbackActor?.id ?? null;
+  }
+
   const api = {
     demo: !options.production,
     secret,
@@ -1935,7 +1946,7 @@ export function createStore(options = {}) {
         const subscription = input.subscriptionId ? must(state.subscriptions, input.subscriptionId) : null;
         const session = input.sessionId ? must(state.sessions, input.sessionId) : null;
         const familyId = input.familyId || student?.familyId || subscription?.familyId || session?.familyId || null;
-        const assigneeId = input.assigneeId || IDS.ops;
+        const assigneeId = input.assigneeId || defaultAssignee(actor);
         if (familyId && !byId(state.families, familyId)) throw E.notFound();
         if (student && familyId && student.familyId !== familyId) {
           throw E.validation('Student and family do not match.', 'الطالب لا ينتمي إلى الأسرة المحددة.');
@@ -2053,7 +2064,7 @@ export function createStore(options = {}) {
           titleAr: input.kind === 'teacher' ? 'طلب تغيير المعلم' : 'طلب تغيير الموعد',
           status: 'open',
           priority: 'normal',
-          assigneeId: IDS.ops,
+          assigneeId: defaultAssignee(actor),
           dueAt: addMs(clock().toISOString(), 2 * 86400000),
           outcome: null,
           outcomeAr: null,
@@ -2065,7 +2076,7 @@ export function createStore(options = {}) {
         state.attempts.push({ id: id('attm'), followUpId: row.id, at: clock().toISOString(), channel: 'portal', note: reason, noteAr: reason, actorId: actor.id, result: 'requested' });
         state.requests.push({ id: id('req'), followUpId: row.id, by: actor.id, kind: input.kind || 'schedule', reason, createdAt: clock().toISOString() });
         audit(actor, 'request.created', 'followup', row.id, null, { kind: input.kind || 'schedule' }, reason, meta.requestId);
-        notify(IDS.ops, 'Family request', 'طلب من الأسرة', row.title, row.titleAr, `/app/follow-ups/${row.id}`);
+        notify(row.assigneeId, 'Family request', 'طلب من الأسرة', row.title, row.titleAr, `/app/follow-ups/${row.id}`);
         return followDto(row);
       });
     },
@@ -2192,7 +2203,31 @@ export function createStore(options = {}) {
     must,
     byId,
     requireReason,
+    defaultAssignee,
     readToken: (token) => readAssetToken(token, secret, clock().getTime()),
+  });
+  attachProfiles(api, {
+    get state() { return state; },
+    clock,
+    command,
+    audit,
+    event,
+    must,
+    byId,
+    production: Boolean(options.production),
+    publicUser,
+    defaultAssignee,
+    isDemoPassword: (value) => DEMO_PASSWORDS.has(String(value || '')),
+  });
+  attachSignup(api, {
+    get state() { return state; },
+    clock,
+    command,
+    audit,
+    event,
+    notify,
+    publicUser,
+    defaultAssignee,
   });
   attachIntake(api, {
     get state() { return state; },

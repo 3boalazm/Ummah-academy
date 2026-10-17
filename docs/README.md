@@ -48,3 +48,5 @@
 | 36 | [36-wp-gap-next-steps.md](36-wp-gap-next-steps.md) | Combined next steps from the WordPress pages + plugins audits: what this cut shipped, what is business-blocked, what is never ported |
 | 37 | [37-business-questionnaire.md](37-business-questionnaire.md) | Launch decisions the code cannot invent: payments, email, CRM, analytics, legal entity, currency, teachers, portal cut-over |
 | 38 | [38-academy-operating-system.md](38-academy-operating-system.md) | Proposed academy OS: one backend, three web consoles (owner / teacher / family), academic and business state machines |
+| 40 | [40-profiles-and-performance.md](40-profiles-and-performance.md) | Profiling core: my profile, learning profile, and anonymous real-user Core Web Vitals for the marketing site |
+| 41 | [41-hostinger-deploy.md](41-hostinger-deploy.md) | Hostinger deployment recipe: static site, Node portal as a Web App, data paths, environment variables |

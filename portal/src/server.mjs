@@ -8,32 +8,41 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { issueSession, readSession } from './domain/auth.mjs';
-import { DomainError } from './domain/errors.mjs';
+import { DomainError, E } from './domain/errors.mjs';
+import { createRum } from './domain/rum.mjs';
+import { readConfiguredSecret } from './domain/secret.mjs';
 import { createStore } from './domain/store.mjs';
 import { loadStateFile } from './domain/persistence.mjs';
 import { sniffUpload } from './domain/ops.mjs';
-import { sessionCookie } from './domain/http-security.mjs';
+import { securityHeaders, sessionCookie } from './domain/http-security.mjs';
 import { requestLogRecord } from './domain/observability.mjs';
 import { buildHealthReport } from './domain/health.mjs';
 import { closeServerGracefully } from './domain/graceful-shutdown.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = path.join(root, 'public');
-const dataDir = path.join(root, 'data');
+// PORTAL_DATA may point outside the app folder, so a redeploy of the code never replaces the data.
+// Uploads and the secret file live next to it.
+const dataFile = process.env.PORTAL_DATA || path.join(root, 'data', 'store.json');
+const dataDir = path.dirname(dataFile);
 const filesDir = path.join(dataDir, 'files');
-const dataFile = process.env.PORTAL_DATA || path.join(dataDir, 'store.json');
 const secretFile = path.join(dataDir, 'secret');
-const PORT = Number(process.env.PORTAL_PORT || 8787);
+const PORT = Number(process.env.PORTAL_PORT || process.env.PORT || 8787);
 const HOST = '0.0.0.0';
 const production = process.env.PORTAL_ENV === 'production';
-if (production && !process.env.PORTAL_SECRET) {
-  console.error('PORTAL_ENV=production requires PORTAL_SECRET. Refusing to start.');
+const configuredSecret = readConfiguredSecret(process.env);
+if (production && !configuredSecret) {
+  console.error('PORTAL_ENV=production requires PORTAL_SECRET (or PORTAL_SECRET_FILE) of at least 32 characters. Refusing to start.');
+  // Operator diagnostics only: never the secret itself.
+  const sf = process.env.PORTAL_SECRET_FILE;
+  console.error(JSON.stringify({ diag: 'secret', cwd: process.cwd(), home: process.env.HOME || null, secretFileSet: Boolean(sf), secretFileExists: sf ? fs.existsSync(sf) : false, dataDirExists: fs.existsSync(path.dirname(dataFile)), rootEntries: (() => { try { return fs.readdirSync('/').slice(0, 30); } catch { return null; } })() }));
   process.exit(1);
 }
 const SESSION_TTL = 12 * 60 * 60;
+const SECURITY_HEADERS = securityHeaders({ production });
 
 function loadSecret() {
-  if (process.env.PORTAL_SECRET) return process.env.PORTAL_SECRET;
+  if (configuredSecret) return configuredSecret;
   fs.mkdirSync(dataDir, { recursive: true });
   if (fs.existsSync(secretFile)) return fs.readFileSync(secretFile, 'utf8').trim();
   const secret = randomBytes(32).toString('hex');
@@ -64,17 +73,93 @@ const store = createStore({
 });
 if (!existing) saveState(store.snapshot());
 
-const attempts = new Map();
-function rateLimited(ip) {
-  const now = Date.now();
-  const row = attempts.get(ip) ?? { n: 0, reset: now + 10 * 60 * 1000 };
-  if (now > row.reset) {
-    row.n = 0;
-    row.reset = now + 10 * 60 * 1000;
+function makeLimiter(limit, windowMs) {
+  const rows = new Map();
+  return (ip) => {
+    const now = Date.now();
+    const row = rows.get(ip) ?? { n: 0, reset: now + windowMs };
+    if (now > row.reset) {
+      row.n = 0;
+      row.reset = now + windowMs;
+    }
+    row.n += 1;
+    rows.set(ip, row);
+    if (rows.size > 5000) for (const [k, v] of rows) if (now > v.reset) rows.delete(k);
+    return row.n > limit;
+  };
+}
+// Behind the host’s reverse proxy every request arrives from the proxy’s address, which would put all
+// visitors in one rate-limit bucket. With PORTAL_TRUST_PROXY=1 the address the proxy appended
+// (the last X-Forwarded-For entry) is used instead. Never enable it on a directly exposed port.
+const TRUST_PROXY = process.env.PORTAL_TRUST_PROXY === '1';
+function clientIp(req) {
+  if (TRUST_PROXY) {
+    const hops = String(req.headers['x-forwarded-for'] || '').split(',').map((h) => h.trim()).filter(Boolean);
+    if (hops.length) return hops[hops.length - 1];
   }
-  row.n += 1;
-  attempts.set(ip, row);
-  return row.n > 20;
+  return req.socket.remoteAddress || 'local';
+}
+const rateLimited = makeLimiter(20, 10 * 60 * 1000);
+const passwordLimited = makeLimiter(8, 10 * 60 * 1000);
+const beaconLimited = makeLimiter(240, 60 * 1000);
+const registerLimited = makeLimiter(5, 60 * 60 * 1000);
+
+// Real-user performance beacons from the marketing site. Aggregates only; see domain/rum.mjs.
+const rum = createRum({ file: path.join(path.dirname(dataFile), 'rum.json') });
+let rumTimer = null;
+// Beacons are batched: write at most once every 5 seconds after the first one, plus on shutdown.
+function scheduleRumFlush() {
+  if (rumTimer) return;
+  rumTimer = setTimeout(() => {
+    rumTimer = null;
+    try { rum.flush(); } catch (error) { console.error('rum flush failed', error.message); }
+  }, 5_000);
+  rumTimer.unref();
+}
+const RUM_ORIGINS = new Set(
+  String(process.env.PORTAL_RUM_ORIGINS || 'https://ummahacademy.net,https://www.ummahacademy.net')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean),
+);
+if (!production) for (const o of ['http://localhost:4321', 'http://127.0.0.1:4321', 'http://localhost:8787']) RUM_ORIGINS.add(o);
+
+function rumCors(req) {
+  const origin = String(req.headers.origin || '');
+  return RUM_ORIGINS.has(origin)
+    ? { 'access-control-allow-origin': origin, vary: 'Origin', 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type', 'access-control-max-age': '86400' }
+    : null;
+}
+
+async function handleBeacon(req, res) {
+  const cors = rumCors(req);
+  if (!cors) return send(res, 403, { error: { code: 'forbidden', message: 'Origin not allowed.', messageAr: 'المصدر غير مسموح.' } });
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, cors);
+    return res.end();
+  }
+  if (beaconLimited(clientIp(req))) {
+    res.writeHead(204, cors);
+    return res.end();
+  }
+  if (Number(req.headers['content-length'] || 0) > 2048) {
+    res.writeHead(413, cors);
+    return res.end();
+  }
+  let body;
+  try {
+    body = await readBody(req, 2048);
+  } catch {
+    res.writeHead(204, cors);
+    return res.end();
+  }
+  if (rum.record(body)) scheduleRumFlush();
+  res.writeHead(204, cors);
+  res.end();
+}
+
+function staffOnly(actor) {
+  if (actor.role !== 'admin' && actor.role !== 'ops') throw E.forbidden();
 }
 
 const CORS_DEFAULTS = [
@@ -184,6 +269,8 @@ function fail(res, err) {
 function actorFrom(req) {
   const payload = readSession(cookies(req).ua_portal, secret);
   if (!payload) return null;
+  // A password change bumps the user's session version, which signs every older cookie out.
+  if ((payload.pv ?? 0) !== store.sessionVersion(payload.sub)) return null;
   return store.actorById(payload.sub);
 }
 
@@ -195,6 +282,8 @@ const MIME = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
+  '.ico': 'image/x-icon',
 };
 
 function serveStatic(req, res, pathname) {
@@ -208,7 +297,7 @@ function serveStatic(req, res, pathname) {
   if (fs.existsSync(file) && fs.statSync(file).isFile()) {
     res.writeHead(200, {
       'content-type': MIME[path.extname(file)] || 'application/octet-stream',
-      'cache-control': file.endsWith('index.html') ? 'no-store' : 'public, max-age=300',
+      'cache-control': file.endsWith('index.html') ? 'no-store' : production ? 'public, max-age=300' : 'no-cache',
       'x-content-type-options': 'nosniff',
     });
     fs.createReadStream(file).pipe(res);
@@ -239,12 +328,21 @@ function meta(req) {
 
 const routes = [
   ['POST', /^\/api\/auth\/login$/, async (req, res) => {
-    const ip = req.socket.remoteAddress || 'local';
+    const ip = clientIp(req);
     if (rateLimited(ip)) return send(res, 429, { error: { code: 'rate_limited', message: 'Too many attempts.', messageAr: 'محاولات كثيرة. انتظر قليلًا.' } });
     const body = await readBody(req);
     const user = store.login(body.email, body.password);
-    const token = issueSession(user.id, secret, SESSION_TTL);
+    const token = issueSession(user.id, secret, SESSION_TTL, Date.now(), store.sessionVersion(user.id));
     send(res, 200, { user, demo: store.demo }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
+  }],
+  ['GET', /^\/api\/signup\/options$/, async (_req, res) => send(res, 200, store.signupOptions())],
+  ['POST', /^\/api\/auth\/register$/, async (req, res) => {
+    if (registerLimited(clientIp(req))) {
+      return send(res, 429, { error: { code: 'rate_limited', message: 'Too many sign-ups from this address. Try again later.', messageAr: 'محاولات تسجيل كثيرة من هذا العنوان. حاول لاحقًا.' } });
+    }
+    const created = store.register(await readBody(req), meta(req));
+    const token = issueSession(created.user.id, secret, SESSION_TTL, Date.now(), store.sessionVersion(created.user.id));
+    send(res, 201, { user: created.user, demo: store.demo }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
   }],
   ['POST', /^\/api\/auth\/logout$/, async (_req, res) => {
     send(res, 200, { ok: true }, { 'set-cookie': sessionCookie('', 0, { production }) });
@@ -261,12 +359,27 @@ const routes = [
     const report = buildHealthReport({
       state: store.snapshot(),
       production,
-      secretConfigured: Boolean(process.env.PORTAL_SECRET),
+      secretConfigured: Boolean(configuredSecret),
       dataFileReadable,
     });
     return send(res, report.ready ? 200 : 503, report);
   }],
   ['GET', /^\/api\/me$/, async (req, res, actor) => send(res, 200, { ...actor, demo: store.demo })],
+  ['GET', /^\/api\/profile$/, async (_req, res, actor) => send(res, 200, store.getProfile(actor))],
+  ['PATCH', /^\/api\/profile$/, async (req, res, actor) => send(res, 200, store.updateProfile(actor, await readBody(req), meta(req)))],
+  ['POST', /^\/api\/profile\/password$/, async (req, res, actor) => {
+    if (passwordLimited(`${actor.id}|${clientIp(req)}`)) {
+      return send(res, 429, { error: { code: 'rate_limited', message: 'Too many attempts.', messageAr: 'محاولات كثيرة. انتظر قليلًا.' } });
+    }
+    const result = store.changePassword(actor, await readBody(req), meta(req));
+    const token = issueSession(actor.id, secret, SESSION_TTL, Date.now(), result.sessionVersion);
+    send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(token, SESSION_TTL, { production }) });
+  }],
+  ['GET', /^\/api\/students\/([^/]+)\/learning$/, async (_req, res, actor, m) => send(res, 200, store.learningProfile(actor, m[1]))],
+  ['GET', /^\/api\/performance$/, async (req, res, actor) => {
+    staffOnly(actor);
+    send(res, 200, rum.report({ range: q(req.url).range }));
+  }],
   ['GET', /^\/api\/dashboard$/, async (_req, res, actor) => send(res, 200, store.dashboard(actor))],
   ['GET', /^\/api\/console$/, async (req, res, actor) => send(res, 200, store.consoleBoard(actor, q(req.url).view || 'workspace'))],
   ['GET', /^\/api\/teacher\/day$/, async (req, res, actor) => send(res, 200, store.teacherDay(actor, q(req.url)))],
@@ -313,7 +426,7 @@ const routes = [
   ['POST', /^\/api\/requests$/, async (req, res, actor) => send(res, 201, store.createChangeRequest(actor, await readBody(req), meta(req)))],
   ['POST', /^\/api\/intake$/, async (req, res) => {
     const origin = String(req.headers.origin || '');
-    const ip = req.socket.remoteAddress || 'local';
+    const ip = clientIp(req);
     if (intakeRateLimited(ip)) {
       return send(res, 429, { error: { code: 'rate_limited', message: 'Too many submissions.', messageAr: 'إرسالات كثيرة. انتظر قليلًا.' } }, corsHeaders(origin));
     }
@@ -422,6 +535,7 @@ const server = http.createServer(async (req, res) => {
   const requestId = randomBytes(8).toString('hex');
   const startedAt = process.hrtime.bigint();
   res.setHeader('x-request-id', requestId);
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
   res.on('finish', () => {
     const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
     const record = requestLogRecord({
@@ -437,6 +551,7 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname.replace(/\/+$/, '') || '/';
     req.url = url;
+    if (pathname === '/api/rum' && (req.method === 'POST' || req.method === 'OPTIONS')) return await handleBeacon(req, res);
     if (pathname.startsWith('/api/')) {
       const origin = String(req.headers.origin || '');
       if (req.method === 'OPTIONS') {
@@ -467,7 +582,7 @@ const server = http.createServer(async (req, res) => {
             }, corsHeaders(origin));
           }
         }
-        if (pathname === '/api/auth/login' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
+        if (pathname === '/api/auth/login' || pathname === '/api/auth/register' || pathname === '/api/signup/options' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
         const actor = actorFrom(req);
         if (!actor) return send(res, 401, { error: { code: 'unauthorized', message: 'Sign in required.', messageAr: 'يلزم تسجيل الدخول.' } });
         return await handler(req, res, actor, match);
@@ -498,6 +613,7 @@ async function shutdown(signal) {
     timeoutMs: Number(process.env.PORTAL_SHUTDOWN_TIMEOUT_MS || 10_000),
     onTimeout: () => console.error(JSON.stringify({ event: 'portal.shutdown.timeout' })),
   });
+  rum.flush();
   console.log(JSON.stringify({ event: 'portal.shutdown.finished', timedOut: result.timedOut }));
   if (result.timedOut) process.exitCode = 1;
 }
