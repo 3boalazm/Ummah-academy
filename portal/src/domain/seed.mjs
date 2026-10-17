@@ -46,6 +46,10 @@ export const IDS = {
   amina: 'stu_amina',
   alfarsi: 'stu_alfarsi',
   yasmin: 'stu_yasmin',
+  sreqTrial: 'sreq_trial_mariam',
+  sreqTraining: 'sreq_training_ahmed',
+  sreqLevel: 'sreq_level_sami',
+  sreqContact: 'sreq_contact_lina',
   tOmneya: 'omneya-ali',
   tSara: 'sara-ahmed',
   tNour: 'nour-hassan',
@@ -795,6 +799,20 @@ export function buildSeed(now = new Date()) {
     ],
     idempotency: [],
     requests: [],
+    siteRequests: [
+      sreq(I.sreqTrial, 'trial', 'new', 'Mariam Hassan', 'مريم حسن', 'mariam.hassan@example.com', '+201001234567',
+        'Quran Memorization (Hifz)', 'Beginner', 'My child', 'أريد حصة تجربة لابني بعد المغرب بتوقيت القاهرة',
+        '/ar/contact/', at(-1, 20, 0, houston)),
+      sreq(I.sreqTraining, 'training', 'contacted', 'Ahmed Tarek', 'أحمد طارق', 'ahmed.tarek@example.com', '+201112223344',
+        'Tajweed teacher', null, null, 'I hold an Ijazah and want to teach Tajweed online.',
+        '/career/', at(-3, 9, 30, houston)),
+      sreq(I.sreqLevel, 'level-test', 'new', 'Sami Osman', 'سامي عثمان', 'sami.osman@example.com', null,
+        'Arabic Grammar', 'Intermediate', null, 'Placement test completed on the site.',
+        '/ar/placement-test/', at(0, 8, 15, houston)),
+      sreq(I.sreqContact, 'contact', 'closed', 'Lina Farouk', 'لينا فاروق', 'lina.farouk@example.com', null,
+        'Ummah Cubs (Kids)', null, 'My child', 'Asked about kids class times.',
+        '/contact/', at(-6, 11, 0, houston)),
+    ],
   };
 }
 
@@ -904,6 +922,25 @@ function audit(id, actorId, action, entityType, entityId, occurredAt, before, af
 }
 function evt(id, type, familyId, studentId, summary, summaryAr, occurredAt) {
   return { id, type, familyId, studentId, entityType: 'student', entityId: studentId, summary, summaryAr, occurredAt, actorId: IDS.ops };
+}
+function sreq(id, kind, status, name, nameAr, email, phone, course, level, learner, message, source, receivedAt) {
+  return {
+    id, submissionId: null, kind, status,
+    outcome: status === 'closed' ? 'won' : null,
+    name, nameAr, email, phone, country: null, city: null,
+    course, level, learner, message,
+    lang: 'ar', source,
+    payload: kind === 'level-test' ? { track: 'arabic', percent: 62, recommended: course } : {},
+    attribution: {},
+    receivedAt, updatedAt: receivedAt,
+    notes: status === 'contacted'
+      ? [{ id: 'snote_seed_1', at: receivedAt, by: IDS.ops, text: 'Called and explained the schedule.' }]
+      : status === 'closed'
+        ? [{ id: 'snote_seed_2', at: receivedAt, by: IDS.ops, text: 'Joined as a paying family.' }]
+        : [],
+    followUpId: status === 'closed' ? IDS.fuLayla : null,
+    closedAt: status === 'closed' ? receivedAt : null,
+  };
 }
 function note(id, userId, title, titleAr, body, bodyAr, href, read) {
   return { id, userId, title, titleAr, body, bodyAr, href, read, createdAt: new Date().toISOString() };

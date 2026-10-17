@@ -13,7 +13,7 @@ test('each persisted entity collection has unique stable IDs', () => {
     'users', 'teachers', 'families', 'guardians', 'students', 'courses', 'plans',
     'enrollments', 'subscriptions', 'cycles', 'sessions', 'payments', 'assignments',
     'attendance', 'reports', 'assets', 'followUps', 'attempts', 'audit', 'events',
-    'notifications',
+    'notifications', 'siteRequests',
   ];
   for (const name of collections) {
     assert.ok(Array.isArray(state[name]), `missing collection: ${name}`);
@@ -120,5 +120,15 @@ test('financial, attendance, report, asset and follow-up records keep valid fore
     if (row.teacherId) ref('teachers', row.teacherId, `follow-up ${row.id}`);
     if (row.subscriptionId) ref('subscriptions', row.subscriptionId, `follow-up ${row.id}`);
     if (row.sessionId) ref('sessions', row.sessionId, `follow-up ${row.id}`);
+  }
+});
+
+test('website requests keep honest links to the follow-up flow', () => {
+  for (const row of state.siteRequests) {
+    if (row.followUpId) ref('followUps', row.followUpId, `site request ${row.id}`);
+    if (row.status === 'closed') {
+      assert.ok(row.outcome, `closed site request ${row.id} has no outcome`);
+      assert.ok(row.closedAt, `closed site request ${row.id} has no closedAt`);
+    }
   }
 });

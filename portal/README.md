@@ -45,6 +45,15 @@ Every read and write checks the actor on the server. A family member is not a gr
 
 Data is written to `portal/data/store.json` (gitignored). Delete that file to return to the seed. An admin can also reset from **السلامة والقبول**.
 
+## Website requests (طلبات الموقع)
+
+The marketing site writes into this portal. `POST /api/intake` is a public, CORS-gated,
+rate-limited endpoint (honeypot + `submissionId` idempotency) that collects trial
+bookings (`/contact/`), teacher training applications (`/career/`) and anonymous
+placement results (`/placement-test/`). Staff work them at `/app/site-requests`:
+contact, note, close with an outcome, or convert into the regular follow-up queue.
+Point the site at it with `PUBLIC_INTAKE_URL`; see `docs/40-site-portal-link.md`.
+
 ## Staff operations
 
 Enrolment (`/app/onboard`) opens a two-lesson trial and does not enable the child's login. A weekly series keeps the local clock across DST; a conflict rolls the whole series back. WhatsApp (`/app/outbox`) is a draft queue: `wa.me` opens on the staff device only when a family phone is already on file. The academy number `+971 50 276 0242` is the sender, not a family recipient. Marking a draft sent does not confirm delivery. Invoices are derived from payments. CSV export is staff-only and contains no passwords. Uploads accept PDF, PNG, JPEG or plain text up to 1 MB, and reject video bytes.

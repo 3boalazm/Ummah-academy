@@ -162,6 +162,58 @@ function staffOnly(actor) {
   if (actor.role !== 'admin' && actor.role !== 'ops') throw E.forbidden();
 }
 
+const CORS_DEFAULTS = [
+  'https://ummahacademy.net',
+  'https://www.ummahacademy.net',
+  'https://ummah-academy.vercel.app',
+  'http://localhost:4321',
+  'http://127.0.0.1:4321',
+];
+const corsOrigins = new Set(
+  (process.env.PORTAL_CORS_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim().replace(/\/$/, ''))
+    .filter(Boolean),
+  );
+for (const origin of CORS_DEFAULTS) corsOrigins.add(origin);
+
+/** Marketing-site origins may call /api/intake. Non-production also allows preview hosts. */
+function allowedOrigin(origin) {
+  if (!origin) return null;
+  const clean = origin.replace(/\/$/, '');
+  if (corsOrigins.has(clean)) return clean;
+  if (!production) {
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(clean)) return clean;
+    if (/^https:\/\/([a-z0-9-]+\.)+(e2b\.app|vercel\.app)$/.test(clean)) return clean;
+  }
+  return null;
+}
+
+function corsHeaders(origin) {
+  const allowed = allowedOrigin(origin);
+  if (!allowed) return {};
+  return {
+    'access-control-allow-origin': allowed,
+    'access-control-allow-headers': 'content-type, x-ua-request, idempotency-key',
+    'access-control-allow-methods': 'POST, OPTIONS',
+    'access-control-max-age': '86400',
+    vary: 'Origin',
+  };
+}
+
+const intakeAttempts = new Map();
+function intakeRateLimited(ip) {
+  const now = Date.now();
+  const row = intakeAttempts.get(ip) ?? { n: 0, reset: now + 60 * 60 * 1000 };
+  if (now > row.reset) {
+    row.n = 0;
+    row.reset = now + 60 * 60 * 1000;
+  }
+  row.n += 1;
+  intakeAttempts.set(ip, row);
+  return row.n > 12;
+}
+
 function cookies(req) {
   const out = {};
   for (const part of String(req.headers.cookie || '').split(';')) {
@@ -372,6 +424,19 @@ const routes = [
   ['POST', /^\/api\/follow-ups\/([^/]+)\/attempts$/, async (req, res, actor, m) => send(res, 200, store.addAttempt(actor, m[1], await readBody(req), meta(req)))],
   ['POST', /^\/api\/follow-ups\/([^/]+)\/transition$/, async (req, res, actor, m) => send(res, 200, store.transitionFollowUp(actor, m[1], await readBody(req), meta(req)))],
   ['POST', /^\/api\/requests$/, async (req, res, actor) => send(res, 201, store.createChangeRequest(actor, await readBody(req), meta(req)))],
+  ['POST', /^\/api\/intake$/, async (req, res) => {
+    const origin = String(req.headers.origin || '');
+    const ip = clientIp(req);
+    if (intakeRateLimited(ip)) {
+      return send(res, 429, { error: { code: 'rate_limited', message: 'Too many submissions.', messageAr: 'إرسالات كثيرة. انتظر قليلًا.' } }, corsHeaders(origin));
+    }
+    const body = await readBody(req, 256_000);
+    const row = store.createSiteRequest(body, { requestId: randomBytes(8).toString('hex') });
+    return send(res, row.dropped ? 200 : 201, row, corsHeaders(origin));
+  }],
+  ['GET', /^\/api\/site-requests$/, async (req, res, actor) => send(res, 200, store.listSiteRequests(actor, q(req.url)))],
+  ['POST', /^\/api\/site-requests\/([^/]+)\/status$/, async (req, res, actor, m) => send(res, 200, store.updateSiteRequest(actor, m[1], await readBody(req), meta(req)))],
+  ['POST', /^\/api\/site-requests\/([^/]+)\/follow-up$/, async (req, res, actor, m) => send(res, 201, store.siteRequestToFollowUp(actor, m[1], await readBody(req), meta(req)))],
   ['GET', /^\/api\/audit$/, async (req, res, actor) => send(res, 200, store.listAudit(actor, q(req.url)))],
   ['GET', /^\/api\/integrity$/, async (_req, res, actor) => send(res, 200, store.integrity(actor))],
   ['GET', /^\/api\/acceptance$/, async (_req, res, actor) => send(res, 200, store.acceptance(actor))],
@@ -488,15 +553,35 @@ const server = http.createServer(async (req, res) => {
     req.url = url;
     if (pathname === '/api/rum' && (req.method === 'POST' || req.method === 'OPTIONS')) return await handleBeacon(req, res);
     if (pathname.startsWith('/api/')) {
+      const origin = String(req.headers.origin || '');
+      if (req.method === 'OPTIONS') {
+        if (!allowedOrigin(origin)) {
+          res.writeHead(403);
+          res.end();
+          return;
+        }
+        res.writeHead(204, corsHeaders(origin));
+        res.end();
+        return;
+      }
       if (req.method === 'POST' || req.method === 'PATCH') {
         if (req.headers['x-ua-request'] !== '1') {
-          return send(res, 400, { error: { code: 'csrf', message: 'Missing request header.', messageAr: 'ترويسة الطلب ناقصة.' } });
+          return send(res, 400, { error: { code: 'csrf', message: 'Missing request header.', messageAr: 'ترويسة الطلب ناقصة.' } }, pathname === '/api/intake' ? corsHeaders(origin) : {});
         }
       }
       for (const [method, re, handler] of routes) {
         if (req.method !== method) continue;
         const match = pathname.match(re);
         if (!match) continue;
+        if (pathname === '/api/intake') {
+          try {
+            return await handler(req, res);
+          } catch (err) {
+            if (!res.headersSent) return send(res, err instanceof DomainError ? err.status : 500, {
+              error: err instanceof DomainError ? err.toJSON() : { code: 'internal', message: 'Something went wrong.', messageAr: 'حدث خطأ غير متوقع.' },
+            }, corsHeaders(origin));
+          }
+        }
         if (pathname === '/api/auth/login' || pathname === '/api/auth/register' || pathname === '/api/signup/options' || pathname === '/api/auth/logout' || pathname === '/api/health' || pathname === '/api/ready') return await handler(req, res);
         const actor = actorFrom(req);
         if (!actor) return send(res, 401, { error: { code: 'unauthorized', message: 'Sign in required.', messageAr: 'يلزم تسجيل الدخول.' } });

@@ -66,6 +66,48 @@ export function recommend(key: TrackKey, pct: number, a: Record<string, number>,
 
 const isArabicText = (s: string) => /[\u0600-\u06FF]/.test(s) && !/[a-z]/i.test(s);
 
+/**
+ * Level tests are half of what the portal's Website Requests board promises.
+ * Fire-and-forget to the portal intake; the result screen never waits on this.
+ */
+function reportLevelTest(
+  root: HTMLElement,
+  t: { key: string; label: string },
+  level: string,
+  percent: number,
+  rec: Rec,
+): void {
+  const endpoint = root.dataset.endpoint;
+  if (!endpoint) return;
+  const body = {
+    kind: 'level-test',
+    submissionId: `pt-${Date.now()}-${t.key}`,
+    course: rec.trial,
+    level,
+    lang: root.dataset.lang || 'en',
+    source: location.pathname,
+    message: rec.course,
+    payload: {
+      track: t.key,
+      trackLabel: t.label,
+      percent,
+      level,
+      recommended: rec.course,
+    },
+    submitted_at: new Date().toISOString(),
+  };
+  try {
+    void fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-ua-request': '1' },
+      body: JSON.stringify(body),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    /* never block the student's result on reporting */
+  }
+}
+
 export function initPlacement(): void {
   const root = document.querySelector<HTMLElement>('[data-pt]');
   const dataEl = document.getElementById('pt-data');
@@ -180,6 +222,7 @@ export function initPlacement(): void {
     $<HTMLAnchorElement>('[data-r-wa]').href = `https://wa.me/${wa}?text=${encodeURIComponent(S.msg.map((line) => fmt(S, line, { track: t.label, level: S.levels[level], p: percent, course: rec.course })).join('\n'))}`;
     $<HTMLElement>('[data-q-bar]').style.width = '100%';
     track('placement_result', { track: t.key, level });
+    reportLevelTest(root, t, level, percent, rec);
     show('result');
   };
 
