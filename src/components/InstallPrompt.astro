@@ -4,14 +4,15 @@
  * (src/scripts/install.ts wires every instance on the page):
  *
  *   variant="pill" — pill in the floating dock on the bottom inline-start edge (bottom-left in
- *                    LTR, bottom-right in RTL), under the language button. Desktop only: it
- *                    would fight the mobile action bar, which owns the bottom edge on phones.
+ *                    LTR, bottom-right in RTL), under the language button. The card opens above
+ *                    the whole dock, so it never covers the language switch.
  *   variant="row"  — a row inside the mobile menu sheet, which expands into the same card
- *                    in place. This is where phones install from, because the floating pill
- *                    sat on top of the action bar and was hard to reach with a thumb.
+ *                    in place.
  *
- * Both stay hidden until the browser offers an install (or the visitor is on iOS Safari, which
- * has no programmatic install and gets the Share → Add to Home Screen steps instead.
+ * Both are always there (a control nobody sees is a control that does not exist) and go away
+ * only inside the installed app. What the card says depends on the browser: Chrome/Edge/Android
+ * replay their install prompt from "Install"; iOS Safari gets the Share → Add to Home Screen
+ * steps; every other browser gets a one-line pointer to its own menu.
  */
 import Icon from './Icon.astro';
 import { ui } from '@/locales';
@@ -36,7 +37,7 @@ const cardId = `ua-install-card-${variant}`;
         <Icon name="caret-down" weight="bold" class="install__caret" />
       </button>
     ) : (
-      <button class="install__pill glass" type="button" data-install-open aria-expanded="false" aria-controls={cardId} tabindex="-1">
+      <button class="install__pill glass" type="button" data-install-open aria-expanded="false" aria-controls={cardId}>
         <Icon name="download-simple" weight="bold" />
         <span>{t.trigger}</span>
       </button>
@@ -57,6 +58,14 @@ const cardId = `ua-install-card-${variant}`;
       </div>
     </div>
 
+    <div class="install__pane" data-install-manual hidden>
+      <p class="install__title">{t.title}</p>
+      <p class="install__body">{t.manualBody}</p>
+      <div class="install__actions">
+        <button class="install__later" type="button" data-install-dismiss>{t.dismiss}</button>
+      </div>
+    </div>
+
     <div class="install__pane" data-install-ios hidden>
       <p class="install__title">{t.iosTitle}</p>
       <p class="install__body">
@@ -72,19 +81,24 @@ const cardId = `ua-install-card-${variant}`;
 
 <style>
   .install {
+    display: block;
+  }
+
+  /* inside the installed app there is nothing to offer (iOS: install.ts sets data-installed) */
+  .install[data-installed] {
     display: none;
+  }
+
+  @media (display-mode: standalone), (display-mode: minimal-ui) {
+    .install {
+      display: none;
+    }
   }
 
   /* ---------- floating pill (desktop) ---------- */
   /* positioned by the bottom-left dock (components/Dock.astro), which stacks it under the
-     language button; relative so the open card can anchor above it */
-  .install--pill {
-    position: relative;
-  }
-
-  .install--pill[data-visible] {
-    display: block;
-  }
+     language button. Deliberately not positioned itself: the open card anchors to the dock, so
+     it rises above the language button instead of covering it. */
 
   .install__pill {
     --radius: var(--r-pill);
@@ -133,10 +147,6 @@ const cardId = `ua-install-card-${variant}`;
   }
 
   /* ---------- row inside the mobile sheet ---------- */
-  .install--row[data-visible] {
-    display: block;
-  }
-
   .install__row {
     display: flex;
     align-items: center;
@@ -257,11 +267,4 @@ const cardId = `ua-install-card-${variant}`;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
   }
 
-  /* The mobile action bar owns the bottom edge on phones: the floating pill steps aside and
-     the sheet row (which lives inside the menu) does the job instead. */
-  @media (max-width: 859px) {
-    .install--pill[data-visible] {
-      display: none;
-    }
-  }
 </style>

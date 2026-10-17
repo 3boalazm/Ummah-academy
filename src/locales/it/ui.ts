@@ -64,6 +64,7 @@ export default {
     dismiss: 'Più tardi',
     iosTitle: 'Installa su iPhone o iPad',
     iosBody: 'Tocca il pulsante Condividi di Safari, poi «Aggiungi a Home».',
+    manualBody: 'Apri il menu del browser e scegli «Installa app» o «Aggiungi a schermata Home».',
     close: 'Chiudi',
   },
   imprint: { title: 'Note legali', lede: 'Chi gestisce questo sito e come contattarci.', provider: 'Fornitore del servizio', representative: 'Rappresentato da', register: 'Iscrizione al registro', vat: 'Partita IVA', contact: 'Contatti' },

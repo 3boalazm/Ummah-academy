@@ -170,7 +170,8 @@ const isActive = (href: string) => path.startsWith(href);
     width: min(100% - 2 * clamp(10px, 2.4vw, 32px), 1280px);
     margin-inline: auto;
     height: 64px;
-    padding-inline: 20px 10px;
+    /* breathing room on both sides: the logo and the last button never touch the glass edge */
+    padding-inline: clamp(18px, 2.6vw, 34px);
     display: flex;
     align-items: center;
     gap: 16px;
@@ -621,7 +622,7 @@ const isActive = (href: string) => path.startsWith(href);
   @media (max-width: 859px) {
     .site-header__bar {
       height: 60px;
-      padding-inline: 12px 8px;
+      padding-inline: 18px;
       gap: 8px;
     }
 
@@ -635,12 +636,11 @@ const isActive = (href: string) => path.startsWith(href);
     }
   }
 
-  /* 860–1099: the desktop nav has just appeared — tighten spacing so five languages fit,
-     the theme switch included (Arabic runs longest: it overflows by ~40px without this) */
+  /* 860–1099: the desktop nav has just appeared — tighten the links a little so five languages fit
+     (Arabic runs longest). The bar's side padding stays: elements never sit against the edge. */
   @media (min-width: 860px) and (max-width: 1099px) {
     .site-header__bar {
       gap: 6px;
-      padding-inline: 14px 6px;
     }
 
     .site-header__actions {
@@ -651,17 +651,8 @@ const isActive = (href: string) => path.startsWith(href);
     .nav__signin {
       padding: 0 8px;
     }
-
   }
 
-  /* Right at the breakpoint (860–899 px) the desktop bar has ~1 px less room in Arabic than it
-     needs, so the action block poked past the glass edge. Measured at 858/859/860/861/900 px in
-     all five languages by qa/suites/header.mjs. */
-  @media (min-width: 860px) and (max-width: 899px) {
-    .site-header__bar {
-      padding-inline: 12px 6px;
-    }
-  }
 
   /* Phones and tablets (<860px): the bar is just the mark, the theme switch and the menu button,
      so it always fits — qa/suites/header.mjs measures every width from 320 px in all five

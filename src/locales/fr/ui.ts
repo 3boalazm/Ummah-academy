@@ -64,6 +64,7 @@ export default {
     dismiss: 'Plus tard',
     iosTitle: 'Installer sur iPhone ou iPad',
     iosBody: 'Touchez le bouton Partager de Safari, puis « Sur l’écran d’accueil ».',
+    manualBody: 'Ouvrez le menu du navigateur et choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».',
     close: 'Fermer',
   },
   imprint: { title: 'Mentions légales', lede: 'Qui édite ce site et comment nous joindre.', provider: 'Éditeur du site', representative: 'Représenté par', register: 'Immatriculation', vat: 'Numéro de TVA', contact: 'Contact' },

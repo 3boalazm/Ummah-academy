@@ -65,6 +65,7 @@ export default {
     dismiss: 'Not now',
     iosTitle: 'Install on iPhone or iPad',
     iosBody: 'Tap the Share button in Safari, then “Add to Home Screen”.',
+    manualBody: 'Open your browser menu and choose “Install app” or “Add to Home Screen”.',
     close: 'Close',
   },
   imprint: { title: 'Legal notice', lede: 'Who provides this website and how to reach us.', provider: 'Service provider', representative: 'Represented by', register: 'Register entry', vat: 'VAT ID', contact: 'Contact' },

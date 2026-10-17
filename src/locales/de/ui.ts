@@ -64,6 +64,7 @@ export default {
     dismiss: 'Später',
     iosTitle: 'Auf iPhone oder iPad installieren',
     iosBody: 'Tippen Sie in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.',
+    manualBody: 'Öffnen Sie das Browsermenü und wählen Sie „App installieren“ oder „Zum Startbildschirm hinzufügen“.',
     close: 'Schließen',
   },
   imprint: { title: 'Impressum', lede: 'Angaben gemäß § 5 DDG: wer diese Website anbietet und wie Sie uns erreichen.', provider: 'Diensteanbieter', representative: 'Vertreten durch', register: 'Registereintrag', vat: 'Umsatzsteuer-Identifikationsnummer', contact: 'Kontakt' },

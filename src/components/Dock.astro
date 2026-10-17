@@ -3,11 +3,11 @@
  * The floating stack on the bottom inline-start edge (bottom-left in LTR, bottom-right in RTL):
  *
  *   [ language ]   ← always there
- *   [ install  ]   ← only while the browser offers to install the app (desktop; phones install
- *                    from the menu sheet), hidden for good once the app is installed
+ *   [ install  ]   ← always there too, until the app is installed (then it disappears)
  *
  * The stack is a plain column anchored to the bottom, so the moment the install button goes away
- * — installed, dismissed, or never offered — the language button simply sits in the corner.
+ * the language button simply sits in the corner. The two never overlap: they are stacked, and the
+ * open install card (and the language popover) rise above the whole stack.
  * Phones: it rides above the sticky action bar while that bar is showing.
  */
 import LangMenu from './LangMenu.astro';

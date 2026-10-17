@@ -71,7 +71,7 @@ export function auditManifest() {
     .catch((e) => [`manifest fetch failed: ${e.message}`]);
 }
 
-/** State of both placements: the floating pill (desktop) and the row in the mobile sheet. */
+/** State of both placements: the pill in the bottom-left dock and the row in the mobile sheet. */
 const pillState = () => {
   const roots = [...document.querySelectorAll('[data-install]')];
   const pick = (v) => roots.find((r) => r.dataset.installVariant === v) ?? roots[0];
@@ -106,7 +106,7 @@ const pillState = () => {
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
   return {
-    visible: !!root?.hasAttribute('data-visible'),
+    visible: visibleIn(root),
     pill: r ? { x: r.x, y: r.y, w: r.width, h: r.height, inView: r.width > 0 && r.height >= 40 && r.left >= 0 && r.right <= vw + 1 && r.bottom <= vh + 1 } : null,
     pillDisplayed: root ? getComputedStyle(root).display !== 'none' : false,
     row: rowState,
@@ -183,19 +183,16 @@ export default async function pwa({ browser, base, pages }) {
     }
   }
 
-  /* 4 · the desktop pill: shown on offer, inside the viewport, opens, and "Not now" sticks */
+  /* 4 · the dock pill: always on the page (no install offer needed), inside the viewport, stacked
+         under the language button, its card never covers that button, "Not now" only closes the
+         card, and the whole thing goes away once the app is installed */
   {
-    const page = await newPage(browser, { width: 1280, height: 900 });
+    const page = await newPage(browser, { width: 1280, height: 900, isolated: true });
     try {
       await open(page, base + '/');
       let s = await page.evaluate(pillState);
-      if (s.visible) failures.push({ page: '/', detail: 'the pill shows before the browser offers an install' });
-
-      await page.evaluate(offerInstall);
-      await new Promise((r) => setTimeout(r, 150));
-      s = await page.evaluate(pillState);
       checked += 1;
-      if (!s.visible) failures.push({ page: '/', detail: 'beforeinstallprompt fired but the pill stayed hidden' });
+      if (!s.visible) failures.push({ page: '/', detail: 'the install button is not on the page (it must show without any install offer)' });
       if (s.pill && !s.pill.inView) failures.push({ page: '/', detail: `pill outside the viewport / too small: ${JSON.stringify(s.pill)}` });
 
       // the dock: the language button sits directly above the install button, on the same edge
@@ -206,28 +203,54 @@ export default async function pwa({ browser, base, pages }) {
       });
       if (!stacked || !stacked.above || !stacked.sameEdge || stacked.gap > 24) failures.push({ page: '/', detail: `the language button is not stacked above the install button: ${JSON.stringify(stacked)}` });
 
+      // no install offer yet: the card points at the browser's own menu
       await page.click('.install--pill [data-install-open]');
       s = await page.evaluate(pillState);
       if (s.expanded !== 'true' || s.cardHidden !== false) failures.push({ page: '/', detail: `tapping the pill did not open the card: ${JSON.stringify(s)}` });
-      const cardInView = await page.evaluate(() => {
-        const r = document.querySelector('.install--pill [data-install-card]').getBoundingClientRect();
-        return r.width > 200 && r.left >= 0 && r.right <= document.documentElement.clientWidth + 1 && r.top >= 0 && r.bottom <= document.documentElement.clientHeight + 1;
+      const manual = await page.evaluate(() => {
+        const m = document.querySelector('.install--pill [data-install-manual]');
+        return !!m && !m.hidden;
       });
-      if (!cardInView) failures.push({ page: '/', detail: 'the install card leaves the viewport' });
+      if (!manual) failures.push({ page: '/', detail: 'without an install offer the card must explain the browser-menu route' });
+      const geometry = await page.evaluate(() => {
+        const c = document.querySelector('.install--pill [data-install-card]').getBoundingClientRect();
+        const l = document.querySelector('[data-dock] .langmenu__btn').getBoundingClientRect();
+        return {
+          inView: c.width > 200 && c.left >= 0 && c.right <= document.documentElement.clientWidth + 1 && c.top >= 0 && c.bottom <= document.documentElement.clientHeight + 1,
+          coversLanguage: !(c.bottom <= l.top + 1 || c.top >= l.bottom - 1 || c.right <= l.left + 1 || c.left >= l.right - 1),
+        };
+      });
+      if (!geometry.inView) failures.push({ page: '/', detail: 'the install card leaves the viewport' });
+      if (geometry.coversLanguage) failures.push({ page: '/', detail: 'the open install card covers the language button' });
 
-      await page.click('.install--pill [data-install-dismiss]');
+      // "Not now" closes the card; the button stays and nothing is remembered
+      await page.click('.install--pill [data-install-manual]:not([hidden]) [data-install-dismiss]');
       s = await page.evaluate(pillState);
-      if (s.visible || s.dismissed !== 'dismissed') failures.push({ page: '/', detail: `"Not now" did not hide the pill or remember it: ${JSON.stringify(s)}` });
-      // with the install button gone, the language button drops to the corner
+      if (!s.visible || s.cardHidden !== true || s.dismissed === 'dismissed') failures.push({ page: '/', detail: `"Not now" must only close the card (button stays, nothing remembered): ${JSON.stringify(s)}` });
+
+      // the browser offers an install: the card now carries the real "Install" button
+      await page.evaluate(offerInstall);
+      await new Promise((r) => setTimeout(r, 150));
+      await page.click('.install--pill [data-install-open]');
+      const native = await page.evaluate(() => {
+        const n = document.querySelector('.install--pill [data-install-native]');
+        return !!n && !n.hidden;
+      });
+      checked += 1;
+      if (!native) failures.push({ page: '/', detail: 'beforeinstallprompt fired but the card does not offer the Install button' });
+      await page.keyboard.press('Escape');
+
+      // installed: the install button goes away and the language button drops to the corner
+      await page.evaluate(() => window.dispatchEvent(new Event('appinstalled')));
+      s = await page.evaluate(pillState);
+      if (s.visible) failures.push({ page: '/', detail: 'the install button is still on the page after the app was installed' });
       const fromBottom = await page.evaluate(() => Math.round(document.documentElement.clientHeight - document.querySelector('[data-dock] .langmenu__btn').getBoundingClientRect().bottom));
       if (fromBottom > 20) failures.push({ page: '/', detail: `the language button did not drop to the corner once the install button went away (${fromBottom}px from the bottom)` });
 
       await open(page, base + '/pricing/');
-      await page.evaluate(offerInstall);
-      await new Promise((r) => setTimeout(r, 150));
       s = await page.evaluate(pillState);
       checked += 1;
-      if (s.visible) failures.push({ page: '/pricing/', detail: 'the pill came back on the next page after "Not now"' });
+      if (s.visible) failures.push({ page: '/pricing/', detail: 'the install button came back on the next page after the app was installed' });
     } catch (e) {
       failures.push({ page: '/', detail: `error: ${e.message}` });
     } finally {
@@ -235,33 +258,22 @@ export default async function pwa({ browser, base, pages }) {
     }
   }
 
-  /* 4b · phones install from the mobile menu sheet, not from a floating pill that would sit on
-         top of the action bar. The row must be tappable, expand in place and never overflow. */
+  /* 4b · phones: the same pill rides in the dock (above the sticky bar), and the mobile menu sheet
+         carries an install row. The row must be tappable, expand in place and never overflow. */
   {
-    // isolated: section 4 pressed "Not now", which is remembered in localStorage
     const page = await newPage(browser, { width: 390, height: 844, mobile: true, touch: true, isolated: true });
     try {
       await open(page, base + '/');
-      await page.evaluate(offerInstall);
-      await new Promise((r) => setTimeout(r, 150));
-
       checked += 1;
       let s = await page.evaluate(pillState);
       if (s.row.shown) failures.push({ page: '/ (phone)', detail: 'the install row shows in a closed menu sheet' });
-      const pillBox = await page.evaluate(() => {
-        const root = document.querySelector('.install--pill');
-        const r = root.getBoundingClientRect();
-        return { display: getComputedStyle(root).display, h: r.height };
-      });
-      if (pillBox.display !== 'none' || pillBox.h > 0) {
-        failures.push({ page: '/ (phone)', detail: `the floating pill is still on screen on a phone (${JSON.stringify(pillBox)}) — it sits on top of the action bar` });
-      }
+      if (!s.visible || !s.pill?.inView) failures.push({ page: '/ (phone)', detail: `the install button is missing or off-screen on a phone: ${JSON.stringify(s.pill)}` });
 
       await page.click('[data-menu-open]');
       await new Promise((r) => setTimeout(r, 350));
       s = await page.evaluate(pillState);
       checked += 1;
-      if (!s.row.shown) failures.push({ page: '/ (phone)', detail: 'no install row inside the mobile menu when the browser offers an install' });
+      if (!s.row.shown) failures.push({ page: '/ (phone)', detail: 'no install row inside the mobile menu' });
       if (!s.row.inSheet) failures.push({ page: '/ (phone)', detail: 'the install row lives outside the menu sheet' });
       if (!s.row.clickable) failures.push({ page: '/ (phone)', detail: 'the install row is covered by something else — a tap would not reach it' });
 
@@ -281,17 +293,10 @@ export default async function pwa({ browser, base, pages }) {
       if (!inside.withinSheetWidth || !inside.inView) failures.push({ page: '/ (phone)', detail: `the install card overflows the sheet or the viewport: ${JSON.stringify(inside)}` });
       if (!inside.sheetScrolls) failures.push({ page: '/ (phone)', detail: 'the sheet cannot scroll with the install card open' });
 
-      await page.click('[data-menu] [data-install-dismiss]');
-      s = await page.evaluate(pillState);
-      if (s.dismissed !== 'dismissed') failures.push({ page: '/ (phone)', detail: `"Not now" was not remembered: ${JSON.stringify({ dismissed: s.dismissed })}` });
-      await open(page, base + '/pricing/');
-      await page.evaluate(offerInstall);
-      await new Promise((r) => setTimeout(r, 150));
-      await page.click('[data-menu-open]');
-      await new Promise((r) => setTimeout(r, 300));
+      await page.click('[data-menu] [data-install-manual]:not([hidden]) [data-install-dismiss]');
       s = await page.evaluate(pillState);
       checked += 1;
-      if (s.row.shown) failures.push({ page: '/pricing/ (phone)', detail: 'the install row came back on the next page after "Not now"' });
+      if (!s.row.shown || s.row.cardHidden !== true) failures.push({ page: '/ (phone)', detail: `"Not now" in the sheet must only close the card (row stays): ${JSON.stringify({ shown: s.row.shown, cardHidden: s.row.cardHidden })}` });
     } catch (e) {
       failures.push({ page: '/', detail: `error: ${e.message}` });
     } finally {

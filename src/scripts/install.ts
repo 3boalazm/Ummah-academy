@@ -1,10 +1,13 @@
 /**
  * "Install as an app" (PWA).
  *
- * Chrome/Edge/Android hand us a `beforeinstallprompt` we can replay from our own
- * button; iOS Safari has no such event, so there we show the Share → Add to Home
- * Screen steps instead. The pill itself stays hidden until one of the two is
- * true, and a visitor who taps "Not now" is never asked again on this device.
+ * The button is always on the page (the dock pill and the row in the mobile menu) and only
+ * goes away inside the installed app. What its card says depends on the browser:
+ *   - Chrome/Edge/Android hand us a `beforeinstallprompt` we replay from our own "Install" button;
+ *   - iOS Safari has no such event, so it gets the Share → Add to Home Screen steps;
+ *   - anything else (desktop Firefox/Safari, Chrome before it has fired the event…) gets a
+ *     one-line pointer to its own menu.
+ * "Not now" only closes the card — the button stays.
  */
 import { track } from './analytics';
 
@@ -22,9 +25,10 @@ const read = () => {
     return null;
   }
 };
-const remember = (v: string) => {
+const remember = (v: string | null) => {
   try {
-    localStorage.setItem(KEY, v);
+    if (v === null) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, v);
   } catch {
     /* private mode: the choice lasts for this page only */
   }
@@ -41,7 +45,7 @@ const isIOS =
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS 13+ reports as Mac
 
 /**
- * Wires every `[data-install]` on the page — there are two: the floating pill on desktop and
+ * Wires every `[data-install]` on the page — there are two: the pill in the bottom-left dock and
  * the row inside the mobile menu sheet. The deferred install event is shared, so both offers
  * replay the same browser prompt.
  */
@@ -56,8 +60,9 @@ function init() {
       const card = root.querySelector<HTMLElement>('[data-install-card]');
       const native = root.querySelector<HTMLElement>('[data-install-native]');
       const ios = root.querySelector<HTMLElement>('[data-install-ios]');
-      if (!pill || !card || !native || !ios) return null;
-      return { root, pill, card, native, ios };
+      const manual = root.querySelector<HTMLElement>('[data-install-manual]');
+      if (!pill || !card || !native || !ios || !manual) return null;
+      return { root, pill, card, native, ios, manual };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);
   if (!wired.length) return;
@@ -71,26 +76,20 @@ function init() {
     for (const self of wired) if (self !== except) closeCard(self);
   };
 
-  const hide = (persist: boolean) => {
+  /** Installed (or running as the app): no offer anywhere. */
+  const hide = () => {
     for (const self of wired) {
-      self.root.removeAttribute('data-visible');
-      self.pill.setAttribute('tabindex', '-1');
+      self.root.setAttribute('data-installed', '');
       closeCard(self);
     }
-    if (persist) remember('dismissed');
   };
 
-  const reveal = () => {
-    if (wired.some((self) => self.root.hasAttribute('data-visible'))) return;
-    for (const self of wired) {
-      self.root.setAttribute('data-visible', '');
-      self.pill.removeAttribute('tabindex');
-    }
-    track('install_shown', { platform: deferred ? 'prompt' : 'ios' });
+  const show = () => {
+    for (const self of wired) self.root.removeAttribute('data-installed');
   };
 
   for (const self of wired) {
-    const { root, pill, card, native, ios } = self;
+    const { root, pill, card, native, ios, manual } = self;
 
     pill.addEventListener('click', () => {
       if (!card.hidden) {
@@ -101,8 +100,9 @@ function init() {
       card.hidden = false;
       pill.setAttribute('aria-expanded', 'true');
       native.hidden = !deferred;
-      ios.hidden = !!deferred;
-      track('install_open', { variant: root.dataset.installVariant ?? 'pill' });
+      ios.hidden = !!deferred || !isIOS;
+      manual.hidden = !!deferred || isIOS;
+      track('install_open', { variant: root.dataset.installVariant ?? 'pill', mode: deferred ? 'prompt' : isIOS ? 'ios' : 'manual' });
     });
 
     root.querySelector('[data-install-confirm]')?.addEventListener('click', async () => {
@@ -112,13 +112,17 @@ function init() {
       await ev.prompt();
       const { outcome } = await ev.userChoice;
       track('install_choice', { outcome });
-      hide(outcome === 'dismissed');
+      // accepted → the browser fires `appinstalled` next; dismissed → the button simply stays
+      for (const other of wired) closeCard(other);
     });
 
-    root.querySelector('[data-install-dismiss]')?.addEventListener('click', () => {
-      track('install_dismissed');
-      hide(true);
-    });
+    for (const later of root.querySelectorAll('[data-install-dismiss]')) {
+      later.addEventListener('click', () => {
+        track('install_dismissed');
+        closeCard(self);
+        pill.focus();
+      });
+    }
 
     root.querySelector('[data-install-close]')?.addEventListener('click', () => {
       closeCard(self);
@@ -140,18 +144,19 @@ function init() {
   addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); // we ask from our own button, not the browser's infobar
     deferred = e as BeforeInstallPromptEvent;
-    if (!standalone && read() !== 'dismissed') reveal();
+    // the browser only offers an install when the app is NOT installed: forget an old "installed"
+    if (read() === 'installed') remember(null);
+    if (!standalone) show();
   });
 
   addEventListener('appinstalled', () => {
     remember('installed');
-    hide(false);
+    hide();
     track('installed');
   });
 
-  /* iOS has no event to wait for: offer it to Safari visitors who are not
-     already on the home screen and have not turned it down before. */
-  if (!standalone && read() !== 'dismissed' && (isIOS || deferred)) reveal();
+  // inside the installed app, or on a browser we last saw install it: nothing to offer
+  if (standalone || read() === 'installed') hide();
 }
 
 init();
