@@ -44,7 +44,16 @@ export const SITE = {
     register?: string;
     vatId?: string;
   },
-  leadEndpoint: (env.PUBLIC_LEAD_ENDPOINT as string | undefined) ?? '',
+  /**
+   * Where the site sends its forms: the operations portal intake
+   * (`POST /api/intake` — "طلبات الموقع"). PUBLIC_INTAKE_URL wins; the older
+   * PUBLIC_LEAD_ENDPOINT name still works. Empty disables the network send and
+   * the thank-you page falls back to the WhatsApp/email hand-off.
+   */
+  leadEndpoint:
+    (env.PUBLIC_INTAKE_URL as string | undefined) ??
+    (env.PUBLIC_LEAD_ENDPOINT as string | undefined) ??
+    '',
 } as const;
 
 export const portalLinks = {

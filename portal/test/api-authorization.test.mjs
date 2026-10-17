@@ -112,6 +112,8 @@ const protectedRoutes = [
   ['POST','/api/sessions/series'], ['POST','/api/guardians/grd_khalid/phone'], ['POST','/api/guardians/grd_fatima/whatsapp-consent'],
   ['GET','/api/outbox'], ['POST','/api/outbox/drafts'], ['POST','/api/outbox/draft_missing'],
   ['GET','/api/invoices'], ['GET','/api/export/students'], ['POST','/api/admin/reset-demo'],
+  ['GET','/api/site-requests'], ['POST','/api/site-requests/sreq_missing/status'],
+  ['POST','/api/site-requests/sreq_missing/follow-up'],
 ];
 
 test('every inventoried protected API route rejects anonymous direct requests', async () => {
@@ -306,4 +308,31 @@ test('guardian and unrelated teacher cannot submit lesson reports through the AP
     });
     assert.ok([403, 404].includes(response.status), `${role} must not write a report for a session outside their authority; got ${response.status}`);
   }
+});
+
+test('website intake is deliberately public while the board stays protected', async () => {
+  const preflight = await fetch(base + '/api/intake', {
+    method: 'OPTIONS',
+    headers: { origin: 'https://ummahacademy.net', 'access-control-request-method': 'POST' },
+  });
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get('access-control-allow-origin'), 'https://ummahacademy.net');
+
+  const created = await fetch(base + '/api/intake', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-ua-request': '1', origin: 'https://ummahacademy.net' },
+    body: JSON.stringify({
+      kind: 'trial', submissionId: 'api-test-1', name: 'API Tester',
+      email: 'api.tester@example.com', course: 'Tajweed Rules',
+      source: '/contact/', submitted_at: new Date().toISOString(),
+    }),
+  });
+  const createdText = await created.text();
+  assert.equal(created.status, 201, createdText);
+  assert.equal(created.headers.get('access-control-allow-origin'), 'https://ummahacademy.net');
+  const row = JSON.parse(createdText);
+  assert.equal(row.status, 'new');
+
+  const board = await request('/api/site-requests');
+  assert.equal(board.status, 401, 'the board requires a session even though intake does not');
 });
