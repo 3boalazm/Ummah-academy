@@ -1,0 +1,89 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Icon from '@/components/Icon.astro';
+import { SITE, waLink } from '@/data/site';
+import { lp, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const t = ui(lang);
+const C = copy(lang).accessibility.C;
+const fill = (html: string) =>
+  html
+    .replaceAll('{email}', `<a href="mailto:${SITE.email}">${SITE.email}</a>`)
+    .replaceAll('{whatsapp}', `<a href="${waLink()}" dir="ltr">${SITE.whatsapp.display}</a>`);
+const path = '/accessibility/';
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero eyebrow={C.eyebrow} title={C.title} lede={C.lede} crumbs={[{ label: C.crumb }]} compact lang={lang} />
+  <section class="section section--tight">
+    <div class="container--narrow">
+      {
+        t.legalNotice && (
+          <p class="a11y__notice glass" role="note">
+            <Icon name="info" weight="fill" />
+            <span>
+              {t.legalNotice}{' '}
+              <a href={path} hreflang="en" lang="en">
+                English version
+              </a>
+            </span>
+          </p>
+        )
+      }
+      <article class="glass glass--strong legal prose">
+        <p><em>{C.updated}</em></p>
+        <p>{C.intro}</p>
+        {
+          C.sections.map((s) => (
+            <>
+              <h2>{s.h}</h2>
+              <p set:html={fill(s.p)} />
+            </>
+          ))
+        }
+        <p>
+          <a href={lp(lang, '/privacy-policy/')}>{t.privacy}</a>
+          {' · '}
+          <a href={lp(lang, '/contact/')}>{t.nav.contact}</a>
+        </p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal {
+    --radius: var(--r-xl);
+    padding: clamp(24px, 4vw, 56px);
+  }
+
+  .a11y__notice {
+    --radius: var(--r-md);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+
+  .a11y__notice :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.35em;
+    color: var(--accent-ink);
+  }
+
+  .a11y__notice a {
+    color: var(--accent-ink);
+    font-weight: 560;
+  }
+</style>

@@ -1,0 +1,138 @@
+---
+import Icon from './Icon.astro';
+import { ui } from '@/locales';
+import type { Lang } from '@/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui(lang).search;
+---
+
+<dialog class="search" data-search data-pagefind-ignore aria-labelledby="ua-search-title">
+  <form class="search__sheet glass glass--strong" data-search-form method="dialog">
+    <div class="search__top">
+      <h2 id="ua-search-title" class="sr-only">{t.open}</h2>
+      <label class="search__field">
+        <Icon name="magnifying-glass" weight="bold" />
+        <input class="search__input" type="search" name="q" autocomplete="off" placeholder={t.placeholder} data-search-input />
+      </label>
+      <button class="search__close" type="button" data-search-close aria-label={t.close}>
+        <Icon name="x" weight="bold" />
+      </button>
+    </div>
+    <p class="search__hint" data-search-hint>{t.hint}</p>
+    <p class="search__empty" data-search-empty hidden>{t.empty}</p>
+    <p class="search__off" data-search-off hidden>{t.unavailable}</p>
+    <ul class="search__list" role="list" data-search-results></ul>
+  </form>
+</dialog>
+
+<style>
+  .search {
+    width: min(640px, calc(100vw - 24px));
+    max-height: min(72vh, 640px);
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .search::backdrop {
+    background: rgb(18 10 28 / 0.45);
+    backdrop-filter: blur(8px);
+  }
+
+  .search__sheet {
+    --radius: 24px;
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    max-height: min(72vh, 640px);
+    overflow: auto;
+  }
+
+  .search__top {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .search__field {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 16px;
+    background: rgb(46 29 70 / 0.06);
+  }
+
+  .search__field :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: var(--ink-3);
+  }
+
+  .search__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--ink);
+  }
+
+  .search__input:focus {
+    outline: none;
+  }
+
+  .search__close {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .search__hint,
+  .search__empty,
+  .search__off {
+    margin: 4px 4px 0;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+  }
+
+  .search__list {
+    display: grid;
+    gap: 6px;
+    margin: 8px 0 0;
+    padding: 0;
+  }
+
+  .search__list :global(a) {
+    display: grid;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .search__list :global(a:hover) {
+    background: rgb(46 29 70 / 0.06);
+  }
+
+  .search__list :global(strong) {
+    font-size: 0.98rem;
+  }
+
+  .search__list :global(small) {
+    color: var(--ink-3);
+    font-size: 0.84rem;
+  }
+</style>

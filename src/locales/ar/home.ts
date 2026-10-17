@@ -66,7 +66,7 @@ export default {
       ],
     },
     tracks: { eyebrow: 'الدورات', title: 'أربعة مسارات. <span class="accent">ابدأ من حيث أنت.</span>', lede: 'تأسيس القراءة، وتحسين التلاوة، والحفظ، وفهم العربية والدين. اختر هدفك واطّلع على التفاصيل.' },
-    stories: { eyebrow: 'قصص', title: 'من تجارب الأسر، <span class="accent">بكلماتهم.</span>', note: 'آراء مترجمة من الإنجليزية.' },
+    stories: { eyebrow: 'قصص', title: 'من تجارب الأسر، <span class="accent">بكلماتهم.</span>', note: 'آراء مترجمة من الإنجليزية.', all: 'اقرأ كل القصص' },
     pricing: {
       eyebrow: 'الأسعار',
       title: 'أسعار واضحة. <span class="accent">وحصتان مجانيتان أولًا.</span>',

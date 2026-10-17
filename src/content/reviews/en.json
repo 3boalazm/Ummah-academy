@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "sarah-al-mansouri",
+      "name": "Sarah Al-Mansouri",
+      "initials": "SA",
+      "quote": "My son used to dread Quran lessons. Now he reminds ME about his session time! Teacher Nour makes every class an adventure he genuinely looks forward to.",
+      "result": "Now excited for every Quran class",
+      "location": "London, UK",
+      "program": "Ummah Cubs",
+      "track": "kids",
+      "teacher": "nour-hassan"
+    },
+    {
+      "id": "amina-bergstrom",
+      "name": "Amina Bergström",
+      "initials": "AB",
+      "quote": "After years of struggling, I finally recited Surah Al-Fatiha correctly for the first time. Alhamdulillah — Teacher Omneya’s patience changed everything.",
+      "result": "Recited Al-Fatiha correctly for the first time",
+      "location": "Toronto, Canada",
+      "program": "Tajweed",
+      "track": "quran",
+      "teacher": "omneya-ali"
+    },
+    {
+      "id": "khalid-rahman",
+      "name": "Khalid Rahman",
+      "initials": "KR",
+      "quote": "As a father of three, the Family Portal lets me track all my children’s learning in one place. Detailed reports after every session — truly exceptional.",
+      "result": "Tracks 3 children in one place",
+      "location": "Houston, USA",
+      "program": "Family plan",
+      "track": "kids",
+      "teacher": ""
+    },
+    {
+      "id": "omar-al-farsi",
+      "name": "Omar Al-Farsi",
+      "initials": "OF",
+      "quote": "I live in Australia and was worried about timezones. They scheduled my sessions at 7am and even send WhatsApp reminders. Very professional team.",
+      "result": "7am sessions across time zones",
+      "location": "Sydney, Australia",
+      "program": "Memorisation",
+      "track": "quran",
+      "teacher": ""
+    },
+    {
+      "id": "yasmin-dubois",
+      "name": "Yasmin Dubois",
+      "initials": "YD",
+      "quote": "My Arabic went from absolute zero to reading the Quran in just 6 months using Noor Al-Bayan. The Itqan approach is simply extraordinary.",
+      "result": "Reading the Qur’an within 6 months",
+      "location": "Paris, France",
+      "program": "Arabic",
+      "track": "arabic",
+      "teacher": ""
+    }
+  ]
+}

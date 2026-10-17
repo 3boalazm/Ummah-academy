@@ -36,6 +36,8 @@
 | `language_switch` | `to` |
 | `blog_filter` | `topic` |
 | `resource_download` *(Phase 3)* | `resource` = worksheet id |
+| `resource_filter` *(WP-gap cut)* | `filter` = all \\| tajweed \\| arabic \\| hifz \\| kids |
+| `search_open` / `search_query` | `q` = first 40 chars of the query (no PII) |
 | `consent_update` *(Phase 3, GTM only)* | `analytics` = granted |
 | `language_hint` *(Phase 4)* | `action` = accept \| dismiss, `to` = offered language |
 

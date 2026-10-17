@@ -64,10 +64,16 @@ function teacherCan(actor, action, resource, state) {
   const teachesSession = resource?.teacherId && resource.teacherId === actor.teacherId;
   const current = sid ? currentPrimary(state, sid)?.teacherId === actor.teacherId : false;
 
-  if (action === 'dashboard.read' || action === 'catalog.read' || action === 'notification.read' || action === 'session.list' || action === 'student.list') {
+  if (action === 'dashboard.read' || action === 'catalog.read' || action === 'notification.read' || action === 'session.list' || action === 'student.list' || action === 'homework.list') {
     return true;
   }
+  if (action === 'teacher.day') return !resource?.id || resource.id === actor.teacherId;
   if (action === 'teacher.read') return !resource?.id || resource.id === actor.teacherId;
+  if (action === 'homework.read') return Boolean(sid && mine.has(sid));
+  if (action === 'homework.write') {
+    const currentAssigned = sid && state.assignments.some((a) => a.teacherId === actor.teacherId && a.studentId === sid && !a.endAt);
+    return Boolean(teachesSession || currentAssigned);
+  }
   if (action === 'student.read') return Boolean(sid && mine.has(sid));
   if (action === 'session.read') return Boolean(teachesSession || (sid && current && mine.has(sid)));
   if (action === 'session.write' || action === 'session.report' || action === 'session.cancel') {
@@ -99,9 +105,10 @@ function guardianCan(actor, action, resource, state) {
   const sid = studentResourceId(resource);
   const ownFamily = resource?.familyId ? resource.familyId === g.familyId : resource?.type === 'family' && resource.id === g.familyId;
 
-  if (action === 'dashboard.read' || action === 'catalog.read' || action === 'notification.read' || action === 'session.list' || action === 'student.list' || action === 'followup.list') {
+  if (action === 'dashboard.read' || action === 'catalog.read' || action === 'notification.read' || action === 'session.list' || action === 'student.list' || action === 'followup.list' || action === 'homework.list') {
     return true;
   }
+  if (action === 'homework.read') return Boolean(sid && granted.has(sid));
   if (action === 'family.read') return resource?.id === g.familyId || resource?.familyId === g.familyId;
   if (action === 'student.read') return Boolean(sid && granted.has(sid));
   if (action === 'session.read') return Boolean(sid && granted.has(sid));
@@ -122,8 +129,9 @@ function guardianCan(actor, action, resource, state) {
 function studentCan(actor, action, resource) {
   const sid = actor.studentId;
   if (!sid) return false;
-  if (action === 'dashboard.read' || action === 'catalog.read' || action === 'notification.read' || action === 'session.list' || action === 'student.list') return true;
+  if (action === 'dashboard.read' || action === 'catalog.read' || action === 'notification.read' || action === 'session.list' || action === 'student.list' || action === 'homework.list') return true;
   if (action === 'student.read') return resource?.id === sid || resource?.studentId === sid;
+  if (action === 'homework.read') return studentResourceId(resource) === sid;
   if (action === 'session.read' || action === 'asset.read' || action === 'subscription.read') {
     return studentResourceId(resource) === sid;
   }

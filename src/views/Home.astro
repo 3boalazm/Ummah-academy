@@ -12,7 +12,8 @@ import heroArt from '@/assets/art/hero-learning.webp';
 import { getTracks } from '@/data/tracks';
 import { getTestimonials } from '@/data/people';
 import { getPlans, perSession } from '@/data/pricing';
-import { lp, price, num, type Lang } from '@/i18n';
+import Money from '@/components/Money.astro';
+import { lp, num, type Lang } from '@/i18n';
 import { copy, ui } from '@/locales';
 
 interface Props {
@@ -230,7 +231,10 @@ const plans60 = plans.filter((p) => p.minutes === 60);
         {stories.map((s) => <li><TestimonialCard t={s} lang={lang} /></li>)}
       </ul>
     </div>
-    {C.stories.note && <p class="container muted rail__note">{C.stories.note}</p>}
+    <p class="container rail__note">
+      {C.stories.note && <span class="muted">{C.stories.note} </span>}
+      <a href={lp(lang, '/reviews/')}>{C.stories.all}</a>
+    </p>
   </section>
 
   <!-- 8 · Pricing teaser -->
@@ -264,10 +268,10 @@ const plans60 = plans.filter((p) => p.minutes === 60);
                       <p class="mini-plan__meta">{p.sessionsLabel}</p>
                     </div>
                     <p class="mini-plan__price">
-                      {price(lang, p.price)}
+                      <Money usd={p.price} lang={lang} />
                       <small>{t.perMonth}</small>
                       <span>
-                        {t.approx}{price(lang, perSession(p))} {C.pricing.perSession}
+                        {t.approx}<Money usd={perSession(p)} lang={lang} /> {C.pricing.perSession}
                       </span>
                     </p>
                   </li>

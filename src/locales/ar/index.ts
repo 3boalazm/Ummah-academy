@@ -1,5 +1,6 @@
 /** AR locale — one module per view/component. */
 export { default as about } from './about';
+export { default as accessibility } from './accessibility';
 export { default as article } from './article';
 export { default as blog } from './blog';
 export { default as booking } from './booking';
@@ -15,6 +16,7 @@ export { default as placement } from './placement';
 export { default as pricing } from './pricing';
 export { default as related } from './related';
 export { default as resources } from './resources';
+export { default as reviews } from './reviews';
 export { default as sanad } from './sanad';
 export { default as teacherCard } from './teacherCard';
 export { default as teacherProfile } from './teacherProfile';

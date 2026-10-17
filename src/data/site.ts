@@ -66,7 +66,7 @@ export function trialLink(params: Record<string, string> = {}, lang: Lang = 'en'
 const FOOTER_ROUTES = {
   learn: ['/courses/', '/quran-recitation-course/', '/quran-memorization-hifz/', '/online-arabic-classes/', '/ummah-cubs-kids-islamic-studies/', '/online-islamic-studies-classes/'],
   academy: ['/about/', '/teachers/', '/pricing/', '/family-portal/', '/career/'],
-  resources: ['/placement-test/', '/blog/', '/resources/', '/faq/', '/contact/'],
+  resources: ['/placement-test/', '/blog/', '/resources/', '/reviews/', '/faq/', '/contact/'],
 } as const;
 
 export const FOOTER_LINKS = (lang: Lang, labels: Record<keyof typeof FOOTER_ROUTES, readonly string[]>) =>

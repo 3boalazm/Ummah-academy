@@ -2,7 +2,8 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import type { Track } from '@/data/tracks';
-import { lp, price, type Lang } from '@/i18n';
+import Money from './Money.astro';
+import { lp, type Lang } from '@/i18n';
 import { ui } from '@/locales';
 interface Props {
   track: Track;
@@ -34,7 +35,7 @@ const href = lp(lang, track.href);
       )
     }
     <div class="track-card__foot">
-      <span class="track-card__price"><small>{t.from}</small> {price(lang, track.from)}<small>{t.perMonth}</small></span>
+      <span class="track-card__price"><small>{t.from}</small> <Money usd={track.from} lang={lang} /><small>{t.perMonth}</small></span>
       <span class="track-card__go" aria-hidden="true"><Icon name="arrow-right" weight="bold" class="icon-arrow" /></span>
     </div>
   </div>

@@ -1,0 +1,248 @@
+---
+/**
+ * Currency switch — dock pill (opens upward) and a labelled row in the mobile sheet.
+ * Display only: list prices stay authored in USD.
+ */
+import Icon from './Icon.astro';
+import { FX } from '@/data/fx';
+import { ui } from '@/locales';
+import type { Lang } from '@/i18n';
+
+interface Props {
+  lang: Lang;
+  variant?: 'dock' | 'sheet';
+}
+const { lang, variant = 'dock' } = Astro.props;
+const t = ui(lang).fx;
+---
+
+{
+  variant === 'dock' && (
+    <details class="fxmenu fxmenu--dock" data-fxmenu>
+      <summary class="fxmenu__btn">
+        <Icon name="coins" weight="bold" />
+        <span class="fxmenu__code" data-fx-current>
+          USD
+        </span>
+        <span class="sr-only"> · {t.label}</span>
+        <Icon name="caret-down" weight="bold" class="fxmenu__caret" />
+      </summary>
+      <div class="fxmenu__panel glass glass--strong">
+        <p class="fxmenu__title">{t.label}</p>
+        <ul role="list" class="fxmenu__list">
+          {FX.map((c) => (
+            <li>
+              <button type="button" class:list={['fxmenu__item', { 'is-current': c.code === 'USD' }]} data-fx-code={c.code} aria-pressed={c.code === 'USD' ? 'true' : 'false'}>
+                <span>{t.codes[c.code]}</span>
+                <span class="fxmenu__short">{c.short}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <p class="fxmenu__note">{t.billed}</p>
+        <p class="fxmenu__note">{t.indicative}</p>
+        <p class="fxmenu__note">{t.asOf}</p>
+      </div>
+    </details>
+  )
+}
+
+{
+  variant === 'sheet' && (
+    <nav class="fxchips" aria-label={t.label}>
+      <p class="fxchips__label">
+        <Icon name="coins" weight="bold" /> {t.label}
+      </p>
+      <ul role="list">
+        {FX.map((c) => (
+          <li>
+            <button type="button" class:list={['fxchips__chip', { 'is-current': c.code === 'USD' }]} data-fx-code={c.code} aria-pressed={c.code === 'USD' ? 'true' : 'false'}>
+              {c.short}
+              <span class="sr-only"> · {t.codes[c.code]}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p class="fxchips__note">{t.billed}</p>
+    </nav>
+  )
+}
+
+<style>
+  .fxmenu {
+    position: relative;
+  }
+
+  .fxmenu__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 12px 0 14px;
+    border-radius: 999px;
+    list-style: none;
+    cursor: pointer;
+    background: rgb(255 255 255 / 0.94);
+    box-shadow:
+      inset 0 0 0 1px rgb(46 29 70 / 0.1),
+      var(--shadow-lift);
+    font: inherit;
+    font-weight: 650;
+    color: var(--ink);
+  }
+
+  .fxmenu__btn::-webkit-details-marker {
+    display: none;
+  }
+
+  .fxmenu__btn :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .fxmenu__caret {
+    width: 12px;
+    height: 12px;
+    opacity: 0.55;
+  }
+
+  .fxmenu__code {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+
+  .fxmenu--dock .fxmenu__panel {
+    position: absolute;
+    top: auto;
+    bottom: calc(100% + 10px);
+    inset-inline: 0 auto;
+    width: min(280px, calc(100vw - 28px));
+    padding: 12px;
+    transform-origin: bottom left;
+  }
+
+  :global([dir='rtl']) .fxmenu--dock .fxmenu__panel {
+    transform-origin: bottom right;
+  }
+
+  .fxmenu__title {
+    margin: 4px 10px 8px;
+    color: var(--ink-3);
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .fxmenu__list {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fxmenu__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 540;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .fxmenu__item:hover {
+    background: rgb(46 29 70 / 0.06);
+  }
+
+  .fxmenu__item.is-current {
+    background: rgb(255 255 255 / 0.85);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+    font-weight: 620;
+  }
+
+  .fxmenu__short {
+    min-width: 36px;
+    height: 22px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 8px;
+    color: var(--ink-3);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    background: rgb(46 29 70 / 0.05);
+  }
+
+  .is-current .fxmenu__short {
+    color: var(--accent-ink);
+    background: rgb(143 47 158 / 0.1);
+  }
+
+  .fxmenu__note {
+    margin: 8px 10px 0;
+    color: var(--ink-3);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .fxchips {
+    margin-top: 8px;
+  }
+
+  .fxchips__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    color: var(--ink-3);
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .fxchips ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fxchips__chip {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(46 29 70 / 0.06);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .fxchips__chip.is-current {
+    background: var(--violet-600);
+    color: #fff;
+  }
+
+  .fxchips__note {
+    margin: 8px 0 0;
+    color: var(--ink-3);
+    font-size: 0.82rem;
+  }
+
+  :global([data-theme='dark']) .fxmenu__btn {
+    background: rgb(24 18 36 / 0.92);
+  }
+</style>

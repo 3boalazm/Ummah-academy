@@ -17,7 +17,9 @@
 - [ ] **Placement test question bank** (`src/data/placement.ts` for EN and AR; `src/locales/{de,fr,it}/data/placement.ts`): academic review by the Tajweed department (ABO-39).
 - [ ] **Arabic copy:** native editorial review (written in Modern Standard Arabic). Phase 3 adds the 3 Arabic articles (`src/content/blog-ar/`) and the Arabic Resources, Family Portal and legal pages.
 - [ ] **Worksheets** (`public/downloads/`, source in `scripts/pdfs/sheets/`): academic review of the Tajweed examples, the Nahw answers and the letter names and example words. Regenerate with `npm run pdfs` after edits.
-- [ ] **Legal:** privacy and terms are the live templates. Have them reviewed against the actual legal entity, children's data, recordings and WhatsApp processing. The Arabic pages are a translation that says the English text prevails. Update both after the review (`src/content-i18n/legal.ts`). If GTM is enabled, mention analytics cookies and the consent banner in the policy.
+- [ ] **Legal:** privacy and terms are the live templates. Have them reviewed against the actual legal entity, children's data, recordings and WhatsApp processing. The Arabic pages are a translation that says the English text prevails. Update both after the review (`src/content-i18n/legal.ts`). If GTM is enabled, mention analytics cookies and the consent banner in the policy. The public accessibility statement (`/accessibility/`, five languages) is a working draft — confirm the two-working-day reply promise and the known-limits list.
+- [ ] **Transactional email (MSG-004).** WordPress WP Mail SMTP is gone. Choose a provider before expecting booking receipts, password resets or career-form copies to arrive as email rather than WhatsApp/`mailto:`.
+- [ ] **Payments (FIN-001).** Stripe was disconnected on the live WordPress site. Decide Stripe vs manual transfer vs both before cut-over.
 - [ ] **Logo:** approve the proposed SVG mark (`src/components/Logo.astro`), or swap in the legacy logo.
 
 ## B. Technical migration (P0)

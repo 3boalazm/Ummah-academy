@@ -28,6 +28,7 @@ export default {
   footerNote: 'Oltre 50 paesi · Lezioni a ogni ora',
   privacy: 'Informativa sulla privacy',
   terms: 'Termini di servizio',
+  accessibility: 'Accessibilità',
   careers: 'Lavora con noi',
   library: 'Biblioteca gratuita',
   sticky: { book: 'Prova gratuita', wa: 'WhatsApp' },
@@ -71,6 +72,21 @@ export default {
   footerLinks: {
     learn: ['Tutti i corsi', 'Recitazione del Corano & Tajweed', 'Hifz & ijaza', 'Lingua araba', 'Ummah Cubs (bambini)', 'Studi islamici'],
     academy: ['Chi siamo', 'I nostri insegnanti', 'Prezzi', 'Area famiglie', 'Insegna con noi'],
-    resources: ['Test di livello', 'Blog', 'Biblioteca gratuita', 'FAQ', 'Prova gratuita / contatti'],
+    resources: ['Test di livello', 'Blog', 'Biblioteca gratuita', 'Storie', 'FAQ', 'Prova gratuita / contatti'],
+  },
+  search: {
+    open: 'Cerca nel sito',
+    close: 'Chiudi la ricerca',
+    placeholder: 'Corsi, articoli, domande…',
+    hint: 'Scrivi almeno due lettere.',
+    empty: 'Nessun risultato. Prova un’altra parola.',
+    unavailable: 'La ricerca è pronta sul sito pubblicato. In locale non viene indicizzato.',
+  },
+  fx: {
+    label: 'Valuta',
+    billed: 'L’addebito è in dollari USA.',
+    indicative: 'Gli importi sono solo un aiuto di lettura, non un tasso in diretta.',
+    asOf: 'Tassi indicativi al 17 ottobre 2026.',
+    codes: { USD: 'Dollaro USA', EUR: 'Euro', GBP: 'Sterlina', AED: 'Dirham UAE', SAR: 'Riyal saudita' },
   },
 };

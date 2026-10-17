@@ -25,12 +25,5 @@ const people: PeopleText = {
       credentials: ['Certifiée — éducation islamique de la petite enfance', '7\u00a0ans avec les 5–14\u00a0ans', 'Arabe & anglais'],
     },
   },
-  testimonials: [
-    { quote: 'Avant, mon fils redoutait les cours de Coran. Maintenant, c’est LUI qui me rappelle l’heure de sa séance\u00a0! Ustadha Nour fait de chaque cours une aventure qu’il attend avec impatience.', result: 'Attend désormais chaque cours de Coran', location: 'Londres, Royaume-Uni', program: 'Ummah Cubs' },
-    { quote: 'Après des années de difficultés, j’ai récité la sourate Al-Fatiha correctement pour la première fois. Alhamdoulillah — la patience d’Ustadha Omneya a tout changé.', result: 'A récité Al-Fatiha correctement pour la première fois', location: 'Toronto, Canada', program: 'Tajwid' },
-    { quote: 'Père de trois enfants, je suis grâce à l’Espace famille l’apprentissage de tous mes enfants au même endroit. Des comptes rendus détaillés après chaque séance — vraiment exceptionnel.', result: 'Suit 3 enfants au même endroit', location: 'Houston, États-Unis', program: 'Formule famille' },
-    { quote: 'J’habite en Australie et je m’inquiétais des fuseaux horaires. Ils ont programmé mes séances à 7\u00a0h du matin et envoient même des rappels sur WhatsApp. Une équipe très professionnelle.', result: 'Des séances à 7\u00a0h malgré les fuseaux', location: 'Sydney, Australie', program: 'Mémorisation' },
-    { quote: 'Avec Noor Al-Bayan, je suis passée de zéro en arabe à la lecture du Coran en seulement 6\u00a0mois. L’approche Itqan est tout simplement extraordinaire.', result: 'Lit le Coran en 6\u00a0mois', location: 'Paris, France', program: 'Arabe' },
-  ],
 };
 export default people;

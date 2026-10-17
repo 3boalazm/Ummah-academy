@@ -13,14 +13,35 @@ import {
 } from './policy.mjs';
 import { IDS, DEMO_PASSWORD, buildSeed } from './seed.mjs';
 import { attachOps } from './ops.mjs';
-import { addMs } from './time.mjs';
-import { ensureAcademicCollections } from './academic.mjs';
+import { addMs, localParts } from './time.mjs';
+import { appendAcademicRecord, ensureAcademicCollections } from './academic.mjs';
 
 const DEMO_PASSWORDS = new Set(Object.values(DEMO_PASSWORD));
 
 const SECRET_KEY = /password|secret|token|cvv|card|pan/i;
 const OPEN = new Set(['scheduled', 'confirmed']);
 const ATTENDANCE_STATUSES = new Set(['present', 'late', 'absent', 'excused']);
+
+const WEBSITE_COLLECTIONS = [
+  { id: 'articles_en', folder: 'src/content/blog', en: 'Articles · English', ar: 'مقالات · الإنجليزية' },
+  { id: 'articles_ar', folder: 'src/content/blog', en: 'Articles · Arabic', ar: 'مقالات · العربية' },
+  { id: 'articles_de', folder: 'src/content/blog', en: 'Articles · German', ar: 'مقالات · الألمانية' },
+  { id: 'articles_fr', folder: 'src/content/blog', en: 'Articles · French', ar: 'مقالات · الفرنسية' },
+  { id: 'articles_it', folder: 'src/content/blog', en: 'Articles · Italian', ar: 'مقالات · الإيطالية' },
+  { id: 'faq', folder: 'src/data', en: 'FAQ page', ar: 'صفحة الأسئلة' },
+  { id: 'reviews', folder: 'src/data', en: 'Family stories', ar: 'قصص الأسر' },
+  { id: 'settings', folder: 'src/data', en: 'Prices / site settings', ar: 'الأسعار وإعدادات الموقع' },
+];
+
+const GOVERNANCE_ACTIONS = [
+  { action: 'website.publish', portal: false, roles: [], en: 'Sveltia Save → GitHub PR → Vercel preview → merge to main. The portal does not write marketing files.', ar: 'حفظ سفيلتيا → طلب GitHub → معاينة Vercel → دمج في main. البوابة لا تكتب ملفات التسويق.' },
+  { action: 'report.approve', portal: true, roles: ['admin', 'ops'], en: 'Approve a submitted lesson report before the family sees it.', ar: 'اعتماد تقرير الحصة قبل أن تراه الأسرة.' },
+  { action: 'session.report', portal: true, roles: ['admin', 'ops', 'teacher'], en: 'Teacher submits after attendance and complete. Assigned session only.', ar: 'المعلم يرفع بعد الحضور والإتمام. حصته المسندة فقط.' },
+  { action: 'people.admin', portal: true, roles: ['admin', 'ops'], en: 'Users, families, teachers. Not a WordPress user list.', ar: 'المستخدمون والأسر والمعلمون. ليست قائمة مستخدمي ووردبريس.' },
+  { action: 'payment.write', portal: true, roles: ['admin', 'ops'], en: 'Manual ledger only. Stripe is not connected.', ar: 'دفتر يدوي فقط. Stripe غير موصول.' },
+  { action: 'audit.read', portal: true, roles: ['admin', 'ops'], en: 'Append-only audit. Teachers and families cannot open it.', ar: 'تدقيق يُضاف ولا يُمسح. المعلمون والأسر لا يفتحونه.' },
+  { action: 'demo.reset', portal: true, roles: ['admin'], en: 'Demo store reset. Ops cannot.', ar: 'إعادة ضبط العرض. التشغيل لا يستطيع.' },
+];
 
 export function createStore(options = {}) {
   const clock = options.now ?? (() => new Date());
@@ -39,6 +60,56 @@ export function createStore(options = {}) {
   function allow(actor, action, resource) {
     if (!actor) throw E.unauthorized();
     if (!can(actor, action, resource, state)) throw E.forbidden();
+  }
+
+  function reportIsApproved(report) {
+    return Boolean(report && report.status === 'submitted' && report.reviewStatus === 'approved');
+  }
+
+  function reportVisibleTo(actor, report) {
+    if (!report) return false;
+    if (actor.role === 'admin' || actor.role === 'ops' || actor.role === 'teacher') return true;
+    return reportIsApproved(report);
+  }
+
+  function admissionStage(student) {
+    const sub = state.subscriptions.find((s) => s.studentId === student.id) ?? null;
+    const enrollment = state.enrollments.find((e) => e.studentId === student.id && !e.endAt)
+      ?? state.enrollments.filter((e) => e.studentId === student.id).at(-1)
+      ?? null;
+    const sessions = state.sessions.filter((s) => s.studentId === student.id);
+    const trialish = student.academicStatus === 'trial' || sub?.status === 'trial' || enrollment?.status === 'trial';
+    if (sub?.status === 'active' && student.academicStatus === 'active') return 'paid';
+    if (sub?.status === 'paused' || student.academicStatus === 'paused') return 'paid';
+    if (trialish) {
+      const booked = sessions.some((s) => OPEN.has(s.status));
+      const completed = sessions.some((s) => s.status === 'completed');
+      if (booked) return 'trial_booked';
+      if (completed) return 'trial_completed';
+      return 'lead';
+    }
+    if (!sub) return 'lead';
+    return 'paid';
+  }
+
+  function admissionCard(student, actor) {
+    const sub = state.subscriptions.find((s) => s.studentId === student.id) ?? null;
+    const enrollment = state.enrollments.find((e) => e.studentId === student.id) ?? null;
+    const follow = state.followUps.filter((f) => f.studentId === student.id && !['resolved', 'closed'].includes(f.status));
+    const next = nextSession(student.id, actor);
+    return {
+      id: student.id,
+      name: student.name,
+      nameAr: student.nameAr,
+      stage: admissionStage(student),
+      academicStatus: student.academicStatus,
+      subscriptionStatus: sub?.status ?? null,
+      enrollmentStatus: enrollment?.status ?? null,
+      teacher: teacherBrief(currentPrimary(state, student.id)?.teacherId),
+      nextSession: next ? { id: next.id, startsAt: next.startsAt, status: next.status } : null,
+      followUps: follow.map((f) => ({ id: f.id, type: f.type, title: f.title, titleAr: f.titleAr, status: f.status, dueAt: f.dueAt, href: `/app/follow-ups/${f.id}` })),
+      href: `/app/students/${student.id}`,
+    };
   }
 
   function requireReason(reason) {
@@ -267,20 +338,339 @@ export function createStore(options = {}) {
       substituteForTeacher: session.substituteFor ? teacherBrief(session.substituteFor) : null,
       course: courseBrief(session.courseId),
       attendance,
-      report: report ? { ...report } : null,
+      report: report && reportVisibleTo(actor, report) ? { ...report } : null,
       assets,
       pendingReport: session.status === 'completed' && (!report || report.status !== 'submitted'),
+      pendingReview: Boolean(report && report.status === 'submitted' && report.reviewStatus !== 'approved'),
+      homeworkAssignment: (state.homeworkAssignments || []).find((h) => h.sessionId === session.id) ?? null,
       actions: {
         confirm: OPEN.has(session.status) && can(actor, 'session.write', session, state),
         attend: can(actor, 'session.write', session, state) && session.status !== 'cancelled' && session.status !== 'rescheduled',
         complete: OPEN.has(session.status) && can(actor, 'session.write', session, state),
         report: session.status === 'completed' && can(actor, 'session.report', session, state),
+        approveReport: Boolean(report && report.status === 'submitted' && report.reviewStatus !== 'approved' && can(actor, 'report.approve', session, state)),
         cancel: OPEN.has(session.status) && can(actor, 'session.cancel', session, state),
         reschedule: OPEN.has(session.status) && can(actor, 'session.create', null, state),
         substitute: OPEN.has(session.status) && can(actor, 'teacher.assign', null, state),
         room: OPEN.has(session.status),
       },
       revealsMoney: money,
+    };
+  }
+
+  function dayStamp(instant, timeZone) {
+    const parts = localParts(new Date(instant), timeZone);
+    return `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`;
+  }
+
+  function currentAssignmentsFor(teacherId) {
+    return state.assignments.filter((a) => a.teacherId === teacherId && !a.endAt);
+  }
+
+  function homeworkDto(row) {
+    const submissions = (state.homeworkSubmissions || []).filter((s) => s.assignmentId === row.id);
+    return {
+      ...row,
+      submissions,
+      open: !submissions.some((s) => s.status === 'submitted' || s.status === 'reviewed'),
+    };
+  }
+
+  function homeworkForStudent(studentId) {
+    return (state.homeworkAssignments || [])
+      .filter((h) => h.studentId === studentId)
+      .map(homeworkDto)
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  }
+
+  function attachHomeworkFromReport(actor, session, report) {
+    const text = String(report.homework || '').trim();
+    if (!text) return null;
+    allow(actor, 'homework.write', {
+      type: 'homework',
+      studentId: session.studentId,
+      sessionId: session.id,
+      teacherId: session.teacherId,
+    });
+    const existing = (state.homeworkAssignments || []).find((h) => h.sessionId === session.id);
+    if (existing) return structuredClone(existing);
+    const record = appendAcademicRecord(state, 'homeworkAssignments', {
+      id: id('hw'),
+      studentId: session.studentId,
+      enrollmentId: session.enrollmentId ?? null,
+      sessionId: session.id,
+      title: text.slice(0, 120),
+      titleAr: String(report.homeworkAr || text).slice(0, 120),
+      instructions: text,
+      instructionsAr: report.homeworkAr || text,
+      dueAt: addMs(clock().toISOString(), 7 * 86400000),
+      status: 'assigned',
+      createdBy: actor.id,
+    }, { clock, makeId: id });
+    appendAcademicRecord(state, 'progressEvents', {
+      id: id('pev'),
+      studentId: session.studentId,
+      sourceType: 'homework',
+      sourceId: record.id,
+      occurredAt: clock().toISOString(),
+      actorId: actor.id,
+      kind: 'homework_assigned',
+      summary: text.slice(0, 120),
+    }, { clock, makeId: id });
+    return record;
+  }
+
+  function rosterRow(actor, assignment) {
+    const student = must(state.students, assignment.studentId);
+    const sessions = visibleSessions(actor, state.sessions.filter((s) => s.studentId === student.id))
+      .slice()
+      .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
+    const lastHeld = sessions.find((s) => s.status === 'completed' || s.status === 'no_show') ?? null;
+    const next = nextSession(student.id, actor);
+    const homework = homeworkForStudent(student.id);
+    const lastReport = lastHeld
+      ? state.reports.find((r) => r.sessionId === lastHeld.id) ?? null
+      : sessions.map((s) => state.reports.find((r) => r.sessionId === s.id)).find(Boolean) ?? null;
+    return {
+      student: studentBrief(student.id),
+      assignment: {
+        id: assignment.id,
+        kind: assignment.kind,
+        startAt: assignment.startAt,
+        enrollmentId: assignment.enrollmentId,
+      },
+      isPrimary: assignment.kind === 'primary',
+      nextSession: next ? decorateSession(next, actor) : null,
+      lastHeld: lastHeld ? decorateSession(lastHeld, actor) : null,
+      lastReport: lastReport ? { ...lastReport } : null,
+      homework,
+      openHomework: homework.filter((h) => h.open).length,
+    };
+  }
+
+  function teacherDay(actor, filters = {}) {
+    if (actor.role === 'guardian' || actor.role === 'student') throw E.forbidden();
+    const requested = filters.teacherId || null;
+    if (actor.role === 'teacher') {
+      if (requested && requested !== actor.teacherId) throw E.forbidden();
+    }
+    if ((actor.role === 'admin' || actor.role === 'ops') && !requested) {
+      allow(actor, 'teacher.day', { type: 'teacher' });
+      return {
+        picker: true,
+        role: actor.role,
+        teachers: state.teachers.map((teacher) => {
+          const day = teacherDayFor(actor, teacher.id);
+          return {
+            ...teacherBrief(teacher.id),
+            timezone: teacher.timezone,
+            today: day.today.length,
+            pendingReports: day.pendingReports.length,
+            students: day.roster.length,
+          };
+        }),
+      };
+    }
+    const teacherId = actor.role === 'teacher' ? actor.teacherId : requested;
+    const teacher = must(state.teachers, teacherId);
+    allow(actor, 'teacher.day', { type: 'teacher', id: teacher.id });
+    return teacherDayFor(actor, teacher.id);
+  }
+
+  function teacherDayFor(actor, teacherId) {
+    const teacher = must(state.teachers, teacherId);
+    const zone = teacher.timezone || actor.timezone || 'UTC';
+    const todayKey = dayStamp(clock(), zone);
+    const mine = state.sessions.filter((s) => s.teacherId === teacherId);
+    const today = mine
+      .filter((s) => dayStamp(s.startsAt, zone) === todayKey)
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+      .map((s) => decorateSession(s, actor));
+    const pendingReports = mine
+      .filter((s) => s.status === 'completed' && !state.reports.some((r) => r.sessionId === s.id && r.status === 'submitted'))
+      .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+      .map((s) => decorateSession(s, actor));
+    const roster = currentAssignmentsFor(teacherId)
+      .map((a) => rosterRow(actor, a))
+      .sort((a, b) => String(a.student.name).localeCompare(String(b.student.name)));
+    return {
+      picker: false,
+      role: actor.role,
+      teacher: { ...teacherBrief(teacher.id), timezone: zone, specialty: teacher.specialty, specialtyAr: teacher.specialtyAr },
+      date: todayKey,
+      timezone: zone,
+      today,
+      pendingReports,
+      roster,
+      counts: {
+        today: today.length,
+        pendingReports: pendingReports.length,
+        students: roster.length,
+        openHomework: roster.reduce((sum, row) => sum + row.openHomework, 0),
+      },
+      noteEn: 'Attendance, then complete, then a report with homework. Scheduled is not delivered.',
+      noteAr: 'حضور ثم إتمام ثم تقرير مع واجب. المجدول ليس هو المنعقد.',
+    };
+  }
+
+  function compactSession(session, actor) {
+    const d = decorateSession(session, actor);
+    const latest = d.attendance?.at(-1) ?? null;
+    return {
+      id: d.id,
+      startsAt: d.startsAt,
+      endsAt: d.endsAt,
+      status: d.status,
+      durationMin: d.durationMin,
+      student: d.student,
+      teacher: d.teacher,
+      course: d.course,
+      timezone: d.student?.timezone ?? null,
+      attendance: latest ? latest.status : null,
+      pendingReport: d.pendingReport,
+      report: d.report
+        ? {
+          summary: d.report.summary,
+          summaryAr: d.report.summaryAr,
+          homework: d.report.homework,
+          homeworkAr: d.report.homeworkAr,
+          nextStep: d.report.nextStep,
+          nextStepAr: d.report.nextStepAr,
+          submittedAt: d.report.submittedAt,
+        }
+        : null,
+    };
+  }
+
+  function progressCard(actor, student) {
+    allow(actor, 'student.read', { type: 'student', id: student.id, studentId: student.id, familyId: student.familyId });
+    const money = seesMoney(actor, student.id, student.familyId);
+    const nowIso = clock().toISOString();
+    const rows = visibleSessions(actor, state.sessions.filter((s) => s.studentId === student.id))
+      .slice()
+      .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
+    const upcoming = rows
+      .filter((s) => OPEN.has(s.status) && s.startsAt >= nowIso)
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+      .slice(0, 3)
+      .map((s) => compactSession(s, actor));
+    const lastHeldRow = rows.find((s) => s.status === 'completed' || s.status === 'no_show') ?? null;
+    const lastHeld = lastHeldRow ? compactSession(lastHeldRow, actor) : null;
+    const lastReportRow = rows.find((s) => state.reports.some((r) => r.sessionId === s.id && r.status === 'submitted' && reportVisibleTo(actor, r))) ?? null;
+    const lastReport = lastReportRow ? compactSession(lastReportRow, actor).report : null;
+    const reports = rows
+      .map((s) => {
+        const report = state.reports.find((r) => r.sessionId === s.id && r.status === 'submitted' && reportVisibleTo(actor, r));
+        return report ? { sessionId: s.id, startsAt: s.startsAt, ...compactSession(s, actor).report } : null;
+      })
+      .filter(Boolean)
+      .slice(0, 3);
+    const homework = homeworkForStudent(student.id)
+      .filter((h) => h.open)
+      .map((h) => ({
+        id: h.id,
+        title: h.title,
+        titleAr: h.titleAr,
+        instructions: h.instructions,
+        instructionsAr: h.instructionsAr,
+        dueAt: h.dueAt,
+        sessionId: h.sessionId ?? null,
+        open: true,
+      }));
+    const balance = stripMoney(balanceView(student.id), money);
+    const primary = currentPrimary(state, student.id);
+    const followUps = state.followUps
+      .filter((f) => f.studentId === student.id && followVisible(actor, f) && !['resolved', 'closed'].includes(f.status))
+      .map((f) => ({
+        id: f.id,
+        title: f.title,
+        titleAr: f.titleAr,
+        status: f.status,
+        dueAt: f.dueAt,
+        visibility: f.visibility,
+      }))
+      .slice(0, 3);
+    const recordings = state.assets.filter((a) => a.studentId === student.id && a.status === 'ready' && can(actor, 'asset.read', { type: 'asset', id: a.id, studentId: a.studentId }, state)).length;
+    return {
+      student: {
+        ...studentBrief(student.id),
+        level: student.level,
+        goals: student.goals,
+      },
+      axes: {
+        academicStatus: student.academicStatus,
+        subscriptionStatus: subscriptionStatusFor(student.id),
+        loginEnabled: student.loginEnabled,
+      },
+      teacher: teacherBrief(primary?.teacherId),
+      nextSession: upcoming[0] ?? null,
+      upcoming,
+      lastHeld,
+      lastReport,
+      reports,
+      homework,
+      credits: {
+        remaining: balance.total.remaining,
+        delivered: balance.total.delivered,
+        scheduledNotHeld: balance.total.scheduledNotHeld,
+        allocated: balance.total.allocated,
+      },
+      moneyVisible: money,
+      openFollowUps: followUps,
+      recordings,
+    };
+  }
+
+  function progressHub(actor, filters = {}) {
+    if (actor.role === 'teacher') throw E.forbidden();
+    allow(actor, 'student.list', null);
+    let students;
+    if (actor.role === 'student') {
+      students = [must(state.students, actor.studentId)];
+    } else if (actor.role === 'guardian') {
+      if (filters.familyId && filters.familyId !== actor.familyId) throw E.forbidden();
+      if (filters.studentId && !grantedStudentIds(state, actor).has(filters.studentId)) throw E.forbidden();
+      const granted = grantedStudentIds(state, actor);
+      students = state.students.filter((s) => granted.has(s.id));
+      if (filters.studentId) students = students.filter((s) => s.id === filters.studentId);
+    } else {
+      if (filters.studentId) {
+        students = [must(state.students, filters.studentId)];
+      } else if (filters.familyId) {
+        students = state.students.filter((s) => s.familyId === filters.familyId);
+      } else {
+        throw E.validation('Choose a family or a student.', 'اختر أسرة أو طالبًا.');
+      }
+    }
+    const cards = students
+      .map((s) => progressCard(actor, s))
+      .sort((a, b) => String(a.student.name).localeCompare(String(b.student.name)));
+    const familyId = actor.familyId || students[0]?.familyId || null;
+    const family = familyId ? byId(state.families, familyId) : null;
+    const upcoming = cards
+      .flatMap((c) => c.upcoming.map((s) => ({ ...s, student: c.student })))
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+      .slice(0, 6);
+    const recentReports = cards
+      .flatMap((c) => (c.reports || []).map((r) => ({ ...r, student: c.student })))
+      .sort((a, b) => String(b.startsAt).localeCompare(String(a.startsAt)))
+      .slice(0, 4);
+    const openSessions = visibleSessions(actor, state.sessions.filter((s) => students.some((st) => st.id === s.studentId)));
+    return {
+      role: actor.role,
+      family: family ? { id: family.id, name: family.name, nameAr: family.nameAr, timezone: family.timezone, city: family.city } : null,
+      children: cards,
+      upcoming,
+      recentReports,
+      overlaps: findFamilyOverlaps(openSessions),
+      counts: {
+        children: cards.length,
+        upcoming: upcoming.length,
+        openHomework: cards.reduce((sum, c) => sum + c.homework.length, 0),
+        remaining: cards.reduce((sum, c) => sum + (c.credits.remaining || 0), 0),
+      },
+      noteEn: 'Next lesson, last report, homework and remaining credits. Invoices stay off this screen.',
+      noteAr: 'الحصة الجاية، آخر تقرير، الواجب، والرصيد المتبقي. الفواتير ليست هنا.',
     };
   }
 
@@ -354,6 +744,7 @@ export function createStore(options = {}) {
       enrollments,
       assignments,
       sessions,
+      homework: homeworkForStudent(student.id),
       progress: {
         level: student.level,
         goals: student.goals,
@@ -507,28 +898,37 @@ export function createStore(options = {}) {
     const students = listStudents(actor);
     const sessions = state.sessions;
     const pending = sessions.filter((s) => s.status === 'completed' && !state.reports.some((r) => r.sessionId === s.id && r.status === 'submitted'));
+    const pendingReviewRows = state.reports.filter((r) => r.status === 'submitted' && r.reviewStatus !== 'approved');
     const upcoming = sessions.filter((s) => OPEN.has(s.status) && s.startsAt >= nowIso && s.startsAt <= in24);
     const overdue = state.followUps.filter((f) => ['open', 'in_progress', 'waiting'].includes(f.status) && f.dueAt && f.dueAt < nowIso);
     const renewals = state.cycles.filter((c) => c.status === 'active' && c.end >= nowIso && c.end <= in14);
     const trials = students.filter((s) => s.academicStatus === 'trial');
     const active = students.filter((s) => s.academicStatus === 'active');
     const failedPays = state.payments.filter((p) => p.status === 'failed');
+    const overlaps = findFamilyOverlaps(sessions.filter((s) => OPEN.has(s.status)));
     const metric = (id, value, href, rows) => ({ id, value, href, ids: rows.map((r) => r.id) });
     return {
       role: actor.role,
       metrics: [
         metric('active_students', active.length, '/app/students?status=active', active),
-        metric('trials', trials.length, '/app/students?status=trial', trials),
+        metric('trials', trials.length, '/app/admissions', trials),
         metric('upcoming_sessions', upcoming.length, '/app/schedule?window=24h', upcoming),
         metric('pending_reports', pending.length, '/app/schedule?pendingReport=1', pending),
+        metric('pending_review', pendingReviewRows.length, '/app?queue=review', pendingReviewRows),
         metric('overdue_followups', overdue.length, '/app/follow-ups?overdue=1', overdue),
         metric('renewals_14d', renewals.length, '/app/subscriptions?renewing=14', renewals),
         metric('failed_payments', failedPays.length, '/app/subscriptions?payment=failed', failedPays),
       ],
       queues: {
         pendingReports: pending.slice(0, 8).map((s) => decorateSession(s, actor)),
+        pendingReview: pendingReviewRows.slice(0, 8).map((r) => {
+          const session = byId(state.sessions, r.sessionId);
+          return session ? decorateSession(session, actor) : null;
+        }).filter(Boolean),
         overdueFollowUps: overdue.slice(0, 8).map(followDto),
         upcoming: upcoming.slice(0, 8).map((s) => decorateSession(s, actor)),
+        renewals: renewals.slice(0, 8).map((c) => ({ id: c.id, subscriptionId: c.subscriptionId, end: c.end, planId: c.planId })),
+        conflicts: overlaps.slice(0, 8),
       },
       notifications: state.notifications.filter((n) => n.userId === actor.id).slice(0, 8),
     };
@@ -547,9 +947,9 @@ export function createStore(options = {}) {
     return {
       role: 'teacher',
       metrics: [
-        { id: 'today', value: today.length, href: '/app/schedule?mine=1', ids: today.map((s) => s.id) },
-        { id: 'students', value: students.length, href: '/app/students', ids: students.map((s) => s.id) },
-        { id: 'pending_reports', value: pending.length, href: '/app/schedule?pendingReport=1', ids: pending.map((s) => s.id) },
+        { id: 'today', value: today.length, href: '/app/today', ids: today.map((s) => s.id) },
+        { id: 'students', value: students.length, href: '/app/today', ids: students.map((s) => s.id) },
+        { id: 'pending_reports', value: pending.length, href: '/app/today?queue=reports', ids: pending.map((s) => s.id) },
         { id: 'completed_week', value: completedWeek.length, href: '/app/schedule?status=completed', ids: completedWeek.map((s) => s.id) },
       ],
       teaching: {
@@ -580,10 +980,10 @@ export function createStore(options = {}) {
       overlaps: hub.overlaps,
       moneyVisible: hub.moneyVisible,
       metrics: [
-        { id: 'children', value: hub.children.length, href: `/app/families/${family.id}`, ids: hub.children.map((c) => c.id) },
-        { id: 'upcoming', value: hub.sessions.filter((s) => OPEN.has(s.status) && s.startsAt >= clock().toISOString()).length, href: '/app/schedule', ids: [] },
-        { id: 'recent_reports', value: unreadReports.length, href: `/app/families/${family.id}?tab=progress`, ids: unreadReports.map((s) => s.id) },
-        { id: 'open_followups', value: hub.followUps.filter((f) => !['resolved', 'closed'].includes(f.status)).length, href: `/app/families/${family.id}?tab=followups`, ids: [] },
+        { id: 'children', value: hub.children.length, href: '/app/home', ids: hub.children.map((c) => c.id) },
+        { id: 'upcoming', value: hub.sessions.filter((s) => OPEN.has(s.status) && s.startsAt >= clock().toISOString()).length, href: '/app/home', ids: [] },
+        { id: 'recent_reports', value: unreadReports.length, href: '/app/home', ids: unreadReports.map((s) => s.id) },
+        { id: 'open_followups', value: hub.followUps.filter((f) => !['resolved', 'closed'].includes(f.status)).length, href: '/app/home', ids: [] },
       ],
       next: hub.sessions.find((s) => OPEN.has(s.status) && s.startsAt >= clock().toISOString()) ?? null,
       notifications: state.notifications.filter((n) => n.userId === actor.id).slice(0, 8),
@@ -598,7 +998,14 @@ export function createStore(options = {}) {
       axes: dto.axes,
       nextSession: dto.nextSession,
       balance: dto.balance.total,
-      homework: dto.progress.reports.filter((r) => r.homework).slice(0, 3),
+      homework: (dto.homework?.length
+        ? dto.homework.slice(0, 5).map((h) => ({
+          id: h.id,
+          homework: h.instructions || h.title,
+          homeworkAr: h.instructionsAr || h.titleAr,
+          dueAt: h.dueAt,
+        }))
+        : dto.progress.reports.filter((r) => r.homework).slice(0, 3)),
       metrics: [
         { id: 'remaining', value: dto.balance.total.remaining, href: '/app/me?tab=subscriptions', ids: [] },
         { id: 'delivered', value: dto.balance.total.delivered, href: '/app/me?tab=sessions', ids: [] },
@@ -673,6 +1080,233 @@ export function createStore(options = {}) {
     },
 
     dashboard,
+    consoleBoard(actor, view = 'workspace') {
+      if (actor.role !== 'admin' && actor.role !== 'ops') throw E.forbidden();
+      allow(actor, 'dashboard.read', null);
+      if (view === 'workspace') {
+        const dash = dashboard(actor);
+        const health = this.integrity(actor);
+        const weekAgo = new Date(clock().getTime() - 7 * 86400000).toISOString();
+        const subs = state.subscriptions;
+        return {
+          view: 'workspace',
+          role: actor.role,
+          glance: {
+            students: state.students.length,
+            families: state.families.length,
+            teachers: state.teachers.length,
+            sessionsOpen: state.sessions.filter((s) => OPEN.has(s.status)).length,
+            pendingReports: dash.metrics.find((m) => m.id === 'pending_reports')?.value ?? 0,
+            pendingReview: dash.metrics.find((m) => m.id === 'pending_review')?.value ?? 0,
+            trials: dash.metrics.find((m) => m.id === 'trials')?.value ?? 0,
+            overdueFollowUps: dash.metrics.find((m) => m.id === 'overdue_followups')?.value ?? 0,
+            renewals: dash.metrics.find((m) => m.id === 'renewals_14d')?.value ?? 0,
+          },
+          memberships: {
+            active: subs.filter((s) => s.status === 'active').length,
+            trial: subs.filter((s) => s.status === 'trial').length,
+            paused: subs.filter((s) => s.status === 'paused').length,
+            failedPayments: state.payments.filter((p) => p.status === 'failed').length,
+            noteEn: 'Counts of agreements. Stripe is not connected; these are ledger rows.',
+            noteAr: 'عدّادات الاتفاقات. Stripe غير موصول؛ هذه سطور دفتر.',
+          },
+          health: { ok: health.ok, issues: health.issues.length, href: '/app/health' },
+          activity: state.events.slice().sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).slice(0, 10).map((e) => ({
+            id: e.id,
+            occurredAt: e.occurredAt,
+            type: e.type,
+            summary: e.summary,
+            summaryAr: e.summaryAr,
+            href: e.entityType === 'session' ? `/app/sessions/${e.entityId}` : e.entityType === 'student' ? `/app/students/${e.entityId}` : '/app',
+          })),
+          notices: [
+            { id: 'store', level: 'warn', en: 'This JSON store is a demo. Do not enter real children.', ar: 'هذا مخزن JSON للعرض. لا تُدخل أطفالًا حقيقيين.' },
+            { id: 'hubspot', level: 'warn', en: 'CRM is not connected. External leads wait on questionnaire §3.', ar: 'الـ CRM غير موصول. الليدز الخارجية تنتظر الاستبيان §3.' },
+            { id: 'stripe', level: 'danger', en: 'Card payments are disconnected. Manual ledger only — Stripe is not installed.', ar: 'دفع البطاقة مفصول. الدفتر اليدوي فقط — Stripe غير مثبت.' },
+            { id: 'smtp', level: 'warn', en: 'Transactional email is not configured. WhatsApp remains the staff channel.', ar: 'بريد المعاملات غير مضبوط. واتساب يبقى قناة التشغيل.' },
+            { id: 'chat', level: 'info', en: 'Live chat is not installed. WhatsApp is the public channel.', ar: 'لا شات حي. واتساب هو القناة العامة.' },
+          ],
+          notifications: dash.notifications,
+          queues: dash.queues,
+          shell: 'admin-os',
+        };
+      }
+      if (view === 'website') {
+        return {
+          view: 'website',
+          engine: 'astro+sveltia',
+          writesFromPortal: false,
+          pageBuilder: 'never',
+          dynamizePublicSite: false,
+          cmsPath: '/admin/',
+          cmsLive: 'https://ummahacademy.net/admin/',
+          guide: 'docs/16-cms-guide.md',
+          workflow: ['draft', 'preview', 'approval', 'publish'],
+          collections: WEBSITE_COLLECTIONS,
+          noteEn: 'Website edits stay on the Astro site. Save in Sveltia opens a GitHub pull request; Vercel builds a preview; merge to main publishes. This portal does not write marketing files and does not list live PRs.',
+          noteAr: 'تعديل الموقع يبقى على Astro. الحفظ في سفيلتيا يفتح طلب GitHub؛ Vercel يبني معاينة؛ الدمج في main ينشر. هذه البوابة لا تكتب ملفات التسويق ولا تعرض طلبات حية.',
+        };
+      }
+      if (view === 'admissions') {
+        const cards = state.students.map((s) => admissionCard(s, actor));
+        const column = (stage) => cards.filter((c) => c.stage === stage);
+        return {
+          view: 'admissions',
+          crm: 'disconnected',
+          noteEn: 'Pipeline is derived from students, subscriptions and sessions already in the portal. There is no HubSpot list and no invented leads.',
+          noteAr: 'المسار يُشتق من الطلاب والاشتراكات والحصص الموجودة. ليست قائمة HubSpot ولا ليدز مخترعة.',
+          columns: {
+            lead: column('lead'),
+            trial_booked: column('trial_booked'),
+            trial_completed: column('trial_completed'),
+            paid: column('paid'),
+          },
+          counts: {
+            lead: column('lead').length,
+            trial_booked: column('trial_booked').length,
+            trial_completed: column('trial_completed').length,
+            paid: column('paid').length,
+          },
+        };
+      }
+      if (view === 'governance') {
+        return {
+          view: 'governance',
+          noteEn: 'Login roles stay admin / ops / teacher / guardian / student. Academic Manager is not a separate login until the owner splits ops.',
+          noteAr: 'أدوار الدخول تبقى أدمن / تشغيل / معلم / ولي / طالب. مدير أكاديمي ليس حسابًا منفصلًا حتى يفصل المالك التشغيل.',
+          roles: [
+            { login: 'admin', os: 'Super Admin', osAr: 'مدير أعلى', portal: true },
+            { login: 'ops', os: 'Operations', osAr: 'تشغيل', portal: true },
+            { login: 'teacher', os: 'Teacher', osAr: 'معلم', portal: true },
+            { login: 'guardian', os: 'Family Hub', osAr: 'متابعة الأسرة', portal: true },
+            { login: 'student', os: 'Student file', osAr: 'ملف الطالب', portal: true },
+          ],
+          matrix: GOVERNANCE_ACTIONS,
+        };
+      }
+      if (view === 'people') {
+        allow(actor, 'people.admin', null);
+        return {
+          view: 'people',
+          users: state.users.map((u) => ({ ...publicUser(u), studentId: u.studentId || null, teacherId: u.teacherId || null, familyId: u.familyId || null, guardianId: u.guardianId || null })),
+        };
+      }
+      if (view === 'academic') {
+        return {
+          view: 'academic',
+          students: listStudents(actor).map((s) => {
+            const reports = state.reports.filter((r) => r.studentId === s.id && r.status === 'submitted').sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
+            const hw = homeworkForStudent(s.id).filter((h) => h.open);
+            return {
+              id: s.id,
+              name: s.name,
+              nameAr: s.nameAr,
+              axes: s.axes,
+              teacher: s.primaryTeacher,
+              nextSession: s.nextSession,
+              lastReport: reports[0] ? { summary: reports[0].summary, summaryAr: reports[0].summaryAr, submittedAt: reports[0].submittedAt, homework: reports[0].homework } : null,
+              openHomework: hw.length,
+            };
+          }),
+        };
+      }
+      if (view === 'placements') {
+        return {
+          view: 'placements',
+          placements: structuredClone(state.placements || []),
+          noteEn: 'Placement reviews append; they do not overwrite. The academic store starts empty — no invented exams.',
+          noteAr: 'مراجعات التحديد تُضاف ولا تُستبدل. المخزن الأكاديمي يبدأ فارغًا — لا اختبارات مخترعة.',
+        };
+      }
+      if (view === 'assets') {
+        return {
+          view: 'assets',
+          assets: state.assets
+            .filter((a) => can(actor, 'asset.read', { type: 'asset', id: a.id, studentId: a.studentId }, state))
+            .map((a) => ({ ...assetMeta(a), student: studentBrief(a.studentId) })),
+        };
+      }
+      if (view === 'settings') {
+        return {
+          view: 'settings',
+          demo: Boolean(options.demo ?? !options.production),
+          production: Boolean(options.production),
+          groups: [
+            { id: 'general', en: 'General', ar: 'عام', rows: [
+              { key: 'academy', value: 'Ummah Academy', editable: false },
+              { key: 'mode', value: options.production ? 'production' : 'demo', editable: false },
+            ] },
+            { id: 'memberships', en: 'Memberships / payments', ar: 'العضويات / الدفع', status: 'disconnected', rows: [
+              { key: 'stripe', value: 'disconnected', editable: false, reasonEn: 'Owner has not chosen a payment provider (questionnaire §1).', reasonAr: 'المالك لم يختر مزوّد دفع (الاستبيان §1).' },
+              { key: 'ledger', value: 'manual', editable: false },
+            ] },
+            { id: 'mail', en: 'Mail', ar: 'البريد', status: 'disconnected', rows: [
+              { key: 'smtp', value: 'disconnected', editable: false, reasonEn: 'No SMTP provider (questionnaire §2). WhatsApp is the staff channel.', reasonAr: 'لا SMTP (الاستبيان §2). واتساب قناة التشغيل.' },
+            ] },
+            { id: 'crm', en: 'CRM / leads', ar: 'الليدز', status: 'disconnected', rows: [
+              { key: 'hubspot', value: 'disconnected', editable: false, reasonEn: 'Lead endpoint is empty (questionnaire §3).', reasonAr: 'رابط الليدز فاضي (الاستبيان §3).' },
+            ] },
+            { id: 'discussion', en: 'Discussion', ar: 'المراسلة', rows: [
+              { key: 'live_chat', value: 'off', editable: false, reasonEn: 'WhatsApp stays the public channel.', reasonAr: 'واتساب يبقى القناة العامة.' },
+              { key: 'whatsapp', value: 'manual_outbox', editable: false },
+            ] },
+            { id: 'media', en: 'Media', ar: 'الملفات', rows: [
+              { key: 'upload', value: 'pdf_image_text_1mb', editable: false },
+              { key: 'recordings', value: 'token_bound', editable: false },
+            ] },
+            { id: 'security', en: 'Security', ar: 'الأمان', rows: [
+              { key: 'csp', value: 'on', editable: false },
+              { key: 'two_factor', value: 'not_configured', editable: false, reasonEn: 'AUTH-012 waits on product design.', reasonAr: 'التحقق بخطوتين ينتظر تصميم المنتج.' },
+            ] },
+          ],
+        };
+      }
+      if (view === 'stack') {
+        return {
+          view: 'stack',
+          items: [
+            { id: 'dashboard', status: 'native', wp: 'Dashboard', en: 'At a Glance, activity, health, membership counts.', ar: 'نظرة سريعة، نشاط، سلامة، عدّادات الاشتراك.' },
+            { id: 'academic', status: 'native', wp: 'Academic Progress', en: 'Per-student last report, homework, next lesson.', ar: 'آخر تقرير وواجب والحصة الجاية لكل طالب.' },
+            { id: 'placements', status: 'native', wp: 'Placement Reviews', en: 'Append-only placement records. Empty until a real review is entered.', ar: 'سجلات تحديد تُضاف ولا تُمسح. فارغة حتى إدخال مراجعة حقيقية.' },
+            { id: 'memberships', status: 'native', wp: 'MemberPress', en: 'Subscriptions and ledger invoices. Not a card gateway.', ar: 'اشتراكات وفواتير دفترية. ليست بوابة بطاقة.' },
+            { id: 'users', status: 'native', wp: 'Users', en: 'Portal roles: admin, ops, teacher, guardian, student.', ar: 'أدوار البوابة: أدمن، تشغيل، معلم، ولي، طالب.' },
+            { id: 'files', status: 'native', wp: 'Media / File Manager', en: 'Tokenised assets. Not a disk browser.', ar: 'ملفات برمز. ليست متصفح أقراص.' },
+            { id: 'tools', status: 'native', wp: 'Tools / UpdraftPlus', en: 'CSV export and local backup drill. Not a host backup plugin.', ar: 'تصدير CSV وتدريب النسخ. ليس بلجن استضافة.' },
+            { id: 'health', status: 'native', wp: 'Site Health / Wordfence', en: 'Integrity + CSP. Not a WAF plugin.', ar: 'سلامة السجل وCSP. ليس بلجن جدار نار.' },
+            { id: 'settings', status: 'native', wp: 'Settings', en: 'Comparable option groups. Disconnected providers stay disconnected.', ar: 'مجموعات إعدادات مقابلة. المزوّد المفصول يبقى مفصولًا.' },
+            { id: 'stripe', status: 'blocked', wp: 'Stripe', en: 'Questionnaire §1 unanswered.', ar: 'الاستبيان §1 بلا إجابة.' },
+            { id: 'smtp', status: 'blocked', wp: 'WP Mail SMTP', en: 'Questionnaire §2 unanswered.', ar: 'الاستبيان §2 بلا إجابة.' },
+            { id: 'crm', status: 'blocked', wp: 'HubSpot', en: 'Questionnaire §3 unanswered.', ar: 'الاستبيان §3 بلا إجابة.' },
+            { id: 'seo', status: 'blocked', wp: 'All in One SEO / Site Kit', en: 'Questionnaire §4 unanswered. Marketing SEO is the Astro site.', ar: 'الاستبيان §4 بلا إجابة. السيو على موقع Astro.' },
+            { id: 'elementor', status: 'never', wp: 'Elementor / Astra / Templately / ElementsKit / Royal Addons', en: 'Page builders are not ported.', ar: 'منشئات الصفحات لا تُنقل.' },
+            { id: 'angie', status: 'never', wp: 'Angie', en: 'Not ported.', ar: 'لا تُنقل.' },
+            { id: 'litespeed', status: 'never', wp: 'LiteSpeed Cache', en: 'Not ported.', ar: 'لا تُنقل.' },
+            { id: 'chat', status: 'never', wp: 'Live chat', en: 'WhatsApp stays the public channel.', ar: 'واتساب يبقى القناة العامة.' },
+          ],
+        };
+      }
+      throw E.validation('Unknown console view.', 'عرض لوحة غير معروف.');
+    },
+    teacherDay,
+    progressHub,
+    getProgress(actor, studentId) {
+      const student = must(state.students, studentId);
+      return { child: progressCard(actor, student) };
+    },
+    listHomework(actor, filters = {}) {
+      allow(actor, 'homework.list', null);
+      return (state.homeworkAssignments || [])
+        .filter((h) => can(actor, 'homework.read', { type: 'homework', id: h.id, studentId: h.studentId }, state))
+        .filter((h) => !filters.studentId || h.studentId === filters.studentId)
+        .filter((h) => !filters.sessionId || h.sessionId === filters.sessionId)
+        .map(homeworkDto)
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    },
+    getHomework(actor, homeworkId) {
+      const row = must(state.homeworkAssignments || [], homeworkId);
+      allow(actor, 'homework.read', { type: 'homework', id: row.id, studentId: row.studentId });
+      return homeworkDto(row);
+    },
     catalog(actor) {
       allow(actor, 'catalog.read', null);
       return {
@@ -915,13 +1549,14 @@ export function createStore(options = {}) {
         if (!input.summary || String(input.summary).trim().length < 3) throw E.validation('Summary is required.', 'ملخص الحصة مطلوب.');
         const existing = state.reports.find((r) => r.sessionId === session.id);
         const reportAuditFields = (report) => report ? Object.fromEntries([
-          'status', 'summary', 'summaryAr', 'homework', 'homeworkAr', 'nextStep',
+          'status', 'reviewStatus', 'summary', 'summaryAr', 'homework', 'homeworkAr', 'nextStep',
           'nextStepAr', 'strengths', 'strengthsAr', 'improvements', 'improvementsAr', 'submittedAt',
         ].map((field) => [field, report[field] ?? null])) : null;
         const before = reportAuditFields(existing);
         const row = existing ?? { id: id('rpt'), sessionId: session.id, studentId: session.studentId, teacherId: session.teacherId };
         Object.assign(row, {
           status: 'submitted',
+          reviewStatus: existing?.reviewStatus === 'approved' ? 'approved' : 'pending',
           summary: String(input.summary).trim(),
           summaryAr: input.summaryAr ?? input.summary,
           homework: input.homework ?? '',
@@ -939,15 +1574,41 @@ export function createStore(options = {}) {
         if (!existing) {
           event(actor, 'report.submitted', { studentId: session.studentId, familyId: session.familyId, entityType: 'session', entityId: session.id, summary: 'Report submitted', summaryAr: 'رُفع تقرير الحصة' });
         }
-        for (const g of state.guardians.filter((g) => g.studentIds.includes(session.studentId))) {
-          notify(g.userId, 'A lesson report is ready', 'تقرير الحصة جاهز', row.summary, row.summaryAr, `/app/sessions/${session.id}`);
-        }
         const internal = state.followUps.find((f) => f.sessionId === session.id && f.type === 'teacher_ops' && !['resolved', 'closed'].includes(f.status));
         if (internal) {
           internal.status = 'resolved';
           internal.outcome = 'Report submitted.';
           internal.outcomeAr = 'رُفع التقرير.';
           internal.closedAt = clock().toISOString();
+        }
+        attachHomeworkFromReport(actor, session, row);
+        return decorateSession(session, actor);
+      });
+    },
+    approveReport(actor, sessionId, meta = {}) {
+      return command(actor, null, () => {
+        const session = must(state.sessions, sessionId);
+        allow(actor, 'report.approve', session);
+        const row = state.reports.find((r) => r.sessionId === session.id);
+        if (!row || row.status !== 'submitted') {
+          throw E.badState('No submitted report to approve.', 'لا تقرير مرفوع للاعتماد.');
+        }
+        if (row.reviewStatus === 'approved') return decorateSession(session, actor);
+        const before = { reviewStatus: row.reviewStatus ?? 'pending' };
+        row.reviewStatus = 'approved';
+        row.reviewedAt = clock().toISOString();
+        row.reviewedBy = actor.id;
+        audit(actor, 'report.approved', 'session', session.id, before, { reviewStatus: 'approved' }, meta.reason ?? null, meta.requestId);
+        event(actor, 'report.approved', {
+          studentId: session.studentId,
+          familyId: session.familyId,
+          entityType: 'session',
+          entityId: session.id,
+          summary: 'Report approved',
+          summaryAr: 'اعتُمد تقرير الحصة',
+        });
+        for (const g of state.guardians.filter((g) => g.studentIds.includes(session.studentId))) {
+          notify(g.userId, 'A lesson report is ready', 'تقرير الحصة جاهز', row.summary, row.summaryAr, `/app/sessions/${session.id}`);
         }
         return decorateSession(session, actor);
       });

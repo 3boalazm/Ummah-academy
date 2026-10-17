@@ -66,7 +66,7 @@ export default {
       ],
     },
     tracks: { eyebrow: 'Cours', title: 'Quatre portes d’entrée. <span class="accent">Partez de là où vous êtes.</span>', lede: 'De votre première lettre arabe jusqu’à une ijaza complète.' },
-    stories: { eyebrow: 'Témoignages', title: 'Des familles dans plus de 50 pays, <span class="accent">une classe à la fois.</span>', note: 'Témoignages traduits de l’anglais.' },
+    stories: { eyebrow: 'Témoignages', title: 'Des familles dans plus de 50 pays, <span class="accent">une classe à la fois.</span>', note: 'Témoignages traduits de l’anglais.', all: 'Lire tous les témoignages' },
     pricing: {
       eyebrow: 'Tarifs',
       title: 'Des tarifs simples. <span class="accent">D’abord deux séances gratuites.</span>',

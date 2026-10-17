@@ -33,7 +33,16 @@ const size = (b: number) => (b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `
 
 const COPY = copy(lang).resources;
 const C = COPY.C;
-const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id) }));
+const SHEET_TAG: Record<string, keyof typeof C.filters> = {
+  'tajweed-rules-summary': 'tajweed',
+  'arabic-letter-tracing': 'arabic',
+  'daily-wird-tracker': 'hifz',
+  'hifz-schedule-template': 'hifz',
+  'nahw-exercises': 'arabic',
+  'ummah-cubs-activity-pack': 'kids',
+};
+const filterKeys = ['all', 'tajweed', 'arabic', 'hifz', 'kids'] as const;
+const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id), tag: SHEET_TAG[s.id] ?? 'all' }));
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -42,10 +51,20 @@ const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id) }));
   <section class="section section--tight" aria-labelledby="sheets">
     <div class="container">
       <SectionHead id="sheets" eyebrow={C.sheetsEyebrow} title={C.sheetsTitle} lede={C.sheetsLede} />
-      <ul role="list" class="grid grid-3">
+      <div class="res-filters" role="group" aria-label={C.filtersLabel}>
+        {
+          filterKeys.map((id) => (
+            <button type="button" class="chip" data-filter={id} aria-pressed={id === 'all' ? 'true' : 'false'}>
+              {C.filters[id]}
+            </button>
+          ))
+        }
+      </div>
+      <p class="res-empty" data-filter-empty hidden>{C.filtersEmpty}</p>
+      <ul role="list" class="grid grid-3" data-sheet-grid>
         {
           sheets.map((s, i) => (
-            <li class="card glass res" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+            <li class="card glass res" data-reveal data-tag={s.tag} style={`--reveal-delay:${i * 0.05}s`}>
               <div class="res__top">
                 <span class="icon-badge">
                   <Icon name={s.icon} />
@@ -117,6 +136,22 @@ const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id) }));
   document.querySelectorAll<HTMLAnchorElement>('[data-download]').forEach((a) =>
     a.addEventListener('click', () => track('resource_download', { resource: a.dataset.download }))
   );
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-tag]')];
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+  document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.filter;
+      document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+      let shown = 0;
+      for (const card of cards) {
+        const match = tag === 'all' || card.dataset.tag === tag;
+        card.hidden = !match;
+        if (match) shown++;
+      }
+      if (empty) empty.hidden = shown > 0;
+      track('resource_filter', { filter: tag || 'all' });
+    });
+  });
 </script>
 
 <style>
@@ -146,5 +181,32 @@ const sheets = C.sheets.map((s) => ({ ...s, pdf: fileFor(s.id) }));
   .res .btn {
     margin-top: auto;
     align-self: flex-start;
+  }
+
+  .res-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 22px;
+  }
+
+  .res-filters .chip {
+    cursor: pointer;
+    border: 0;
+    font: inherit;
+  }
+
+  .res-filters .chip[aria-pressed='true'] {
+    background: var(--violet-600);
+    color: #fff;
+  }
+
+  .res-empty {
+    margin: 0 0 18px;
+    color: var(--ink-2);
+  }
+
+  .res[hidden] {
+    display: none;
   }
 </style>

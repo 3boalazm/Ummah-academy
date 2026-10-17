@@ -7,7 +7,8 @@ import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import { getPlans, getIncluded, perSession, paymentMethods } from '@/data/pricing';
 import { trialLink } from '@/data/site';
-import { price, num, type Lang } from '@/i18n';
+import Money from '@/components/Money.astro';
+import { num, type Lang } from '@/i18n';
 import { copy, ui } from '@/locales';
 
 interface Props {
@@ -88,14 +89,14 @@ const ld = {
                   {p.name} {p.badge && <span class="finder__badge">{p.badge}</span>}
                 </p>
                 <p class="finder__price">
-                  {price(lang, p.price)}
+                  <Money usd={p.price} lang={lang} />
                   <small>{t.perMonth}</small>
                 </p>
                 <p class="finder__meta">
                   {p.sessionsLabel} · {num(lang, p.minutes)} {t.min}
                 </p>
                 <p class="finder__unit">
-                  {t.approx}{price(lang, perSession(p))} {C.perSession}
+                  {t.approx}<Money usd={perSession(p)} lang={lang} /> {C.perSession}
                 </p>
                 <p class="finder__best">{p.bestFor}</p>
                 <a class="btn btn--primary btn--block" href={trialLink({ plan: p.canonical }, lang)} data-track="plan-finder">
@@ -128,14 +129,14 @@ const ld = {
                     {p.badge && <span class="plan__badge">{p.badge}</span>}
                   </div>
                   <p class="plan__price">
-                    {price(lang, p.price)}
+                    <Money usd={p.price} lang={lang} />
                     <small>{t.perMonth}</small>
                   </p>
                   <p class="plan__meta">
                     <Icon name="calendar-blank" weight="bold" /> {p.sessionsLabel}
                   </p>
                   <p class="plan__unit">
-                    {t.approx}{price(lang, perSession(p))} {C.perSession}
+                    {t.approx}<Money usd={perSession(p)} lang={lang} /> {C.perSession}
                   </p>
                   <p class="plan__best">{p.bestFor}</p>
                   <a class:list={['btn', 'btn--block', p.badge ? 'btn--primary' : 'btn--glass']} href={trialLink({ plan: p.canonical }, lang)}>

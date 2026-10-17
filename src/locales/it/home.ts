@@ -66,7 +66,7 @@ export default {
       ],
     },
     tracks: { eyebrow: 'Corsi', title: 'Quattro porte d’ingresso. <span class="accent">Parti da dove sei.</span>', lede: 'Dalla tua prima lettera araba fino a un’ijaza completa.' },
-    stories: { eyebrow: 'Storie', title: 'Famiglie in oltre 50 paesi, <span class="accent">una classe alla volta.</span>', note: 'Testimonianze tradotte dall’inglese.' },
+    stories: { eyebrow: 'Storie', title: 'Famiglie in oltre 50 paesi, <span class="accent">una classe alla volta.</span>', note: 'Testimonianze tradotte dall’inglese.', all: 'Leggi tutte le storie' },
     pricing: {
       eyebrow: 'Prezzi',
       title: 'Prezzi semplici. <span class="accent">Prima due lezioni gratuite.</span>',

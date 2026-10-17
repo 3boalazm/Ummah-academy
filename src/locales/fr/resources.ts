@@ -21,6 +21,9 @@ export default {
     pages: (n: number) => `${n}\u00a0page${n > 1 ? 's' : ''}`,
     free: 'Gratuit',
     langs: 'Anglais · Arabe',
+    filtersLabel: 'Filtrer les fiches',
+    filtersEmpty: 'Aucune fiche dans ce groupe. Choisissez un autre filtre.',
+    filters: { all: 'Toutes', tajweed: 'Tajwid', arabic: 'Arabe', hifz: 'Hifz', kids: 'Enfants' },
     waText: (t: string) => `Assalamou alaykoum, pouvez-vous m’envoyer la ressource gratuite\u00a0: ${t}`,
     cta: {
       eyebrow: 'Étape suivante',

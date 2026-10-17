@@ -309,6 +309,40 @@ collections:
                     i18n: true
                     hint: 'Links: [pricing](/pricing/) — the address is turned into the right language automatically. Prices: {{from}} = cheapest plan, {{to}} = dearest, {{from60}} = cheapest 60-minute plan, {{launch}} … {{diamond}} = one plan; add :number for the figure alone, e.g. {{from:number}}. They always show the current price.'
 
+  # ── Family stories / reviews ────────────────────────────────────────────────
+  - name: reviews
+    label: Family stories
+    description: Quotes on /reviews/ and the home page. Keep the same ids, order, track and teacher in every language — the build checks it. Written consent is still required before adding a new name.
+    icon: format_quote
+    i18n: true
+    files:
+      - name: reviews
+        label: Family stories (/reviews/)
+        file: src/content/reviews/{{locale}}.json
+        format: json
+        i18n: true
+        fields:
+          - name: items
+            label: Stories
+            label_singular: Story
+            widget: list
+            i18n: true
+            summary: '{{fields.name}}'
+            fields:
+              - { name: id, label: Id, widget: string, i18n: duplicate, pattern: ['^[a-z][a-z0-9-]*$', 'Lowercase letters, digits and dashes'], hint: 'Stable id. Same in every language.' }
+              - { name: name, label: Name, widget: string, i18n: true }
+              - { name: initials, label: Initials, widget: string, i18n: duplicate }
+              - { name: quote, label: Quote, widget: text, i18n: true }
+              - { name: result, label: Result line, widget: string, i18n: true }
+              - { name: location, label: City / country, widget: string, i18n: true }
+              - { name: program, label: Programme, widget: string, i18n: true }
+              - name: track
+                label: Track
+                widget: select
+                i18n: duplicate
+                options: [quran, arabic, kids, islamic]
+              - { name: teacher, label: Teacher id (optional), widget: string, required: false, i18n: duplicate, hint: 'omneya-ali, sara-ahmed or nour-hassan — leave empty if the quote does not name a teacher.' }
+
   # ── Prices (one place for every language) ───────────────────────────────────
   - name: settings
     label: Prices

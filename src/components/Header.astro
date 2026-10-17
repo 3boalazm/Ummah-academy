@@ -5,9 +5,11 @@ import Icon from './Icon.astro';
 import LangMenu from './LangMenu.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import InstallPrompt from './InstallPrompt.astro';
+import CurrencyMenu from './CurrencyMenu.astro';
 import { portalLinks, waLink } from '@/data/site';
 import { getTracks } from '@/data/tracks';
-import { lp, basePath, price, type Lang, type LangTarget } from '@/i18n';
+import Money from './Money.astro';
+import { lp, basePath, type Lang, type LangTarget } from '@/i18n';
 import { ui } from '@/locales';
 
 interface Props {
@@ -29,7 +31,7 @@ const links = [
 const isActive = (href: string) => path.startsWith(href);
 ---
 
-<header class="site-header" data-header>
+<header class="site-header" data-header data-pagefind-ignore>
   <div class="site-header__bar glass">
     <a class="site-header__brand" href={lp(lang, '/')} aria-label={t.homeLabel}>
       <Logo />
@@ -55,7 +57,7 @@ const isActive = (href: string) => path.startsWith(href);
                         <span class="mega__title">{tr.title}</span>
                         <span class="mega__sub">{tr.subtitle}</span>
                         <span class="mega__from">
-                          {t.from} {price(lang, tr.from)}
+                          {t.from} <Money usd={tr.from} lang={lang} />
                           {t.perMonth}
                         </span>
                       </span>
@@ -90,6 +92,9 @@ const isActive = (href: string) => path.startsWith(href);
     </nav>
 
     <div class="site-header__actions">
+      <button class="search-open" type="button" data-search-open aria-label={t.search.open}>
+        <Icon name="magnifying-glass" weight="bold" />
+      </button>
       <ThemeToggle lang={lang} />
       <a class="nav__signin hide-mobile" href={portalLinks.login}>{t.signIn}</a>
       <button class="menu-btn" type="button" aria-label={t.menuOpen} aria-haspopup="dialog" data-menu-open>
@@ -116,7 +121,7 @@ const isActive = (href: string) => path.startsWith(href);
                 <span>
                   <strong>{tr.title}</strong>
                   <small>
-                    {t.from} {price(lang, tr.from)}
+                    {t.from} <Money usd={tr.from} lang={lang} />
                     {t.perMonth}
                   </small>
                 </span>
@@ -129,6 +134,7 @@ const isActive = (href: string) => path.startsWith(href);
         <li><a href={lp(lang, '/placement-test/')}>{t.placementTest}</a></li>
         {links.map((l) => <li><a href={lp(lang, l.href)}>{l.label}</a></li>)}
         <li><a href={lp(lang, '/faq/')}>{t.nav.faq}</a></li>
+        <li><button type="button" data-search-open>{t.search.open}</button></li>
       </ul>
       <div class="mobile-menu__cta">
         <a class="btn btn--primary btn--block" href={lp(lang, '/contact/') + '#book'} data-og-cta={t.bookTrial}>{t.book2}</a>
@@ -139,6 +145,7 @@ const isActive = (href: string) => path.startsWith(href);
             the action bar in the same corner, and a thumb reaches this row instead. */}
         <InstallPrompt lang={lang} variant="row" />
         <LangMenu lang={lang} targets={targets} variant="sheet" />
+        <CurrencyMenu lang={lang} variant="sheet" />
         <ThemeToggle lang={lang} variant="row" />
         <div class="mobile-menu__foot">
           <a href={portalLinks.login}>{t.signIn}</a>
@@ -274,9 +281,22 @@ const isActive = (href: string) => path.startsWith(href);
     box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.1);
   }
 
-  .menu-btn :global(svg) {
+  .menu-btn :global(svg),
+  .search-open :global(svg) {
     width: 20px;
     height: 20px;
+  }
+
+  .search-open {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    background: transparent;
+    cursor: pointer;
   }
 
   /* invisible hit-area extension: the 40 px phone variant still offers a ≥ 44 px target */

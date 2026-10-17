@@ -1,0 +1,15 @@
+---
+/**
+ * A USD list price that the currency dock can rewrite in the browser.
+ * JSON-LD and CMS tokens stay in USD — this is display only.
+ */
+import { price, type Lang } from '@/i18n';
+
+interface Props {
+  usd: number;
+  lang?: Lang;
+}
+const { usd, lang = 'en' } = Astro.props;
+---
+
+<span data-usd={usd}>{price(lang, usd)}</span>

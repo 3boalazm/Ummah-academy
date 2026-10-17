@@ -1,6 +1,7 @@
 import { chip, dayKey, esc, fmt, initials, money, nm, num, state, t, tx } from './util.js';
 import { api } from './util.js';
 import { phoneForms, uploadForm } from './ops-ui.js';
+import { viewWorkspace } from './console-ui.js';
 
 const staff = () => state.me?.role === 'admin' || state.me?.role === 'ops';
 
@@ -20,6 +21,58 @@ function tabs(current, items) {
 
 function person(href, row, sub) {
   return `<a class="person" href="${esc(href)}"><span class="avatar">${esc(initials(row))}</span><span><b>${esc(nm(row))}</b><small class="small">${esc(sub)}</small></span></a>`;
+}
+
+function progressCardHtml(card) {
+  if (!card) return `<p class="empty">${esc(t('empty'))}</p>`;
+  const tz = card.student.timezone || state.tz;
+  const next = card.nextSession;
+  const last = card.lastHeld;
+  const homework = (card.homework || [])
+    .map((h) => `<li><b>${esc(tx(h, 'title'))}</b><div class="small">${esc(tx(h, 'instructions'))}${h.dueAt ? ` · ${esc(t('hwDue'))} ${esc(fmt(h.dueAt, tz))}` : ''}</div></li>`)
+    .join('') || `<li class="small">${esc(t('none'))}</li>`;
+  let lastBody = `<p class="muted">${esc(t('none'))}</p>`;
+  if (last) {
+    lastBody = `<p><b>${esc(fmt(last.startsAt, tz))}</b> ${chip(last.status)}${last.attendance ? chip(last.attendance) : ''}${last.pendingReport ? chip('pending') : ''}</p>`;
+    if (last.report) {
+      lastBody += `<p>${esc(tx(last.report, 'summary'))}</p><p class="small"><b>${esc(t('homework'))}.</b> ${esc(tx(last.report, 'homework'))}</p><p class="small"><b>${esc(t('nextStep'))}.</b> ${esc(tx(last.report, 'nextStep'))}</p>`;
+    } else {
+      lastBody += `<p class="small">${esc(t('noReportYet'))}</p>`;
+      if (card.lastReport) lastBody += `<p class="small"><b>${esc(t('m_recent_reports'))}.</b> ${esc(tx(card.lastReport, 'summary'))}</p>`;
+    }
+  }
+  return `<article class="panel progress-card">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <h2 style="margin:0"><a href="/app/students/${esc(card.student.id)}">${esc(nm(card.student))}</a></h2>
+        <p class="small">${esc(card.student.level || '')} · ${esc(t('teacher'))} ${esc(nm(card.teacher))}</p>
+      </div>
+      <div class="chips">${chip(card.axes.academicStatus)}${chip(card.axes.subscriptionStatus)}</div>
+    </div>
+    ${card.student.goals ? `<p class="muted">${esc(card.student.goals)}</p>` : ''}
+    <div class="metrics" style="margin-top:10px">
+      <div class="metric"><span class="small">${esc(t('remaining'))}</span><span class="n">${num(card.credits.remaining)}</span></div>
+      <div class="metric"><span class="small">${esc(t('delivered'))}</span><span class="n">${num(card.credits.delivered)}</span></div>
+      <div class="metric"><span class="small">${esc(t('scheduled'))}</span><span class="n">${num(card.credits.scheduledNotHeld)}</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <section>
+        <h3>${esc(t('next'))}</h3>
+        ${next
+          ? `<p class="lesson-time">${esc(fmt(next.startsAt, tz))}</p><p class="small">${esc(tz)} · ${esc(nm(next.teacher))} · ${esc(next.course ? nm(next.course) : '')}</p><p><a class="btn ghost small" href="/app/sessions/${esc(next.id)}">${esc(t('open'))}</a></p>`
+          : `<p class="muted">${esc(t('none'))}</p>`}
+      </section>
+      <section>
+        <h3>${esc(t('lastLesson'))}</h3>
+        ${lastBody}
+        ${last ? `<p><a class="btn ghost small" href="/app/sessions/${esc(last.id)}">${esc(t('open'))}</a></p>` : ''}
+      </section>
+    </div>
+    <section style="margin-top:12px">
+      <h3>${esc(t('homework'))}</h3>
+      <ul class="plain">${homework}</ul>
+    </section>
+  </article>`;
 }
 
 export async function viewLogin() {
@@ -68,6 +121,8 @@ function mark() {
 }
 
 export async function viewDashboard() {
+  if (state.me.role === 'guardian' || state.me.role === 'student') return viewHome({});
+  if (state.me.role === 'admin' || state.me.role === 'ops') return viewWorkspace();
   const data = await api('GET', '/api/dashboard');
   const metrics = (data.metrics || [])
     .map((m) => `<a class="metric" href="${esc(m.href || '/app')}"><span class="small">${esc(t('m_' + m.id) === 'm_' + m.id ? m.id : t('m_' + m.id))}</span><span class="n">${num(m.value)}</span></a>`)
@@ -77,7 +132,7 @@ export async function viewDashboard() {
     .join('') || `<p class="empty">${esc(t('none'))}</p>`;
   let extra = '';
   if (data.role === 'teacher') {
-    extra = `<section class="panel"><h2>${esc(t('teachingNote'))}</h2><p>${esc(state.lang === 'ar' ? data.teaching.noteAr : data.teaching.noteEn)}</p><div class="row">${chip('scheduled')}<b>${num(data.teaching.scheduled)}</b> ${chip('completed')}<b>${num(data.teaching.completedThisWeek)}</b> <span class="small">${num(data.teaching.hoursThisWeek)} h</span></div></section>`;
+    extra = `<section class="panel"><h2>${esc(t('teachingNote'))}</h2><p>${esc(state.lang === 'ar' ? data.teaching.noteAr : data.teaching.noteEn)}</p><div class="row">${chip('scheduled')}<b>${num(data.teaching.scheduled)}</b> ${chip('completed')}<b>${num(data.teaching.completedThisWeek)}</b> <span class="small">${num(data.teaching.hoursThisWeek)} h</span></div><p><a class="btn primary small" href="/app/today">${esc(t('today'))}</a></p></section>`;
   }
   if (data.role === 'guardian') {
     extra = `<section class="stack">${(data.children || []).map((c) => person(`/app/students/${c.id}`, c, `${c.level || ''} · ${fmt(c.nextSession?.startsAt, c.timezone)}`)).join('')}${(data.overlaps || []).length ? `<div class="banner">${esc(t('overlap'))}</div>` : ''}</section>`;
@@ -97,6 +152,112 @@ export async function viewDashboard() {
     </div>`;
 }
 
+function attendanceSelect(name, selected = 'present') {
+  return `<select name="${esc(name)}">${['present', 'late', 'absent', 'excused'].map((status) => `<option value="${status}" ${selected === status ? 'selected' : ''}>${esc(t('st_' + status) === 'st_' + status ? status : t('st_' + status))}</option>`).join('')}</select>`;
+}
+
+function todayLesson(s) {
+  const tz = s.student?.timezone || state.tz;
+  const latest = s.attendance?.at(-1);
+  const forms = [];
+  if (s.actions?.attend && (s.status === 'scheduled' || s.status === 'confirmed')) {
+    forms.push(`<form class="row" data-action="attendance"><input type="hidden" name="id" value="${esc(s.id)}">${attendanceSelect('status', latest?.status || 'present')}<button class="btn small" type="submit">${esc(t('attendance'))}</button></form>`);
+  }
+  if (s.actions?.complete) {
+    forms.push(`<form class="row" data-action="complete"><input type="hidden" name="id" value="${esc(s.id)}">${attendanceSelect('attendance', latest?.status || 'present')}<button class="btn small primary" type="submit">${esc(t('complete'))}</button></form>`);
+  }
+  if (s.actions?.report && s.pendingReport) {
+    forms.push(`<form class="form" data-action="report"><input type="hidden" name="id" value="${esc(s.id)}"><p class="small">${esc(t('reportDue'))}</p><label>${esc(t('summary'))}<textarea name="summary" required minlength="3"></textarea></label><label>${esc(t('homework'))}<input name="homework" required minlength="3"></label><label>${esc(t('nextStep'))}<input name="nextStep"></label><button class="btn primary" type="submit">${esc(t('report'))}</button></form>`);
+  }
+  return `<article class="panel stack">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <p class="lesson-time">${esc(fmt(s.startsAt, tz))}</p>
+        <p class="small">${esc(tz)} · ${esc(s.course ? nm(s.course) : '')}${s.substituteForTeacher ? ` · ${esc(t('substituteOf'))} ${esc(nm(s.substituteForTeacher))}` : ''}</p>
+      </div>
+      <div class="chips">${chip(s.status)}${s.pendingReport ? chip('pending') : ''}${latest ? chip(latest.status) : ''}</div>
+    </div>
+    ${person(`/app/students/${esc(s.studentId)}`, s.student || { name: s.studentId }, t('myFile'))}
+    <div class="row"><a class="btn ghost small" href="/app/sessions/${esc(s.id)}">${esc(t('open'))}</a>${s.actions?.room ? `<a class="btn ghost small" data-native target="_blank" href="/api/sessions/${esc(s.id)}/room">${esc(t('join'))}</a>` : ''}</div>
+    ${forms.join('')}
+  </article>`;
+}
+
+export async function viewToday({ query }) {
+  const qs = query.teacherId ? `?teacherId=${encodeURIComponent(query.teacherId)}` : '';
+  const data = await api('GET', `/api/teacher/day${qs}`);
+  if (data.picker) {
+    const rows = (data.teachers || [])
+      .map((tc) => person(`/app/today?teacherId=${encodeURIComponent(tc.id)}`, tc, `${num(tc.today)} · ${t('m_pending_reports')} ${num(tc.pendingReports)} · ${t('m_students')} ${num(tc.students)}`))
+      .join('');
+    return `${head(t('today'), t('pickTeacher'))}<div class="panel stack">${rows || `<p class="empty">${esc(t('empty'))}</p>`}</div>`;
+  }
+  const teacherTz = data.timezone || state.tz;
+  const queue = query.queue === 'reports' ? 'reports' : 'today';
+  const lessons = (data.today || []).map(todayLesson).join('') || `<p class="empty">${esc(t('noLessonToday'))}</p>`;
+  const reports = (data.pendingReports || []).map(todayLesson).join('') || `<p class="empty">${esc(t('none'))}</p>`;
+  const roster = (data.roster || [])
+    .map((row) => {
+      const sub = [
+        row.isPrimary ? t('primaryNow') : t('coverNow'),
+        `${t('assignedSince')} ${fmt(row.assignment.startAt, teacherTz)}`,
+        row.nextSession ? `${t('next')} ${fmt(row.nextSession.startsAt, row.student.timezone || teacherTz)}` : t('none'),
+        row.openHomework ? `${t('openHomework')} ${num(row.openHomework)}` : '',
+      ].filter(Boolean).join(' · ');
+      return person(`/app/students/${esc(row.student.id)}`, row.student, sub);
+    })
+    .join('') || `<p class="empty">${esc(t('empty'))}</p>`;
+  const metrics = [
+    { id: 'today', value: data.counts?.today, href: '/app/today' },
+    { id: 'pending_reports', value: data.counts?.pendingReports, href: '/app/today?queue=reports' },
+    { id: 'students', value: data.counts?.students, href: '/app/today' },
+  ].map((m) => `<a class="metric" href="${esc(m.href)}"><span class="small">${esc(t('m_' + m.id))}</span><span class="n">${num(m.value)}</span></a>`).join('');
+  return `${head(t('today'), `${nm(data.teacher)} · ${esc(data.date)} · ${esc(teacherTz)}`)}
+    <p class="muted">${esc(state.lang === 'ar' ? data.noteAr : data.noteEn)}</p>
+    <div class="metrics">${metrics}</div>
+    <div class="row" style="margin-top:12px">
+      <a class="btn ghost small" href="/app/today">${esc(t('m_today'))}</a>
+      <a class="btn ghost small" href="/app/today?queue=reports">${esc(t('filterPending'))}</a>
+    </div>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="stack">
+        <section class="panel"><h2>${esc(queue === 'reports' ? t('m_pending_reports') : t('m_today'))}</h2></section>
+        ${queue === 'reports' ? reports : lessons}
+        ${queue === 'reports' ? '' : `<section class="panel"><h2>${esc(t('m_pending_reports'))}</h2></section>${reports}`}
+      </div>
+      <section class="panel stack"><h2>${esc(t('roster'))}</h2>${roster}</section>
+    </div>`;
+}
+
+export async function viewHome({ query }) {
+  const qs = new URLSearchParams();
+  if (query.studentId) qs.set('studentId', query.studentId);
+  if (query.familyId) qs.set('familyId', query.familyId);
+  const suffix = qs.toString() ? `?${qs.toString()}` : '';
+  const data = await api('GET', `/api/progress${suffix}`);
+  const metrics = [
+    { id: 'children', value: data.counts?.children },
+    { id: 'upcoming', value: data.counts?.upcoming },
+    { id: 'open_homework', value: data.counts?.openHomework },
+    { id: 'remaining', value: data.counts?.remaining },
+  ].map((m) => `<div class="metric"><span class="small">${esc(t('m_' + m.id))}</span><span class="n">${num(m.value)}</span></div>`).join('');
+  const upcoming = (data.upcoming || [])
+    .map((s) => person(`/app/sessions/${s.id}`, s.student, `${fmt(s.startsAt, s.timezone || state.tz)} · ${nm(s.teacher)}`))
+    .join('') || `<p class="empty">${esc(t('none'))}</p>`;
+  const cards = (data.children || []).map(progressCardHtml).join('') || `<p class="empty">${esc(t('empty'))}</p>`;
+  const request = state.me.role === 'guardian' && data.children?.length
+    ? `<form class="form panel" data-action="request"><h2>${esc(t('request'))}</h2><label>${esc(t('student'))}<select name="studentId">${data.children.map((c) => `<option value="${esc(c.student.id)}">${esc(nm(c.student))}</option>`).join('')}</select></label><label>${esc(t('kind'))}<select name="kind"><option value="schedule">${esc(t('reschedule'))}</option><option value="teacher">${esc(t('changeTeacher'))}</option></select></label><label>${esc(t('reason'))}<textarea name="reason" required minlength="3"></textarea></label><button class="btn primary" type="submit">${esc(t('save'))}</button></form>`
+    : '';
+  return `${head(t('home'), data.family ? nm(data.family) : '')}
+    <p class="muted">${esc(state.lang === 'ar' ? data.noteAr : data.noteEn)}</p>
+    ${data.overlaps?.length ? `<div class="banner">${esc(t('overlap'))}</div>` : ''}
+    <div class="metrics">${metrics}</div>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="stack">${cards}${request}</div>
+      <section class="panel stack"><h2>${esc(t('next'))}</h2>${upcoming}</section>
+    </div>`;
+}
+
 export async function viewStudents({ query }) {
   const rows = await api('GET', `/api/students${query.status ? `?status=${encodeURIComponent(query.status)}` : ''}`);
   const body = rows.length
@@ -109,18 +270,34 @@ export async function viewStudent({ params, query }) {
   const dto = await api('GET', `/api/students/${params[0]}`);
   const tab = query.tab || 'overview';
   const s = dto.student;
-  const items = [
-    ['overview', t('overview')],
-    ['sessions', t('sessions')],
-    ['teachers', t('teachersTab')],
-    ['subscriptions', t('subscriptions')],
-    ['progress', t('progress')],
-    ['followups', t('followups')],
-    ['assets', t('assets')],
-    ['activity', t('activity')],
-  ];
-  if (dto.payments) items.splice(4, 0, ['payments', t('payments')]);
+  const familyViewer = state.me.role === 'guardian' || state.me.role === 'student';
+  const items = familyViewer
+    ? [
+      ['overview', t('overview')],
+      ['sessions', t('sessions')],
+      ['homework', t('homework')],
+      ['progress', t('progress')],
+    ]
+    : [
+      ['overview', t('overview')],
+      ['sessions', t('sessions')],
+      ['teachers', t('teachersTab')],
+      ['subscriptions', t('subscriptions')],
+      ['progress', t('progress')],
+      ['homework', t('homework')],
+      ['followups', t('followups')],
+      ['assets', t('assets')],
+      ['activity', t('activity')],
+    ];
+  if (dto.payments) items.splice(familyViewer ? 3 : 4, 0, ['payments', t('payments')]);
   if (dto.audit) items.push(['audit', t('audit')]);
+  if (familyViewer && dto.assets?.length) items.push(['assets', t('assets')]);
+  if (familyViewer && state.me.role === 'guardian') items.push(['subscriptions', t('subscriptions')]);
+  if (familyViewer) {
+    const progress = tab === 'overview' ? await api('GET', `/api/progress/${s.id}`) : null;
+    const body = tab === 'overview' ? progressCardHtml(progress.child) : await panel(tab, dto);
+    return `${head(nm(s), s.level || '')}${tabs(tab, items)}<div class="stack">${body}</div>`;
+  }
   const header = `<section class="panel">
     <div class="row" style="justify-content:space-between">
       <div class="row">${person(`/app/students/${s.id}`, s, s.id)}<div class="chips">${chip(dto.axes.academicStatus)}${chip(dto.axes.subscriptionStatus)}${chip(dto.axes.loginEnabled ? 'active' : 'paused')}<span class="small">${dto.axes.loginEnabled ? esc(t('loginOn')) : esc(t('loginOff'))}</span></div></div>
@@ -175,6 +352,12 @@ async function panel(tab, dto) {
       .map((r) => `<article class="panel"><h3>${esc(tx(r, 'summary'))}</h3><p><b>${esc(t('homework'))}.</b> ${esc(tx(r, 'homework'))}</p><p><b>${esc(t('nextStep'))}.</b> ${esc(tx(r, 'nextStep'))}</p></article>`)
       .join('');
     return `<section class="panel"><p><b>${esc(t('goals'))}.</b> ${esc(s.goals)}</p><p>${esc(s.strengths)} · ${esc(s.improvements)}</p></section>${reports || `<p class="empty">${esc(t('empty'))}</p>`}`;
+  }
+  if (tab === 'homework') {
+    const rows = (dto.homework || [])
+      .map((h) => `<article class="panel"><div class="row">${chip(h.open ? 'pending' : 'completed')}<b>${esc(tx(h, 'title'))}</b></div><p>${esc(tx(h, 'instructions'))}</p><p class="small">${esc(t('hwDue'))}: ${esc(fmt(h.dueAt, s.timezone))}${h.sessionId ? ` · <a href="/app/sessions/${esc(h.sessionId)}">${esc(t('sessions'))}</a>` : ''}</p></article>`)
+      .join('');
+    return rows || `<p class="empty">${esc(t('empty'))}</p>`;
   }
   if (tab === 'followups') {
     return dto.followUps.map(followCard).join('') || `<p class="empty">${esc(t('empty'))}</p>`;
@@ -257,6 +440,14 @@ export async function viewFamily({ params, query }) {
   if (dto.moneyVisible) items.splice(2, 0, ['billing', t('payments')]);
   const kids = dto.children.map((c) => person(`/app/students/${c.id}`, c, `${c.level || ''} · ${nm(c.primaryTeacher)} · ${fmt(c.nextSession?.startsAt, c.timezone)}`)).join('');
   let body = kids;
+  if (tab === 'overview') {
+    try {
+      const hub = await api('GET', `/api/progress?familyId=${encodeURIComponent(dto.family.id)}`);
+      body = (hub.children || []).map(progressCardHtml).join('') || kids;
+    } catch {
+      body = kids;
+    }
+  }
   if (tab === 'schedule') body = `${dto.overlaps?.length ? `<div class="banner">${esc(t('overlap'))}</div>` : ''}${sessionTable(dto.sessions, dto.family.timezone)}`;
   if (tab === 'billing') {
     body = dto.payments
@@ -331,6 +522,9 @@ export async function viewSession({ params }) {
   if (s.actions?.report) {
     forms.push(`<form class="form" data-action="report"><input type="hidden" name="id" value="${esc(s.id)}"><label>${esc(t('summary'))}<textarea name="summary" required minlength="3"></textarea></label><label>${esc(t('homework'))}<input name="homework"></label><label>${esc(t('nextStep'))}<input name="nextStep"></label><button class="btn primary" type="submit">${esc(t('report'))}</button></form>`);
   }
+  if (s.actions?.approveReport) {
+    forms.push(`<form data-action="approve-report"><input type="hidden" name="id" value="${esc(s.id)}"><p class="small">${esc(t('pendingReview'))}</p><button class="btn primary" type="submit">${esc(t('approveReport'))}</button></form>`);
+  }
   if (s.actions?.cancel) {
     forms.push(`<form class="form" data-action="cancel-session"><input type="hidden" name="id" value="${esc(s.id)}"><label>${esc(t('party'))}<select name="party"><option value="family">family</option><option value="teacher">teacher</option><option value="academy">academy</option></select></label><label>${esc(t('reason'))}<input name="reason" required minlength="3"></label><button class="btn danger small" type="submit">${esc(t('cancel'))}</button></form>`);
   }
@@ -349,7 +543,7 @@ export async function viewSession({ params }) {
     .join('');
   return `${head(nm(s.student), s.course ? nm(s.course) : '')}
     <section class="panel">
-      <div class="chips">${chip(s.status)}${s.pendingReport ? chip('pending') : ''}</div>
+      <div class="chips">${chip(s.status)}${s.pendingReport ? chip('pending') : ''}${s.pendingReview ? chip('review') : ''}</div>
       <p><b>${esc(fmt(s.startsAt, tz))}</b> <span class="small">${esc(tz)}</span></p>
       <p class="small">${esc(t('zone'))} ${esc(state.tz)}: ${esc(fmt(s.startsAt, state.tz))}</p>
       ${s.originalStartsAt ? `<p class="small">${esc(t('original'))}: ${esc(fmt(s.originalStartsAt, tz))}</p>` : ''}

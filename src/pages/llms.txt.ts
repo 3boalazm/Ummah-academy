@@ -23,6 +23,7 @@ export const GET: APIRoute = async () => {
     link('Frequently asked questions', '/faq/'),
     link('Book a trial / admissions', '/contact/'),
     link('Level placement', '/placement-test/'),
+    link('Accessibility statement', '/accessibility/'),
     '## Learning programmes',
     link('Quran recitation and Tajweed', '/quran-recitation-course/'),
     link('Quran memorization (Hifz)', '/quran-memorization-hifz/'),
@@ -33,6 +34,7 @@ export const GET: APIRoute = async () => {
     ...LANGS.map((lang) => link(LOCALE[lang].name, lp(lang, '/'))),
     '## Learning resources',
     link('Free resources', '/resources/'),
+    link('Family stories', '/reviews/'),
     link('Blog', '/blog/'),
     link('Sitemap', '/sitemap-index.xml'),
     ...LANGS.flatMap((lang) => [
