@@ -3,7 +3,7 @@
  * - 3 steps with per-step validation, focus management and progress
  * - Prefill from ?course= ?teacher= ?plan= ?level= ?learner=
  * - Timezone detection → country guess → WhatsApp placeholder dial code
- * - Optional webhook (PUBLIC_LEAD_ENDPOINT) with first-touch attribution
+ * - Optional portal intake (PUBLIC_INTAKE_URL → POST /api/intake) with first-touch attribution
  * - Honest hand-off on /thank-you/ (received vs. "send on WhatsApp")
  */
 import { track } from './analytics';
@@ -266,11 +266,35 @@ export function initBooking(): void {
     let received = false;
     const endpoint = form.dataset.endpoint;
     if (endpoint) {
+      // The portal intake is the operations board ("طلبات الموقع"); `kind` routes
+      // the lead to the trial tab and `submissionId` keeps retries idempotent.
+      const submissionId = (crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`);
       try {
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...data, attribution: getAttribution(), submitted_at: new Date().toISOString() }),
+          headers: { 'Content-Type': 'application/json', 'x-ua-request': '1' },
+          body: JSON.stringify({
+            ...data,
+            kind: 'trial',
+            submissionId,
+            name: data.firstName,
+            phone: data.whatsapp,
+            whatsapp: data.whatsapp,
+            learner: data.learnerLabel || data.learner,
+            message: data.notes,
+            payload: {
+              plan: data.plan,
+              teacher: data.teacher,
+              teacherGender: data.teacherGender,
+              days: data.daysLabel || data.days,
+              time: data.timeLabel || data.time,
+              childAge: data.childAge,
+              country: data.country,
+              timezone: data.timezone,
+            },
+            attribution: getAttribution(),
+            submitted_at: new Date().toISOString(),
+          }),
         });
         received = res.ok;
       } catch {

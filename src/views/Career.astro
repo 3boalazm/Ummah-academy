@@ -78,7 +78,7 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
         <h2 id="apply-title">{C.formTitle}</h2>
         <p class="lead">{C.formLede}</p>
       </div>
-      <form class="glass glass--strong apply" novalidate data-apply data-email={SITE.email} data-wa={SITE.whatsapp.number} data-subject={C.subject} data-head={C.head} data-attach={C.attachNote}>
+      <form class="glass glass--strong apply" novalidate data-apply data-endpoint={SITE.leadEndpoint} data-email={SITE.email} data-wa={SITE.whatsapp.number} data-subject={C.subject} data-head={C.head} data-attach={C.attachNote}>
         <div class="apply__grid">
           {
             fields.map((f) => (
@@ -134,6 +134,45 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
       .map(([k, v]) => `${k}: ${v}`);
     const body = [form.dataset.head, '', ...lines].join('\n');
     track('teacher_application_submit', { channel: submitter?.value || 'email' });
+    // Also land in the portal's Website Requests board (kind: training). The
+    // mailto / WhatsApp hand-off below stays the teacher's sending action.
+    const endpoint = form.dataset.endpoint;
+    if (endpoint) {
+      const pick = (id: string) => (form.querySelector(`#ap-${id}`) as HTMLInputElement | HTMLSelectElement | null)?.value?.trim() || '';
+      const payload = {
+        kind: 'training',
+        submissionId: `ap-${Date.now()}`,
+        name: pick('name'),
+        email: pick('email'),
+        phone: pick('wa'),
+        whatsapp: pick('wa'),
+        country: pick('country'),
+        message: pick('msg'),
+        course: pick('spec'),
+        lang: document.documentElement.lang || 'en',
+        source: location.pathname,
+        payload: {
+          faculty: pick('faculty'),
+          graduationYear: pick('year'),
+          ijazah: pick('ijazah'),
+          experience: pick('exp'),
+          specialisation: pick('spec'),
+          english: pick('eng'),
+          channel: submitter?.value || 'email',
+        },
+        submitted_at: new Date().toISOString(),
+      };
+      try {
+        void fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-ua-request': '1' },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        }).catch(() => {});
+      } catch {
+        /* never block the mail / WhatsApp hand-off */
+      }
+    }
     if (submitter?.value === 'whatsapp') window.open(`https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(body)}`, '_blank', 'noopener');
     else location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(form.dataset.subject || '')}&body=${encodeURIComponent(`${body}\n\n${form.dataset.attach}`)}`;
   });

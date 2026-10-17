@@ -1,5 +1,6 @@
 import { api, errText, esc, localToIso, state, t, toast } from './util.js';
 import { downloadExport, handleOps, viewInvoices, viewNotes, viewOnboard, viewOutbox } from './ops-ui.js';
+import { viewSiteRequests } from './requests-ui.js';
 import {
   viewAcademic,
   viewAdmissions,
@@ -63,6 +64,7 @@ const VIEWS = {
   academic: viewAcademic,
   admissions: viewAdmissions,
   website: viewWebsite,
+  siteRequests: viewSiteRequests,
   governance: viewGovernance,
   placements: viewPlacements,
   files: viewFiles,
@@ -99,6 +101,7 @@ const ROUTES = [
   { re: /^\/app\/notifications\/?$/, id: 'notes' },
   { re: /^\/app\/academic\/?$/, id: 'academic' },
   { re: /^\/app\/website\/?$/, id: 'website' },
+  { re: /^\/app\/site-requests\/?$/, id: 'siteRequests' },
   { re: /^\/app\/admissions\/?$/, id: 'admissions' },
   { re: /^\/app\/governance\/?$/, id: 'governance' },
   { re: /^\/app\/placements\/?$/, id: 'placements' },
@@ -147,6 +150,7 @@ function consoleNav() {
     ] },
     { label: ar ? 'مدير الموقع' : 'Website', items: [
       ['/app/website', t('websiteMenu')],
+      ['/app/site-requests', t('siteRequestsMenu')],
     ] },
     { label: ar ? 'تشغيل الأكاديمية' : 'Academy Ops', items: [
       ['/app/students', t('students')],
@@ -209,6 +213,7 @@ function shell(body) {
         </header>
         <div class="content"><p class="banner">${esc(t('demoNote'))}</p>${body}</div>
       </div>
+      <div class="nav-backdrop" data-cmd="menu" aria-hidden="true"></div>
     </div>`;
   }
   const groups = consoleNav()
@@ -225,6 +230,7 @@ function shell(body) {
     : '';
   return `<div class="shell console-shell">
     <header class="adminbar">
+      <button class="btn ghost small menu-btn" type="button" data-cmd="menu" aria-label="${esc(t('menu'))}">${esc(t('menu'))}</button>
       <a class="brand" href="/app">${markSvg()}<span>${esc(state.lang === 'ar' ? 'نظام التشغيل' : 'Admin OS')}</span></a>
       <a href="/app/onboard">+ ${esc(state.lang === 'ar' ? 'تسجيل' : 'Enrol')}</a>
       ${search}
@@ -235,9 +241,13 @@ function shell(body) {
       <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
     </header>
     <aside class="side">
-      <button class="btn ghost small menu-btn" type="button" data-cmd="menu">${esc(t('menu'))}</button>
       <nav class="nav" aria-label="Main">${groups}</nav>
       <button class="btn ghost small collapse-btn" type="button" data-cmd="collapse">${esc(state.collapsedNav ? (state.lang === 'ar' ? 'توسيع' : 'Expand') : t('menu'))}</button>
+      <div class="who">
+        <strong>${esc(name)}</strong>
+        <span class="small">${esc(state.me.role)} · ${esc(state.tz)}</span>
+        <button class="btn ghost small" type="button" data-cmd="logout">${esc(t('signOut'))}</button>
+      </div>
     </aside>
     <div class="main">
       <div class="content">
@@ -246,6 +256,7 @@ function shell(body) {
         ${body}
       </div>
     </div>
+    <div class="nav-backdrop" data-cmd="menu" aria-hidden="true"></div>
   </div>`;
 }
 
@@ -292,6 +303,14 @@ async function render() {
   app.innerHTML = route.id === 'login' ? html : shell(html);
   document.body.classList.toggle('console', route.id !== 'login' && isConsole());
   document.body.classList.toggle('collapsed', state.collapsedNav);
+  document.body.classList.remove('nav-open');
+  app.querySelectorAll('table').forEach((tbl) => {
+    if (tbl.parentElement?.classList.contains('table-wrap')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    tbl.replaceWith(wrap);
+    wrap.append(tbl);
+  });
   document.title = state.lang === 'ar' ? 'بوابة أكاديمية الأمة' : 'Ummah Academy portal';
 }
 
@@ -408,6 +427,18 @@ async function onForm(form) {
       toast(t('saved'));
       go(`/app/follow-ups/${body.id}`);
       return;
+    } else if (action === 'site-request-status') {
+      await api('POST', `/api/site-requests/${data.id}/status`, { status: data.status, outcome: data.outcome }, opt);
+      toast(t('saved'));
+    } else if (action === 'site-request-note') {
+      if (!data.note || !String(data.note).trim()) return;
+      await api('POST', `/api/site-requests/${data.id}/status`, { note: data.note }, opt);
+      toast(t('saved'));
+    } else if (action === 'site-request-follow') {
+      const body = await api('POST', `/api/site-requests/${data.id}/follow-up`, {}, opt);
+      toast(t('saved'));
+      go(`/app/follow-ups/${body.followUp.id}`);
+      return;
     } else if (action === 'whatsapp-consent') {
       await api('POST', `/api/guardians/${data.guardianId}/whatsapp-consent`, {
         status: data.status,
@@ -498,6 +529,12 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       toast(errText(error));
     }
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.body.classList.contains('nav-open')) {
+    document.body.classList.remove('nav-open');
   }
 });
 

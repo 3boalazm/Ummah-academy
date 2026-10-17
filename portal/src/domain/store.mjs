@@ -13,6 +13,7 @@ import {
 } from './policy.mjs';
 import { IDS, DEMO_PASSWORD, buildSeed } from './seed.mjs';
 import { attachOps } from './ops.mjs';
+import { attachIntake } from './intake.mjs';
 import { addMs, localParts } from './time.mjs';
 import { appendAcademicRecord, ensureAcademicCollections } from './academic.mjs';
 
@@ -50,6 +51,7 @@ export function createStore(options = {}) {
   let state = structuredClone(options.state ?? buildSeed(clock()));
   ensureAcademicCollections(state);
   state.outbox ??= [];
+  state.siteRequests ??= [];
   for (const g of state.guardians) g.phone ??= null;
   for (const f of state.families) f.phone ??= null;
 
@@ -2164,6 +2166,7 @@ export function createStore(options = {}) {
         { id: 'outcome', pass: Boolean(tech?.outcome && tech.status === 'resolved'), href: `/app/follow-ups/${IDS.fuTech}`, en: 'The resolved technical follow-up has an outcome.', ar: 'المتابعة التقنية المحلولة لها نتيجة.' },
         { id: 'axes', pass: byId(state.students, IDS.yusuf)?.loginEnabled === false && byId(state.students, IDS.yusuf)?.academicStatus === 'active' && subscriptionStatusFor(IDS.yusuf) === 'active', href: `/app/students/${IDS.yusuf}`, en: 'Academic, subscription, and login are three different flags.', ar: 'الحالة الأكاديمية والاشتراك والدخول ثلاثة أعلام مختلفة.' },
         { id: 'payment-split', pass: state.payments.some((p) => p.id === IDS.payAminaFail) && state.payments.some((p) => p.id === IDS.payAminaOk), href: `/app/students/${IDS.amina}?tab=payments`, en: 'A failed payment and its settlement both remain.', ar: 'الدفعة الفاشلة وتسويتها باقيتان معًا.' },
+        { id: 'site-intake', pass: state.siteRequests.length >= 4 && state.siteRequests.some((r) => r.kind === 'level-test'), href: '/app/site-requests', en: 'Website requests board is fed by the site forms.', ar: 'لوحة طلبات الموقع تُغذّى من نماذج الموقع.' },
       ];
       return { pass: checks.every((c) => c.pass), checks };
     },
@@ -2172,6 +2175,7 @@ export function createStore(options = {}) {
       allow(actor, 'demo.reset', null);
       state = buildSeed(clock());
       state.outbox = [];
+      state.siteRequests ??= [];
       for (const g of state.guardians) g.phone ??= null;
       commit();
       return { ok: true, seededAt: state.meta.seededAt };
@@ -2189,6 +2193,15 @@ export function createStore(options = {}) {
     byId,
     requireReason,
     readToken: (token) => readAssetToken(token, secret, clock().getTime()),
+  });
+  attachIntake(api, {
+    get state() { return state; },
+    clock,
+    allow,
+    audit,
+    notify,
+    must,
+    byId,
   });
   return api;
 }
