@@ -1,0 +1,1939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ummah Academy — Design System &amp; Product Case Study · 2026</title>
+<meta name="description" content="A Behance-style case study: the Sakinah Glass design system and the multilingual Ummah Academy product — research, strategy, identity, 34 components, 195 pages, RTL and motion." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================================
+   Ummah Academy — case study / presentation
+   Dark, editorial, bento-driven. All product visuals are live HTML/CSS.
+   ========================================================================== */
+:root{
+  --night-0:#08040f; --night-1:#0c0716; --night-2:#120b1f; --night-3:#1a1129;
+  --aubergine-800:#2e1d46; --indigo-700:#453163; --violet-600:#6b3fa0;
+  --magenta-600:#8f2f9e; --blue-600:#1d5fa8; --rose-500:#c87b80;
+  --sky-200:#afccea; --lavender-300:#ada7c9; --mauve-200:#ceb3c1; --blush-100:#f1e8ec;
+  --gold-400:#d9b26a;
+
+  --paper:#f4f1f8; --ink:#1e1530; --ink-2:#4a4060; --ink-3:#5b5270;
+  --text:#f4f0fb; --text-2:#ded7ee; --text-3:#c6bee0; --text-4:#9d93ba;
+  --hair:rgba(255,255,255,.1); --hair-2:rgba(255,255,255,.18);
+  --glass:linear-gradient(155deg,rgba(255,255,255,.075),rgba(255,255,255,.028));
+  --glass-rim:linear-gradient(160deg,rgba(255,255,255,.38),rgba(255,255,255,.08) 40%,rgba(255,255,255,.04) 60%,rgba(255,255,255,.2));
+
+  --font-sans:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-serif:'Instrument Serif','Iowan Old Style',Georgia,serif;
+  --font-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --font-arabic:'IBM Plex Sans Arabic','Geist',system-ui,sans-serif;
+  --font-quran:'Amiri','IBM Plex Sans Arabic',serif;
+
+  --r-xs:10px; --r-sm:14px; --r-md:20px; --r-lg:28px; --r-xl:40px; --r-pill:999px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --grad:linear-gradient(100deg,#e0a4ff 0%,#b79bff 48%,#7fc0ff 100%);
+  --grad-solid:linear-gradient(100deg,#8a4bbd 0%,#6f4bb4 48%,#2f6bb0 100%);
+  --wrap:1400px; --pad:clamp(20px,4.6vw,64px);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:86px;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--night-1);color:var(--text);
+  font-family:var(--font-sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%}
+h1,h2,h3,h4,h5{margin:0;font-weight:600;line-height:1.02;letter-spacing:-.035em;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+ul,ol{margin:0;padding:0;list-style:none}
+::selection{background:rgba(224,164,255,.28);color:#fff}
+:where(a,button,summary,[tabindex]):focus-visible{outline:2.5px solid #d9bcff;outline-offset:3px;border-radius:6px}
+
+/* atmosphere */
+.sky{position:fixed;inset:-20%;z-index:-2;filter:blur(80px);pointer-events:none}
+.sky i{position:absolute;border-radius:50%;animation:drift 60s var(--ease) infinite alternate}
+.sky i:nth-child(1){width:52vw;height:52vw;left:-8%;top:-12%;background:radial-gradient(closest-side,rgba(143,47,158,.34),transparent 70%)}
+.sky i:nth-child(2){width:46vw;height:46vw;right:-6%;top:0;background:radial-gradient(closest-side,rgba(107,63,160,.34),transparent 70%);animation-duration:72s;animation-direction:alternate-reverse}
+.sky i:nth-child(3){width:50vw;height:50vw;left:20%;bottom:-16%;background:radial-gradient(closest-side,rgba(29,95,168,.28),transparent 70%);animation-duration:56s}
+.sky i:nth-child(4){width:28vw;height:28vw;right:12%;bottom:6%;background:radial-gradient(closest-side,rgba(200,123,128,.22),transparent 72%);animation-duration:64s}
+@keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4vw,-3vw,0) scale(1.1)}100%{transform:translate3d(-3vw,3vw,0) scale(.95)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* chrome */
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:70;background:rgba(255,255,255,.07)}
+.progress i{display:block;height:100%;width:0;background:var(--grad);box-shadow:0 0 12px rgba(224,164,255,.6)}
+.top{position:fixed;top:0;left:0;right:0;z-index:60;padding:14px var(--pad);display:flex;align-items:center;gap:16px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:linear-gradient(to bottom,rgba(8,4,15,.78),rgba(8,4,15,.12) 70%,transparent);
+  transition:background .4s var(--ease),border-color .4s}
+.top__brand{display:flex;align-items:center;gap:10px;font-size:.78rem;font-weight:600;letter-spacing:-.01em;text-decoration:none}
+.top__brand svg{height:20px;width:auto}
+.ua{fill:currentColor}
+.ui .chip-ui{color:#4a4060;border-color:rgba(46,29,70,.14);background:rgba(46,29,70,.05)}
+.top__brand span{color:var(--text-3);font-weight:400;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase}
+.top__nav{margin-left:auto;display:flex;align-items:center;gap:2px}
+.top__nav a{padding:.5em .7em;border-radius:99px;text-decoration:none;font-size:.72rem;color:var(--text-3);transition:.2s;letter-spacing:.01em}
+.top__nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+.top__tag{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-4);border:1px solid var(--hair);padding:.45em .7em;border-radius:99px;white-space:nowrap}
+
+/* side dots */
+.dots-nav{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:55;display:grid;gap:9px}
+.dots-nav a{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.22);transition:.3s;position:relative}
+.dots-nav a::after{content:attr(data-t);position:absolute;right:18px;top:50%;transform:translateY(-50%) translateX(6px);white-space:nowrap;font-family:var(--font-mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-2);background:rgba(12,7,22,.9);border:1px solid var(--hair);padding:4px 8px;border-radius:5px;opacity:0;pointer-events:none;transition:.25s}
+.dots-nav a:hover{background:#fff;transform:scale(1.4)}
+.dots-nav a:hover::after{opacity:1;transform:translateY(-50%) translateX(0)}
+.dots-nav a.is-on{background:var(--grad);box-shadow:0 0 0 3px rgba(224,164,255,.16);height:20px;border-radius:99px}
+
+/* layout */
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--pad)}
+.slide{position:relative;padding-block:clamp(64px,8.5vw,136px);border-top:1px solid rgba(255,255,255,.07)}
+.slide--flush{border-top:0}
+.shead{display:grid;gap:18px;max-width:940px;margin-bottom:clamp(30px,4.4vw,60px)}
+.snum{display:inline-flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-4)}
+.snum b{color:var(--text-2);font-weight:500}
+.snum::after{content:"";width:38px;height:1px;background:var(--hair-2)}
+.big{font-size:clamp(2.1rem,5.2vw,4.5rem);line-height:.98;letter-spacing:-.045em}
+.big em{font-family:var(--font-serif);font-style:italic;font-weight:400;letter-spacing:-.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:clamp(1rem,1.6vw,1.18rem);color:var(--text-2);max-width:66ch;line-height:1.62}
+.mono{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-4)}
+.serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+.ar{font-family:var(--font-arabic);direction:rtl;text-align:right;line-height:1.9}
+.quran{font-family:var(--font-quran);direction:rtl;line-height:2}
+.light{color:#fff}
+.muted{color:var(--text-3)}
+.card{background:var(--glass);border:1px solid var(--hair);border-radius:var(--r-lg);padding:clamp(18px,2.4vw,28px);position:relative;overflow:hidden;box-shadow:0 30px 60px -50px #000}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:var(--glass-rim);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.6}
+.card--flat{background:rgba(255,255,255,.04)}
+.card--gold{border-color:rgba(217,178,106,.34);background:linear-gradient(150deg,rgba(217,178,106,.12),rgba(217,178,106,.03))}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.stats3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.stats3{grid-template-columns:1fr}}
+.stat b{display:block;font-size:clamp(1.9rem,3.6vw,3rem);line-height:1;letter-spacing:-.05em;font-weight:600}
+.stat span{display:block;margin-top:8px;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-4)}
+.rule{height:1px;background:var(--hair);border:0;margin:0}
+.tag{display:inline-flex;align-items:center;gap:.45em;padding:.42em .78em;border-radius:99px;border:1px solid var(--hair-2);background:rgba(255,255,255,.05);font-size:.72rem;color:var(--text-2);white-space:nowrap}
+.tag--gold{border-color:rgba(217,178,106,.4);background:rgba(217,178,106,.12);color:#e7c88c}
+.tag--accent{border-color:rgba(224,164,255,.44);background:rgba(224,164,255,.14);color:#f0e0ff}
+.hr-label{display:flex;align-items:center;gap:14px;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-4);margin-bottom:14px}
+.hr-label::after{content:"";flex:1;height:1px;background:var(--hair)}
+
+.card__text{font-size:.84rem;line-height:1.62;color:var(--text-3)}
+.ui__card{background:rgba(255,255,255,.72);border:1px solid rgba(46,29,70,.09);border-radius:.9em;padding:.9em;backdrop-filter:blur(8px)}
+.ui__seal{display:inline-flex;align-items:center;gap:.3em;font-size:.5em;font-weight:600;border-radius:99px;padding:.32em .58em;background:rgba(217,178,106,.18);color:#8a6a2a;border:1px solid rgba(217,178,106,.42);white-space:nowrap}
+.ui__tile{border:1px solid rgba(46,29,70,.14);background:#fff;border-radius:.7em;padding:.7em;display:flex;gap:.6em;align-items:center;color:#1e1530}
+.ui__tile b{font-size:.66em;display:block;letter-spacing:-.01em}
+.ui__tile span{font-size:.54em;color:#5b5270;display:block}
+.ui__tile.on{border-color:#6b3fa0;background:rgba(107,63,160,.06);box-shadow:inset 0 0 0 1px #6b3fa0}
+.ui__ico{width:1.7em;height:1.7em;border-radius:.45em;background:rgba(107,63,160,.12);display:grid;place-items:center;color:#6b3fa0;flex:none}
+.ui__ico svg{width:.95em;height:.95em;fill:none;stroke:currentColor;stroke-width:1.7}
+.snap .snapcard p{margin:0}
+.hover-lift{transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.hover-lift:hover{transform:translateY(-4px)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.no-motion .rv{opacity:1;transform:none;transition:none}
+
+/* ======================= COVER ======================= */
+.cover{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:110px 0 48px;overflow:hidden}
+.cover__glow{position:absolute;top:12%;right:-6%;width:60vw;height:60vw;max-width:900px;max-height:900px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(143,47,158,.34),rgba(107,63,160,.12) 55%,transparent 72%);filter:blur(30px);pointer-events:none}
+.cover__in{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(24px,4vw,56px);align-items:center;position:relative;width:100%}
+.cover__eyebrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.cover h1{font-size:clamp(3rem,8vw,7.2rem);line-height:.88;letter-spacing:-.055em;font-weight:600}
+.cover h1 .line{display:block;overflow:hidden}
+.cover h1 .line > span{display:block;animation:rise 1.1s var(--ease) both}
+.cover h1 .line:nth-child(2) > span{animation-delay:.09s}
+@keyframes rise{from{transform:translateY(110%)}to{transform:none}}
+.cover__serif{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:clamp(1.35rem,3vw,2.4rem);line-height:1.16;letter-spacing:-.015em;margin-top:22px;max-width:19ch;color:var(--text-2)}
+.cover__serif b{font-weight:400;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover__lede{margin-top:22px;max-width:46ch;color:var(--text-3);font-size:clamp(.94rem,1.3vw,1.04rem);line-height:1.65}
+.cover__meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:34px;padding-top:22px;border-top:1px solid var(--hair);max-width:560px}
+.cover__meta span{font-family:var(--font-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-4);display:block;margin-bottom:5px}
+.cover__meta b{font-size:.82rem;font-weight:500;letter-spacing:-.01em;color:var(--text-2)}
+.cover__devices{position:relative;min-height:min(58vh,500px);perspective:1200px;display:grid;place-items:center}
+.dev-browser{position:absolute;top:2%;left:-2%;width:94%;transform:rotate(-4.5deg);z-index:1;animation:floatA 12s ease-in-out infinite alternate}
+.dev-phone{position:absolute;right:-2%;bottom:-3%;width:37%;z-index:3;transform:rotate(4deg);animation:floatB 10s ease-in-out infinite alternate}
+.dev-card{position:absolute;left:-2%;bottom:2%;z-index:4;width:42%;animation:floatA 14s ease-in-out infinite alternate-reverse}
+.dev-card .card{background:linear-gradient(155deg,rgba(255,255,255,.17),rgba(255,255,255,.06));border-color:rgba(255,255,255,.3);box-shadow:0 24px 60px -30px #000;backdrop-filter:blur(16px)}
+@keyframes floatA{from{transform:rotate(-4.5deg) translateY(0)}to{transform:rotate(-4deg) translateY(-12px)}}
+@keyframes floatB{from{transform:rotate(4deg) translateY(0)}to{transform:rotate(3.4deg) translateY(-10px)}}
+.cover__scroll{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.54rem;letter-spacing:.24em;text-transform:uppercase;color:var(--text-4);text-decoration:none}
+.cover__scroll i{width:1px;height:34px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);position:relative;overflow:hidden}
+.cover__scroll i::after{content:"";position:absolute;top:-10px;left:0;width:1px;height:10px;background:#fff;animation:scrollHint 2.4s var(--ease) infinite}
+@keyframes scrollHint{0%{transform:translateY(0);opacity:0}30%{opacity:1}100%{transform:translateY(44px);opacity:0}}
+
+/* ======================= SNAPSHOT ======================= */
+.snap{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.snap > *{grid-column:span 2}
+.snap .span3{grid-column:span 3}
+.snap .span6{grid-column:span 6}
+.snap .span4{grid-column:span 4}
+.snap .span2{grid-column:span 2}
+.snapcard{background:var(--glass);border:1px solid var(--hair);border-radius:var(--r-md);padding:18px 18px 16px;min-height:112px;display:flex;flex-direction:column;gap:6px;justify-content:flex-end}
+.snapcard b{font-size:clamp(1rem,1.6vw,1.22rem);letter-spacing:-.02em;line-height:1.25}
+.snapcard span{font-family:var(--font-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-4)}
+.snapcard p{font-size:.78rem;color:var(--text-3);line-height:1.5}
+.snapcard--night{background:linear-gradient(150deg,#3a2557,#20142f 62%,#170f26);border-color:rgba(255,255,255,.14);justify-content:space-between}
+.snapcard--gold{background:linear-gradient(150deg,rgba(217,178,106,.16),rgba(217,178,106,.04));border-color:rgba(217,178,106,.3)}
+.snapcard--accent{background:linear-gradient(150deg,rgba(143,47,158,.24),rgba(29,95,168,.1));border-color:rgba(255,255,255,.14)}
+
+/* ======================= GENERIC CONTENT ======================= */
+.cols{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,60px);align-items:start}
+.sticky-note{position:sticky;top:110px}
+.numlist{counter-reset:n;display:grid;gap:0}
+.numlist li{counter-increment:n;display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;padding:20px 0;border-bottom:1px solid var(--hair);align-items:start}
+.numlist li::before{content:counter(n,decimal-leading-zero);font-family:var(--font-mono);font-size:.62rem;color:var(--text-4);letter-spacing:.1em;padding-top:3px}
+.numlist b{display:block;font-size:.98rem;letter-spacing:-.015em;margin-bottom:4px}
+.numlist p{font-size:.82rem;color:var(--text-3);line-height:1.6;max-width:52ch}
+.contrast-row{display:flex;align-items:center;gap:10px}
+.contrast-row .ratio{font-size:.58rem;letter-spacing:.06em;white-space:nowrap;min-width:74px;text-align:right}
+.quote{font-family:var(--font-serif);font-style:italic;font-size:clamp(1.25rem,2.5vw,2.05rem);line-height:1.28;letter-spacing:-.015em;color:var(--text)}
+.quote__by{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:.75rem;color:var(--text-4);font-family:var(--font-sans);font-style:normal}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:.68rem;font-weight:600;color:#fff;background:linear-gradient(150deg,#8f2f9e,#1d5fa8);flex:none}
+.avatar--rose{background:linear-gradient(150deg,#c87b80,#8f2f9e)}
+.avatar--gold{background:linear-gradient(150deg,#d9b26a,#8f2f9e);color:#2e1d46}
+
+/* bars / matrix */
+.tablewrap{overflow-x:auto;margin-top:4px;-webkit-overflow-scrolling:touch}
+.matrix{width:100%;border-collapse:collapse;font-size:.8rem;min-width:520px}
+.matrix th{font-family:var(--font-mono);font-size:.53rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4);font-weight:500;text-align:left;padding:10px 8px;border-bottom:1px solid var(--hair-2);white-space:nowrap}
+.matrix td{padding:12px 8px;border-bottom:1px solid var(--hair);color:var(--text-3);vertical-align:middle}
+.matrix tr:last-child td{border-bottom:0}
+.matrix td:first-child{color:var(--text);font-weight:500;font-size:.84rem}
+.pips{display:flex;gap:3px}
+.pips i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.16)}
+.pips i.on{background:var(--lavender-300)}
+.pips i.gold{background:var(--gold-400)}
+.matrix .us td{background:rgba(143,47,158,.09)}
+.matrix .us td:first-child::after{content:" ★";color:var(--gold-400);font-size:.7em}
+
+/* ======================= IDENTITY ======================= */
+.logo-stage{position:relative;border-radius:var(--r-lg);border:1px solid var(--hair);overflow:hidden;display:grid;place-items:center;min-height:300px}
+.logo-stage--light{background:linear-gradient(160deg,#fbf8fc,#efe6f3 60%,#e6eef9)}
+.logo-stage--dark{background:radial-gradient(120% 100% at 80% 0%,rgba(143,47,158,.4),transparent 60%),linear-gradient(150deg,#2b1b45,#120b1f)}
+.logo-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(46,29,70,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(46,29,70,.09) 1px,transparent 1px);background-size:28px 28px}
+.logo-stage--dark .logo-grid{background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px)}
+.logo-mark{position:relative;display:grid;place-items:center;gap:16px}
+.logo-mark svg{height:132px;width:auto;color:#281547}
+.logo-stage--dark .logo-mark svg{color:#fff;filter:drop-shadow(0 20px 50px rgba(143,47,158,.5))}
+.logo-mark .mono{color:#6a6182}
+.logo-stage--dark .logo-mark .mono{color:#c6bee0}
+.palette{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.pal{height:126px;border-radius:14px;position:relative;border:1px solid rgba(255,255,255,.1);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:10px}
+.pal b{font-size:.66rem;font-weight:600;color:var(--chip-ink,#fff);letter-spacing:.01em}
+.pal span{font-family:var(--font-mono);font-size:.52rem;color:var(--chip-ink,#fff);opacity:.8}
+.type-pair{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+.type-card{padding:22px;border-radius:var(--r-md);border:1px solid var(--hair);background:rgba(255,255,255,.04)}
+.type-card .mono{display:block;margin-bottom:14px}
+.type-card .disp{font-size:clamp(1.7rem,3.4vw,2.8rem);line-height:1;letter-spacing:-.045em;font-weight:600}
+.type-card .serifdisp{font-size:clamp(1.7rem,3.4vw,2.8rem);line-height:1.05}
+.type-card .ar {font-size:clamp(1.5rem,3vw,2.3rem)}
+.surface-demo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.surf{height:150px;border-radius:16px;position:relative;overflow:hidden;border:1px solid var(--hair);display:grid;align-items:end;padding:12px}
+.surf b{font-size:.72rem;font-weight:600;position:relative;z-index:2}
+.surf span{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.08em;color:rgba(255,255,255,.62);position:relative;z-index:2}
+.surf--1{background:rgba(255,255,255,.05)}
+.surf--2{background:linear-gradient(155deg,rgba(255,255,255,.14),rgba(255,255,255,.05));backdrop-filter:blur(10px)}
+.surf--3{background:linear-gradient(150deg,#3a2557,#1a1129)}
+
+/* ======================= COMPONENTS ======================= */
+.comp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.comp{background:rgba(255,255,255,.035);border:1px solid var(--hair);border-radius:16px;padding:16px;min-height:150px;display:flex;flex-direction:column;gap:10px;justify-content:space-between}
+.comp > .mono{font-size:.54rem}
+.btn-ui{display:inline-flex;align-items:center;justify-content:center;gap:.5em;font-size:.74rem;font-weight:600;padding:.78em 1.1em;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;white-space:nowrap;text-decoration:none}
+.btn-ui--solid{background:var(--grad-solid);border-color:transparent;box-shadow:0 10px 24px -12px rgba(143,47,158,.9)}
+.btn-ui--ghost{background:transparent;border-color:transparent;color:var(--text-3)}
+.chip-ui{display:inline-flex;align-items:center;gap:.4em;font-size:.62rem;padding:.36em .66em;border-radius:99px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:var(--text-2);white-space:nowrap}
+.chip-ui--gold{border-color:rgba(217,178,106,.4);background:rgba(217,178,106,.12);color:#e7c88c}
+.chip-ui--ok{border-color:rgba(127,220,174,.3);background:rgba(127,220,174,.1);color:#7fdcae}
+.field-ui{display:grid;gap:5px}
+.field-ui span{font-size:.6rem;color:var(--text-3)}
+.field-ui div{height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;font-size:.7rem;color:var(--text-4)}
+.prog-ui{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.prog-ui i{display:block;height:100%;width:66%;border-radius:99px;background:var(--grad)}
+.switch-ui{width:34px;height:20px;border-radius:99px;background:var(--violet-600);position:relative}
+.switch-ui::after{content:"";position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff}
+.code-mini{font-family:var(--font-mono);font-size:.6rem;line-height:1.7;color:#c9b8e8;background:rgba(0,0,0,.28);border:1px solid var(--hair);border-radius:10px;padding:10px;overflow:auto;white-space:pre}
+.code-mini .k{color:#e0a4ff}.code-mini .v{color:#9fd0ff}.code-mini .n{color:#ffd9a0}
+
+/* ======================= BROWSER / UI MOCKS ======================= */
+.browser{border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.16);background:#1a1226;box-shadow:0 50px 100px -50px #000,0 0 0 1px rgba(0,0,0,.4)}
+.browser__bar{height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;background:linear-gradient(#251733,#191023);border-bottom:1px solid rgba(255,255,255,.08)}
+.browser__dots{display:flex;gap:5px}
+.browser__dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2)}
+.browser__url{flex:1;max-width:300px;margin:0 auto;height:20px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.48rem;letter-spacing:.06em;color:#ada7c9;white-space:nowrap;overflow:hidden}
+.browser__url b{color:#e2d7f5;font-weight:500}
+.browser__view{position:relative;overflow:hidden}
+.ui{position:relative;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;container-type:inline-size;overflow:hidden;line-height:1.45}
+.ui__aurora{position:absolute;inset:0;background:
+  radial-gradient(45% 60% at 12% -6%,rgba(143,47,158,.30),transparent 70%),
+  radial-gradient(40% 55% at 88% 4%,rgba(107,63,160,.20),transparent 72%),
+  radial-gradient(50% 60% at 50% 104%,rgba(29,95,168,.16),transparent 70%),
+  linear-gradient(160deg,#f7f1f8,#eef0fa 60%,#f4eef2);}
+.ui__inner{position:relative;padding:1.5em 2em 2em;font-size:clamp(6.5px,1.72cqw,18px)}
+.ui__nav{display:flex;align-items:center;gap:.55em;background:rgba(255,255,255,.72);border:1px solid rgba(46,29,70,.1);border-radius:99px;padding:.36em .36em .36em .9em;backdrop-filter:blur(12px);box-shadow:0 6px 18px -12px rgba(46,29,70,.5);font-size:.72em}
+.ui__logo{display:flex;align-items:center;gap:.45em;font-weight:600;margin-right:auto;font-size:1em;letter-spacing:-.01em}
+.ui__logo svg{height:1.55em;width:auto;color:#281547;fill:#281547}
+.ui__nav a{color:#4a4060;text-decoration:none;font-size:.92em;padding:.3em .5em;border-radius:99px}
+.ui__nav a.on{background:rgba(46,29,70,.06);color:#1e1530}
+.ui__cta{background:#1e1530;color:#fff !important;padding:.55em .9em !important;border-radius:99px;font-weight:600}
+.ui h1,.ui h2,.ui h3{letter-spacing:-.035em}
+.ui .ui__eyebrow{display:inline-flex;align-items:center;gap:.4em;font-size:.62em;letter-spacing:.14em;text-transform:uppercase;color:#5b5270;font-weight:500}
+.ui__eyebrow::before{content:"";width:1.6em;height:1px;background:rgba(46,29,70,.3)}
+.ui .ui__h1{font-size:3.05em;line-height:.99;margin-top:.35em;max-width:13em;font-weight:600}
+.ui__h1 em{font-family:var(--font-serif);font-style:italic;font-weight:400;background:linear-gradient(100deg,#8f2f9e,#5b3a8e 48%,#1d5fa8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ui .ui__lede{font-size:.86em;color:#4a4060;max-width:30em;margin-top:.85em;line-height:1.55}
+.ui__actions{display:flex;gap:.5em;margin-top:1.1em;flex-wrap:wrap}
+.ui__btn{font-size:.74em;font-weight:600;padding:.8em 1.05em;border-radius:99px;border:1px solid rgba(46,29,70,.16);color:#1e1530;background:rgba(255,255,255,.6);white-space:nowrap}
+.ui__btn--primary{background:#1e1530;border-color:#1e1530;color:#fff}
+.ui__trust{display:flex;gap:.85em;margin-top:.9em;font-size:.6em;color:#5b5270;flex-wrap:wrap}
+.ui__trust span{display:inline-flex;align-items:center;gap:.3em}
+.ui__trust svg{width:1em;height:1em;color:#1f7a4d}
+.ui__glass{background:linear-gradient(155deg,rgba(255,255,255,.84),rgba(255,255,255,.5));border:1px solid rgba(255,255,255,.7);backdrop-filter:blur(14px);border-radius:1em;box-shadow:0 1.4em 3em -1.6em rgba(46,29,70,.5);padding:1em}
+.ui__row{display:flex;align-items:center;justify-content:space-between;gap:.6em}
+.ui__card-title{font-size:.78em;font-weight:600;letter-spacing:-.01em}
+.ui__tiny{font-size:.58em;color:#5b5270;line-height:1.5}
+.ui .chip-ui--gold{color:#7a5c22;background:rgba(217,178,106,.2);border-color:rgba(217,178,106,.45)}
+.ui .chip-ui--ok{color:#1f7a4d;background:rgba(31,122,77,.1);border-color:rgba(31,122,77,.3)}
+.ui__pill{font-size:.52em;padding:.3em .6em;border-radius:99px;background:rgba(107,63,160,.1);color:#5a2f8a;font-weight:600;white-space:nowrap}
+.ui__hero{display:grid;grid-template-columns:1.15fr .85fr;gap:1.6em;align-items:center;margin-top:1.6em}
+.ui__stack{display:grid;gap:.75em}
+.ui__stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6em;margin-top:1.8em;padding-top:1em;border-top:1px solid rgba(46,29,70,.1)}
+.ui__stat b{font-size:1.25em;letter-spacing:-.04em;display:block;line-height:1}
+.ui__stat span{font-size:.55em;color:#5b5270}
+.ui__tracks{display:grid;grid-template-columns:repeat(4,1fr);gap:.7em;margin-top:1.4em}
+.ui__track{border-radius:.8em;overflow:hidden;background:rgba(255,255,255,.6);border:1px solid rgba(46,29,70,.08);box-shadow:0 .6em 1.4em -1em rgba(46,29,70,.4)}
+.ui__track .art{height:4.4em;display:grid;place-items:center;position:relative;color:#fff}
+.ui__track .art svg{width:2em;height:2em;opacity:.9}
+.ui__track .body{padding:.55em .65em .7em}
+.ui__track b{font-size:.66em;display:block;letter-spacing:-.01em}
+.ui__track span{font-size:.55em;color:#5b5270}
+.ui__price{margin-top:.4em;font-size:.62em;font-weight:600}
+.ui__price small{font-weight:400;color:#5b5270;font-size:.9em}
+.progress-dot{width:.45em;height:.45em;border-radius:50%;background:#5b5270;opacity:.35}
+.progress-dot.on{background:#6b3fa0;opacity:1}
+.ui__footer{padding:.7em 2em;border-top:1px solid rgba(46,29,70,.08);display:flex;justify-content:space-between;font-size:clamp(4.5px,1.05cqw,10px);color:#5b5270;background:rgba(255,255,255,.4)}
+
+
+.ui__levels,.ui__plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6em;margin-top:1em}
+.ui__hero--compact{margin-top:1.1em;grid-template-columns:1.2fr .8fr;gap:1.1em}
+@container (max-width:560px){
+  .ui__nav a:not(.ui__cta){display:none}
+  .ui__hero,.ui__hero--compact{grid-template-columns:1fr;gap:1em}
+  .ui .ui__h1{font-size:2.5em}
+  .ui__stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:.8em}
+  .ui__tracks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ui__levels,.ui__plans{grid-template-columns:1fr}
+  .ui__footer{flex-direction:column;gap:.25em;align-items:flex-start}
+}
+@container (max-width:420px){
+  .ui__tracks{grid-template-columns:1fr}
+}
+.ui__inner{font-size:clamp(8px,1.72cqw,18px)}
+
+/* phone */
+.phone{width:100%;aspect-ratio:9/19.2;border-radius:2.6em;padding:.55em;background:linear-gradient(160deg,#2c1c42,#130c20);border:1px solid rgba(255,255,255,.18);box-shadow:0 40px 80px -40px #000,inset 0 0 0 1px rgba(255,255,255,.06);position:relative}
+.phone::before{content:"";position:absolute;left:50%;top:.85em;transform:translateX(-50%);width:32%;height:1.15em;border-radius:99px;background:#0a0612;z-index:5}
+.phone__screen{height:100%;overflow:hidden;border-radius:2.1em;background:var(--paper);position:relative;container-type:inline-size;color:var(--ink);font-size:12px;font-family:var(--font-sans)}
+.phone__status{display:flex;justify-content:space-between;align-items:center;padding:1em 1.5em .3em;font-size:clamp(6px,3.2cqw,12px);font-weight:600;color:#1e1530;position:relative;z-index:4}
+.phone__body{padding:.4em 1.1em 1.2em;position:relative;height:calc(100% - 2.6em);overflow:hidden;font-size:clamp(7px,4cqw,14px)}
+.phone__nav{font-size:clamp(5px,2.8cqw,11px);position:absolute;left:.8em;right:.8em;bottom:.8em;height:3.1em;border-radius:1.4em;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);border:1px solid rgba(46,29,70,.1);display:flex;align-items:center;justify-content:space-around;font-size:.55em;color:#5b5270;box-shadow:0 10px 24px -14px rgba(46,29,70,.5)}
+.phone__nav b{color:#1e1530;display:grid;justify-items:center;gap:.25em;font-weight:600}
+.phone__nav svg{width:1.5em;height:1.5em}
+
+/* specific screen bits */
+.cls{font-size:clamp(7px,4cqw,14px);background:#160f24;color:#fff;height:100%;padding:1em;display:grid;grid-template-rows:auto 1fr auto;gap:.7em;background-image:radial-gradient(80% 50% at 50% 0%,rgba(143,47,158,.3),transparent 70%)}
+.cls__top{display:flex;justify-content:space-between;align-items:center;font-size:.6em;color:#c6bee0}
+.cls__verse{border-radius:1em;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;padding:1em;position:relative;overflow:hidden}
+.cls__verse p{font-family:var(--font-quran);direction:rtl;font-size:1.75em;line-height:1.9;text-align:center;color:#fff}
+.cls__verse mark{background:transparent;color:#f0c4ff;text-decoration:underline;text-decoration-color:rgba(217,178,106,.8);text-underline-offset:.2em}
+.cls__verse mark.g{color:#a9e8c9;text-decoration-color:rgba(169,232,201,.7)}
+.cls__teacher{position:absolute;right:.5em;top:.5em;width:3.4em;height:4.4em;border-radius:.7em;background:linear-gradient(150deg,#8f2f9e,#453163);border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:.6em;font-weight:600}
+.cls__bar{display:flex;justify-content:space-between;align-items:center;gap:.5em;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:.5em .8em;font-size:.55em;color:#ded7ee}
+.cls__controls{display:flex;justify-content:center;gap:.6em}
+.cls__controls i{width:2.4em;height:2.4em;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center}
+.cls__controls i.red{background:#b3261e}
+.cls__controls svg{width:1.1em;height:1.1em;color:#fff}
+
+.fam__hi{font-size:.8em;font-weight:600;letter-spacing:-.02em;margin-top:.3em}
+.fam__sub{font-size:.58em;color:#5b5270;margin-top:.2em}
+.fam__kid{display:flex;align-items:center;gap:.6em;padding:.55em;border-radius:.8em;background:rgba(255,255,255,.65);border:1px solid rgba(46,29,70,.08);margin-top:.5em}
+.fam__kid i{width:2.2em;height:2.2em;border-radius:50%;display:grid;place-items:center;font-size:.55em;font-weight:600;color:#fff;font-style:normal;flex:none}
+.fam__kid b{display:block;font-size:.64em;letter-spacing:-.01em}
+.fam__kid span{font-size:.5em;color:#5b5270}
+.fam__badge{margin-left:auto;font-size:.46em;padding:.3em .5em;border-radius:99px;background:rgba(31,122,77,.1);color:#1f7a4d;font-weight:600;white-space:nowrap}
+.fam__card{margin-top:.55em;border-radius:.8em;background:linear-gradient(150deg,#2e1d46,#1a1129);color:#fff;padding:.7em;position:relative;overflow:hidden}
+.fam__card span{font-size:.46em;text-transform:uppercase;letter-spacing:.12em;color:#c6bee0}
+.fam__card b{display:block;font-size:.66em;margin-top:.3em;letter-spacing:-.01em}
+.fam__card .prog-ui{margin-top:.5em;background:rgba(255,255,255,.16)}
+.fam__ring{position:absolute;right:.6em;top:.6em;width:2.6em;height:2.6em;border-radius:50%;background:conic-gradient(#d9b26a 0 68%,rgba(255,255,255,.16) 68%);display:grid;place-items:center}
+.fam__ring::after{content:"68%";width:1.9em;height:1.9em;border-radius:50%;background:#251738;display:grid;place-items:center;font-size:.5em;font-weight:600}
+
+/* ======================= SANAD ======================= */
+.sanad{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;align-items:start;margin-top:12px;position:relative}
+.sanad__node{position:relative;text-align:center;display:grid;gap:10px;justify-items:center;padding:0 6px}
+.sanad__dot{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);position:relative;z-index:2;font-size:.8rem;font-weight:600;color:#fff}
+.sanad__node:last-child .sanad__dot{background:radial-gradient(circle at 30% 25%,#f0d49a,#b98a3f);border-color:rgba(255,255,255,.4);color:#2e1d46;box-shadow:0 0 40px rgba(217,178,106,.45)}
+.sanad__node:not(:last-child)::after{content:"";position:absolute;top:26px;left:calc(50% + 26px);width:calc(100% - 52px);height:1px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.34) 0 4px,transparent 4px 8px);z-index:1}
+.sanad__node b{font-size:.78rem;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.sanad__node span{font-size:.62rem;color:var(--text-4);line-height:1.4}
+.sanad__pulse{position:absolute;top:24px;left:0;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 12px 3px rgba(255,255,255,.6);animation:sanadPulse 5.5s linear infinite;z-index:2}
+@keyframes sanadPulse{0%{left:6%;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:94%;opacity:0}}
+
+.report{background:#fff;color:#1e1530;border-radius:16px;overflow:hidden;font-size:clamp(9px,1.1cqw,14px);container-type:inline-size}
+.report__top{display:flex;justify-content:space-between;align-items:center;padding:1em 1.2em;background:linear-gradient(150deg,#2e1d46,#1a1129);color:#fff}
+.report__top b{font-size:.86em;letter-spacing:-.01em}
+.report__top span{font-size:.55em;color:#c6bee0}
+.report__body{padding:1.1em}
+.report__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6em;margin-top:.8em}
+.report__kpi{background:#f4f1f8;border-radius:.6em;padding:.6em}
+.report__kpi b{display:block;font-size:1.05em;letter-spacing:-.03em}
+.report__kpi span{font-size:.5em;color:#5b5270;text-transform:uppercase;letter-spacing:.08em}
+.report__note{margin-top:.8em;border-left:2px solid #6b3fa0;padding-left:.7em;font-size:.6em;color:#4a4060;line-height:1.6}
+.report__ar{font-family:var(--font-arabic);direction:rtl;text-align:right}
+
+/* ======================= MOTION / A11Y ======================= */
+.motion-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.mo{border:1px solid var(--hair);background:rgba(255,255,255,.035);border-radius:14px;padding:12px;display:grid;gap:10px}
+.mo__stage{height:70px;border-radius:10px;background:rgba(107,63,160,.14);display:grid;place-items:center;overflow:hidden;position:relative}
+.mo__box{width:26px;height:26px;border-radius:8px;background:var(--grad-solid);box-shadow:0 8px 18px -8px rgba(143,47,158,.8)}
+.mo__stage.a .mo__box{animation:moA 2.6s var(--ease) infinite}
+.mo__stage.b .mo__box{animation:moB 2.6s var(--spring) infinite}
+.mo__stage.c .mo__box{border-radius:50%;animation:moC 2.6s linear infinite}
+.mo__stage.d .mo__box{width:56%;height:6px;border-radius:99px;animation:moD 2.6s var(--ease) infinite}
+@keyframes moA{0%,100%{transform:translateY(10px);opacity:.4}45%,60%{transform:none;opacity:1}}
+@keyframes moB{0%,100%{transform:scale(.7)}45%,60%{transform:scale(1)}}
+@keyframes moC{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes moD{0%,100%{transform:scaleX(.15);transform-origin:left}50%{transform:scaleX(1);transform-origin:left}}
+.mo span{font-family:var(--font-mono);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4)}
+
+.lang-marquee{overflow:hidden;border-block:1px solid var(--hair);padding:16px 0;margin-top:20px}
+.lang-marquee__in{display:flex;gap:44px;width:max-content;animation:marquee 26s linear infinite}
+.lang-marquee__in span{display:flex;align-items:center;gap:10px;font-size:1.05rem;color:var(--text-3);white-space:nowrap;font-weight:500}
+.lang-marquee__in b{font-family:var(--font-mono);font-size:.54rem;letter-spacing:.16em;color:var(--text-4);font-weight:400;text-transform:uppercase}
+.lang-marquee__in .ar{font-family:var(--font-arabic)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* big numbers */
+.bignums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin-top:14px}
+.bignum{padding:clamp(18px,3vw,32px) clamp(10px,2vw,24px);border-right:1px solid var(--hair)}
+.bignum:last-child{border-right:0}
+.bignum b{display:block;font-size:clamp(2rem,4.6vw,3.9rem);line-height:.9;letter-spacing:-.06em;font-weight:600;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bignum span{display:block;margin-top:10px;font-size:.72rem;color:var(--text-3);line-height:1.4}
+.bignum small{display:block;margin-top:4px;font-family:var(--font-mono);font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-4)}
+
+/* CTA / end */
+.end{text-align:center;padding-block:clamp(80px,12vw,170px)}
+.end h2{font-size:clamp(2.4rem,6.4vw,5.6rem);line-height:.94;letter-spacing:-.05em}
+.end p{margin:20px auto 0;max-width:52ch;color:var(--text-3)}
+.end__links{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.foot{border-top:1px solid var(--hair);padding:30px 0 44px}
+.foot__in{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+.foot p{font-size:.72rem;color:var(--text-4);max-width:60ch;line-height:1.7}
+.foot a{color:var(--text-3);text-decoration:none;border-bottom:1px solid var(--hair-2);font-size:.72rem;padding-bottom:1px}
+.foot a:hover{color:#fff}
+
+/* floating export control */
+.export-btn{position:fixed;right:18px;bottom:18px;z-index:65;display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);background:rgba(18,11,31,.85);border:1px solid var(--hair-2);padding:9px 12px;border-radius:99px;cursor:pointer;backdrop-filter:blur(12px);transition:.25s}
+.export-btn:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.export-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6}
+
+/* export / clean mode */
+body.is-export .top,body.is-export .dots-nav,body.is-export .progress,body.is-export .export-btn,body.is-export .cover__scroll{display:none!important}
+body.is-export .slide{border-top:1px dashed rgba(255,255,255,.14)}
+body.is-export .wrap{max-width:1400px}
+body.is-export .rv{opacity:1!important;transform:none!important}
+
+/* responsive */
+@media (max-width:1080px){
+  .cover__in{grid-template-columns:1fr}
+  .cover__devices{min-height:420px;margin-top:14px}
+  .cover__meta{max-width:none}
+  .snap{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .snap > *,.snap .span2,.snap .span3{grid-column:span 2}
+  .snap .span4,.snap .span6{grid-column:span 4}
+  .cols{grid-template-columns:1fr}
+  .sticky-note{position:static}
+  .comp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .top__nav{display:none}
+  .dots-nav{display:none}
+  .motion-row{grid-template-columns:repeat(2,1fr)}
+  .bignums{grid-template-columns:repeat(2,1fr)}
+  .bignum:nth-child(2){border-right:0}
+  .bignum:nth-child(1),.bignum:nth-child(2){border-bottom:1px solid var(--hair)}
+  .cover h1{font-size:clamp(2.9rem,13vw,5rem)}
+  .sanad{grid-template-columns:1fr;gap:14px}
+  .sanad__node{grid-template-columns:52px 1fr;justify-items:start;text-align:left;gap:4px 12px}
+  .sanad__node::after{display:none}
+  .sanad__pulse{display:none}
+  .sanad__node span{grid-column:2}
+}
+@media (max-width:720px){
+  .export-btn{display:none}
+  .cover{padding-top:92px}
+  .cover__devices{min-height:330px}
+  .snap{grid-template-columns:repeat(2,1fr)}
+  .snap > *,.snap .span2,.snap .span3,.snap .span4,.snap .span6{grid-column:span 2}
+  .comp-grid{grid-template-columns:1fr}
+  .palette{grid-template-columns:repeat(3,1fr)}
+  .type-pair{grid-template-columns:1fr}
+  .surface-demo{grid-template-columns:1fr}
+  .matrix{font-size:.72rem}
+  .matrix th,.matrix td{padding:8px 4px}
+  .bignums{grid-template-columns:1fr}
+  .bignum{border-right:0;border-bottom:1px solid var(--hair)}
+  .bignum:last-child{border-bottom:0}
+  .cover__meta{grid-template-columns:1fr 1fr}
+  .top{padding:10px var(--pad)}
+  .top__brand span{display:none}
+  .top__tag{font-size:.5rem}
+  .browser__url{max-width:150px}
+  .dev-browser{left:0;width:100%}
+  .dev-phone{width:34%}
+  .dev-card{display:none}
+  .motion-row{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none}
+}
+@media print{
+  @page{size:1400px 2000px;margin:0}
+  .top,.dots-nav,.progress,.export-btn,.cover__scroll{display:none!important}
+  .slide{break-inside:avoid;page-break-inside:avoid;border-top:1px dashed #333}
+  .rv{opacity:1!important;transform:none!important}
+  body{background:#0c0716!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.7 6.3.8-4.6 4.4 1.2 6.1-5.6-3-5.6 3 1.2-6.1L3 9.5l6.3-.8L12 3Z" fill="currentColor"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 21a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v17H5.5A2.5 2.5 0 0 0 3 22V5.5Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v17h5.5A2.5 2.5 0 0 1 21 22V5.5Z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M9 5a3 3 0 0 1 6 0v6M9 9v2a3 3 0 0 0 4.6 2.6M5 11a7 7 0 0 0 11 5.8M12 18v3M3 3l18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-lang" viewBox="0 0 24 24"><path d="M4 5h9M8.5 5v2c0 4-2 7-5 9M6 12c1.5 3 4 4.5 7 5M13 20l4-11 4 11M14.5 16h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18M12 3c-3 3.5-3 14 0 18" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor"/></symbol>
+<symbol id="ua-logo" viewBox="0 0 184.13 321.59"><g>
+<path d="m94.16,321.59h-4.2C40.36,321.59,0,281.23,0,231.62V89.97C0,40.36,40.36,0,89.97,0h4.2c49.61,0,89.97,40.36,89.97,89.97v141.66c0,49.61-40.36,89.97-89.97,89.97ZM89.97,5.78C43.54,5.78,5.78,43.54,5.78,89.97v141.66c0,46.42,37.77,84.19,84.19,84.19h4.2c46.42,0,84.19-37.77,84.19-84.19V89.97c0-46.42-37.77-84.19-84.19-84.19h-4.2Z"/>
+<path d="m92.67,240.57s0,.02-.01.03c.01-.02.01-.03.01-.03Z"/>
+<path d="m158.84,159.54c-13.66-46.39-36.91-73.44-23.83-123.41-53.85,106.73,45.73,154,.35,254.34,22.9-41.4,33.93-86.47,23.48-130.94Z"/>
+<path d="m143.92,92.19c4.81.33-2.76,9.44-1.82,12.16,12.26-15.59,19.73-9.57,24.89-32.93-6.21,5.35-22.36,12.79-23.37-1.22,13.56-8.26,13.47,18.08,19.91-9.15-14.5-24.17-34.61,25.05-19.61,31.13Zm-3.14-18.41s0-.01,0-.02c0,0,0,.02,0,.02Zm-.06.13s.01-.02.02-.04c-.27.63-.13.28-.02.04Z"/>
+<path d="m77.18,258.37c-.2,5.46-10.07,16.92-9.11,16.32,5.58-4.5,10.37-12.1,9.49-15.48,2.55.02,4.14-.21,3.27-2.4-3-5.09-4.28.38-3.65,1.56Zm2.35-1.09l-1.92.15s.2-1.29,1.07-.87c.35.19.76.53.85.72Z"/>
+<path d="m93.09,159.05s2.23-5.86,3.44-3.4c.46.94.45,1.05-.39,4.18-.3,1.15-.71,3.05-.33,4.65,0,0,.45,2.48,2.9,2.1,0,0,3.31-.71,4.03-2.18-.07-1.36.15-4.67-.3-5.83l1.45-3.94h.36s-.11,8.72-.11,8.72c0,0,.3,2.93,4.74,2.45,0,0,.69,0-1-4.34-.32-.81-.48-1.68-.47-2.55,0-.05,0-.1,0-.15.01-.63.13-1.25.32-1.84.3-.94.86-2.43,1.43-2.95,0,0,.11,3.93.57,4.91,0,0,1.45,3.65.9,6.31,0,0-.51,5.02-3.7,5.1,0,0-3.86.02-4.14-4.7,0,0-1.28,4.9-5.85,4.92,0,0-3.8.15-3.22-4.09.26-1.89,2.31-7.12.79-7.59-.71-.22-1.43.22-1.43.22Z"/>
+<path d="m35.4,246.45c-13.03,5.02-9.08-5.12-5.75-8.94,1.5,1.29,1.21-.23-.95,3.89-3.7,10.09,11.8,2.64,4.06-4.31.29-.26,4.88-6.99,2.73-7-1.41-.87-5.46,4.68-5.46,4.68l-2.24-1.9v-1.18c-.14-.17-1.6-2.34-1.89-1.58.04.19-.84,2.9-.56,2.96,1.38,1.09,1.75,2.05,3.45,3.86-11.76,20.08,5.92,14.97,12.05,6.96l-5.42,2.57Zm-1.7-5.24s-1.57,2.03-3.74,1.92c0,0-1.19-.12-.23-1.57.96-1.45,1.71-2.84,1.71-2.84l2.26,2.49Zm.5-9.37c1.81.11-2.07,3.86-2.28,4.42,0,0-.85-1.01-.85-1.01,0,0,2.5-2.93,3.13-3.41Z"/>
+<path d="m117.17,78.48s-3.37-4.13-10.7-4.17c0,0-3.09,0-1.71-5.38,1.38-5.38,4.26-7.48,4.26-7.48,0,0,4.69-2.33,4.62,7.39,0,0,.19,7.77-3.58,13.69-2.52,3.49-4.47,7.6-15.07,15.04,0,0,16.42-17.46,17.19-26.93,0,0-2.69-7.71-5.93-2.02,0,0-.79,1.46,2.35,1.74,0,0,6.14.25,8.86,3.43l-.29,4.7Z"/>
+<path d="m39.25,61.1c1.14,6.86-3.62,10.67-3.62,10.67,2.29-9.72-11.63-19.48-11.63-19.48l4.38-11.02c7.05,7.05,18.11,8.87,18.11,8.87,55.59,10.45,83.1-20.69,83.1-20.69,0,0-17.92,41.55-90.34,31.64Z"/>
+<path d="m65.18,112.13c22.91-29.49-6.04-67.96-13.47-24.56,0,0,16.24-.87,13.47,24.56Z"/>
+<path d="m44.55,123.44c22.91-29.49-6.04-67.96-13.47-24.56,0,0,16.24-.87,13.47,24.56Z"/>
+<path d="m125.39,200.15c-5.4-4.22-27.28-21.24-30.07-8.74-3.74,16.78-27.31,50.57-39.48,20.86.1-.02.05-.01.1-.02,15.64-17.13,18.98-37.99,21.63-60.28-10.71,8.98-33.29,41.94-46.28,25.86,43.96-24.85,54.88-36.26,60.27-87.95-10.91,26.92-49.78,32.58-63.98,57.31-6.48,18.99-28.45,115.26,21.27,67.58-18.32,57.56,3.6,84.53,34.73,18.47,2.39-6.17,4.63-15.81,10.15-19.9-19.82,47.63.06,124.77,38.34,42.84,10.85-23.22,14.27-37.8-6.67-56.01Zm-9.62,53.83c-19.54.35-18.02-17.99-17.56-32.85,6.96,10.44,34.58,23.93,17.56,32.85Z"/>
+</g></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <a class="top__brand" href="#top">
+    <svg class="ua" viewBox="0 0 184.13 321.59" width="12" height="21" aria-hidden="true"><use href="#ua-logo" /></svg>
+    <b>Ummah Academy</b>
+    <span>Case study · 2026</span>
+  </a>
+  <nav class="top__nav" aria-label="Sections">
+    <a href="#snapshot">Snapshot</a>
+    <a href="#context">Context</a>
+    <a href="#research">Research</a>
+    <a href="#identity">Identity</a>
+    <a href="#system">System</a>
+    <a href="#product">Product</a>
+    <a href="#outcome">Outcome</a>
+  </nav>
+  <span class="top__tag">UI/UX · Design system</span>
+</header>
+
+<nav class="dots-nav" aria-label="Slide navigation">
+  <a href="#top" data-t="Cover" aria-label="Cover"></a>
+  <a href="#snapshot" data-t="01 Snapshot" aria-label="Snapshot"></a>
+  <a href="#context" data-t="02 Context" aria-label="Context"></a>
+  <a href="#research" data-t="03 Research" aria-label="Research"></a>
+  <a href="#strategy" data-t="04 Strategy" aria-label="Strategy"></a>
+  <a href="#identity" data-t="05 Identity" aria-label="Identity"></a>
+  <a href="#system" data-t="06 System" aria-label="System"></a>
+  <a href="#product" data-t="07 Product" aria-label="Product"></a>
+  <a href="#mobile" data-t="08 Mobile" aria-label="Mobile"></a>
+  <a href="#signature" data-t="09 Signature" aria-label="Signature"></a>
+  <a href="#motion" data-t="10 Motion" aria-label="Motion"></a>
+  <a href="#access" data-t="11 Access" aria-label="Access"></a>
+  <a href="#craft" data-t="12 Craft" aria-label="Craft"></a>
+  <a href="#outcome" data-t="13 Outcome" aria-label="Outcome"></a>
+</nav>
+
+<main id="top">
+
+  <!-- ======================= COVER ======================= -->
+  <section class="cover">
+    <div class="cover__glow" aria-hidden="true"></div>
+    <div class="wrap cover__in">
+      <div>
+        <div class="cover__eyebrow">
+          <span class="tag tag--accent"><svg width="11" height="11" aria-hidden="true"><use href="#i-star" /></svg> Behance case study</span>
+          <span class="tag">Faith-tech · Education</span>
+          <span class="tag">2026</span>
+        </div>
+        <h1>
+          <span class="line"><span>Ummah</span></span>
+          <span class="line"><span>Academy</span></span>
+        </h1>
+        <p class="cover__serif">Learn with a <b>chain you can trace.</b></p>
+        <p class="cover__lede">A design system and a 195-page product for live 1-on-1 Qur’an, Tajweed, Arabic and Islamic studies with Al-Azhar teachers. Calm surfaces, verifiable scholarship, five languages — and not a single framework.</p>
+        <div class="cover__meta">
+          <div><span>Role</span><b>Product design<br>Design engineering</b></div>
+          <div><span>Timeline</span><b>14 weeks<br>2026</b></div>
+          <div><span>Scope</span><b>System → 23 routes<br>× 5 locales + portal</b></div>
+        </div>
+      </div>
+
+      <div class="cover__devices" aria-hidden="true">
+        <div class="dev-browser">
+          <div class="browser">
+            <div class="browser__bar"><span class="browser__dots"><i></i><i></i><i></i></span><span class="browser__url"><b>ummahacademy.net</b></span><span style="width:26px"></span></div>
+            <div class="browser__view">
+              <div class="ui">
+                <div class="ui__aurora"></div>
+                <div class="ui__inner">
+                  <div class="ui__nav">
+                    <span class="ui__logo"><svg class="ua" viewBox="0 0 184.13 321.59"><use href="#ua-logo" /></svg> Ummah Academy</span>
+                    <a class="on">Courses</a><a>Teachers</a><a>Pricing</a>
+                    <a class="ui__cta">Book free</a>
+                  </div>
+                  <div class="ui__hero">
+                    <div>
+                      <span class="ui__eyebrow">Live 1-on-1 · Al-Azhar</span>
+                      <h1 class="ui__h1">Learn the Qur’an with confidence. <em>One step at a time.</em></h1>
+                      <p class="ui__lede">For your child or yourself — one-to-one lessons that fit your day.</p>
+                      <div class="ui__actions"><span class="ui__btn ui__btn--primary">Book two free lessons</span><span class="ui__btn">Find my level</span></div>
+                    </div>
+                    <div class="ui__stack">
+                      <div class="ui__glass">
+                        <div class="ui__row"><span class="ui__tiny">Next live session</span><span class="ui__pill">in 2h 14m</span></div>
+                        <div class="ui__card-title" style="margin-top:.35em">Noon Sakinah rules</div>
+                        <div class="ui__tiny">Ustadha Omneya · 7:00 PM GMT</div>
+                      </div>
+                      <div class="ui__glass">
+                        <div class="ui__row"><span class="ui__card-title">Tajweed · Level 2</span><span class="ui__tiny">12/18</span></div>
+                        <div class="prog-ui" style="margin-top:.5em;background:rgba(46,29,70,.1)"><i></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-phone">
+          <div class="phone">
+            <div class="phone__screen ui">
+              <div class="ui__aurora"></div>
+              <div class="phone__status"><span>7:00</span><span style="letter-spacing:.12em">●●● ⌁</span></div>
+              <div class="phone__body" style="padding-top:.2em;display:flex;flex-direction:column;justify-content:space-between;gap:.5em">
+                <div class="ui__row">
+                  <span class="mono" style="font-size:.4rem;color:#5b5270">● Live · 28:14</span>
+                  <span class="ui__pill" style="font-size:.42em">HD</span>
+                </div>
+                <div class="ui__glass" style="margin-top:.55em;padding:.85em .7em;text-align:center">
+                  <p class="quran" style="font-size:1.7em;color:#1e1530" lang="ar" dir="rtl">بِسْمِ اللَّهِ <mark style="background:rgba(143,47,158,.14);color:#8f2f9e">الرَّحْمَٰنِ</mark> <mark style="background:rgba(31,122,77,.12);color:#1f7a4d">الرَّحِيمِ</mark></p>
+                  <span style="font-size:.46em;color:#5b5270;display:block;margin-top:.35em;direction:ltr;text-align:center">Al-Fatiha · ayah 1</span>
+                </div>
+                <div class="ui__glass" style="margin-top:.5em;padding:.55em .65em">
+                  <div class="ui__row">
+                    <span style="font-size:.56em;font-weight:600;letter-spacing:-.01em">Ustadha Omneya</span>
+                    <span class="ui__tiny" style="font-size:.44em">Tajweed · L2</span>
+                  </div>
+                  <div class="ui__tiny" style="font-size:.46em;margin-top:.15em">Listening · mic muted</div>
+                </div>
+                <div class="ui__glass" style="padding:.55em .65em">
+                  <div class="ui__row"><span class="ui__tiny" style="font-size:.46em">Tajweed · Level 2</span><span class="ui__tiny" style="font-size:.46em;font-weight:600;color:#5a2f8a">12/18</span></div>
+                  <div class="prog-ui" style="margin-top:.35em;background:rgba(46,29,70,.1)"><i style="width:66%"></i></div>
+                </div>
+                <div style="display:flex;gap:.45em;justify-content:center;margin-top:.2em">
+                  <span style="width:2.3em;height:2.3em;border-radius:50%;background:rgba(107,63,160,.14);display:grid;place-items:center"><svg style="width:.95em;height:.95em;color:#6b3fa0;fill:none;stroke:currentColor;stroke-width:1.8"><use href="#i-mic" /></svg></span>
+                  <span style="width:2.3em;height:2.3em;border-radius:50%;background:rgba(46,29,70,.08);display:grid;place-items:center"><svg style="width:.95em;height:.95em;color:#4a4060;fill:none;stroke:currentColor;stroke-width:1.8"><use href="#i-play" /></svg></span>
+                  <span style="width:2.3em;height:2.3em;border-radius:50%;background:#b3261e;display:grid;place-items:center"><svg style="width:.95em;height:.95em;color:#fff;fill:none;stroke:currentColor;stroke-width:1.8"><use href="#i-mic-off" /></svg></span>
+                </div>
+                <div class="ui__trust" style="justify-content:center;margin-top:.6em">
+                  <span style="font-size:.46em"><svg><use href="#i-check" /></svg> Report after every lesson</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-card">
+          <div class="card" style="padding:14px;border-radius:16px">
+            <div class="row" style="justify-content:space-between">
+              <span class="mono" style="font-size:.5rem">Sanad verified</span>
+              <svg width="13" height="13" aria-hidden="true" style="color:#e7c88c"><use href="#i-shield" /></svg>
+            </div>
+            <b style="display:block;font-size:.82rem;margin-top:7px;letter-spacing:-.02em">Ijazah · Hafs ’an ’Asim</b>
+            <span style="display:block;font-size:.66rem;color:var(--text-3);margin-top:2px">A chain to the Prophet <span class="quran" style="display:inline" lang="ar" dir="rtl">ﷺ</span></span>
+            <div class="pips" style="margin-top:9px"><i class="on gold"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a class="cover__scroll" href="#snapshot">Scroll <i></i></a>
+  </section>
+
+  <!-- ======================= 01 SNAPSHOT ======================= -->
+  <section class="slide" id="snapshot">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>01</b> Snapshot</span>
+        <h2 class="big">A quiet product for a <em>serious</em> decision.</h2>
+        <p class="lede">A parent choosing a Qur’an teacher is not shopping. They are handing over something they love. Every screen had to earn that, without ever raising its voice.</p>
+      </header>
+
+      <div class="snap">
+        <div class="snapcard snapcard--night span3">
+          <span>Client</span>
+          <b>Ummah Academy</b>
+          <p>Live 1-on-1 Qur’an, Tajweed, Arabic &amp; Islamic studies with Al-Azhar scholars. Replacing a WordPress site with a native one.</p>
+        </div>
+        <div class="snapcard span3">
+          <span>What shipped</span>
+          <b>Sakinah Glass + 195 pages</b>
+          <p>A hand-written design system, 23 routes in five languages, an installable PWA, and a separate operations portal.</p>
+        </div>
+        <div class="snapcard span2">
+          <span>Users</span>
+          <b>Parents &amp; adults</b>
+          <p>Guardians 30–45 in the Gulf, Europe and North America; adult returners; teachers; an ops team.</p>
+        </div>
+        <div class="snapcard span2">
+          <span>Constraint</span>
+          <b>No runtime framework</b>
+          <p>Static Astro output. ~2 KB of JS per page. Self-hosted fonts. Inlined icons.</p>
+        </div>
+        <div class="snapcard span2">
+          <span>Team</span>
+          <b>1 designer + 2 engineers</b>
+          <p>Design and design-engineering in one pair of hands; content and academic review in-house.</p>
+        </div>
+        <div class="snapcard snapcard--gold span3">
+          <span>The win</span>
+          <b>Trust you can point at</b>
+          <p>Ijazah, Sanad and the four-stage vetting process are interface elements — not paragraphs on an About page.</p>
+        </div>
+        <div class="snapcard span3">
+          <span>Client-reported figures</span>
+          <b>50+ countries · 1,000+ students</b>
+          <p>95% continue after month one; 12+ Ijazahs granted. Supplied by the academy, not independently audited.</p>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:18px;gap:8px">
+        <span class="tag">Design system</span><span class="tag">RTL</span><span class="tag">Dark mode</span><span class="tag">PWA</span><span class="tag">Motion</span><span class="tag">WCAG 2.2 AA</span><span class="tag">Astro</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 02 CONTEXT ======================= -->
+  <section class="slide" id="context">
+    <div class="wrap cols">
+      <div class="sticky-note">
+        <span class="snum" style="margin-bottom:18px"><b>02</b> Context</span>
+        <h2 class="big" style="font-size:clamp(1.9rem,3.6vw,3.2rem)">The brief was a rebuild. The job was a <em>reassurance.</em></h2>
+        <p class="lede" style="margin-top:18px">The academy already had demand. What it did not have was a place where a careful parent could see, in under a minute, who would be teaching their child and why that person could be trusted.</p>
+        <div class="card" style="margin-top:24px">
+          <p class="quote" style="font-size:1.35rem">“I don’t need the cheapest. I need to know who is teaching my daughter.”</p>
+          <div class="quote__by"><span class="avatar">SA</span><span>Parent interview · London</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="hr-label">What the audit found</div>
+        <ol class="numlist">
+          <li><div><b>Trust was claimed, not shown.</b><p>Every peer page used the word “certified”. None showed an Ijazah, a chain of transmission, or how a teacher is vetted. The strongest asset was invisible.</p></div></li>
+          <li><div><b>The path to a first lesson was an obstacle course.</b><p>Enquiry → email → WhatsApp → time zones → payment. Each step lost a family that had already decided to start.</p></div></li>
+          <li><div><b>Five languages in the footer, one language in the experience.</b><p>Arabic existed, but as a mirrored English page. Line heights, numerals and honorifics were wrong for the script.</p></div></li>
+          <li><div><b>The brand was louder than the scholarship.</b><p>Gold gradients and urgency banners signalled a discount shop, not a place of learning.</p></div></li>
+        </ol>
+
+        <div class="stats3" style="margin-top:18px">
+          <div class="card stat"><b>7</b><span>peer academies reviewed</span></div>
+          <div class="card stat"><b>5</b><span>languages required</span></div>
+          <div class="card stat"><b>14</b><span>weeks, brief to launch</span></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="hr-label" style="margin-bottom:10px">The non-negotiables</div>
+          <div class="grid g2">
+            <p class="card__text" style="font-size:.84rem;color:var(--text-3)"><b style="color:var(--text);display:block;margin-bottom:4px">Keep every SEO URL.</b>The rebuild could not break the 23 routes that already ranked.</p>
+            <p class="card__text" style="font-size:.84rem;color:var(--text-3)"><b style="color:var(--text);display:block;margin-bottom:4px">Ship the system, not the page.</b>A new block must be assemblable from the system in an afternoon.</p>
+            <p class="card__text" style="font-size:.84rem;color:var(--text-3)"><b style="color:var(--text);display:block;margin-bottom:4px">Arabic is a first language.</b>Not a translation mode. RTL is audited like any other feature.</p>
+            <p class="card__text" style="font-size:.84rem;color:var(--text-3)"><b style="color:var(--text);display:block;margin-bottom:4px">Calm by default.</b>No countdown, no false scarcity, no stock photography of hands.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 03 RESEARCH ======================= -->
+  <section class="slide" id="research">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>03</b> Research</span>
+        <h2 class="big">Everyone sells lessons. <em>Nobody</em> shows the chain.</h2>
+        <p class="lede">A heuristic audit of the live site, a scorecard of seven academies, and interviews with parents and adult learners. The gap was consistent: proof was buried, or missing.</p>
+      </header>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="spread"><span class="mono">Competitive scorecard</span><span class="mono" style="font-size:.52rem">internal review · 7 peers</span></div>
+          <div class="tablewrap"><table class="matrix" style="margin-top:12px">
+            <thead><tr><th>Academy</th><th>Proof</th><th>1:1 live</th><th>Languages</th><th>Price</th><th>Craft</th></tr></thead>
+            <tbody>
+              <tr class="us"><td>Ummah Academy</td><td><span class="pips"><i class="on gold"></i><i class="on gold"></i><i class="on gold"></i><i class="on gold"></i><i class="on gold"></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td></tr>
+              <tr><td>Marketplace A</td><td><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td></tr>
+              <tr><td>Academy B</td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td></tr>
+              <tr><td>Mosque programme</td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></td></tr>
+              <tr><td>App-first C</td><td><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td></tr>
+              <tr><td>Academy D</td><td><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td></tr>
+            </tbody>
+          </table></div>
+          <p class="card__text" style="margin-top:12px;font-size:.72rem">Scored 0–5 against five axes by the design team. Peer names abbreviated; scores describe their public sites at the time of review.</p>
+        </div>
+
+        <div class="stack" style="display:grid;gap:10px">
+          <div class="card">
+            <div class="hr-label" style="margin-bottom:8px">Persona 01 · The guardian</div>
+            <div class="row" style="gap:12px;align-items:flex-start;flex-wrap:nowrap">
+              <span class="avatar">SA</span>
+              <div>
+                <b style="font-size:.94rem">Sarah, 38 · London</b>
+                <p class="card__text" style="font-size:.8rem;margin-top:4px">Two children, 7 and 11. Wants a female teacher, a fixed weekly slot, and a report she can read in two minutes. Will pay more for certainty.</p>
+                <div class="row" style="margin-top:10px"><span class="tag">Mobile-first</span><span class="tag">WhatsApp</span><span class="tag">Safety</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hr-label" style="margin-bottom:8px">Persona 02 · The returner</div>
+            <div class="row" style="gap:12px;align-items:flex-start;flex-wrap:nowrap">
+              <span class="avatar avatar--rose">AB</span>
+              <div>
+                <b style="font-size:.94rem">Amina, 29 · Toronto</b>
+                <p class="card__text" style="font-size:.8rem;margin-top:4px">Reverted three years ago. Reads slowly, embarrassed about her Tajweed. Wants privacy, a patient teacher and a plan that fits after work.</p>
+                <div class="row" style="margin-top:10px"><span class="tag">Discretion</span><span class="tag">Evenings</span><span class="tag">Progress</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card card--gold">
+            <div class="hr-label" style="margin-bottom:8px">Insight → principle</div>
+            <p style="font-size:.86rem;line-height:1.55;color:var(--text-2)"><b style="color:#fff">Parents cannot evaluate Tajweed.</b> They can evaluate transparency. So the interface shows the chain, the vetting and the named teacher — and lets the free lesson do the rest.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g3" style="margin-top:12px">
+        <div class="card"><span class="mono">HMW 01</span><p style="margin-top:8px;font-size:.9rem;color:var(--text-2)">How might we make a chain of scholarship readable in ten seconds?</p></div>
+        <div class="card"><span class="mono">HMW 02</span><p style="margin-top:8px;font-size:.9rem;color:var(--text-2)">How might we let a parent decide <em>one</em> thing at a time?</p></div>
+        <div class="card"><span class="mono">HMW 03</span><p style="margin-top:8px;font-size:.9rem;color:var(--text-2)">How might Arabic feel written, not mirrored?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 04 STRATEGY ======================= -->
+  <section class="slide" id="strategy">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>04</b> Strategy</span>
+        <h2 class="big">Four principles, <em>chosen</em> to be uncomfortable.</h2>
+        <p class="lede">Principles only matter when they cost something. Each of these removed a tempting option from the table.</p>
+      </header>
+
+      <div class="grid g4">
+        <div class="card">
+          <span class="mono">01</span>
+          <h3 style="font-size:1.05rem;margin-top:10px">Proof over persuasion</h3>
+          <p class="card__text" style="font-size:.8rem;color:var(--text-3)">Ijazah, Sanad and vetting get first-class UI. Testimonials come after the mechanism, never instead of it.</p>
+        </div>
+        <div class="card">
+          <span class="mono">02</span>
+          <h3 style="font-size:1.05rem;margin-top:10px">Calm, not hype</h3>
+          <p class="card__text" style="font-size:.8rem;color:var(--text-3)">Glass over dawn instead of neon urgency. The interface lowers the heart rate; it never spikes it.</p>
+        </div>
+        <div class="card">
+          <span class="mono">03</span>
+          <h3 style="font-size:1.05rem;margin-top:10px">One decision per screen</h3>
+          <p class="card__text" style="font-size:.8rem;color:var(--text-3)">The router asks “who is learning?” before anything else. The wizard asks three questions, not nine.</p>
+        </div>
+        <div class="card">
+          <span class="mono">04</span>
+          <h3 style="font-size:1.05rem;margin-top:10px">Traceable claims</h3>
+          <p class="card__text" style="font-size:.8rem;color:var(--text-3)">Every number has a footnote. Every testimonial has consent. No “world-class” without a definition.</p>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:12px">
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:14px">Information architecture</div>
+          <div class="code-mini" style="white-space:pre;font-size:.64rem;line-height:1.9">/                        Home · router + proof
+├── /courses/            Four ways in
+├── /quran-recitation-course/
+├── /quran-memorization-hifz/
+├── /online-arabic-classes/
+├── /ummah-cubs-kids-islamic-studies/
+├── /online-islamic-studies-classes/
+├── /teachers/           Faculty · Sanad · vetting
+├── /pricing/            30- and 60-minute plans
+├── /placement-test/     3-minute level check
+├── /reviews/            Consented family stories
+├── /family-portal/      The parent’s view
+├── /blog/               19 articles, localised slugs
+└── /ar/ /de/ /fr/ /it/  The same tree, five times</div>
+          <p class="card__text" style="margin-top:12px;font-size:.74rem">23 routes × 5 locales, all with reciprocal hreflang and a language menu that opens the true translation — not the homepage.</p>
+        </div>
+
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:14px">The first lesson, before and after</div>
+          <div class="grid g2" style="gap:10px">
+            <div class="card card--flat" style="padding:14px">
+              <span class="mono" style="color:#ff9d94">Before · 9 steps</span>
+              <ol style="display:grid;gap:6px;margin-top:10px;font-size:.76rem;color:var(--text-3)">
+                <li>1 · Read five pages</li><li>2 · Enquiry form</li><li>3 · Wait for email</li><li>4 · WhatsApp thread</li><li>5 · Time-zone maths</li><li>6 · Payment before trial</li><li>7 · Teacher assigned</li><li>8 · Zoom link by email</li><li>9 · First lesson</li>
+              </ol>
+            </div>
+            <div class="card card--gold" style="padding:14px">
+              <span class="mono" style="color:#e7c88c">After · 3 steps</span>
+              <ol style="display:grid;gap:6px;margin-top:10px;font-size:.76rem;color:var(--text-2)">
+                <li>1 · Who is learning?</li><li>2 · Pick a programme</li><li>3 · Name, email, WhatsApp</li>
+              </ol>
+              <p style="margin-top:12px;font-size:.72rem;color:var(--text-3)">Two free lessons. No card. A reminder 15 minutes before. A report after every session.</p>
+            </div>
+          </div>
+          <div class="row" style="margin-top:14px"><span class="tag">No card</span><span class="tag">Female teachers</span><span class="tag">Pause anytime</span><span class="tag">WhatsApp reminder</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 05 IDENTITY ======================= -->
+  <section class="slide" id="identity">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>05</b> Identity</span>
+        <h2 class="big">An arch, a word, and a <em>dawn</em>.</h2>
+        <p class="lede">The mark is the calligraphic <b style="font-family:var(--font-arabic);font-weight:600">أمة</b> — “ummah” — held inside a mihrab arch. No wordmark sits beside it: the symbol is the name.</p>
+      </header>
+
+      <div class="grid g2">
+        <div class="logo-stage logo-stage--light">
+          <div class="logo-grid" aria-hidden="true"></div>
+          <div class="logo-mark">
+            <svg class="ua" viewBox="0 0 184.13 321.59" width="76" height="132" role="img" aria-label="Ummah Academy logo, ink on light"><use href="#ua-logo" /></svg>
+            <span class="mono" style="font-size:.56rem">Ink · #281547</span>
+          </div>
+        </div>
+        <div class="logo-stage logo-stage--dark">
+          <div class="logo-grid" aria-hidden="true"></div>
+          <div class="logo-mark">
+            <svg class="ua" viewBox="0 0 184.13 321.59" width="76" height="132" role="img" aria-label="Ummah Academy logo, white on night"><use href="#ua-logo" /></svg>
+            <span class="mono" style="font-size:.56rem">White · night surfaces</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:12px">
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">Construction</div>
+          <p class="card__text" style="font-size:.84rem;color:var(--text-3)">The arch is drawn on a 2:3.5 artboard with a single stroke width. Clear space is half the mark’s height on every side; the minimum size is 22px tall. Two SVG colourways ship; there is deliberately no gradient or 3D version.</p>
+          <div class="row" style="margin-top:14px">
+            <span class="tag"><span style="font-family:var(--font-quran);font-size:1.1em">ﷺ</span> Amiri honorific</span>
+            <span class="tag">2:3.5 ratio</span>
+            <span class="tag">1 stroke weight</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">Palette</div>
+          <div class="palette">
+            <div class="pal" style="background:#2e1d46"><b>Aubergine</b><span>#2E1D46</span></div>
+            <div class="pal" style="background:#453163"><b>Indigo</b><span>#453163</span></div>
+            <div class="pal" style="background:#6b3fa0"><b>Violet</b><span>#6B3FA0</span></div>
+            <div class="pal" style="background:#8f2f9e"><b>Magenta</b><span>#8F2F9E</span></div>
+            <div class="pal" style="background:#1d5fa8"><b>Blue</b><span>#1D5FA8</span></div>
+            <div class="pal" style="background:#d9b26a;--chip-ink:#2e1d46"><b>Sanad gold</b><span>#D9B26A</span></div>
+          </div>
+          <p class="card__text" style="margin-top:12px;font-size:.74rem">Gold is not a brand colour. It is a <em>status</em>: verified Ijazah and the end of the Sanad chain. Nothing else may use it.</p>
+        </div>
+      </div>
+
+      <div class="type-pair" style="margin-top:12px">
+        <div class="type-card">
+          <span class="mono">Geist · interface</span>
+          <p class="disp">Learn the Qur’an<br>with confidence.</p>
+          <p style="margin-top:14px;font-size:.82rem;color:var(--text-3);max-width:44ch">A geometric sans that stays legible at 11px in a data table and holds its nerve at 96px on a cover.</p>
+        </div>
+        <div class="type-card">
+          <span class="mono">Instrument Serif · accent</span>
+          <p class="serifdisp serif">one step at a <span style="color:#e0a4ff">time.</span></p>
+          <p style="margin-top:14px;font-size:.82rem;color:var(--text-3)">Italic only, one phrase per heading. The human hand against the geometry.</p>
+        </div>
+        <div class="type-card" style="grid-column:1/-1">
+          <div class="spread">
+            <div>
+              <span class="mono">IBM Plex Sans Arabic · Amiri</span>
+              <p class="ar" style="font-size:clamp(1.5rem,3vw,2.3rem);margin-top:10px" lang="ar" dir="rtl">تعلّم القرآن بثقة، خطوة بخطوة.</p>
+            </div>
+            <div style="text-align:right">
+              <p class="quran" style="font-size:clamp(1.5rem,3vw,2.4rem);color:#fff" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+              <p class="mono" style="margin-top:10px;font-size:.52rem">Amiri · 2.0 line-height · never UI sans</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="hr-label">The surface — “Sakinah Glass”</div>
+        <div class="surface-demo">
+          <div class="surf surf--1"><div><b>Flat tint</b><span>rows · wells · code</span></div></div>
+          <div class="surf surf--2"><div><b>Glass</b><span>cards · header pill</span></div></div>
+          <div class="surf surf--3"><div><b>Isha night</b><span>one per page · footer</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 06 SYSTEM ======================= -->
+  <section class="slide" id="system">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>06</b> System</span>
+        <h2 class="big">A system you can <em>feel</em> through the glass.</h2>
+        <p class="lede">Sixty-plus tokens, 34 components, seven cascade layers, one CSS file. The rule that made it coherent: no component may invent a colour, a radius or a shadow.</p>
+      </header>
+
+      <div class="grid g3">
+        <div class="card">
+          <span class="mono">Tokens</span>
+          <div class="code-mini" style="margin-top:12px"><span class="k">--aubergine-800</span>: <span class="n">#2e1d46</span>;
+<span class="k">--violet-600</span>:    <span class="n">#6b3fa0</span>;
+<span class="k">--gold-400</span>:      <span class="n">#d9b26a</span>;
+<span class="k">--ink</span>:           <span class="n">#1e1530</span>;
+<span class="k">--accent</span>:        <span class="v">var</span>(--violet-600);
+<span class="k">--r-lg</span>: <span class="n">28px</span>;  <span class="k">--blur</span>: <span class="n">22px</span>;
+<span class="k">--ease-out</span>: <span class="n">cubic-bezier(.22,1,.36,1)</span>;</div>
+          <p class="card__text" style="margin-top:12px;font-size:.74rem">Every semantic token has a dark twin. A theme is a token swap, not a stylesheet.</p>
+        </div>
+
+        <div class="card">
+          <span class="mono">Radii &amp; rhythm</span>
+          <div class="row" style="margin-top:14px;align-items:flex-end;gap:8px">
+            <span style="width:34px;height:34px;display:inline-block;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)"></span>
+            <span style="width:40px;height:40px;display:inline-block;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22)"></span>
+            <span style="width:46px;height:46px;display:inline-block;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24)"></span>
+            <span style="width:52px;height:52px;display:inline-block;border-radius:28px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26)"></span>
+            <span style="width:52px;height:52px;display:inline-block;border-radius:99px;background:var(--grad-solid)"></span>
+          </div>
+          <div class="row" style="margin-top:16px;font-family:var(--font-mono);font-size:.52rem;color:var(--text-4);gap:14px">
+            <span>10</span><span>14</span><span>20</span><span>28</span><span>pill</span>
+          </div>
+          <p class="card__text" style="margin-top:14px;font-size:.74rem">Controls are pills or 14px. Cards are 20–28. Sections are 40. Gutter 18 → 40; section rhythm 72 → 136.</p>
+        </div>
+
+        <div class="card">
+          <span class="mono">Motion</span>
+          <div class="mo__stage a" style="margin-top:12px"><i class="mo__box"></i></div>
+          <div class="row" style="justify-content:space-between;margin-top:10px;font-family:var(--font-mono);font-size:.52rem;color:var(--text-4)"><span>0.5s</span><span>cubic-bezier(.22,1,.36,1)</span></div>
+          <p class="card__text" style="margin-top:12px;font-size:.74rem">Transform and opacity only. One entrance curve, one spring for direct manipulation, one 60-second drift for the sky.</p>
+        </div>
+      </div>
+
+      <div class="comp-grid" style="margin-top:12px">
+        <div class="comp">
+          <span class="mono">Buttons</span>
+          <div class="row" style="gap:6px"><span class="btn-ui btn-ui--solid">Book two free lessons</span><span class="btn-ui">Find my level</span></div>
+          <span class="mono" style="font-size:.5rem;color:var(--text-4)">one primary per viewport</span>
+        </div>
+        <div class="comp">
+          <span class="mono">Status</span>
+          <div class="row" style="gap:6px"><span class="chip-ui chip-ui--ok">✓ Confirmed</span><span class="chip-ui chip-ui--gold">★ Ijazah verified</span><span class="chip-ui">Live 1-on-1</span></div>
+          <span class="mono" style="font-size:.5rem;color:var(--text-4)">gold = verified, nothing else</span>
+        </div>
+        <div class="comp">
+          <span class="mono">Fields</span>
+          <div class="field-ui"><span>Student’s first name</span><div>Yusuf</div></div>
+          <span class="mono" style="font-size:.5rem;color:var(--text-4)">native inputs · 44px targets</span>
+        </div>
+        <div class="comp">
+          <span class="mono">Progress</span>
+          <div><div class="row" style="justify-content:space-between;font-size:.62rem;color:var(--text-3);margin-bottom:6px"><span>Tajweed · Level 2</span><span>12/18</span></div><div class="prog-ui"><i></i></div></div>
+          <span class="mono" style="font-size:.5rem;color:var(--text-4)">never a spinner without a label</span>
+        </div>
+        <div class="comp">
+          <span class="mono">Toggles</span>
+          <div class="row" style="gap:12px"><span class="switch-ui"></span><span style="font-size:.7rem;color:var(--text-3)">WhatsApp reminder</span></div>
+          <span class="mono" style="font-size:.5rem;color:var(--text-4)">spring, 350ms</span>
+        </div>
+        <div class="comp">
+          <span class="mono">Data</span>
+          <div style="font-size:.68rem;color:var(--text-3);line-height:1.9"><div class="row" style="justify-content:space-between"><span>Attendance</span><b style="color:#fff">96%</b></div><div class="row" style="justify-content:space-between"><span>Credits left</span><b style="color:#fff">4</b></div><div class="row" style="justify-content:space-between"><span>Next session</span><b style="color:#fff">Today 17:00</b></div></div>
+          <span class="mono" style="font-size:.5rem;color:var(--text-4)">tabular numerals</span>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:12px">
+        <div class="card" style="color:#1e1530;background:linear-gradient(160deg,#fbf8fc,#efe6f3 60%,#e8eff9)">
+          <div class="spread" style="margin-bottom:12px"><span class="mono" style="color:#6a6182">Light</span><span class="tag" style="background:rgba(46,29,70,.06);border-color:rgba(46,29,70,.14);color:#4a4060">--bg #F4F1F8</span></div>
+          <div style="background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:14px;box-shadow:0 16px 30px -20px rgba(46,29,70,.4)">
+            <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:.8rem">Next live session</b><span style="font-size:.58rem;background:rgba(107,63,160,.1);color:#5a2f8a;padding:.3em .6em;border-radius:99px;font-weight:600">in 2h 14m</span></div>
+            <p style="font-size:.68rem;color:#4a4060;margin-top:6px">Noon Sakinah rules · Ustadha Omneya</p>
+          </div>
+        </div>
+        <div class="card" style="background:linear-gradient(150deg,#2b1b45,#120b1f);border-color:rgba(255,255,255,.14)">
+          <div class="spread" style="margin-bottom:12px"><span class="mono" style="color:#c6bee0">Dark</span><span class="tag">--bg #140E20</span></div>
+          <div style="background:linear-gradient(155deg,rgba(255,255,255,.12),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px;backdrop-filter:blur(12px)">
+            <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:.8rem;color:#fff">Next live session</b><span style="font-size:.58rem;background:rgba(224,164,255,.14);color:#e9d3ff;padding:.3em .6em;border-radius:99px;font-weight:600">in 2h 14m</span></div>
+            <p style="font-size:.68rem;color:#ded7ee;margin-top:6px">Noon Sakinah rules · Ustadha Omneya</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 07 PRODUCT ======================= -->
+  <section class="slide" id="product">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>07</b> Product</span>
+        <h2 class="big">Proof, arranged in a <em>bento</em>.</h2>
+        <p class="lede">The homepage routes by intent, then lays its evidence out in modular tiles: one dominant night tile for the Sanad, glass tiles for the method, safety, time zones and price.</p>
+      </header>
+
+      <figure style="margin:0">
+        <div class="browser">
+          <div class="browser__bar"><span class="browser__dots"><i></i><i></i><i></i></span><span class="browser__url"><b>ummahacademy.net</b> — home</span><span style="width:26px"></span></div>
+          <div class="browser__view">
+            <div class="ui">
+              <div class="ui__aurora"></div>
+              <div class="ui__inner">
+                <div class="ui__nav">
+                  <span class="ui__logo"><svg class="ua" viewBox="0 0 184.13 321.59"><use href="#ua-logo" /></svg> Ummah Academy</span>
+                  <a>Courses</a><a>Teachers</a><a>Pricing</a><a>Stories</a><a class="on">EN</a>
+                  <a class="ui__cta">Book two free lessons</a>
+                </div>
+
+                <div class="ui__hero">
+                  <div>
+                    <span class="ui__eyebrow">Live 1-on-1 · Al-Azhar scholars</span>
+                    <h1 class="ui__h1">Learn the Qur’an with confidence. <em>One step at a time.</em></h1>
+                    <p class="ui__lede">For your child or yourself: one-to-one Qur’an, Tajweed, Arabic and Islamic studies with Al-Azhar teachers. Start at your level, with lesson times that fit your day.</p>
+                    <div class="ui__actions"><span class="ui__btn ui__btn--primary">Book two free lessons</span><span class="ui__btn">Take the 3-minute test</span></div>
+                    <div class="ui__trust">
+                      <span><svg><use href="#i-check" /></svg> No card needed</span>
+                      <span><svg><use href="#i-check" /></svg> Female teachers available</span>
+                      <span><svg><use href="#i-check" /></svg> Cancel or pause anytime</span>
+                    </div>
+                  </div>
+                  <div class="ui__stack">
+                    <div class="ui__glass">
+                      <div class="ui__row"><span class="ui__tiny">Next live session</span><span class="ui__pill">Starts in 2h 14m</span></div>
+                      <div class="ui__card-title" style="margin-top:.45em">Noon Sakinah rules</div>
+                      <div class="ui__tiny">Ustadha Omneya · 7:00 PM GMT</div>
+                      <div class="row" style="margin-top:.7em;gap:.4em"><span class="chip-ui chip-ui--gold" style="font-size:.5em">★ Ijazah verified</span><span class="chip-ui" style="font-size:.5em">Zoom</span></div>
+                    </div>
+                    <div class="ui__glass">
+                      <div class="ui__row"><span class="ui__card-title">Tajweed · Level 2</span><span class="ui__tiny">Lesson 12 of 18</span></div>
+                      <div class="prog-ui" style="margin-top:.55em;background:rgba(46,29,70,.1)"><i></i></div>
+                      <div class="ui__row" style="margin-top:.4em"><span class="ui__tiny">Progress</span><span class="ui__tiny" style="font-weight:600;color:#5a2f8a">66%</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ui__stats">
+                  <div class="ui__stat"><b>50+</b><span>countries</span></div>
+                  <div class="ui__stat"><b>1,000+</b><span>students</span></div>
+                  <div class="ui__stat"><b>12+</b><span>Ijazahs granted</span></div>
+                  <div class="ui__stat"><b>95%</b><span>continue after month one</span></div>
+                </div>
+
+                <div class="ui__tracks">
+                  <div class="ui__track">
+                    <div class="art" style="background:linear-gradient(150deg,#6b3fa0,#8f2f9e 55%,#453163)"><svg><use href="#i-book" /></svg></div>
+                    <div class="body"><b>Recitation &amp; Tajweed</b><span>3 levels · from the first letter</span><div class="ui__price">$59 <small>/ month</small></div></div>
+                  </div>
+                  <div class="ui__track">
+                    <div class="art" style="background:linear-gradient(150deg,#1d5fa8,#453163 70%)"><svg><use href="#i-lang" /></svg></div>
+                    <div class="body"><b>Qur’anic Arabic</b><span>Noor Al-Bayan · grammar</span><div class="ui__price">$64 <small>/ month</small></div></div>
+                  </div>
+                  <div class="ui__track">
+                    <div class="art" style="background:linear-gradient(150deg,#c87b80,#8f2f9e 70%)"><svg><use href="#i-star" /></svg></div>
+                    <div class="body"><b>Ummah Cubs</b><span>Ages 5–14 · stories &amp; badges</span><div class="ui__price">$59 <small>/ month</small></div></div>
+                  </div>
+                  <div class="ui__track">
+                    <div class="art" style="background:linear-gradient(150deg,#24393c,#1d5fa8 74%)"><svg><use href="#i-shield" /></svg></div>
+                    <div class="body"><b>Islamic studies</b><span>Aqeedah · Fiqh · Seerah</span><div class="ui__price">$74 <small>/ month</small></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="ui__footer"><span>© 2026 Ummah Academy</span><span>English · العربية · Deutsch · Français · Italiano</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mono" style="margin-top:10px;font-size:.56rem">Home · router + proof · rendered in HTML/CSS, not an image</figcaption>
+      </figure>
+
+      <div class="grid g2" style="margin-top:16px">
+        <figure style="margin:0">
+          <div class="browser">
+            <div class="browser__bar"><span class="browser__dots"><i></i><i></i><i></i></span><span class="browser__url"><b>ummahacademy.net</b>/quran-recitation-course/</span><span style="width:26px"></span></div>
+            <div class="browser__view">
+              <div class="ui">
+                <div class="ui__aurora"></div>
+                <div class="ui__inner" style="padding:1.1em 1.4em 1.4em">
+                  <div class="ui__nav" style="font-size:.66em">
+                    <span class="ui__logo" style="font-size:.95em"><svg class="ua" viewBox="0 0 184.13 321.59" style="height:1.5em"><use href="#ua-logo" /></svg> Ummah Academy</span>
+                    <a class="on">Courses</a><a>Teachers</a><a>Pricing</a><a class="ui__cta">Book free</a>
+                  </div>
+                  <div class="ui__hero ui__hero--compact">
+                    <div>
+                      <span class="ui__eyebrow">Quran Recitation &amp; Tajweed</span>
+                      <h1 class="ui__h1" style="font-size:2em;max-width:12em">Recite the Qur’an <em>correctly</em> — and beautifully.</h1>
+                      <p class="ui__lede" style="font-size:.72em">Live 1-on-1 lessons with a teacher who hears every letter and corrects it in the moment.</p>
+                    </div>
+                    <div class="ui__glass" style="padding:.8em">
+                      <div class="ui__card-title" style="font-size:.66em">At a glance</div>
+                      <div style="margin-top:.5em;display:grid;gap:.32em">
+                        <div class="ui__row"><span class="ui__tiny">Format</span><span class="ui__tiny" style="color:#1e1530;font-weight:600">Live, 1-on-1</span></div>
+                        <div class="ui__row"><span class="ui__tiny">Levels</span><span class="ui__tiny" style="color:#1e1530;font-weight:600">3 stages</span></div>
+                        <div class="ui__row"><span class="ui__tiny">For</span><span class="ui__tiny" style="color:#1e1530;font-weight:600">7+ · teens · adults</span></div>
+                        <div class="ui__row"><span class="ui__tiny">From</span><span class="ui__tiny" style="color:#1e1530;font-weight:600">$59 / month</span></div>
+                      </div>
+                      <div class="ui__btn ui__btn--primary" style="display:block;text-align:center;margin-top:.7em;font-size:.62em">Book two free lessons</div>
+                    </div>
+                  </div>
+                  <div class="ui__levels">
+                    <div class="ui__glass" style="padding:.7em"><span class="ui__tiny" style="color:#8f2f9e;font-weight:600">Level 1</span><div class="ui__card-title" style="margin-top:.25em">Foundation</div><div class="ui__tiny">Makharij &amp; Sifaat</div></div>
+                    <div class="ui__glass" style="padding:.7em"><span class="ui__tiny" style="color:#8f2f9e;font-weight:600">Level 2</span><div class="ui__card-title" style="margin-top:.25em">Rules</div><div class="ui__tiny">Noon, Meem, Madd, Waqf</div></div>
+                    <div class="ui__glass" style="padding:.7em"><span class="ui__tiny" style="color:#8f2f9e;font-weight:600">Level 3</span><div class="ui__card-title" style="margin-top:.25em">Mastery</div><div class="ui__tiny">Al-Jazariyyah</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono" style="margin-top:10px;font-size:.56rem">Course template · 5 tracks × 5 locales</figcaption>
+        </figure>
+
+        <figure style="margin:0">
+          <div class="browser">
+            <div class="browser__bar"><span class="browser__dots"><i></i><i></i><i></i></span><span class="browser__url"><b>ummahacademy.net</b>/pricing/</span><span style="width:26px"></span></div>
+            <div class="browser__view">
+              <div class="ui">
+                <div class="ui__aurora"></div>
+                <div class="ui__inner" style="padding:1.1em 1.4em 1.4em">
+                  <div class="ui__nav" style="font-size:.66em">
+                    <span class="ui__logo" style="font-size:.95em"><svg class="ua" viewBox="0 0 184.13 321.59" style="height:1.5em"><use href="#ua-logo" /></svg> Ummah Academy</span>
+                    <a>Courses</a><a>Teachers</a><a class="on">Pricing</a><a class="ui__cta">Book free</a>
+                  </div>
+                  <div style="text-align:center;margin-top:1.2em">
+                    <span class="ui__eyebrow" style="justify-content:center">Pricing</span>
+                    <h2 style="font-size:1.7em;letter-spacing:-.04em;margin-top:.3em">Simple pricing. <em style="font-family:var(--font-serif);font-style:italic;color:#8f2f9e">Two free sessions first.</em></h2>
+                    <div style="display:inline-flex;background:rgba(46,29,70,.07);border-radius:99px;padding:.2em;margin-top:.7em;font-size:.6em">
+                      <span style="background:#1e1530;color:#fff;padding:.5em 1em;border-radius:99px;font-weight:600">30 minutes</span>
+                      <span style="padding:.5em 1em;color:#4a4060">60 minutes</span>
+                    </div>
+                  </div>
+                  <div class="ui__levels">
+                    <div class="ui__glass" style="padding:.8em">
+                      <div class="ui__tiny">Launch</div>
+                      <div style="font-size:1.5em;letter-spacing:-.04em;font-weight:600;margin-top:.2em">$40<span style="font-size:.4em;font-weight:400;color:#5b5270"> /mo</span></div>
+                      <div class="ui__tiny" style="margin-top:.15em">8 sessions · 2/week</div>
+                      <div style="height:1px;background:rgba(46,29,70,.1);margin:.55em 0"></div>
+                      <div class="ui__tiny">A gentle start for beginners.</div>
+                      <div class="ui__btn" style="display:block;text-align:center;margin-top:.65em;font-size:.56em">Choose Launch</div>
+                    </div>
+                    <div class="ui__glass" style="padding:.8em;border-color:rgba(107,63,160,.4);box-shadow:0 0 0 1px rgba(107,63,160,.35),0 1.4em 3em -1.6em rgba(46,29,70,.5)">
+                      <div class="ui__row"><span class="ui__tiny">Consistent</span><span class="ui__pill" style="font-size:.42em;background:linear-gradient(100deg,#8a4bbd,#2f6bb0);color:#fff">Kids’ favourite</span></div>
+                      <div style="font-size:1.5em;letter-spacing:-.04em;font-weight:600;margin-top:.2em">$59<span style="font-size:.4em;font-weight:400;color:#5b5270"> /mo</span></div>
+                      <div class="ui__tiny" style="margin-top:.15em">16 sessions · 4/week</div>
+                      <div style="height:1px;background:rgba(46,29,70,.1);margin:.55em 0"></div>
+                      <div class="ui__tiny">Any subject, including Cubs.</div>
+                      <div class="ui__btn ui__btn--primary" style="display:block;text-align:center;margin-top:.65em;font-size:.56em">Choose Consistent</div>
+                    </div>
+                    <div class="ui__glass" style="padding:.8em">
+                      <div class="ui__tiny">Gold</div>
+                      <div style="font-size:1.5em;letter-spacing:-.04em;font-weight:600;margin-top:.2em">$96<span style="font-size:.4em;font-weight:400;color:#5b5270"> /mo</span></div>
+                      <div class="ui__tiny" style="margin-top:.15em">8 sessions · 60 min</div>
+                      <div style="height:1px;background:rgba(46,29,70,.1);margin:.55em 0"></div>
+                      <div class="ui__tiny">The balance adults choose.</div>
+                      <div class="ui__btn" style="display:block;text-align:center;margin-top:.65em;font-size:.56em">Choose Gold</div>
+                    </div>
+                  </div>
+                  <div class="ui__tiny" style="text-align:center;margin-top:.8em;font-size:.56em">Every plan includes a report after each session, a certificate per level, and a 15-minute WhatsApp reminder.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono" style="margin-top:10px;font-size:.56rem">Pricing · six plans, one honest default</figcaption>
+        </figure>
+      </div>
+
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <div class="spread" style="margin-bottom:14px"><span class="mono">Booking · three steps</span><span class="tag">No card</span></div>
+          <div style="background:#f4f1f8;border-radius:16px;padding:14px;color:#1e1530;container-type:inline-size">
+            <div style="display:flex;gap:6px;font-size:.6rem;margin-bottom:12px;flex-wrap:wrap">
+              <span style="padding:.35em .7em;border-radius:99px;background:rgba(46,29,70,.06);color:#5b5270">01 Learner</span>
+              <span style="padding:.35em .7em;border-radius:99px;background:#fff;border:1px solid rgba(46,29,70,.14);font-weight:600;color:#1e1530">02 Programme</span>
+              <span style="padding:.35em .7em;border-radius:99px;color:#8b8299">03 Details</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="ui__tile on" style="font-size:clamp(9px,2cqw,14px)"><span class="ui__ico"><svg><use href="#i-book" /></svg></span><span><b>Tajweed</b><span>Recite correctly</span></span></div>
+              <div class="ui__tile" style="font-size:clamp(9px,2cqw,14px)"><span class="ui__ico"><svg><use href="#i-star" /></svg></span><span><b>Hifz &amp; Ijazah</b><span>Memorise that lasts</span></span></div>
+              <div class="ui__tile" style="font-size:clamp(9px,2cqw,14px)"><span class="ui__ico"><svg><use href="#i-lang" /></svg></span><span><b>Arabic</b><span>Noor Al-Bayan</span></span></div>
+              <div class="ui__tile" style="font-size:clamp(9px,2cqw,14px)"><span class="ui__ico"><svg><use href="#i-shield" /></svg></span><span><b>Islamic studies</b><span>Aqeedah · Fiqh</span></span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+              <span style="font-size:.62rem;color:#5b5270">Step 2 of 3 · no card needed</span>
+              <span style="background:#1e1530;color:#fff;font-size:.66rem;font-weight:600;padding:.6em 1em;border-radius:99px">Continue</span>
+            </div>
+          </div>
+          <p class="card__text" style="margin-top:12px;font-size:.76rem">Fieldsets per step, native radios, inline errors. The wizard remembers nothing until the last screen, so an abandoned trial leaves no half-record.</p>
+        </div>
+
+        <div class="card">
+          <div class="spread" style="margin-bottom:14px"><span class="mono">Faculty · the proof card</span><span class="tag tag--gold">Ijazah</span></div>
+          <div style="background:#f4f1f8;border-radius:16px;padding:14px;color:#1e1530">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:42px;height:42px;border-radius:50%;background:linear-gradient(150deg,#8f2f9e,#453163);display:grid;place-items:center;color:#fff;font-weight:600;font-size:.78rem;flex:none">OA</span>
+              <div style="flex:1">
+                <b style="font-size:.84rem;letter-spacing:-.01em">Omneya Ali</b>
+                <div style="font-size:.64rem;color:#5b5270">Head of Tajweed</div>
+              </div>
+              <span class="ui__seal" style="font-size:.56rem">★ Ijazah verified</span>
+            </div>
+            <p style="font-size:.68rem;color:#4a4060;line-height:1.6;margin-top:10px">Al-Azhar graduate · memorised the Qur’an at 12 · Ijazah in Hafs ’an ’Asim with a chain of transmission to the Prophet <span style="font-family:var(--font-quran)">ﷺ</span>.</p>
+            <div style="display:flex;gap:4px;margin-top:10px;flex-wrap:wrap">
+              <span style="font-size:.52rem;background:rgba(46,29,70,.06);border:1px solid rgba(46,29,70,.08);padding:.3em .55em;border-radius:99px;color:#4a4060">Tajweed &amp; Qira’at</span>
+              <span style="font-size:.52rem;background:rgba(46,29,70,.06);border:1px solid rgba(46,29,70,.08);padding:.3em .55em;border-radius:99px;color:#4a4060">Women &amp; children</span>
+              <span style="font-size:.52rem;background:rgba(46,29,70,.06);border:1px solid rgba(46,29,70,.08);padding:.3em .55em;border-radius:99px;color:#4a4060">AR · EN</span>
+            </div>
+          </div>
+          <p class="card__text" style="margin-top:12px;font-size:.76rem">A monogram instead of a stock portrait: honest, consistent, and it keeps the focus on the credential rather than the face.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 08 MOBILE ======================= -->
+  <section class="slide" id="mobile">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>08</b> Mobile</span>
+        <h2 class="big">The lesson happens on a <em>phone</em>.</h2>
+        <p class="lede">Most families meet us on a mid-range Android in a kitchen. The mobile experience is not a responsive afterthought: it is the product, with 44px targets, a bottom dock and a classroom built for one hand.</p>
+      </header>
+
+      <div class="grid g3" style="align-items:start;gap:clamp(18px,3.4vw,42px)">
+        <figure style="margin:0">
+          <div class="phone">
+            <div class="phone__screen ui">
+              <div class="ui__aurora" style="opacity:.9"></div>
+              <div class="phone__status"><span>9:41</span><span style="letter-spacing:.1em">●●● ⌁</span></div>
+              <div class="phone__body" style="padding-top:0">
+                <div style="display:flex;justify-content:space-between;align-items:center;position:relative">
+                  <span style="display:flex;align-items:center;gap:.4em;font-weight:600;font-size:.62em;letter-spacing:-.01em"><svg class="ua" viewBox="0 0 184.13 321.59" style="height:1.5em;color:#281547"><use href="#ua-logo" /></svg> Ummah Academy</span>
+                  <span style="width:1.9em;height:1.9em;border-radius:99px;background:rgba(255,255,255,.7);border:1px solid rgba(46,29,70,.12);display:grid;place-items:center"><svg style="width:.8em;height:.8em;color:#4a4060"><use href="#i-lang" /></svg></span>
+                </div>
+                <span class="ui__eyebrow" style="font-size:.5em;margin-top:.9em">Live 1-on-1 · Al-Azhar</span>
+                <h2 style="font-size:1.5em;line-height:1.03;margin-top:.3em;letter-spacing:-.045em">Learn the Qur’an with confidence. <span class="serif" style="background:linear-gradient(100deg,#8f2f9e,#1d5fa8);-webkit-background-clip:text;background-clip:text;color:transparent">One step at a time.</span></h2>
+                <div style="display:flex;gap:.4em;margin-top:.8em">
+                  <span class="ui__btn ui__btn--primary" style="font-size:.54em;flex:1;text-align:center">Book two free lessons</span>
+                  <span class="ui__btn" style="font-size:.54em">Test</span>
+                </div>
+                <div class="ui__glass" style="margin-top:.8em;padding:.65em">
+                  <div class="ui__row"><span class="ui__tiny" style="font-size:.46em">Next live session</span><span class="ui__pill" style="font-size:.4em">in 2h 14m</span></div>
+                  <div class="ui__card-title" style="font-size:.64em;margin-top:.3em">Noon Sakinah rules</div>
+                  <div class="ui__tiny" style="font-size:.48em">Ustadha Omneya · 7:00 PM</div>
+                </div>
+                <div class="ui__glass" style="margin-top:.5em;padding:.65em">
+                  <div class="ui__row"><span class="ui__card-title" style="font-size:.6em">Tajweed · Level 2</span><span class="ui__tiny" style="font-size:.46em">66%</span></div>
+                  <div class="prog-ui" style="margin-top:.4em;background:rgba(46,29,70,.1)"><i></i></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.45em;margin-top:.7em">
+                  <div class="ui__glass" style="padding:.55em"><div class="ui__tiny" style="font-size:.44em">Recitation</div><div class="ui__card-title" style="font-size:.56em;margin-top:.15em">Tajweed</div><div class="ui__tiny" style="font-size:.42em;color:#5a2f8a;font-weight:600">From $59</div></div>
+                  <div class="ui__glass" style="padding:.55em"><div class="ui__tiny" style="font-size:.44em">For kids</div><div class="ui__card-title" style="font-size:.56em;margin-top:.15em">Ummah Cubs</div><div class="ui__tiny" style="font-size:.42em;color:#5a2f8a;font-weight:600">From $59</div></div>
+                </div>
+              </div>
+              <nav class="phone__nav"><b><svg><use href="#i-home" /></svg>Home</b><span><svg><use href="#i-book" /></svg>Courses</span><span><svg><use href="#i-cal" /></svg>Calendar</span><span><svg><use href="#i-user" /></svg>Profile</span></nav>
+            </div>
+          </div>
+          <figcaption class="mono" style="margin-top:14px;font-size:.54rem">Home · bottom dock · 44px targets</figcaption>
+        </figure>
+
+        <figure style="margin:0">
+          <div class="phone">
+            <div class="phone__screen">
+              <div class="cls">
+                <div class="cls__top"><span>● Live · 28:14</span><span>Ustadha Omneya</span></div>
+                <div class="cls__verse" style="min-height:14em">
+                  <div class="cls__teacher">OA</div>
+                  <p>بِسْمِ اللَّهِ <mark>الرَّحْمَٰنِ</mark> <mark class="g">الرَّحِيمِ</mark></p>
+                  <div style="position:absolute;left:.6em;bottom:.6em;display:flex;gap:.3em">
+                    <span style="font-size:.44em;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:.3em .55em;color:#f0c4ff">Madd · 2 counts</span>
+                    <span style="font-size:.44em;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:.3em .55em;color:#a9e8c9">Ghunnah</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="cls__bar"><span>Line 1 · Al-Fatiha</span><span>HD</span><span>Recording</span></div>
+                  <div class="cls__controls" style="margin-top:.7em"><i><svg><use href="#i-mic" /></svg></i><i><svg><use href="#i-play" /></svg></i><i class="red"><svg><use href="#i-mic-off" /></svg></i></div>
+                  <p style="text-align:center;font-size:.48em;color:#9d93ba;margin-top:.6em">Your teacher hears every letter.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="mono" style="margin-top:14px;font-size:.54rem">The classroom · Amiri + live Tajweed layers</figcaption>
+        </figure>
+
+        <figure style="margin:0">
+          <div class="phone">
+            <div class="phone__screen ui">
+              <div class="ui__aurora"></div>
+              <div class="phone__status"><span>9:41</span><span style="letter-spacing:.1em">●●● ⌁</span></div>
+              <div class="phone__body" style="padding-top:0">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span class="mono" style="font-size:.44rem;color:#5b5270">Family hub</span>
+                  <span style="width:1.7em;height:1.7em;border-radius:50%;background:linear-gradient(150deg,#8f2f9e,#1d5fa8);color:#fff;display:grid;place-items:center;font-size:.46em;font-weight:600">KR</span>
+                </div>
+                <div class="fam__hi">Assalamu alaikum, Khalid</div>
+                <div class="fam__sub">3 learners · next session in 2h</div>
+
+                <div class="fam__kid"><i style="background:linear-gradient(150deg,#8f2f9e,#453163)">Y</i><div><b>Yusuf · 9</b><span>Tajweed · Level 2</span></div><span class="fam__badge">On track</span></div>
+                <div class="fam__kid"><i style="background:linear-gradient(150deg,#c87b80,#8f2f9e)">M</i><div><b>Maryam · 12</b><span>Hifz · Juz 2</span></div><span class="fam__badge">8-day streak</span></div>
+                <div class="fam__kid"><i style="background:linear-gradient(150deg,#1d5fa8,#453163)">A</i><div><b>Adam · 6</b><span>Ummah Cubs</span></div><span class="fam__badge">Trial</span></div>
+
+                <div class="fam__card">
+                  <span>This week</span>
+                  <b>6 of 9 sessions done</b>
+                  <div class="prog-ui"><i style="width:66%"></i></div>
+                  <div class="fam__ring"></div>
+                </div>
+                <div style="margin-top:.55em;border-radius:.8em;background:rgba(255,255,255,.75);border:1px solid rgba(46,29,70,.08);padding:.6em">
+                  <div style="display:flex;justify-content:space-between;font-size:.48em;color:#5b5270"><span>Session report</span><span>Today</span></div>
+                  <div style="font-size:.56em;font-weight:600;margin-top:.25em;letter-spacing:-.01em">Yusuf · Noon Sakinah</div>
+                  <div style="display:flex;gap:.25em;margin-top:.35em">
+                    <span style="width:.55em;height:.55em;border-radius:50%;background:#1f7a4d"></span><span style="width:.55em;height:.55em;border-radius:50%;background:#1f7a4d"></span><span style="width:.55em;height:.55em;border-radius:50%;background:#1f7a4d"></span><span style="width:.55em;height:.55em;border-radius:50%;background:rgba(46,29,70,.12)"></span>
+                  </div>
+                </div>
+              </div>
+              <nav class="phone__nav"><b><svg><use href="#i-home" /></svg>Home</b><span><svg><use href="#i-book" /></svg>Learn</span><span><svg><use href="#i-cal" /></svg>Calendar</span><span><svg><use href="#i-user" /></svg>Profile</span></nav>
+            </div>
+          </div>
+          <figcaption class="mono" style="margin-top:14px;font-size:.54rem">Family hub · three children, one view</figcaption>
+        </figure>
+      </div>
+
+      <div class="grid g3" style="margin-top:clamp(20px,4vw,42px)">
+        <div class="card"><span class="mono">Thumb first</span><p class="card__text" style="margin-top:8px;font-size:.82rem;color:var(--text-3)">Primary actions sit in the lower third. The sticky CTA respects <span style="color:var(--text-2)">env(safe-area-inset-bottom)</span> and hides on scroll-up.</p></div>
+        <div class="card"><span class="mono">Installable</span><p class="card__text" style="margin-top:8px;font-size:.82rem;color:var(--text-3)">Manifest, maskable icons and a service worker. Offline, the last pages visited still open — including the lesson brief.</p></div>
+        <div class="card"><span class="mono">Portal, separately</span><p class="card__text" style="margin-top:8px;font-size:.82rem;color:var(--text-3)">The operations portal is a separate Node process: students, families, session ledger, credits, permissions. Not part of the static build.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 09 SIGNATURE ======================= -->
+  <section class="slide" id="signature">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>09</b> Signature</span>
+        <h2 class="big">The Sanad, drawn as an <em>interface</em>.</h2>
+        <p class="lede">A chain of transmission is a list of names — and the most persuasive thing the academy owns. So it became a component: five nodes, a gold terminus, one pulse travelling the line.</p>
+      </header>
+
+      <div class="card" style="padding:clamp(20px,3.4vw,38px)">
+        <div class="spread" style="margin-bottom:26px">
+          <div><span class="mono">Sanad chain</span><p style="font-size:.8rem;color:var(--text-3);margin-top:4px">You → Teacher → Sheikh → … → the Prophet <span style="font-family:var(--font-quran)">ﷺ</span></p></div>
+          <span class="tag tag--gold">★ Verified · 4-stage check</span>
+        </div>
+        <div class="sanad">
+          <span class="sanad__pulse" aria-hidden="true"></span>
+          <div class="sanad__node"><span class="sanad__dot">You</span><b>You</b><span>Start here</span></div>
+          <div class="sanad__node"><span class="sanad__dot">OA</span><b>Ustadha Omneya</b><span>Ijazah · Hafs ’an ’Asim</span></div>
+          <div class="sanad__node"><span class="sanad__dot">AR</span><b>Sheikh Abdul Rahman</b><span>Al-Azhar · Ijazah</span></div>
+          <div class="sanad__node"><span class="sanad__dot">…</span><b>Twenty-nine teachers</b><span>Documented links</span></div>
+          <div class="sanad__node"><span class="sanad__dot" aria-hidden="true">✦</span><b>The Prophet</b><span style="color:#e7c88c">ﷺ · final link</span></div>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">Four-stage vetting</div>
+          <ol class="numlist" style="border-top:1px solid var(--hair)">
+            <li><div><b>Credentials</b><p>Degree and Ijazah documents, checked against the issuing scholar.</p></div></li>
+            <li><div><b>Sanad verification</b><p>Every link in the chain is named and confirmed before publication.</p></div></li>
+            <li><div><b>Live teaching demo</b><p>A 30-minute assessed lesson with the academic lead.</p></div></li>
+            <li><div><b>Ongoing review</b><p>Session reports and family feedback, reviewed monthly.</p></div></li>
+          </ol>
+        </div>
+
+        <div class="card" style="display:grid;gap:12px;place-content:center">
+          <div class="report">
+            <div class="report__top">
+              <div><b>Session report</b><br><span>Yusuf · Noon Sakinah · 30 min</span></div>
+              <span style="font-size:.55em;opacity:.8">Today, 17:00</span>
+            </div>
+            <div class="report__body">
+              <div class="report__grid">
+                <div class="report__kpi"><b>9/10</b><span>Tajweed</span></div>
+                <div class="report__kpi"><b>4</b><span>New rules</span></div>
+                <div class="report__kpi"><b>12</b><span>Day streak</span></div>
+              </div>
+              <p class="report__note"><b>Ustadha Omneya:</b> Yusuf’s ghunnah is now consistent. Next lesson we hold the madd for two counts — practice Ayat 1–3 aloud.</p>
+              <p class="report__note report__ar" dir="rtl"><b>أستاذة أمنية:</b> تحسّن واضح في الغنّة. الحصة القادمة نثبّت المدّ بمقدار حركتين.</p>
+            </div>
+          </div>
+          <p class="mono" style="font-size:.54rem;text-align:center">A report after every lesson · bilingual by default</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 10 MOTION ======================= -->
+  <section class="slide" id="motion">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>10</b> Motion</span>
+        <h2 class="big">Movement that <em>lowers</em> the pulse.</h2>
+        <p class="lede">One curve for entrances, one spring for direct manipulation, one slow drift for the sky. Nothing loops near a call to action; nothing animates a layout property.</p>
+      </header>
+
+      <div class="motion-row">
+        <div class="mo"><div class="mo__stage a"><i class="mo__box"></i></div><span>Reveal · 900ms</span></div>
+        <div class="mo"><div class="mo__stage b"><i class="mo__box"></i></div><span>Spring · toggles</span></div>
+        <div class="mo"><div class="mo__stage c"><i class="mo__box"></i></div><span>Wait · labelled only</span></div>
+        <div class="mo"><div class="mo__stage d"><i class="mo__box"></i></div><span>Progress · 800ms</span></div>
+      </div>
+
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">Interaction storyboard</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div style="border:1px solid var(--hair);border-radius:12px;padding:10px;background:rgba(255,255,255,.03)">
+              <span class="mono" style="font-size:.5rem">01 · idle</span>
+              <div style="height:52px;display:grid;place-items:center"><span class="btn-ui" style="font-size:.6rem">Book free</span></div>
+              <p style="font-size:.6rem;color:var(--text-4)">Resting glass, one primary.</p>
+            </div>
+            <div style="border:1px solid var(--hair);border-radius:12px;padding:10px;background:rgba(255,255,255,.05)">
+              <span class="mono" style="font-size:.5rem;color:#e0a4ff">02 · hover</span>
+              <div style="height:52px;display:grid;place-items:center"><span class="btn-ui btn-ui--solid" style="font-size:.6rem;transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(143,47,158,.9)">Book free</span></div>
+              <p style="font-size:.6rem;color:var(--text-4)">−2px lift + shadow. 350ms.</p>
+            </div>
+            <div style="border:1px solid var(--hair);border-radius:12px;padding:10px;background:rgba(255,255,255,.03)">
+              <span class="mono" style="font-size:.5rem">03 · press</span>
+              <div style="height:52px;display:grid;place-items:center"><span class="btn-ui btn-ui--solid" style="font-size:.6rem;box-shadow:0 0 0 4px rgba(217,188,255,.22)">Book free</span></div>
+              <p style="font-size:.6rem;color:var(--text-4)">0px + visible focus ring.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <span class="mono">Motion rules</span>
+          <ul style="display:grid;gap:10px;margin-top:12px;font-size:.84rem;color:var(--text-3)">
+            <li>— Entrances never block input; a click responds in 150ms even while a panel settles.</li>
+            <li>— Stagger follows reading order, 60ms apart, and stops after six items.</li>
+            <li>— The aurora drifts with transform on a fixed layer — zero layout cost.</li>
+            <li>— <span style="color:var(--text-2)">prefers-reduced-motion</span> removes drift, reveals and floats; nothing becomes unreachable.</li>
+            <li>— Hover effects exist only on <span style="color:var(--text-2)">(hover: hover)</span> devices.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 11 ACCESS ======================= -->
+  <section class="slide" id="access">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>11</b> Access</span>
+        <h2 class="big">Five languages, and <em>one</em> of them is Arabic.</h2>
+        <p class="lede">Not machine translation with a language switcher. Every locale has its own content, its own slugs and its own QA — and Arabic sets the type rules for everyone.</p>
+      </header>
+
+      <div class="lang-marquee" aria-hidden="true">
+        <div class="lang-marquee__in">
+          <span><b>EN</b> English</span><span class="ar" lang="ar" dir="rtl"><b>AR</b> العربية</span><span><b>DE</b> Deutsch</span><span><b>FR</b> Français</span><span><b>IT</b> Italiano</span>
+          <span><b>EN</b> English</span><span class="ar" lang="ar" dir="rtl"><b>AR</b> العربية</span><span><b>DE</b> Deutsch</span><span><b>FR</b> Français</span><span><b>IT</b> Italiano</span>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">One component, two directions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="border:1px solid var(--hair);border-radius:12px;padding:14px">
+              <span class="mono" style="font-size:.5rem">EN · LTR</span>
+              <p style="font-size:.92rem;font-weight:600;margin-top:8px;letter-spacing:-.02em">Two free lessons.</p>
+              <p style="font-size:.72rem;color:var(--text-3);margin-top:4px">Live 1-on-1 · Al-Azhar teachers</p>
+              <span class="btn-ui" style="margin-top:12px;font-size:.64rem">Book a trial</span>
+            </div>
+            <div class="ar" style="border:1px solid var(--hair);border-radius:12px;padding:14px" lang="ar" dir="rtl">
+              <span class="mono" style="font-size:.5rem;text-align:right;display:block">AR · RTL</span>
+              <p style="font-size:.98rem;font-weight:600;margin-top:8px">حصتان مجانيتان.</p>
+              <p style="font-size:.76rem;color:var(--text-3);margin-top:4px">مباشرة وفردية · شيوخ من الأزهر</p>
+              <span class="btn-ui" style="margin-top:12px;font-size:.66rem">احجز حصة</span>
+            </div>
+          </div>
+          <ul style="display:grid;gap:7px;margin-top:14px;font-size:.76rem;color:var(--text-3)">
+            <li>— Logical properties throughout: no <span style="color:var(--text-2)">margin-left</span> anywhere in the system.</li>
+            <li>— Directional icons flip; the logo, the Kaaba and the Qur’an never do.</li>
+            <li>— Arabic line-height 1.9; no letter-spacing; Latin numerals inside prose.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">Measured contrast</div>
+          <div style="display:grid;gap:8px" id="contrastList">
+            <div class="contrast-row" data-fg="#1e1530" data-bg="#f4f1f8"><span style="color:#1e1530;background:#f4f1f8;padding:.5em .7em;border-radius:8px;font-size:.76rem;font-weight:600;flex:1">Ink on page</span><b class="ratio mono"></b></div>
+            <div class="contrast-row" data-fg="#4a4060" data-bg="#ffffff"><span style="color:#4a4060;background:#fff;padding:.5em .7em;border-radius:8px;font-size:.76rem;font-weight:600;flex:1">Secondary ink on white</span><b class="ratio mono"></b></div>
+            <div class="contrast-row" data-fg="#ffffff" data-bg="#8a4bbd"><span style="color:#fff;background:#8a4bbd;padding:.5em .7em;border-radius:8px;font-size:.76rem;font-weight:600;flex:1">White on accent</span><b class="ratio mono"></b></div>
+            <div class="contrast-row" data-fg="#ded7ee" data-bg="#140e20"><span style="color:#ded7ee;background:#140e20;padding:.5em .7em;border-radius:8px;font-size:.76rem;font-weight:600;flex:1">Night secondary</span><b class="ratio mono"></b></div>
+            <div class="contrast-row" data-fg="#d9b26a" data-bg="#1a1129"><span style="color:#d9b26a;background:#1a1129;padding:.5em .7em;border-radius:8px;font-size:.76rem;font-weight:600;flex:1">Sanad gold on night</span><b class="ratio mono"></b></div>
+          </div>
+          <p class="mono" style="margin-top:10px;font-size:.5rem">computed live in your browser · ratios above 4.5 pass AA for body text</p>
+        </div>
+      </div>
+
+      <div class="grid g4" style="margin-top:12px">
+        <div class="card"><span class="mono">Focus</span><p class="card__text" style="margin-top:8px;font-size:.78rem">2.5px violet ring, 3px offset, never removed — even on glass.</p></div>
+        <div class="card"><span class="mono">Targets</span><p class="card__text" style="margin-top:8px;font-size:.78rem">44×44 minimum; 8px between adjacent actions.</p></div>
+        <div class="card"><span class="mono">Motion</span><p class="card__text" style="margin-top:8px;font-size:.78rem">Reduced motion and reduced transparency are first-class states.</p></div>
+        <div class="card"><span class="mono">Audits</span><p class="card__text" style="margin-top:8px;font-size:.78rem">axe-core in every browser suite, plus a pixel contrast script.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 12 CRAFT ======================= -->
+  <section class="slide" id="craft">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>12</b> Craft</span>
+        <h2 class="big">Fast is a <em>design</em> decision.</h2>
+        <p class="lede">A parent on 3G in Cairo should get the proof as quickly as a parent on fibre in Toronto. So the stack stayed boring: static HTML, one CSS file, a few kilobytes of JavaScript.</p>
+      </header>
+
+      <div class="bignums">
+        <div class="bignum"><b>195</b><span>pages built</span><small>5 locales · 23 routes</small></div>
+        <div class="bignum"><b>~2 KB</b><span>JS per page</span><small>gzipped · no framework</small></div>
+        <div class="bignum"><b>34</b><span>components</span><small>one design system</small></div>
+        <div class="bignum"><b>0</b><span>image requests for covers</span><small>generated CSS / SVG</small></div>
+      </div>
+
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">What that looks like in code</div>
+          <div class="code-mini" style="font-size:.62rem;line-height:1.8"><span class="k">@layer</span> tokens, base, layout, glass,
+       components, motion, utilities;
+
+<span class="k">.glass</span> {
+  background: <span class="v">var</span>(--glass-fill);
+  backdrop-filter: <span class="v">blur</span>(<span class="v">var</span>(--blur)) <span class="v">saturate</span>(1.2);
+  box-shadow: <span class="v">var</span>(--shadow-glass);
+  border-radius: <span class="v">var</span>(--r-lg);
+}
+<span class="k">.glass::before</span> { <span class="c">/* 1px rim light */</span> }
+<span class="k">.glass::after</span>  { <span class="c">/* specular sheen */</span> }</div>
+          <p class="card__text" style="margin-top:12px;font-size:.76rem">Seven cascade layers mean a component style can never accidentally beat a token. Fonts are self-hosted; icons are inlined at build time.</p>
+        </div>
+
+        <div class="card">
+          <div class="hr-label" style="margin-bottom:12px">What we deliberately didn’t ship</div>
+          <ol class="numlist" style="border-top:1px solid var(--hair)">
+            <li><div><b>A client-side router</b><p>The site is static and the navigation is links. Nothing to hydrate, nothing to break offline.</p></div></li>
+            <li><div><b>An animation library</b><p>Three keyframes and an IntersectionObserver were enough for the entire product.</p></div></li>
+            <li><div><b>A component framework</b><p>Astro components render to HTML; the design system is CSS, so it outlives any framework.</p></div></li>
+            <li><div><b>A portrait library</b><p>Monograms age better than stock photos and avoid consent problems with children.</p></div></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <p class="quote" style="max-width:34ch">“Calm is not the absence of design. It is design that has stopped competing with the content.”</p>
+        <div class="quote__by"><span class="avatar avatar--gold">UA</span><span>Design principle, Sakinah Glass v2.4</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 13 OUTCOME ======================= -->
+  <section class="slide" id="outcome">
+    <div class="wrap">
+      <header class="shead">
+        <span class="snum"><b>13</b> Outcome</span>
+        <h2 class="big">What changed, in the <em>academy’s</em> numbers.</h2>
+        <p class="lede">These are client-reported figures, not an independent audit. They are included because a design case study should end with consequences, not screenshots.</p>
+      </header>
+
+      <div class="grid g4">
+        <div class="card stat"><b data-count="50" data-suffix="+">0</b><span>countries reached</span></div>
+        <div class="card stat"><b data-count="1000" data-suffix="+">0</b><span>students taught</span></div>
+        <div class="card stat"><b data-count="95" data-suffix="%">0</b><span>continue after month one</span></div>
+        <div class="card stat"><b data-count="12" data-suffix="+">0</b><span>Ijazahs granted</span></div>
+      </div>
+
+      <div class="grid g2" style="margin-top:12px">
+        <div class="card">
+          <div class="row" style="gap:3px;color:#d9b26a;margin-bottom:10px" aria-hidden="true">
+            <svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg>
+          </div>
+          <p class="quote" style="font-size:1.2rem">“After years of struggling, I finally recited Surah Al-Fatiha correctly for the first time. Teacher Omneya’s patience changed everything.”</p>
+          <div class="quote__by"><span class="avatar">AB</span><span><b style="color:var(--text-2);font-weight:500">Amina Bergström</b> · Toronto · Tajweed</span></div>
+          <span class="tag tag--accent" style="margin-top:12px">Result: recited Al-Fatiha correctly for the first time</span>
+        </div>
+        <div class="card">
+          <div class="row" style="gap:3px;color:#d9b26a;margin-bottom:10px" aria-hidden="true">
+            <svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg><svg width="12" height="12" style="fill:currentColor"><use href="#i-star" /></svg>
+          </div>
+          <p class="quote" style="font-size:1.2rem">“As a father of three, the Family Portal lets me track all my children’s learning in one place. Detailed reports after every session.”</p>
+          <div class="quote__by"><span class="avatar avatar--rose">KR</span><span><b style="color:var(--text-2);font-weight:500">Khalid Rahman</b> · Houston · Family plan</span></div>
+          <span class="tag" style="margin-top:12px">Result: tracks three children in one place</span>
+        </div>
+      </div>
+
+      <div class="grid g3" style="margin-top:12px">
+        <div class="card"><span class="mono">Lesson 01</span><h3 style="font-size:1rem;margin-top:8px">Name the mechanism</h3><p class="card__text" style="margin-top:6px;font-size:.8rem">“Ijazah”, “Sanad”, “30 minutes” persuade more than any adjective. Specificity is the brand.</p></div>
+        <div class="card"><span class="mono">Lesson 02</span><h3 style="font-size:1rem;margin-top:8px">Design the proof, not the page</h3><p class="card__text" style="margin-top:6px;font-size:.8rem">Turning the chain into a reusable component made it appear on six pages instead of one.</p></div>
+        <div class="card"><span class="mono">Lesson 03</span><h3 style="font-size:1rem;margin-top:8px">RTL is a system test</h3><p class="card__text" style="margin-top:6px;font-size:.8rem">Arabic exposed every hard-coded margin and every icon that assumed a direction. It made the English better too.</p></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="hr-label" style="margin-bottom:14px">Credits</div>
+        <div class="grid g4" style="gap:16px">
+          <div><span class="mono" style="font-size:.52rem">Design &amp; system</span><p style="font-size:.84rem;margin-top:6px;color:var(--text-2)">Product designer / design engineer</p></div>
+          <div><span class="mono" style="font-size:.52rem">Engineering</span><p style="font-size:.84rem;margin-top:6px;color:var(--text-2)">Two engineers · Astro + vanilla TS</p></div>
+          <div><span class="mono" style="font-size:.52rem">Content &amp; academic</span><p style="font-size:.84rem;margin-top:6px;color:var(--text-2)">In-house scholars &amp; native writers</p></div>
+          <div><span class="mono" style="font-size:.52rem">Duration</span><p style="font-size:.84rem;margin-top:6px;color:var(--text-2)">14 weeks · 2026 · ongoing</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide slide--flush end" id="end">
+    <div class="wrap">
+      <span class="snum" style="justify-content:center;margin-bottom:22px"><b>◆</b> Thank you</span>
+      <h2>Calm is a <em class="serif" style="font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">feature.</em></h2>
+      <p>A design system for a school that takes trust seriously — 195 pages, five languages, one quiet surface. If you would like the full system documentation, it is one click away.</p>
+      <div class="end__links">
+        <a class="btn-ui btn-ui--solid" href="design-system.html" style="font-size:.8rem;padding:.9em 1.3em">Open the design system <svg width="14" height="14" style="display:inline-block;vertical-align:-2px"><use href="#i-arrow" /></svg></a>
+        <a class="btn-ui" href="#top" style="font-size:.8rem;padding:.9em 1.3em">Back to cover</a>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:26px"><span class="tag">behance.net</span><span class="tag">ummahacademy.net</span><span class="tag">2026</span></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="wrap foot__in">
+      <div class="row" style="gap:10px">
+        <svg class="ua" viewBox="0 0 184.13 321.59" width="11" height="19" aria-hidden="true"><use href="#ua-logo" /></svg>
+        <p>Ummah Academy · Sakinah Glass · case study 2026. Product visuals are live HTML/CSS, not screenshots. Client-reported metrics are labelled as such; no real family or child data appears in this document.</p>
+      </div>
+      <div class="row" style="gap:14px">
+        <a href="design-system.html">Design system</a>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<button class="export-btn" id="exportBtn" type="button" title="Clean layout for screenshots / PDF">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-download" /></svg> Export mode
+</button>
+
+<script>
+(function () {
+  'use strict';
+  const root = document.documentElement;
+  const $ = (s, c) => (c || document).querySelector(s);
+  const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) root.classList.add('no-motion');
+
+  /* ---------- scroll progress --------------------------------------------- */
+  const bar = $('#bar');
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+      ticking = false;
+    });
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- reveals ------------------------------------------------------ */
+  if ('IntersectionObserver' in window && !reduced) {
+    const targets = $$('.shead, .snap, .grid, figure, .bignums, .motion-row, .sanad, .type-pair, .comp-grid, .lang-marquee, .end h2, .end p, .end__links');
+    targets.forEach((el) => el.classList.add('rv'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
+    targets.forEach((el) => io.observe(el));
+    let sweepTick = false;
+    const sweep = () => {
+      sweepTick = false;
+      const vh = window.innerHeight;
+      $$('.rv:not(.in)').forEach((el) => {
+        if (el.getBoundingClientRect().top < vh * 0.95) el.classList.add('in');
+      });
+    };
+    addEventListener('scroll', () => {
+      if (sweepTick) return;
+      sweepTick = true;
+      setTimeout(sweep, 120);
+    }, { passive: true });
+    setTimeout(sweep, 500);
+  }
+
+  /* ---------- dots nav ----------------------------------------------------- */
+  const dots = $$('.dots-nav a');
+  const sections = dots.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        dots.forEach((d) => d.classList.toggle('is-on', d.getAttribute('href') === '#' + en.target.id));
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    sections.forEach((s) => spy.observe(s));
+  }
+
+  /* ---------- counters ---------------------------------------------------- */
+  const counters = $$('[data-count]');
+  function runCounter(el) {
+    const target = Number(el.getAttribute('data-count'));
+    const suffix = el.getAttribute('data-suffix') || '';
+    const dur = 1400;
+    const start = performance.now();
+    function frame(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = Math.round(target * eased);
+      el.textContent = val.toLocaleString('en-US') + suffix;
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    if (reduced) { el.textContent = target.toLocaleString('en-US') + suffix; return; }
+    requestAnimationFrame(frame);
+  }
+  if ('IntersectionObserver' in window) {
+    const cio = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { runCounter(en.target); cio.unobserve(en.target); }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach((el) => cio.observe(el));
+  } else {
+    counters.forEach(runCounter);
+  }
+
+  /* ---------- contrast ratios --------------------------------------------- */
+  function hexToRgb(hex) {
+    let h = hex.replace('#', '').trim();
+    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    const n = parseInt(h, 16);
+    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+  }
+  function lum(hex) {
+    const [r, g, b] = hexToRgb(hex).map((c) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function ratio(a, b) {
+    const l1 = lum(a), l2 = lum(b);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+  $$('.contrast-row').forEach((row) => {
+    const r = ratio(row.getAttribute('data-fg'), row.getAttribute('data-bg'));
+    const b = $('.ratio', row);
+    if (!b) return;
+    b.textContent = r.toFixed(2) + ':1 ' + (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : 'AA18');
+    b.style.color = r >= 4.5 ? '#7fdcae' : '#ffb4ab';
+  });
+
+  /* ---------- keyboard section nav ---------------------------------------- */
+  const ids = sections.map((s) => s.id);
+  function currentIndex() {
+    const y = window.scrollY + window.innerHeight * 0.35;
+    let idx = 0;
+    sections.forEach((s, i) => { if (s.offsetTop <= y) idx = i; });
+    return idx;
+  }
+  addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea, select, [contenteditable]')) return;
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const next = currentIndex() + (e.key === 'ArrowRight' ? 1 : -1);
+    if (next < 0 || next >= ids.length) return;
+    e.preventDefault();
+    const target = document.getElementById(ids[next]);
+    if (!target) return;
+    window.scrollTo({ top: Math.max(0, target.offsetTop - 10), behavior: reduced ? 'auto' : 'smooth' });
+  });
+
+  /* ---------- export mode ------------------------------------------------- */
+  const exportBtn = $('#exportBtn');
+  function setExport(on) {
+    document.body.classList.toggle('is-export', on);
+    exportBtn.textContent = on ? 'Exit export mode' : 'Export mode';
+    if (on) window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+  let exportOn = new URLSearchParams(location.search).get('export') === '1';
+  if (exportOn) setExport(true);
+  exportBtn.addEventListener('click', () => { exportOn = !exportOn; setExport(exportOn); });
+
+  /* ---------- cover pointer parallax -------------------------------------- */
+  const devices = $('.cover__devices');
+  if (devices && !reduced && matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    const onMove = (e) => {
+      const r = devices.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      devices.style.transform = 'rotateX(' + (-y * 6).toFixed(2) + 'deg) rotateY(' + (x * 8).toFixed(2) + 'deg)';
+    };
+    devices.style.transformStyle = 'preserve-3d';
+    devices.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
+    devices.addEventListener('pointermove', onMove);
+    devices.addEventListener('pointerleave', () => { devices.style.transform = ''; });
+  }
+})();
+</script>
+</body>
+</html>
