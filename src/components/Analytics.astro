@@ -7,8 +7,12 @@
  * - PUBLIC_GTM_ID → Google Tag Manager in Consent Mode v2 "basic" mode: every
  *   consent type defaults to denied and GTM is not requested at all until the
  *   visitor allows analytics in <ConsentBanner />. Ads storage is never granted.
+ * - Vercel Web Analytics → Automatically enabled when deployed to Vercel.
+ *   Uses @vercel/analytics package for privacy-friendly page view tracking.
  * track() (src/scripts/analytics.ts) already feeds both.
  */
+import VercelAnalytics from '@vercel/analytics/astro';
+
 const env = import.meta.env;
 const plausibleDomain = String(env.PUBLIC_PLAUSIBLE_DOMAIN ?? '').trim();
 const plausibleSrc = String(env.PUBLIC_PLAUSIBLE_SRC ?? '').trim() || 'https://plausible.io/js/script.js';
@@ -56,3 +60,6 @@ if (rawGtm && !gtmId) console.warn(`[analytics] Ignoring invalid PUBLIC_GTM_ID "
     </script>
   )
 }
+
+<!-- Vercel Web Analytics: privacy-friendly page view tracking -->
+<VercelAnalytics />
