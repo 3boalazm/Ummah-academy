@@ -10,6 +10,7 @@ import { frenchSpacing } from './markdown-french-spacing.mjs';
 
 import { NEXT_STEPS } from '../src/data/next-steps.ts';
 import { LEARNING_PATH } from '../src/data/learning-path.ts';
+import { HOME_UI } from '../src/data/home-ui.ts';
 
 const NB = '\u00a0';
 let n = 0;
@@ -73,6 +74,15 @@ t('social card path and extraction', () => {
   assert.equal(card.url, 'ummahacademy.net/quran-recitation-course');
   const dup = extract('<html lang="en"><h1>Privacy Policy</h1><script type="application/ld+json">{"@type":"BreadcrumbList","itemListElement":[{"name":"Home"},{"name":"Privacy Policy"}]}</script></html>', '/privacy-policy/');
   assert.equal(dup.kicker, undefined, 'a kicker equal to the title is dropped');
+});
+
+t('Homepage carousel and diagram labels are translated in every language', () => {
+  assert.deepEqual(Object.keys(HOME_UI).sort(), [...LANGS].sort());
+  for (const lang of LANGS) {
+    assert.ok(HOME_UI[lang].previous.trim());
+    assert.ok(HOME_UI[lang].next.trim());
+    assert.ok(HOME_UI[lang].journey.trim());
+  }
 });
 
 t('Learning-path editorial cards have complete five-language copy, not synthetic progress', () => {

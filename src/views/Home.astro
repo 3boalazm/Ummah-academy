@@ -3,7 +3,9 @@ import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TrackCard from '@/components/TrackCard.astro';
 import TestimonialCard from '@/components/TestimonialCard.astro';
-import ClassroomMockup from '@/components/ClassroomMockup.astro';
+import HomeJourneyDiagram from '@/components/HomeJourneyDiagram.astro';
+import { HOME_UI } from '@/data/home-ui';
+import '@/styles/home-refactor.css';
 import SanadChain from '@/components/SanadChain.astro';
 import Faq from '@/components/Faq.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
@@ -138,7 +140,11 @@ const plans60 = plans.filter((p) => p.minutes === 60);
         </div>
         <a class="btn btn--glass" href={lp(lang, '/courses/')}>{t.compareCourses} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
       </div>
-      <div class="grid grid-4">
+      <div class="home-programmes__controls" aria-hidden="false">
+        <button class="home-programmes__control" type="button" data-programme-prev aria-label={HOME_UI[lang].previous} aria-controls="home-programmes"><Icon name="arrow-left" weight="bold" /></button>
+        <button class="home-programmes__control" type="button" data-programme-next aria-label={HOME_UI[lang].next} aria-controls="home-programmes"><Icon name="arrow-right" weight="bold" /></button>
+      </div>
+      <div class="grid grid-4 home-programmes" id="home-programmes" tabindex="0" role="region" aria-label={C.tracks.eyebrow}>
         {tracks.map((tr, i) => <TrackCard track={tr} lang={lang} delay={i * 0.06} compact />)}
       </div>
     </div>
@@ -189,7 +195,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
   <section class="section" aria-labelledby="how-title">
     <div class="container split how">
       <div class="how__visual" data-reveal>
-        <ClassroomMockup lang={lang} />
+        <HomeJourneyDiagram lang={lang} steps={C.how.steps} />
       </div>
       <div class="how__copy">
         <div class="stack" style="--stack:16px" data-reveal>
@@ -299,6 +305,20 @@ const plans60 = plans.filter((p) => p.minutes === 60);
 </BaseLayout>
 
 <script>
+  const programmes = document.querySelector<HTMLElement>('#home-programmes');
+  if (programmes) {
+    const cards = Array.from(programmes.children) as HTMLElement[];
+    const rtl = document.documentElement.dir === 'rtl';
+    const move = (direction: number) => {
+      // Compare logical start edges rather than scrollLeft, whose RTL sign varies by browser.
+      const edge = rtl ? programmes.getBoundingClientRect().right : programmes.getBoundingClientRect().left;
+      const positions = cards.map((card) => rtl ? edge - card.getBoundingClientRect().right : card.getBoundingClientRect().left - edge);
+      const current = positions.reduce((best, value, i) => Math.abs(value) < Math.abs(positions[best]) ? i : best, 0);
+      cards[(current + direction + cards.length) % cards.length]?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', inline: 'start', block: 'nearest' });
+    };
+    document.querySelector('[data-programme-prev]')?.addEventListener('click', () => move(-1));
+    document.querySelector('[data-programme-next]')?.addEventListener('click', () => move(1));
+  }
   document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
     const tabs = Array.from(box.querySelectorAll<HTMLButtonElement>('[role=tab]'));
     const select = (tab: HTMLButtonElement) => {

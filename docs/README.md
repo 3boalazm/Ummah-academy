@@ -53,3 +53,4 @@
 | 42 | [42-pics-ui-inspiration-audit.md](42-pics-ui-inspiration-audit.md) | مراجعة كل ملفات `public/pics` كإلهام واجهات، مع قرار ملاءمة الهوية وأولوية التطبيق دون نسخ الأصول |
 | 43 | [43-editorial-ui-refactor.md](43-editorial-ui-refactor.md) | أول تنفيذ شامل لنظام الشكل عبر صفحات الموقع العامة، والنطاق وحدود المراجعة |
 | 44 | [44-portal-editorial-ui.md](44-portal-editorial-ui.md) | امتداد لغة الواجهة إلى بوابة التشغيل التجريبية مع حدود الإنتاج والفحوص |
+| 45 | [45-home-elements-refactor.md](45-home-elements-refactor.md) | ريفاكتور عناصر الهوم: كروت متراكبة، سحب البرامج، ومخطط رحلة التعلم من مراجع `public/pics` |
