@@ -50,3 +50,5 @@
 | 38 | [38-academy-operating-system.md](38-academy-operating-system.md) | Proposed academy OS: one backend, three web consoles (owner / teacher / family), academic and business state machines |
 | 40 | [40-profiles-and-performance.md](40-profiles-and-performance.md) | Profiling core: my profile, learning profile, and anonymous real-user Core Web Vitals for the marketing site |
 | 41 | [41-hostinger-deploy.md](41-hostinger-deploy.md) | Hostinger deployment recipe: static site, Node portal as a Web App, data paths, environment variables |
+| 42 | [42-pics-ui-inspiration-audit.md](42-pics-ui-inspiration-audit.md) | مراجعة كل ملفات `public/pics` كإلهام واجهات، مع قرار ملاءمة الهوية وأولوية التطبيق دون نسخ الأصول |
+| 43 | [43-editorial-ui-refactor.md](43-editorial-ui-refactor.md) | أول تنفيذ شامل لنظام الشكل عبر صفحات الموقع العامة، والنطاق وحدود المراجعة |

@@ -14,8 +14,8 @@ export default {
     lede: 'Live-Einzelunterricht in Koran, Tajweed, Arabisch und Islamischen Studien – mit Al-Azhar-Lehrkräften, die eine verifizierte Ijaza besitzen. Für Kinder und Erwachsene, in Ihrer Zeitzone.',
     test: '3-Minuten-Test',
     reassure: ['Keine Kreditkarte nötig', 'Lehrerinnen verfügbar', 'Jederzeit pausieren oder kündigen'],
-    card1: ['Tajweed · Stufe 2', 'Lektion 12 von 18', 'Fortschritt'],
-    card2: ['Nächste Live-Stunde', 'Regeln zu Nun Sakina', 'Ustadha Omneya · 19:00 Uhr GMT', 'Beginnt in 2 Std. 14 Min.'],
+    card1: ['Tadschwīd lernen', 'Einzelunterricht mit einer Lehrkraft'],
+    card2: ['Live-Unterricht', 'Eine Lehrkraft, die zuhört', 'Ein Plan für dein Ziel'],
     verified: 'Ijaza verifiziert',
     stats: [
       ['50+', 'Länder'],

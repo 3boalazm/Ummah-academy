@@ -14,8 +14,8 @@ export default {
     lede: 'For your child or yourself: one-to-one Quran, Tajweed, Arabic and Islamic studies with Al-Azhar teachers. Start at your level, with lesson times that fit your day.',
     test: '3-minute test',
     reassure: ['No card needed', 'Female teachers available', 'Cancel or pause anytime'],
-    card1: ['Tajweed · Level 2', 'Lesson 12 of 18', 'Progress'],
-    card2: ['Next live session', 'Noon Sakinah rules', 'Ustadha Omneya · 7:00 PM GMT', 'Starts in 2h 14m'],
+    card1: ['Learn Tajweed', 'One-to-one with a teacher'],
+    card2: ['Live lessons', 'A teacher who listens', 'A plan that fits your goal'],
     verified: 'Ijazah verified',
     stats: [
       ['50+', 'countries'],

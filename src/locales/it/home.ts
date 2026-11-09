@@ -14,8 +14,8 @@ export default {
     lede: 'Lezioni individuali dal vivo di Corano, Tajweed, arabo e studi islamici con insegnanti di al-Azhar che hanno un’ijaza verificata — per bambini e adulti, nel tuo fuso orario.',
     test: 'Test di 3 minuti',
     reassure: ['Nessuna carta richiesta', 'Insegnanti donne disponibili', 'Metti in pausa o disdici quando vuoi'],
-    card1: ['Tajweed · Livello 2', 'Lezione 12 di 18', 'Avanzamento'],
-    card2: ['Prossima lezione dal vivo', 'Regole del nun sakina', 'Ustadha Omneya · 19:00 GMT', 'Inizia tra 2 h 14 min'],
+    card1: ['Impara il tajwid', 'Una lezione individuale con un insegnante'],
+    card2: ['Lezioni dal vivo', 'Un insegnante che ti ascolta', 'Un percorso adatto al tuo obiettivo'],
     verified: 'Ijaza verificata',
     stats: [
       ['50+', 'paesi'],

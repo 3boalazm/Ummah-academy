@@ -9,6 +9,7 @@ import { extract } from './og/build.mjs';
 import { frenchSpacing } from './markdown-french-spacing.mjs';
 
 import { NEXT_STEPS } from '../src/data/next-steps.ts';
+import { LEARNING_PATH } from '../src/data/learning-path.ts';
 
 const NB = '\u00a0';
 let n = 0;
@@ -72,6 +73,19 @@ t('social card path and extraction', () => {
   assert.equal(card.url, 'ummahacademy.net/quran-recitation-course');
   const dup = extract('<html lang="en"><h1>Privacy Policy</h1><script type="application/ld+json">{"@type":"BreadcrumbList","itemListElement":[{"name":"Home"},{"name":"Privacy Policy"}]}</script></html>', '/privacy-policy/');
   assert.equal(dup.kicker, undefined, 'a kicker equal to the title is dropped');
+});
+
+t('Learning-path editorial cards have complete five-language copy, not synthetic progress', () => {
+  assert.deepEqual(Object.keys(LEARNING_PATH).sort(), [...LANGS].sort());
+  for (const lang of LANGS) {
+    const copy = LEARNING_PATH[lang];
+    assert.ok(copy.eyebrow && copy.title && copy.intro && copy.level && copy.book);
+    assert.equal(copy.steps.length, 3);
+    for (const [number, title, description] of copy.steps) {
+      assert.ok(number && title && description);
+      assert.ok(!/[0-9]+%/.test(description), 'editorial journey must not imply recorded progress');
+    }
+  }
 });
 
 t('Next-step navigation has complete copy and localized destinations', () => {

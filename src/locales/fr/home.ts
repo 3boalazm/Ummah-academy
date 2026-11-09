@@ -14,8 +14,8 @@ export default {
     lede: 'Des cours en direct et en tête-à-tête de Coran, de tajwid, d’arabe et de sciences islamiques, avec des enseignants d’al-Azhar titulaires d’une ijaza vérifiée — pour les enfants et les adultes, à l’heure qui vous convient.',
     test: 'Test de 3\u00a0minutes',
     reassure: ['Sans carte bancaire', 'Enseignantes disponibles', 'Pause ou résiliation à tout moment'],
-    card1: ['Tajwid · Niveau 2', 'Leçon 12 sur 18', 'Progression'],
-    card2: ['Prochaine séance en direct', 'Règles du noun sakina', 'Ustadha Omneya · 19\u00a0h (GMT)', 'Commence dans 2\u00a0h\u00a014'],
+    card1: ['Apprendre le tajwid', 'Un cours individuel avec un enseignant'],
+    card2: ['Cours en direct', 'Un enseignant à votre écoute', 'Un parcours adapté à votre objectif'],
     verified: 'Ijaza vérifiée',
     stats: [
       ['50+', 'pays'],
