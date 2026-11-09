@@ -1,0 +1,66 @@
+---
+import type { Lang } from '@/i18n';
+import { HOME_UI } from '@/data/home-ui';
+interface Props { lang: Lang; steps: [string, string][] }
+const { lang, steps } = Astro.props;
+// Reuse three milestones from the actual four-step trial journey; the complete
+// explanation immediately follows in the accessible ordered list on the home page.
+const milestones = [steps[0], steps[2], steps[3]];
+---
+<div class="journey-diagram" aria-hidden="true">
+  <div class="journey-diagram__intro">
+    <span class="journey-diagram__ornament"></span>
+    <span>{HOME_UI[lang].journey}</span>
+  </div>
+  <div class="journey-diagram__stack">
+    {milestones.map(([title, description], i) => (
+      <div class:list={['journey-diagram__layer', `journey-diagram__layer--${i + 1}`]}>
+        <span class="journey-diagram__index">{i === 0 ? '01' : i === 1 ? '02' : '03'}</span>
+        <span class="journey-diagram__body"><strong>{title}</strong><small>{description}</small></span>
+        <span class="journey-diagram__dot"></span>
+      </div>
+    ))}
+  </div>
+</div>
+<style>
+  .journey-diagram {
+    position: relative; isolation: isolate;
+    min-height: 490px; display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(22px, 4vw, 48px);
+    border: 1px solid var(--line-strong); border-radius: var(--r-xl);
+    background: radial-gradient(circle at 72% 24%, rgb(174 160 212 / .22), transparent 44%), var(--glass-fill-strong);
+    box-shadow: var(--shadow-glass);
+    overflow: hidden;
+  }
+  .journey-diagram::after {
+    content: ''; position: absolute; z-index: -1; inset: 12%; border: 1px solid var(--line);
+    border-radius: 50%; transform: rotate(-18deg) scaleX(1.6); pointer-events: none;
+  }
+  .journey-diagram__intro { display: flex; align-items: center; gap: 10px; margin-block-end: 38px; color: var(--accent-ink); font-size: .85rem; font-weight: 700; }
+  .journey-diagram__ornament { width: 25px; height: 1px; background: currentColor; }
+  .journey-diagram__stack { display: grid; gap: 15px; }
+  .journey-diagram__layer {
+    display: flex; align-items: center; gap: clamp(12px, 2vw, 20px);
+    min-height: 104px; min-width: 0; padding: 18px clamp(16px, 2vw, 24px);
+    border-radius: 19px; border: 1px solid var(--line-strong);
+    background: var(--glass-fill-strong); box-shadow: var(--shadow-glass);
+  }
+  .journey-diagram__layer--2 { margin-inline-start: clamp(14px, 4vw, 46px); }
+  .journey-diagram__layer--3 { margin-inline-start: clamp(28px, 8vw, 92px); }
+  .journey-diagram__index { font: 400 clamp(1.6rem, 2.8vw, 2.3rem)/1 var(--font-serif); color: var(--accent-ink); flex: none; }
+  .journey-diagram__body { display: grid; gap: 4px; min-width: 0; }
+  .journey-diagram__body strong { font-size: clamp(.95rem, 1.3vw, 1.12rem); line-height: 1.35; }
+  .journey-diagram__body small { font-size: .82rem; line-height: 1.45; color: var(--ink-2); }
+  .journey-diagram__dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: #8f6bac; margin-inline-start: auto; }
+  .journey-diagram__layer--2 .journey-diagram__dot { background: #668caa; }
+  .journey-diagram__layer--3 .journey-diagram__dot { background: #819c8e; }
+  :global([data-theme='dark']) .journey-diagram { background: var(--glass-fill-strong); }
+  @media (max-width: 560px) {
+    .journey-diagram { min-height: 410px; padding: 20px 14px; }
+    .journey-diagram__layer { min-height: 92px; padding: 12px; }
+    .journey-diagram__layer--2 { margin-inline-start: 12px; }
+    .journey-diagram__layer--3 { margin-inline-start: 24px; }
+    .journey-diagram__body small { font-size: .74rem; }
+    .journey-diagram__dot { display: none; }
+  }
+</style>

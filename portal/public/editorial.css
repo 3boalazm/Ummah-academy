@@ -1,0 +1,113 @@
+/* Operations companion to the public editorial refresh.
+   Visual only: status meaning, access control, routes and data remain unchanged. */
+:root {
+  --bg: #f8f7f5;
+  --ink: #242033;
+  --ink-2: #504b60;
+  --ink-3: #625c71;
+  --line: rgb(51 40 70 / .16);
+  --glass: rgb(255 255 255 / .9);
+  --glass-strong: #fff;
+  --shadow: 0 1px 2px rgb(32 23 49 / .03), 0 18px 55px -38px rgb(32 23 49 / .22);
+  --r: 20px;
+}
+:root[data-theme='dark'] {
+  --bg: #13121c;
+  --ink: #f5f1fa;
+  --ink-2: #e0d9ed;
+  --ink-3: #c8c0d9;
+  --line: rgb(255 255 255 / .17);
+  --glass: #241e30;
+  --glass-strong: #30273f;
+  --shadow: 0 16px 45px -26px rgb(0 0 0 / .75);
+}
+.aurora {
+  background: radial-gradient(750px 420px at 100% -12%, rgb(195 178 217 / .28), transparent 70%), var(--bg);
+}
+:root[data-theme='dark'] .aurora {
+  background: radial-gradient(750px 420px at 100% -12%, rgb(107 63 160 / .18), transparent 70%), var(--bg);
+}
+/* Authentication becomes a two-panel studio composition while preserving its form order. */
+.login-card {
+  gap: 0; padding: 8px; border-radius: 28px;
+  background: var(--glass-strong); box-shadow: var(--shadow);
+  backdrop-filter: none;
+}
+.login-card > div, .login-card > form { min-width: 0; padding: clamp(20px, 3vw, 38px); }
+.login-card > div:first-child {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  border-radius: 21px;
+  background: radial-gradient(ellipse at 10% 100%, rgb(107 63 160 / .55), transparent 65%),
+    linear-gradient(145deg, #241a34, #352440 62%, #203442);
+  color: #f7f3fc;
+}
+.login-card > div:first-child .brand, .login-card > div:first-child .eyebrow,
+.login-card > div:first-child h1, .login-card > div:first-child .muted,
+.login-card > div:first-child .small, .login-card > div:first-child a { color: #f7f3fc; }
+.login-card > div:first-child .eyebrow { margin-top: clamp(24px, 5vw, 60px); }
+.login-card > div:first-child .demo-note { background: #fbf3e4; color: #242033; }
+.login-card > div:first-child .small:last-child { margin-top: auto; }
+.display { font-size: clamp(2rem, 3vw, 3rem); line-height: 1.2; }
+/* A stable visual hierarchy for screens with real operational records. */
+.page-head { margin-bottom: 24px; padding-block: 12px 16px; border-bottom: 1px solid var(--line); }
+.page-head h1 { font-size: clamp(1.65rem, 2.4vw, 2.4rem); line-height: 1.25; }
+.page-head .eyebrow { margin-top: 0; }
+.metric, .card, .panel { background: var(--glass); box-shadow: var(--shadow); }
+.metric { border-top: 3px solid #8e72b2; border-radius: 17px; }
+.metric:nth-child(3n + 2) { border-top-color: #668caa; }
+.metric:nth-child(3n + 3) { border-top-color: #819c8e; }
+.metric .n { font-family: var(--font); font-weight: 700; font-size: clamp(1.65rem, 2vw, 2.2rem); }
+.card, .panel { border-radius: var(--r); }
+.panel h2 { line-height: 1.35; }
+/* Buttons, tabs and inputs use the public site's structured shape, not pill overload. */
+.btn, .tabs a, .tabs button, .chip { border-radius: 11px; }
+.btn { min-height: 44px; }
+.btn.small { min-height: 40px; }
+.btn.primary { background: #322443; color: #fff; }
+:root[data-theme='dark'] .btn.primary { background: #674095; color: #fff; }
+.btn.ghost { border-color: var(--line); background: var(--glass-strong); }
+:root[data-theme='dark'] .btn.danger { color: #242033; }
+input, select, textarea { background: var(--glass-strong); border-color: var(--line); }
+.chip { padding: 4px 9px; }
+.tabs a[aria-current='page'], .tabs button[aria-current='true'] { background: #322443; color: #fff; }
+:root[data-theme='dark'] .tabs a[aria-current='page'],
+:root[data-theme='dark'] .tabs button[aria-current='true'] { background: #674095; color: #fff; }
+/* Tables and lists remain scannable; horizontal scroll remains available on phones. */
+th, td { padding-block: 10px; }
+tbody tr:hover { background: rgb(107 63 160 / .06); }
+:root[data-theme='dark'] tbody tr:hover { background: rgb(255 255 255 / .06); }
+.table-wrap:focus-visible, .tablewrap:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* Nav's active state must be distinguishable without relying on a tinted background alone. */
+body:not(.console) .side .nav a[aria-current='page'] {
+  border-inline-start: 3px solid var(--accent-ink);
+  background: var(--glass-strong);
+}
+body.console .side { background: #1b1528; }
+body.console .nav a[aria-current='page'] { background: #49315f; border-inline-start: 3px solid #d9b26a; }
+body.console .adminbar { background: #251a35; }
+body.console .adminbar .btn.ghost { background: transparent; }
+body.console .adminbar .search input { background: rgb(255 255 255 / .12); }
+@media (max-width: 980px) {
+  .login-card { grid-template-columns: minmax(0, 1fr); }
+  .login-card > div:first-child .eyebrow { margin-top: 16px; }
+  .login-card > div:first-child .small:last-child { margin-top: 12px; }
+  body:not(.console) .side { background: var(--glass-strong); }
+}
+@media (max-width: 640px) {
+  .login-card > div, .login-card > form { padding: 20px 18px; }
+  .page-head { margin-bottom: 16px; }
+  .metric .n { font-size: 1.7rem; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .metric, .card, .panel, .side { background: var(--glass-strong); }
+}
+/* The legacy 320px minimum was wider than a 320px phone after content padding. */
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.metrics.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 980px) {
+  .metrics.five { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .metrics, .grid-3 { gap: 10px; }
+  .metric, .card, .panel { min-width: 0; }
+}

@@ -1,0 +1,46 @@
+/* Homepage art direction from the internal UI board: layered cards, an editorial
+   pathway and a native scroll-snap programme rail. No third-party imagery. */
+.hero__copy { position: relative; }
+.hero__title { max-width: 11ch; }
+.hero__visual { isolation: isolate; }
+.hero__visual::before {
+  content: ''; position: absolute; z-index: -2;
+  inset: 9% 0; border-radius: 50%; transform: rotate(-16deg) scaleX(1.18);
+  background: radial-gradient(ellipse, rgb(189 172 219 / .36), transparent 69%);
+  pointer-events: none;
+}
+.hero__card--progress { transform: rotate(-3deg); }
+.hero__card--live { transform: rotate(3deg); }
+.proof strong { font-variant-numeric: tabular-nums; }
+.home-programmes__controls { display: none; }
+.home-programmes__control {
+  width: 44px; height: 44px; display: inline-grid; place-items: center;
+  border: 1px solid var(--line-strong); border-radius: 12px;
+  background: var(--glass-fill-strong); color: var(--ink); cursor: pointer;
+}
+.home-programmes__control svg { width: 20px; height: 20px; }
+.home-programmes__control:hover { box-shadow: var(--shadow-glass); }
+[dir='rtl'] .home-programmes__control svg { transform: scaleX(-1); }
+.home-programmes { scroll-margin-block-start: calc(var(--header-h) + 20px); }
+@media (max-width: 900px) {
+  .home-programmes__controls { display: flex; justify-content: flex-end; gap: 8px; margin-block: -10px 16px; }
+  [dir='rtl'] .home-programmes__controls { justify-content: flex-end; }
+  .home-programmes.grid {
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(min(74vw, 320px), 1fr);
+    grid-template-columns: none; gap: 14px;
+    overflow-x: auto; overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: 2px;
+    padding: 4px 2px 20px; scrollbar-width: thin;
+  }
+  .home-programmes > * { scroll-snap-align: start; min-width: 0; }
+}
+@media (max-width: 560px) {
+  .hero__title { max-width: none; }
+  .hero__card--progress { transform: rotate(-2deg); }
+  .hero__card--live { transform: rotate(2deg); }
+  .home-programmes.grid { grid-auto-columns: minmax(min(82vw, 300px), 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__card--progress, .hero__card--live { transform: none; }
+  .home-programmes { scroll-behavior: auto; }
+}

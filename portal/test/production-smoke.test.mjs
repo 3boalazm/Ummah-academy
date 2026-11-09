@@ -126,8 +126,12 @@ test('behind the proxy, rate limits count each visitor separately, not the proxy
 });
 
 test('production responses carry strict security headers, and the beacon route keeps its own CORS', async () => {
-  for (const route of ['/login', '/api/health', '/app.css']) {
+  const login = await fetch(base + '/login');
+  assert.match(await login.text(), /href="\/editorial\.css"/, 'portal must load the editorial stylesheet');
+  for (const route of ['/login', '/api/health', '/app.css', '/editorial.css']) {
     const r = await fetch(base + route);
+    assert.equal(r.status, 200, route);
+    if (route.endsWith('.css')) assert.match(r.headers.get('content-type'), /text\/css/, route);
     assert.equal(r.headers.get('x-content-type-options'), 'nosniff', route);
     assert.equal(r.headers.get('x-frame-options'), 'DENY', route);
     assert.match(r.headers.get('content-security-policy'), /default-src 'self'/, route);
