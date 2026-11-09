@@ -4,6 +4,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHero from '@/components/PageHero.astro';
 import CourseCard from '@/components/CourseCard.astro';
 import RelatedPosts from '@/components/RelatedPosts.astro';
+import LearningPath from '@/components/LearningPath.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import { getTracks } from '@/data/tracks';
@@ -73,6 +74,8 @@ const ld = {
       </div>
     </div>
   </section>
+
+  <LearningPath lang={lang} />
 
   {
     tracks.map((tr, idx) => (

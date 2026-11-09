@@ -1,0 +1,149 @@
+/* Editorial studio refresh: common visual grammar across all public routes.
+   Inspired by the composition/stacking/typography of the internal reference board,
+   not by its copyrighted imagery, product claims or colour schemes. */
+:root {
+  --bg: #f8f7f5;
+  --ink: #242033;
+  --ink-2: #504b60;
+  --ink-3: #625c71;
+  --line: rgb(51 40 70 / .13);
+  --line-strong: rgb(51 40 70 / .23);
+  --grad-dawn: linear-gradient(145deg, #f9f8f6 0%, #f0edfa 55%, #e9f1fa 100%);
+  --glass-fill: linear-gradient(155deg, rgb(255 255 255 / .94), rgb(255 255 255 / .78));
+  --glass-fill-strong: linear-gradient(155deg, #fff, #f7f5fb);
+  --shadow-glass: 0 1px 2px rgb(32 23 49 / .03), 0 18px 55px -38px rgb(32 23 49 / .23);
+  --shadow-lift: 0 2px 4px rgb(32 23 49 / .04), 0 32px 65px -38px rgb(60 39 97 / .4);
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --section-y: clamp(72px, 9vw, 130px);
+}
+:root[data-theme='dark'] {
+  --bg: #13121c;
+  --ink: #f5f1fa;
+  --ink-2: #e0d9ed;
+  --ink-3: #c8c0d9;
+  --line: rgb(255 255 255 / .15);
+  --line-strong: rgb(255 255 255 / .26);
+  --grad-dawn: linear-gradient(150deg, #15121f, #211a32 60%, #18202e);
+  --glass-fill: linear-gradient(150deg, rgb(42 35 57 / .96), rgb(30 27 45 / .9));
+  --glass-fill-strong: linear-gradient(150deg, #30273f, #201b2e);
+  --shadow-glass: 0 1px 2px rgb(0 0 0 / .2), 0 20px 55px -35px rgb(0 0 0 / .8);
+  --shadow-lift: 0 20px 65px -35px rgb(0 0 0 / .9);
+}
+/* Less animated fog, more composed open space. */
+.aurora__blob { opacity: .3; animation-duration: 90s; }
+.aurora__grain { opacity: .025; }
+.glass { border: 1px solid var(--line); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.glass::before { opacity: .5; }
+.glass::after { opacity: .25; }
+.glass--interactive:hover { transform: translateY(-3px); }
+.section + .section { padding-top: calc(var(--section-y) * .66); }
+h1, h2 { letter-spacing: -.048em; }
+[dir='rtl'] :is(h1, h2) { letter-spacing: 0; }
+.eyebrow {
+  border: 1px solid var(--line-strong);
+  background: var(--glass-fill-strong);
+  box-shadow: none;
+  font-size: .74rem;
+  letter-spacing: .12em;
+}
+.btn { border-radius: 14px; font-weight: 620; }
+.btn--primary { background: #322443; box-shadow: 0 12px 26px -16px rgb(40 25 64 / .55); }
+.btn--primary:hover { box-shadow: 0 18px 32px -16px rgb(40 25 64 / .65); }
+.btn--glass { background: var(--glass-fill-strong); border: 1px solid var(--line-strong); box-shadow: none; }
+.btn--glass:hover { background: var(--glass-fill-strong); box-shadow: var(--shadow-glass); }
+:root[data-theme='dark'] .btn--glass:not(.theme-night *) { background: var(--glass-fill-strong); border-color: var(--line-strong); box-shadow: none; }
+:root[data-theme='dark'] .btn--primary:not(.theme-night *) { background: #674095; color: #fff; box-shadow: 0 12px 26px -16px #000; }
+.chip { border-radius: 9px; box-shadow: none; border: 1px solid var(--line); background: var(--glass-fill-strong); }
+.chip--accent { background: rgb(107 63 160 / .1); }
+.icon-badge { border-radius: 13px; background: var(--grad-dawn); box-shadow: inset 0 0 0 1px var(--line); }
+.frame { border-radius: 26px; }
+/* Repeated modules: image-first editorial cards, grounded metadata and a clean CTA rail. */
+.track-card, .course-card, .next-step, .blog-card__link, .teacher, .tcard {
+  box-shadow: var(--shadow-glass);
+}
+.track-card__media, .next-step__art { border-radius: 18px; }
+.course-card { border-top: 3px solid #8562ab; }
+.course-card:nth-child(3n + 2) { border-top-color: #557b92; }
+.course-card:nth-child(3n + 3) { border-top-color: #b17b85; }
+/* The atmospheric dark islands repeat at the CTA and footer, not on every card. */
+.night-panel { border-radius: clamp(22px, 3vw, 36px); }
+.theme-night { background: radial-gradient(ellipse at 85% 5%, rgb(95 72 145 / .55), transparent 48%), linear-gradient(135deg, #20172d, #302141 55%, #172c38); }
+/* Page titles become a composed editorial masthead instead of floating in the aurora. */
+.page-hero { position: relative; }
+.page-hero::before {
+  content: ''; position: absolute; inset: 12px clamp(10px, 2vw, 28px) 0;
+  border: 1px solid var(--line); border-radius: clamp(24px, 4vw, 42px);
+  background: linear-gradient(110deg, var(--glass-fill-strong), transparent 82%);
+  pointer-events: none;
+}
+.page-hero__grid { position: relative; }
+.page-hero__copy { padding-block: clamp(20px, 4vw, 56px); }
+/* Home: a framed cover layout with a soft studio light behind the existing artwork. */
+.hero { position: relative; isolation: isolate; }
+.hero::before {
+  content: ''; position: absolute; z-index: -1;
+  inset: 0 clamp(8px, 1.7vw, 24px) 0;
+  border: 1px solid var(--line); border-radius: clamp(24px, 4vw, 48px);
+  background: radial-gradient(ellipse at 82% 30%, rgb(172 160 207 / .27), transparent 47%),
+    linear-gradient(125deg, var(--glass-fill-strong), rgb(235 232 244 / .55));
+}
+:root[data-theme='dark'] .hero::before { background: radial-gradient(ellipse at 80% 20%, rgb(107 63 160 / .26), transparent 50%), var(--glass-fill-strong); }
+.hero__frame { box-shadow: 0 0 0 7px var(--bg), 0 0 0 8px var(--line-strong), var(--shadow-lift); }
+.hero__card { animation: none; }
+.hero__iqra { opacity: .6; }
+@media (max-width: 640px) {
+  .page-hero::before { inset-inline: 8px; }
+  .page-hero__copy { padding-inline: 10px; }
+  .hero::before { inset-inline: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .aurora__blob { animation: none; } }
+/* Shared navigation and content: one consistent rectangular studio language. */
+.site-header__bar.glass { --radius: 20px; border-color: var(--line-strong); box-shadow: var(--shadow-glass); }
+.nav__link, .nav__signin { border-radius: 10px; }
+.track-card__go { border-radius: 12px; }
+.teacher__portrait { border-radius: 18px; }
+.tcard { border-top: 3px solid #9c80b4; }
+.blog-card__link { border-radius: 24px; overflow: hidden; }
+.next-step { border-top: 3px solid #7791aa; }
+.table-wrap.glass { box-shadow: var(--shadow-glass); }
+/* Keep the footer a definitive close to the page, rather than another glowing blob. */
+.site-footer__panel { border: 1px solid rgb(255 255 255 / .15); }
+/* Home: contrast the two audience choices and make the bento a curated editorial spread. */
+.router__child { border-top: 3px solid #8769ab; }
+.router__self { border-top: 3px solid #6d8d9d; }
+.router__goals a { border-radius: 12px; }
+.bento__tile { border-top: 3px solid var(--line-strong); }
+.bento__tile:nth-child(2) { border-top-color: #a176b1; }
+.bento__tile:nth-child(3) { border-top-color: #6b9d93; }
+.bento__tile:nth-child(4) { border-top-color: #7d95b2; }
+.bento__price { background: linear-gradient(135deg, rgb(244 236 246 / .96), rgb(227 237 248 / .92)); border: 1px solid var(--line-strong); }
+:root[data-theme='dark'] .bento__price { background: var(--glass-fill-strong); }
+.proof.glass { border-radius: 18px; background: var(--glass-fill-strong); }
+.price-teaser.glass { border-radius: var(--r-xl); border-top: 3px solid #9171b3; }
+.hero__card.glass { box-shadow: var(--shadow-lift); border-color: var(--line-strong); }
+.hero__card--progress { border-inline-start: 3px solid #8464a6; }
+.hero__card--live { border-inline-start: 3px solid #659388; }
+/* Course directory: the navigation acts as a compact index; the chooser is a readable document. */
+.track-nav__inner.glass { border-radius: 16px; }
+.track-nav__link { border-radius: 10px; }
+.chooser.glass { border-radius: 20px; }
+.track__art { border: 1px solid var(--line-strong); box-shadow: var(--shadow-glass); }
+.learning-path__step:nth-child(1) { border-top: 3px solid #8e72b2; }
+.learning-path__step:nth-child(2) { border-top: 3px solid #668caa; }
+.learning-path__step:nth-child(3) { border-top: 3px solid #819c8e; }
+/* Pricing: the plan finder reads as an interactive control panel; every offer keeps its
+   real price and CTA intact. Avoid drawing 'growth' charts without real student data. */
+.finder.glass { border-radius: 26px; border-top: 4px solid #7d5ba4; }
+.plan.glass { border-radius: 22px; border-top: 3px solid #8a789f; }
+.plan--featured.glass { border-top-color: #6e478f; box-shadow: var(--shadow-lift); }
+/* Articles and teachers: chapter-like framing instead of multiple competing glows. */
+.blog-filters.glass { border-radius: 16px; }
+.blog-filter { border-radius: 10px; }
+.teacher.glass { border-radius: 24px; border-top: 3px solid #8472a4; }
+.sanad-panel { border: 1px solid rgb(255 255 255 / .14); }
+/* Cards stay square enough to read as a system even where pages use different templates. */
+.next-step__art, .router__art { border-radius: 16px; }
+@media (max-width: 640px) {
+  .router__child, .router__self, .price-teaser.glass { border-radius: 22px; }
+}

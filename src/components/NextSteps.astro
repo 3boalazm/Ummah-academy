@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import { NEXT_STEPS } from '@/data/next-steps';
-import { lp, typo, type Lang } from '@/i18n';
+import { lp, num, typo, type Lang } from '@/i18n';
 import familyArt from '@/assets/art/family-stories.webp';
 import arabicArt from '@/assets/art/arabic-practice.webp';
 import teacherArt from '@/assets/art/teacher-welcome.webp';
@@ -27,6 +27,7 @@ const routes = ['/courses/', '/placement-test/', '/contact/#book'];
             <Image src={art[i]} alt="" widths={[320, 480, 640]} sizes="(min-width: 960px) 360px, (min-width: 700px) 45vw, 90vw" />
           </div>
           <div class="next-step__copy">
+            <span class="next-step__index" aria-hidden="true">{num(lang, i + 1).padStart(2, lang === 'ar' ? '٠' : '0')}</span>
             <h3>{typo(lang, title)}</h3>
             <p>{typo(lang, text)}</p>
             <a class:list={['btn', i === 2 ? 'btn--primary' : 'btn--glass']} href={lp(lang, routes[i])} data-track="next-step">
@@ -47,6 +48,8 @@ const routes = ['/courses/', '/placement-test/', '/contact/#book'];
   .next-step__art { margin: 8px 8px 0; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9; background: #eee5da; }
   .next-step__art :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
   .next-step__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 22px; flex: 1; }
+  .next-step__index { color: var(--accent-ink); font-size: .8rem; font-weight: 700; letter-spacing: .12em; line-height: 1; }
+  :global([dir="rtl"]) .next-step__index { letter-spacing: 0; }
   .next-step__copy h3 { font-size: clamp(1.15rem, 1.05rem + .35vw, 1.4rem); }
   .next-step__copy p { color: var(--ink-2); margin-block-end: 6px; }
   .next-step__copy a { margin-block-start: auto; max-width: 100%; white-space: normal; }

@@ -66,15 +66,12 @@ const plans60 = plans.filter((p) => p.minutes === 60);
           <div class="hero__card-body">
             <p class="hero__card-title">{C.card1[0]}</p>
             <p class="hero__card-meta">{C.card1[1]}</p>
-            <div class="progress"><span style="width:68%"></span></div>
-            <p class="hero__card-meta"><span>{C.card1[2]}</span><strong>{num(lang, 68)}%</strong></p>
           </div>
         </div>
         <div class="hero__card hero__card--live glass" aria-hidden="true">
           <p class="hero__live"><span class="pulse"></span> {C.card2[0]}</p>
           <p class="hero__card-title">{C.card2[1]}</p>
           <p class="hero__card-meta">{C.card2[2]}</p>
-          <p class="hero__countdown"><Icon name="clock" weight="bold" /> {C.card2[3]}</p>
         </div>
       </div>
     </div>
@@ -540,21 +537,6 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     color: var(--ink);
   }
 
-  .progress {
-    height: 7px;
-    border-radius: 99px;
-    background: rgb(46 29 70 / 0.08);
-    overflow: hidden;
-    margin-top: 6px;
-  }
-
-  .progress span {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--grad-accent);
-  }
-
   .hero__live {
     display: inline-flex;
     align-items: center;
@@ -576,26 +558,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     height: 8px;
     border-radius: 50%;
     background: var(--wa-green);
-    animation: pulse-dot 1.6s ease-out infinite;
-  }
-
-  .hero__countdown {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 6px;
-    padding: 6px 10px;
-    width: fit-content;
-    border-radius: var(--r-pill);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--accent-ink);
-    background: rgb(143 47 158 / 0.08);
-  }
-
-  .hero__countdown :global(svg) {
-    width: 14px;
-    height: 14px;
+    box-shadow: 0 0 0 3px rgb(31 157 85 / .14);
   }
 
   /* Proof strip */
@@ -1166,14 +1129,6 @@ const plans60 = plans.filter((p) => p.minutes === 60);
   :global([data-theme='dark']) .hero__verified {
     background: rgb(255 255 255 / 0.14);
     box-shadow: 0 8px 18px -10px rgb(0 0 0 / 0.8);
-  }
-
-  :global([data-theme='dark']) .progress {
-    background: rgb(255 255 255 / 0.12);
-  }
-
-  :global([data-theme='dark']) .hero__countdown {
-    background: rgb(185 140 232 / 0.16);
   }
 
   :global([data-theme='dark']) .bento__price {
