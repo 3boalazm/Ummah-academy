@@ -1,0 +1,765 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Icon from '@/components/Icon.astro';
+import { lp, num, type Lang } from '@/i18n';
+import { copy } from '@/locales';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'en' } = Astro.props;
+const C = copy(lang).tilawa;
+const B = C.bench;
+const strings = { ...C.S, lang, loadingDownload: B.loadingDownload, loadingCached: B.loadingCached, loadingAlmost: B.loadingAlmost };
+const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
+---
+
+<BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
+  <PageHero align="center" eyebrow={C.eyebrow} title={C.title} lede={C.lede} compact lang={lang}>
+    <ul role="list" class="cluster tw-chips">
+      {C.chips.map((c, i) => <li class="chip"><Icon name={['device-mobile', 'lock-simple', 'gift'][i]} weight="fill" /> {c}</li>)}
+    </ul>
+  </PageHero>
+
+  <section class="section section--tight tw-section">
+    <div class="container tw-layout">
+      <!-- The live companion -->
+      <div class="tw glass glass--strong" data-tilawa data-view="idle" data-quran="/tilawa/quran.json" data-pagefind-ignore>
+        <header class="tw__head">
+          <h2 class="tw__title"><Icon name="microphone" weight="duotone" /> {B.title}</h2>
+          <span class="tw__status" data-tw="status" role="status"><span class="tw__dot" aria-hidden="true"></span>{B.status}</span>
+        </header>
+
+        <div class="tw__view" data-tw="view-idle">
+          <div class="tw__example">
+            <p class="tw__example-label">{B.exampleLabel}</p>
+            <p class="tw__example-verse quranic" dir="rtl" lang="ar">
+              {example.map((w, i) => <>{i > 0 && ' '}<span class:list={['tw-word', { 'is-said': i === 0, 'is-current': i === 1 }]}>{w}</span></>)}
+              {' '}<span class="tw-ayah-num">﴿١﴾</span>
+            </p>
+          </div>
+          <div class="tw__copy">
+            <h3>{B.startTitle}</h3>
+            <p>{B.startText}</p>
+          </div>
+          <button class="btn btn--lg btn--primary tw__start" type="button" data-tw="btn-start">
+            <Icon name="microphone" weight="fill" /> {B.start}
+          </button>
+          <p class="tw__note">{B.startNote}</p>
+        </div>
+
+        <div class="tw__view" data-tw="view-loading" hidden>
+          <div class="tw__copy">
+            <h3>{B.loadingTitle}</h3>
+            <p data-tw="loading-detail">{B.loadingDownload}</p>
+          </div>
+          <div class="tw__progress" data-tw="progress-track" role="progressbar" aria-label={B.progress} aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span data-tw="progress"></span>
+          </div>
+          <p class="tw__note" data-tw="progress-label">{num(lang, 0)}{lang === 'ar' ? '٪' : '%'}</p>
+          <button class="btn btn--glass" type="button" data-tw="btn-cancel">{B.cancel}</button>
+        </div>
+
+        <div class="tw__view" data-tw="view-load-error" role="alert" hidden>
+          <div class="tw__copy">
+            <h3>{B.loadErrorTitle}</h3>
+            <p>{B.loadErrorText}</p>
+            <p class="tw__error" data-tw="load-error-detail" dir="ltr"></p>
+          </div>
+          <button class="btn btn--primary" type="button" data-tw="btn-retry-load"><Icon name="arrow-clockwise" weight="bold" /> {B.retry}</button>
+        </div>
+
+        <div class="tw__view" data-tw="view-mic-pending" role="status" hidden>
+          <span class="tw__mic-badge" aria-hidden="true"><Icon name="microphone" weight="duotone" /></span>
+          <div class="tw__copy">
+            <h3>{B.micTitle}</h3>
+            <p>{B.micText}</p>
+          </div>
+        </div>
+
+        <div class="tw__view" data-tw="view-mic-error" role="alert" hidden>
+          <div class="tw__copy">
+            <h3 data-tw="mic-error-title"></h3>
+            <p data-tw="mic-error-detail"></p>
+          </div>
+          <button class="btn btn--primary" type="button" data-tw="btn-retry-mic"><Icon name="arrow-clockwise" weight="bold" /> {B.retry}</button>
+        </div>
+
+        <div class="tw__recitation" data-tw="recitation" hidden>
+          <div class="tw__place-row">
+            <p class="tw__place" data-tw="place"></p>
+            <span class="tw__level" data-tw="level" aria-hidden="true"><span></span></span>
+          </div>
+          <p class="tw__ayah quranic" data-tw="ayah" dir="rtl" lang="ar" aria-live="off"></p>
+          <p class="tw__hint" data-tw="hint"></p>
+          <div class="tw__notes" data-tw="notes-wrap" hidden>
+            <h3>{B.notesTitle}</h3>
+            <ol role="list" data-tw="notes" aria-live="polite"></ol>
+          </div>
+        </div>
+
+        <div class="tw__view" data-tw="view-listening" hidden>
+          <button class="btn btn--glass tw__stop" type="button" data-tw="btn-stop"><span class="tw__stop-icon" aria-hidden="true"></span> {B.stop}</button>
+          <p class="tw__note"><span class="tw__dot tw__dot--live" aria-hidden="true"></span> {B.listeningNote}</p>
+        </div>
+
+        <div class="tw__view" data-tw="view-stopped" hidden>
+          <p class="tw__summary" data-tw="summary"></p>
+          <button class="btn btn--primary" type="button" data-tw="btn-again"><Icon name="arrow-clockwise" weight="bold" /> {B.again}</button>
+        </div>
+
+        <details class="tw__passage" data-tw="passage">
+          <summary><Icon name="book-open-text" weight="duotone" /> {B.passage} <Icon name="caret-down" weight="bold" class="tw__caret" /></summary>
+          <form class="tw__form" data-tw="passage-form">
+            <p>{B.passageText}</p>
+            <label class="field">
+              <span>{B.surah}</span>
+              <select class="select" data-tw="passage-surah" required><option value="">{B.loadingList}</option></select>
+            </label>
+            <div class="tw__range">
+              <label class="field"><span>{B.from}</span><input class="input" data-tw="passage-from" type="number" min="1" value="1" required inputmode="numeric" /></label>
+              <label class="field"><span>{B.to}</span><input class="input" data-tw="passage-to" type="number" min="1" value="7" required inputmode="numeric" /></label>
+            </div>
+            <button class="btn btn--glass" type="submit" data-tw="btn-passage">{B.passageStart} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></button>
+          </form>
+        </details>
+
+        <p class="tw__scope"><Icon name="info" weight="duotone" /> {B.scope}</p>
+      </div>
+
+      <!-- Why / how -->
+      <aside class="tw-aside">
+        <div class="tw-how" data-reveal>
+          <span class="eyebrow" style="align-self:flex-start">{C.how.eyebrow}</span>
+          <h2 set:html={C.how.title} />
+          <ol role="list" class="tw-steps">
+            {
+              C.how.steps.map(([h, p], i) => (
+                <li>
+                  <span class="tw-steps__num">{num(lang, i + 1)}</span>
+                  <div>
+                    <h3>{h}</h3>
+                    <p>{p}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <div class="tw-privacy glass" data-reveal style="--reveal-delay:.06s">
+          <span class="icon-badge"><Icon name="shield-check" /></span>
+          <div>
+            <h3>{C.privacy.title}</h3>
+            <p>{C.privacy.text}</p>
+          </div>
+        </div>
+
+        <a class="tw-teacher theme-night" href={lp(lang, '/quran-recitation-course/')} data-reveal style="--reveal-delay:.12s">
+          <div class="stars"></div>
+          <span class="chip"><Icon name="chalkboard-teacher" weight="fill" /> {C.teacher.kicker}</span>
+          <h3>{C.teacher.title}</h3>
+          <p>{C.teacher.text}</p>
+          <span class="btn btn--glass btn--sm">{C.teacher.cta} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></span>
+        </a>
+      </aside>
+    </div>
+
+    <div class="container tw-fine">
+      <p><Icon name="flask" weight="duotone" /> {C.preview}</p>
+      <p>
+        <Icon name="code" weight="duotone" />
+        <a href="https://github.com/yazinsai/tilawa" target="_blank" rel="noopener">{C.credit}</a>
+      </p>
+    </div>
+  </section>
+
+  <script type="application/json" id="tw-i18n" set:html={JSON.stringify(strings)} />
+</BaseLayout>
+
+<script>
+  import { initTilawa } from '@/scripts/tilawa';
+  initTilawa();
+</script>
+
+<style>
+  .tw-chips {
+    justify-content: center;
+  }
+
+  .tw-chips :global(svg) {
+    color: var(--accent-ink);
+  }
+
+  .tw-layout {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: start;
+  }
+
+  @media (min-width: 1020px) {
+    .tw-layout {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+    }
+
+    .tw-aside {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+    }
+  }
+
+  /* ── The companion card ─────────────────────────────── */
+  .tw {
+    --radius: var(--r-xl);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: clamp(20px, 3.4vw, 40px);
+    min-height: 520px;
+  }
+
+  .tw__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tw__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
+    letter-spacing: -0.02em;
+  }
+
+  .tw__title :global(svg) {
+    width: 26px;
+    height: 26px;
+    color: var(--accent-ink);
+  }
+
+  .tw__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--success);
+    background: rgb(31 122 77 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(31 122 77 / 0.16);
+    white-space: nowrap;
+  }
+
+  .tw__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  .tw__dot--live {
+    display: inline-block;
+    color: #d64545;
+    animation: tw-pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes tw-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .tw__view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+  }
+
+  .tw__view[hidden],
+  .tw__recitation[hidden],
+  .tw__notes[hidden] {
+    display: none;
+  }
+
+  .tw__copy {
+    display: grid;
+    gap: 8px;
+    max-width: 46ch;
+  }
+
+  .tw__copy h3 {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.75rem);
+    letter-spacing: -0.02em;
+  }
+
+  .tw__copy p {
+    color: var(--ink-2);
+  }
+
+  .tw__example {
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    padding: clamp(18px, 3vw, 30px);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(120% 120% at 100% 0%, rgb(175 204 234 / 0.45), transparent 60%),
+      radial-gradient(100% 120% at 0% 100%, rgb(241 205 220 / 0.55), transparent 60%),
+      rgb(255 255 255 / 0.55);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.07);
+  }
+
+  .tw__example-label {
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  :global([dir='rtl']) .tw__example-label {
+    letter-spacing: 0;
+    font-size: 0.84rem;
+  }
+
+  .tw__example-verse {
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 3.2rem);
+    line-height: 1.9;
+  }
+
+  /* Words: said · current · marked */
+  .tw :global(.tw-word) {
+    padding: 0 0.08em;
+    border-radius: 0.3em;
+    color: var(--ink-3);
+    transition:
+      color 0.25s,
+      background-color 0.25s;
+  }
+
+  .tw :global(.tw-word.is-said) {
+    color: var(--ink);
+  }
+
+  .tw :global(.tw-word.is-current) {
+    color: var(--accent-ink);
+    background: rgb(107 63 160 / 0.12);
+    box-shadow: 0 2px 0 0 var(--accent);
+  }
+
+  .tw :global(.tw-word.is-marked) {
+    color: var(--danger);
+    text-decoration: underline wavy rgb(179 38 30 / 0.6);
+    text-decoration-skip-ink: none;
+    text-underline-offset: 0.35em;
+  }
+
+  .tw :global(.tw-ayah-num) {
+    color: var(--accent-ink);
+    font-size: 0.8em;
+  }
+
+  .tw__start {
+    min-width: min(100%, 300px);
+  }
+
+  .tw__start :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tw__note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--ink-3);
+    max-width: 44ch;
+  }
+
+  .tw__progress {
+    width: min(100%, 420px);
+    height: 10px;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    background: rgb(46 29 70 / 0.08);
+  }
+
+  .tw__progress span {
+    display: block;
+    height: 100%;
+    width: calc(var(--progress, 0) * 100%);
+    border-radius: inherit;
+    background: var(--grad-accent-on);
+    transition: width 0.3s var(--ease-out);
+  }
+
+  .tw__error {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    color: var(--danger);
+    word-break: break-word;
+  }
+
+  .tw__mic-badge {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--grad-accent-on);
+    box-shadow: 0 0 0 10px rgb(107 63 160 / 0.1);
+    animation: tw-pulse 1.8s ease-in-out infinite;
+  }
+
+  .tw__mic-badge :global(svg) {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Live recitation */
+  .tw__recitation {
+    display: grid;
+    gap: 14px;
+    padding: clamp(16px, 2.6vw, 26px);
+    border-radius: var(--r-lg);
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.07);
+  }
+
+  .tw__place-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .tw__place {
+    font-weight: 620;
+    color: var(--accent-ink);
+  }
+
+  .tw__level {
+    width: 96px;
+    height: 8px;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    background: rgb(46 29 70 / 0.08);
+  }
+
+  .tw__level span {
+    display: block;
+    height: 100%;
+    width: calc(var(--level, 0) * 100%);
+    background: var(--success);
+    transition: width 0.08s linear;
+  }
+
+  .tw__ayah {
+    min-height: 2.2em;
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem);
+    line-height: 2;
+    text-align: center;
+  }
+
+  .tw__hint {
+    text-align: center;
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+
+  .tw__notes {
+    display: grid;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .tw__notes h3 {
+    font-size: 1rem;
+  }
+
+  .tw__notes ol {
+    display: grid;
+    gap: 8px;
+  }
+
+  .tw :global(.tw-note) {
+    display: grid;
+    gap: 2px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: rgb(179 38 30 / 0.06);
+    border-inline-start: 3px solid var(--danger);
+  }
+
+  .tw :global(.tw-note__head) {
+    font-weight: 620;
+    font-size: 0.92rem;
+  }
+
+  .tw :global(.tw-note__word) {
+    font-size: 1.3rem;
+    color: var(--danger);
+  }
+
+  .tw :global(.tw-note__text) {
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+
+  .tw__stop-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: #d64545;
+  }
+
+  .tw__summary {
+    max-width: 52ch;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  /* Passage picker */
+  .tw__passage {
+    border-radius: var(--r-md);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .tw__passage summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .tw__passage summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .tw__passage summary :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--accent-ink);
+  }
+
+  .tw__passage :global(.tw__caret) {
+    margin-inline-start: auto;
+    width: 16px;
+    height: 16px;
+    transition: rotate 0.25s var(--ease-out);
+  }
+
+  .tw__passage[open] :global(.tw__caret) {
+    rotate: 180deg;
+  }
+
+  .tw__form {
+    display: grid;
+    gap: 14px;
+    padding: 0 18px 18px;
+  }
+
+  .tw__form > p {
+    color: var(--ink-2);
+    font-size: 0.94rem;
+  }
+
+  .tw__form .field > span {
+    font-weight: 560;
+    font-size: 0.92rem;
+  }
+
+  .tw__form .btn {
+    justify-self: start;
+  }
+
+  .tw__range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .tw__scope {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 0.85rem;
+    color: var(--ink-3);
+  }
+
+  .tw__scope :global(svg),
+  .tw-fine :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--accent-ink);
+  }
+
+  /* ── Aside ─────────────────────────────────────────── */
+  .tw-aside {
+    display: grid;
+    gap: 18px;
+  }
+
+  .tw-how {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tw-how h2 {
+    font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem);
+  }
+
+  .tw-steps {
+    display: grid;
+    gap: 16px;
+  }
+
+  .tw-steps li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .tw-steps__num {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-weight: 650;
+    font-size: 0.9rem;
+    color: #fff;
+    background: var(--grad-accent-on);
+  }
+
+  .tw-steps h3 {
+    font-size: 1.06rem;
+    margin-bottom: 2px;
+  }
+
+  .tw-steps p {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+
+  .tw-privacy {
+    --radius: 26px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .tw-privacy h3 {
+    font-size: 1.06rem;
+    margin-bottom: 4px;
+  }
+
+  .tw-privacy p {
+    color: var(--ink-2);
+    font-size: 0.94rem;
+  }
+
+  .tw-teacher {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: clamp(22px, 3vw, 30px);
+    border-radius: var(--r-xl);
+    text-decoration: none;
+  }
+
+  .tw-teacher h3 {
+    font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
+    line-height: 1.25;
+  }
+
+  .tw-teacher p {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+
+  .tw-teacher .btn {
+    margin-top: 4px;
+  }
+
+  .tw-fine {
+    display: grid;
+    gap: 8px;
+    margin-top: clamp(24px, 4vw, 40px);
+    font-size: 0.85rem;
+    color: var(--ink-3);
+  }
+
+  .tw-fine p {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .tw-fine a {
+    color: inherit;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tw__dot--live,
+    .tw__mic-badge {
+      animation: none;
+    }
+  }
+
+  /* ── Dark theme ────────────────────────────────────── */
+  :global([data-theme='dark']) .tw__example {
+    background:
+      radial-gradient(120% 120% at 100% 0%, rgb(109 158 214 / 0.18), transparent 60%),
+      radial-gradient(100% 120% at 0% 100%, rgb(200 123 128 / 0.16), transparent 60%),
+      rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+
+  :global([data-theme='dark']) .tw__recitation {
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+
+  :global([data-theme='dark']) .tw__status {
+    background: rgb(127 220 174 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(127 220 174 / 0.22);
+  }
+
+  :global([data-theme='dark']) .tw :global(.tw-word.is-current) {
+    background: rgb(185 140 232 / 0.18);
+  }
+
+  :global([data-theme='dark']) .tw :global(.tw-note) {
+    background: rgb(255 157 148 / 0.08);
+  }
+
+  :global([data-theme='dark']) .tw__progress,
+  :global([data-theme='dark']) .tw__level {
+    background: rgb(255 255 255 / 0.1);
+  }
+</style>

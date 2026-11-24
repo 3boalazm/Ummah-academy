@@ -72,7 +72,7 @@ export default {
   footerLinks: {
     learn: ['Tutti i corsi', 'Recitazione del Corano & Tajweed', 'Hifz & ijaza', 'Lingua araba', 'Ummah Cubs (bambini)', 'Studi islamici'],
     academy: ['Chi siamo', 'I nostri insegnanti', 'Prezzi', 'Area famiglie', 'Insegna con noi'],
-    resources: ['Test di livello', 'Blog', 'Biblioteca gratuita', 'Storie', 'FAQ', 'Prova gratuita / contatti'],
+    resources: ['Test di livello', 'Tilawa, compagno di recitazione', 'Blog', 'Biblioteca gratuita', 'Storie', 'FAQ', 'Prova gratuita / contatti'],
   },
   search: {
     open: 'Cerca nel sito',

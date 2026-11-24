@@ -53,6 +53,7 @@ export const TRANSLATED_ROUTES = [
   '/about/',
   '/contact/',
   '/placement-test/',
+  '/tilawa/',
   '/faq/',
   '/career/',
   '/thank-you/',
