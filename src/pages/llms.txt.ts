@@ -23,6 +23,7 @@ export const GET: APIRoute = async () => {
     link('Frequently asked questions', '/faq/'),
     link('Book a trial / admissions', '/contact/'),
     link('Level placement', '/placement-test/'),
+    link('Tilawa: free on-device Quran recitation companion', '/tilawa/'),
     link('Accessibility statement', '/accessibility/'),
     '## Learning programmes',
     link('Quran recitation and Tajweed', '/quran-recitation-course/'),

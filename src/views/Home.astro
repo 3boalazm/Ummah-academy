@@ -4,6 +4,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import TrackCard from '@/components/TrackCard.astro';
 import TestimonialCard from '@/components/TestimonialCard.astro';
 import HomeJourneyDiagram from '@/components/HomeJourneyDiagram.astro';
+import TilawaTeaser from '@/components/TilawaTeaser.astro';
 import { HOME_UI } from '@/data/home-ui';
 import '@/styles/home-refactor.css';
 import SanadChain from '@/components/SanadChain.astro';
@@ -85,6 +86,9 @@ const plans60 = plans.filter((p) => p.minutes === 60);
       </ul>
     </div>
   </section>
+
+  <!-- 2b · Tilawa — free on-device recitation companion -->
+  <TilawaTeaser lang={lang} />
 
   <!-- 3 · Audience router -->
   <section class="section router" aria-labelledby="router-title">

@@ -73,7 +73,7 @@ export default {
   footerLinks: {
     learn: ['All courses', 'Quran Recitation & Tajweed', 'Hifz & Ijazah', 'Arabic Language', 'Ummah Cubs (kids)', 'Islamic Studies'],
     academy: ['About us', 'Our teachers', 'Pricing', 'Family Portal', 'Teach with us'],
-    resources: ['Placement test', 'Blog', 'Free library', 'Family stories', 'FAQ', 'Book a trial / contact'],
+    resources: ['Placement test', 'Tilawa recitation companion', 'Blog', 'Free library', 'Family stories', 'FAQ', 'Book a trial / contact'],
   },
   search: {
     open: 'Search the site',

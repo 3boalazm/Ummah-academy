@@ -60,6 +60,10 @@ export default defineConfig({
       // (iOS Safari is its own target: it still needs -webkit-text-size-adjust).
       cssTarget: ['chrome111', 'edge111', 'firefox114', 'safari16.4', 'ios16.4'],
     },
+    // Tilawa (/tilawa/): use onnxruntime-web's non-inlined build. Its .mjs/.wasm then load from
+    // https://tilawa.dev/v1/runtime/ort/<version>/ (the SDK default) instead of being bundled into dist.
+    resolve: { conditions: ['onnxruntime-web-use-extern-wasm', 'module', 'browser', 'development|production'] },
+    optimizeDeps: { exclude: ['onnxruntime-web'] },
     preview: { allowedHosts: true },
     server: { allowedHosts: true },
   },

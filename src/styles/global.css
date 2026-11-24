@@ -1899,6 +1899,15 @@
 
 [data-theme='dark'] .select {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cec5e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  /* the `background` shorthand above resets these — without them the arrow tiles across the field */
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 18px;
+}
+
+[data-theme='dark'][dir='rtl'] .select,
+[data-theme='dark'] [dir='rtl'] .select {
+  background-position: left 16px center;
 }
 
 [data-theme='dark'] :is(.input, .select, .textarea):hover {
@@ -1907,7 +1916,7 @@
 
 [data-theme='dark'] :is(.input, .select, .textarea):focus-visible {
   border-color: var(--accent);
-  background: rgb(255 255 255 / 0.1);
+  background-color: rgb(255 255 255 / 0.1);
   box-shadow: 0 0 0 4px rgb(185 140 232 / 0.28);
 }
 

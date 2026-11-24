@@ -72,7 +72,7 @@ export default {
   footerLinks: {
     learn: ['Alle Kurse', 'Koranrezitation & Tajweed', 'Hifz & Ijaza', 'Arabisch', 'Ummah Cubs (Kinder)', 'Islamische Studien'],
     academy: ['Über uns', 'Unsere Lehrkräfte', 'Preise', 'Familienportal', 'Bei uns unterrichten'],
-    resources: ['Einstufungstest', 'Blog', 'Kostenlose Bibliothek', 'Erfahrungen', 'FAQ', 'Probestunde / Kontakt'],
+    resources: ['Einstufungstest', 'Tilawa Rezitationsbegleiter', 'Blog', 'Kostenlose Bibliothek', 'Erfahrungen', 'FAQ', 'Probestunde / Kontakt'],
   },
   search: {
     open: 'Website durchsuchen',

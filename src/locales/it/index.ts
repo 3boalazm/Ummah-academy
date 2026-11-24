@@ -23,4 +23,5 @@ export { default as teacherProfile } from './teacherProfile';
 export { default as teachers } from './teachers';
 export { default as thankYou } from './thankYou';
 export { default as trackPage } from './trackPage';
+export { default as tilawa } from './tilawa';
 export { default as ui } from './ui';
