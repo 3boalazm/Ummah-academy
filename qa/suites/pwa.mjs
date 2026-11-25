@@ -71,6 +71,32 @@ export function auditManifest() {
     .catch((e) => [`manifest fetch failed: ${e.message}`]);
 }
 
+/**
+ * The dock's buttons, top to bottom (selectors inside [data-dock]): one column on the same edge,
+ * each directly above the next with at most a 24px gap. Runs in the page.
+ */
+const dockStack = (selectors) => {
+  const boxes = selectors.map((sel) => {
+    const el = document.querySelector(`[data-dock] ${sel}`);
+    const r = el?.getBoundingClientRect();
+    return r && r.height > 0 ? { sel, top: r.top, bottom: r.bottom, left: r.left, right: r.right } : { sel, missing: true };
+  });
+  const missing = boxes.filter((b) => b.missing).map((b) => b.sel);
+  if (missing.length) return { ok: false, missing };
+  // the dock is anchored to the inline-start edge: left in LTR, right in RTL
+  const rtl = document.documentElement.dir === 'rtl';
+  const pairs = boxes.slice(1).map((b, i) => {
+    const a = boxes[i];
+    return {
+      pair: `${a.sel} → ${b.sel}`,
+      above: a.bottom <= b.top + 1,
+      gap: Math.round(b.top - a.bottom),
+      sameEdge: Math.abs(rtl ? a.right - b.right : a.left - b.left) < 2,
+    };
+  });
+  return { ok: pairs.every((p) => p.above && p.sameEdge && p.gap <= 24), pairs };
+};
+
 /** State of both placements: the pill in the bottom-left dock and the row in the mobile sheet. */
 const pillState = () => {
   const roots = [...document.querySelectorAll('[data-install]')];
@@ -183,9 +209,10 @@ export default async function pwa({ browser, base, pages }) {
     }
   }
 
-  /* 4 · the dock pill: always on the page (no install offer needed), inside the viewport, stacked
-         under the language button, its card never covers that button, "Not now" only closes the
-         card, and the whole thing goes away once the app is installed */
+  /* 4 · the dock pill: always on the page (no install offer needed), inside the viewport, at the
+         bottom of the dock stack (language → currency → install), its card never covers the
+         language button, "Not now" only closes the card, and the whole thing goes away once the
+         app is installed */
   {
     const page = await newPage(browser, { width: 1280, height: 900, isolated: true });
     try {
@@ -195,13 +222,10 @@ export default async function pwa({ browser, base, pages }) {
       if (!s.visible) failures.push({ page: '/', detail: 'the install button is not on the page (it must show without any install offer)' });
       if (s.pill && !s.pill.inView) failures.push({ page: '/', detail: `pill outside the viewport / too small: ${JSON.stringify(s.pill)}` });
 
-      // the dock: the language button sits directly above the install button, on the same edge
-      const stacked = await page.evaluate(() => {
-        const lang = document.querySelector('[data-dock] .langmenu__btn')?.getBoundingClientRect();
-        const pill = document.querySelector('[data-dock] .install__pill')?.getBoundingClientRect();
-        return lang && pill ? { above: lang.bottom <= pill.top + 1, gap: Math.round(pill.top - lang.bottom), sameEdge: Math.abs(lang.left - pill.left) < 2 } : null;
-      });
-      if (!stacked || !stacked.above || !stacked.sameEdge || stacked.gap > 24) failures.push({ page: '/', detail: `the language button is not stacked above the install button: ${JSON.stringify(stacked)}` });
+      // the dock: language, currency and install sit in one column on the same edge, each directly
+      // above the next (src/components/Dock.astro)
+      const stacked = await page.evaluate(dockStack, ['.langmenu__btn', '.fxmenu__btn', '.install__pill']);
+      if (!stacked.ok) failures.push({ page: '/', detail: `the dock is not stacked language → currency → install: ${JSON.stringify(stacked)}` });
 
       // no install offer yet: the card points at the browser's own menu
       await page.click('.install--pill [data-install-open]');
@@ -240,12 +264,14 @@ export default async function pwa({ browser, base, pages }) {
       if (!native) failures.push({ page: '/', detail: 'beforeinstallprompt fired but the card does not offer the Install button' });
       await page.keyboard.press('Escape');
 
-      // installed: the install button goes away and the language button drops to the corner
+      // installed: the install button goes away and the rest of the stack drops to the corner
       await page.evaluate(() => window.dispatchEvent(new Event('appinstalled')));
       s = await page.evaluate(pillState);
       if (s.visible) failures.push({ page: '/', detail: 'the install button is still on the page after the app was installed' });
-      const fromBottom = await page.evaluate(() => Math.round(document.documentElement.clientHeight - document.querySelector('[data-dock] .langmenu__btn').getBoundingClientRect().bottom));
-      if (fromBottom > 20) failures.push({ page: '/', detail: `the language button did not drop to the corner once the install button went away (${fromBottom}px from the bottom)` });
+      const rest = await page.evaluate(dockStack, ['.langmenu__btn', '.fxmenu__btn']);
+      if (!rest.ok) failures.push({ page: '/', detail: `after install the dock is not stacked language → currency: ${JSON.stringify(rest)}` });
+      const fromBottom = await page.evaluate(() => Math.round(document.documentElement.clientHeight - document.querySelector('[data-dock] .fxmenu__btn').getBoundingClientRect().bottom));
+      if (fromBottom > 20) failures.push({ page: '/', detail: `the dock did not drop to the corner once the install button went away (${fromBottom}px from the bottom)` });
 
       await open(page, base + '/pricing/');
       s = await page.evaluate(pillState);

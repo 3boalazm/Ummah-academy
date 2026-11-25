@@ -3,11 +3,13 @@
  * The floating stack on the bottom inline-start edge (bottom-left in LTR, bottom-right in RTL):
  *
  *   [ language ]   ← always there
+ *   [ currency ]   ← always there
  *   [ install  ]   ← always there too, until the app is installed (then it disappears)
  *
  * The stack is a plain column anchored to the bottom, so the moment the install button goes away
- * the language button simply sits in the corner. The two never overlap: they are stacked, and the
- * open install card (and the language popover) rise above the whole stack.
+ * the other two simply drop to the corner. They never overlap: they are stacked, and the open
+ * install card (and the language / currency popovers) rise above the whole stack.
+ * While the visitor scrolls down to read it tucks off the edge, and comes back on scroll up.
  * Phones: it rides above the sticky action bar while that bar is showing.
  */
 import LangMenu from './LangMenu.astro';
