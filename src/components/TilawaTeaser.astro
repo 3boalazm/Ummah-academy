@@ -247,26 +247,36 @@ let i = 0;
     text-align: center;
   }
 
+  .tth {
+    --tth-mark: #9b2948;
+    --tth-mark-bg: #f8eaf0;
+    --tth-current-bg: var(--aubergine-800);
+    --tth-current-ink: #fff;
+  }
+
+  /* Same language as the live tool: words ahead in full ink, the current word in a solid block,
+     recited words faded, a mistake in burgundy with a wavy underline. */
   .tth__w {
     display: inline-block;
-    padding: 0 0.1em;
-    border-radius: 0.3em;
-    color: var(--ink-3);
+    padding: 0 0.12em;
+    border-radius: 0.22em;
+    line-height: 1.5;
+    color: var(--ink);
     animation: tth-say 10s linear infinite;
     animation-delay: calc(var(--i) * 0.48s);
   }
 
   .tth__w--mark {
-    color: var(--danger);
-    text-decoration: underline wavy rgb(179 38 30 / 0.6);
+    color: var(--tth-mark);
+    text-decoration: underline wavy var(--tth-mark) 1px;
     text-decoration-skip-ink: none;
-    text-underline-offset: 0.4em;
+    text-underline-offset: 0.42em;
     animation: none;
   }
 
   .tth__n {
-    color: var(--accent-ink);
-    font-size: 0.78em;
+    color: var(--ink-3);
+    font-size: 0.7em;
     margin-inline: 0.15em;
   }
 
@@ -276,11 +286,12 @@ let i = 0;
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    border-radius: 16px;
-    background: rgb(179 38 30 / 0.06);
-    border-inline-start: 3px solid var(--danger);
-    font-size: 0.88rem;
-    font-weight: 600;
+    border-radius: 12px;
+    background: var(--tth-mark-bg);
+    border-inline-start: 3px solid var(--tth-mark);
+    font-size: 0.84rem;
+    font-weight: 620;
+    color: var(--tth-mark);
   }
 
   .tth__noteHead {
@@ -292,27 +303,31 @@ let i = 0;
   .tth__noteHead :global(svg) {
     width: 18px;
     height: 18px;
-    color: var(--danger);
+    color: var(--tth-mark);
   }
 
   .tth__noteWord {
-    font-size: 1.4rem;
-    color: var(--danger);
+    font-size: 1.45rem;
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--ink);
   }
 
   @keyframes tth-say {
-    0% {
-      color: var(--accent-ink);
-      background: rgb(107 63 160 / 0.14);
+    0%,
+    4% {
+      color: var(--tth-current-ink);
+      background: var(--tth-current-bg);
     }
     5%,
-    78% {
-      color: var(--ink);
+    82% {
+      color: var(--ink-3);
       background: transparent;
     }
-    90%,
+    92%,
     100% {
-      color: var(--ink-3);
+      color: var(--ink);
+      background: transparent;
     }
   }
 
@@ -359,7 +374,10 @@ let i = 0;
     opacity: 0.25;
   }
 
-  :global([data-theme='dark']) .tth__noteCard {
-    background: rgb(255 157 148 / 0.08);
+  :global([data-theme='dark']) .tth {
+    --tth-mark: #ff8fb0;
+    --tth-mark-bg: rgb(255 143 176 / 0.1);
+    --tth-current-bg: #efe7fb;
+    --tth-current-ink: var(--aubergine-900);
   }
 </style>

@@ -35,6 +35,16 @@ interface Strings {
   classes: Record<'wrong_word' | 'omitted_word' | 'added_word' | 'skipped_passage', Pair>;
 }
 
+type MistakeClass = keyof Strings['classes'];
+interface NoteGroup {
+  cls: MistakeClass;
+  surah: number;
+  ayah: number;
+  items: { id: string; word: number }[];
+  li: HTMLLIElement;
+  btn: HTMLButtonElement;
+}
+
 type View = 'idle' | 'loading' | 'load-error' | 'mic-pending' | 'mic-error' | 'listening' | 'stopped';
 const VIEWS: View[] = ['idle', 'loading', 'load-error', 'mic-pending', 'mic-error', 'listening', 'stopped'];
 const STAGE_WEIGHT = { model: 0.75, reference: 0.2, warmup: 0.05 } as const;
@@ -51,7 +61,7 @@ export function initTilawa() {
   const $ = <T extends HTMLElement = HTMLElement>(name: string) => root.querySelector(`[data-tw="${name}"]`) as T;
   const quranUrl = root.dataset.quran || '/tilawa/quran.json';
 
-  const isShown = (e: CheckerEvent): e is CheckerEvent & { errorClass: keyof Strings['classes'] } => e.errorClass in S.classes;
+  const isShown = (e: CheckerEvent): e is CheckerEvent & { errorClass: MistakeClass } => e.errorClass in S.classes;
 
   function show(view: View) {
     for (const v of VIEWS) $(`view-${v}`).hidden = v !== view;
@@ -167,6 +177,7 @@ export function initTilawa() {
     t.session.dispose();
     meter(-100);
     show('stopped');
+    t.view.review();
   }
 
   const surahName = (quran: QuranText, surah: number) => {
@@ -210,6 +221,9 @@ export function initTilawa() {
     private shown: string | null = null;
     private spans: HTMLSpanElement[] = [];
     private readonly marks = new Map<string, CheckerEvent>();
+    /** One card per run of neighbouring words with the same kind of mistake (a skipped part is one card). */
+    private groups: NoteGroup[] = [];
+    private readonly byId = new Map<string, NoteGroup>();
     private readonly ayah = $('ayah');
     readonly quran: QuranText;
 
@@ -244,33 +258,53 @@ export function initTilawa() {
       this.showWord(top.word);
     }
 
-    private showWord(w: WordRef) {
-      const key = ayahKey(w.surah, w.ayah);
+    /** Draws an ayah (once) and re-applies the marks that fall in it. */
+    private render(surah: number, ayahNo: number): boolean {
+      const key = ayahKey(surah, ayahNo);
+      if (this.shown === key) return true;
       const ayah = this.quran.get(key);
-      if (!ayah) return;
-      if (this.shown !== key) {
-        this.shown = key;
-        this.spans = ayah.words.map((text, i) => {
-          const span = document.createElement('span');
-          span.className = 'tw-word';
-          span.textContent = text;
-          span.dataset.index = String(i);
-          return span;
-        });
-        this.ayah.replaceChildren(...this.spans.flatMap((s, i) => (i ? [document.createTextNode(' '), s] : [s])));
-        const marker = document.createElement('span');
-        marker.className = 'tw-ayah-num';
-        marker.textContent = ` ﴿${String(w.ayah).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[Number(d)])}﴾`;
-        this.ayah.append(marker);
-        this.ayah.dataset.ref = key;
-        $('place').textContent = `${surahName(this.quran, w.surah)} ${ref(w.surah, w.ayah)}`;
-        for (const m of this.marks.values()) this.applyMark(m);
-      }
+      if (!ayah) return false;
+      this.shown = key;
+      this.spans = ayah.words.map((text, i) => {
+        const span = document.createElement('span');
+        span.className = 'tw-word';
+        span.textContent = text;
+        span.dataset.index = String(i);
+        return span;
+      });
+      this.ayah.replaceChildren(...this.spans.flatMap((s, i) => (i ? [document.createTextNode(' '), s] : [s])));
+      const marker = document.createElement('span');
+      marker.className = 'tw-ayah-num';
+      marker.textContent = ` ﴿${String(ayahNo).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[Number(d)])}﴾`;
+      this.ayah.append(marker);
+      this.ayah.dataset.ref = key;
+      $('place').textContent = `${surahName(this.quran, surah)} ${ref(surah, ayahNo)}`;
+      for (const m of this.marks.values()) this.applyMark(m);
+      return true;
+    }
+
+    private showWord(w: WordRef) {
+      if (!this.render(w.surah, w.ayah)) return;
+      this.setActive(null);
       const at = displayIndex(w.surah, w.ayah, w.word);
       this.spans.forEach((s, i) => {
         s.classList.toggle('is-said', i < at);
         s.classList.toggle('is-current', i === at);
       });
+    }
+
+    /** Shows a note's ayah with its mistakes marked (the first note when none is given). */
+    review(group: NoteGroup | undefined = this.groups[0]) {
+      if (!group || !this.render(group.surah, group.ayah)) return;
+      this.spans.forEach((s) => s.classList.remove('is-said', 'is-current'));
+      this.setActive(group);
+    }
+
+    private setActive(group: NoteGroup | null) {
+      for (const g of this.groups) {
+        g.btn.classList.toggle('is-active', g === group);
+        g.btn.setAttribute('aria-pressed', String(g === group));
+      }
     }
 
     private checker(e: CheckerEvent) {
@@ -281,9 +315,12 @@ export function initTilawa() {
         this.addNote(e);
       } else if (e.state === 'resolved' && this.marks.delete(e.id)) {
         // A self-correction: take the note back.
-        root!.querySelector(`[data-note="${CSS.escape(e.id)}"]`)?.remove();
-        this.spanFor(e.location)?.classList.remove('is-marked');
-        $('notes-wrap').hidden = !$('notes').childElementCount;
+        this.removeNote(e.id);
+        const span = this.spanFor(e.location);
+        if (span) {
+          span.classList.remove('is-marked');
+          span.removeAttribute('title');
+        }
       }
     }
 
@@ -300,31 +337,66 @@ export function initTilawa() {
       span.title = S.classes[e.errorClass][1];
     }
 
-    private addNote(e: CheckerEvent & { errorClass: keyof Strings['classes'] }) {
+    private addNote(e: CheckerEvent & { errorClass: MistakeClass }) {
       const { surah, ayah, word } = e.location;
-      const [label, text] = S.classes[e.errorClass];
-      const li = document.createElement('li');
-      li.className = 'tw-note';
-      li.dataset.note = e.id;
-      li.dataset.class = e.errorClass;
+      const last = this.groups.at(-1);
+      const prev = last?.items.at(-1);
+      let group: NoteGroup;
+      if (last && prev && last.cls === e.errorClass && last.surah === surah && last.ayah === ayah && word >= prev.word && word - prev.word <= 1) {
+        group = last;
+      } else {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tw-note';
+        btn.dataset.class = e.errorClass;
+        li.append(btn);
+        const created: NoteGroup = { cls: e.errorClass, surah, ayah, items: [], li, btn };
+        btn.addEventListener('click', () => this.review(created));
+        this.groups.push(created);
+        $('notes').append(li);
+        group = created;
+      }
+      group.items.push({ id: e.id, word });
+      group.items.sort((a, b) => a.word - b.word);
+      this.byId.set(e.id, group);
+      this.drawNote(group);
+      $('notes-wrap').hidden = false;
+    }
+
+    private drawNote(g: NoteGroup) {
+      const [label, text] = S.classes[g.cls];
       const head = document.createElement('span');
       head.className = 'tw-note__head';
-      head.textContent = `${label} · ${ref(surah, ayah)}`;
-      const w = this.quran.get(ayahKey(surah, ayah))?.words[displayIndex(surah, ayah, word)];
-      if (w) {
-        const arWord = document.createElement('span');
-        arWord.className = 'tw-note__word quranic';
-        arWord.lang = 'ar';
-        arWord.dir = 'rtl';
-        arWord.textContent = w;
-        head.append(' ', arWord);
+      head.textContent = `${label} · ${ref(g.surah, g.ayah)}`;
+      const words = this.quran.get(ayahKey(g.surah, g.ayah))?.words ?? [];
+      const shown = [...new Set(g.items.map((i) => displayIndex(g.surah, g.ayah, i.word)))].map((i) => words[i]).filter(Boolean);
+      if (shown.length) {
+        const arWords = document.createElement('span');
+        arWords.className = 'tw-note__word quranic';
+        arWords.lang = 'ar';
+        arWords.dir = 'rtl';
+        arWords.textContent = shown.join(' ');
+        head.append(arWords);
       }
       const body = document.createElement('span');
       body.className = 'tw-note__text';
       body.textContent = text;
-      li.append(head, body);
-      $('notes').append(li);
-      $('notes-wrap').hidden = false;
+      g.btn.replaceChildren(head, body);
+      g.btn.dataset.note = g.items.map((i) => i.id).join(' ');
+    }
+
+    private removeNote(id: string) {
+      const g = this.byId.get(id);
+      if (!g) return;
+      this.byId.delete(id);
+      g.items = g.items.filter((i) => i.id !== id);
+      if (g.items.length) this.drawNote(g);
+      else {
+        g.li.remove();
+        this.groups = this.groups.filter((x) => x !== g);
+      }
+      $('notes-wrap').hidden = !this.groups.length;
     }
   }
 

@@ -336,36 +336,52 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
     line-height: 1.9;
   }
 
-  /* Words: said · current · marked */
+  /* Words — as on tilawa.dev: words ahead stay in full ink, words already recited fade, the current
+     word sits in a solid block, and a confirmed mistake is burgundy with a wavy underline (a solid
+     burgundy block while it is the current word). */
+  .tw {
+    --tw-mark: #9b2948;
+    --tw-mark-bg: #f8eaf0;
+    --tw-current-bg: var(--aubergine-800);
+    --tw-current-ink: #fff;
+  }
+
   .tw :global(.tw-word) {
-    padding: 0 0.08em;
-    border-radius: 0.3em;
-    color: var(--ink-3);
+    display: inline-block;
+    padding-inline: 0.12em;
+    border-radius: 0.22em;
+    line-height: 1.5;
+    color: var(--ink);
     transition:
-      color 0.25s,
-      background-color 0.25s;
+      color 0.15s,
+      background-color 0.15s;
   }
 
   .tw :global(.tw-word.is-said) {
-    color: var(--ink);
+    color: var(--ink-3);
   }
 
   .tw :global(.tw-word.is-current) {
-    color: var(--accent-ink);
-    background: rgb(107 63 160 / 0.12);
-    box-shadow: 0 2px 0 0 var(--accent);
+    color: var(--tw-current-ink);
+    background: var(--tw-current-bg);
   }
 
   .tw :global(.tw-word.is-marked) {
-    color: var(--danger);
-    text-decoration: underline wavy rgb(179 38 30 / 0.6);
+    color: var(--tw-mark);
+    text-decoration: underline wavy var(--tw-mark) 1px;
     text-decoration-skip-ink: none;
-    text-underline-offset: 0.35em;
+    text-underline-offset: 0.42em;
+  }
+
+  .tw :global(.tw-word.is-marked.is-current) {
+    color: #fff;
+    background: var(--tw-mark);
+    text-decoration: none;
   }
 
   .tw :global(.tw-ayah-num) {
-    color: var(--accent-ink);
-    font-size: 0.8em;
+    color: var(--ink-3);
+    font-size: 0.7em;
   }
 
   .tw__start {
@@ -442,6 +458,8 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
   }
 
   .tw__place {
@@ -466,10 +484,17 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
   }
 
   .tw__ayah {
-    min-height: 2.2em;
-    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem);
+    /* two lines reserved, so the card doesn't jump as ayahs change */
+    min-height: 4em;
+    font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.15rem);
     line-height: 2;
-    text-align: center;
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+
+  .tw__ayah:empty::before {
+    content: '…';
+    color: var(--ink-3);
   }
 
   .tw__hint {
@@ -494,28 +519,61 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
     gap: 8px;
   }
 
+  /* Each note is a button: it shows its ayah with the mistake marked. */
   .tw :global(.tw-note) {
     display: grid;
     gap: 2px;
+    width: 100%;
     padding: 10px 14px;
-    border-radius: 14px;
-    background: rgb(179 38 30 / 0.06);
-    border-inline-start: 3px solid var(--danger);
+    border: 0;
+    border-radius: 12px;
+    border-inline-start: 3px solid var(--tw-mark);
+    background: var(--tw-mark-bg);
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    animation: tw-note-in 0.3s var(--ease-out);
+    transition: box-shadow 0.2s;
+  }
+
+  .tw :global(.tw-note:hover),
+  .tw :global(.tw-note.is-active) {
+    box-shadow: inset 0 0 0 1px var(--tw-mark);
+  }
+
+  .tw :global(.tw-note:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 
   .tw :global(.tw-note__head) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
     font-weight: 620;
-    font-size: 0.92rem;
+    font-size: 0.84rem;
+    color: var(--tw-mark);
   }
 
   .tw :global(.tw-note__word) {
-    font-size: 1.3rem;
-    color: var(--danger);
+    font-size: 1.45rem;
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--ink);
   }
 
   .tw :global(.tw-note__text) {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: var(--ink-2);
+  }
+
+  @keyframes tw-note-in {
+    from {
+      opacity: 0;
+      translate: 0 -4px;
+    }
   }
 
   .tw__stop-icon {
@@ -750,12 +808,15 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
     box-shadow: inset 0 0 0 1px rgb(127 220 174 / 0.22);
   }
 
-  :global([data-theme='dark']) .tw :global(.tw-word.is-current) {
-    background: rgb(185 140 232 / 0.18);
+  :global([data-theme='dark']) .tw {
+    --tw-mark: #ff8fb0;
+    --tw-mark-bg: rgb(255 143 176 / 0.1);
+    --tw-current-bg: #efe7fb;
+    --tw-current-ink: var(--aubergine-900);
   }
 
-  :global([data-theme='dark']) .tw :global(.tw-note) {
-    background: rgb(255 157 148 / 0.08);
+  :global([data-theme='dark']) .tw :global(.tw-word.is-marked.is-current) {
+    color: var(--aubergine-950);
   }
 
   :global([data-theme='dark']) .tw__progress,
