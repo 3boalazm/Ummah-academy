@@ -38,7 +38,22 @@ const { lang, targets } = Astro.props;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    transition: inset-block-end 0.4s var(--ease-out);
+    transition:
+      inset-block-end 0.4s var(--ease-out),
+      translate 0.35s var(--ease-out),
+      opacity 0.25s;
+  }
+
+  /* Reading downwards: the stack sits where lines begin and covered the start of text on laptop
+     widths, so it tucks off the edge and comes back on scroll up / at the top (see the script). */
+  .dock.is-tucked {
+    translate: calc(-100% - 24px) 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  :global([dir='rtl']) .dock.is-tucked {
+    translate: calc(100% + 24px) 0;
   }
 
   /* Phones: the sticky action bar owns the bottom edge once it slides in — stack above it. */
@@ -59,3 +74,24 @@ const { lang, targets } = Astro.props;
     }
   }
 </style>
+
+<script>
+  const dock = document.querySelector<HTMLElement>('[data-dock]');
+  if (dock) {
+    const TOP = 160; // always shown near the top of the page
+    const STEP = 6; // ignore scroll jitter smaller than this
+    let lastY = window.scrollY;
+    // Never tuck while one of its menus is open or it holds keyboard focus.
+    const busy = () => dock.matches(':focus-within') || !!dock.querySelector('details[open], [aria-expanded="true"]');
+    // Scroll fires at most once per frame and this only toggles a class, so no rAF throttle is needed.
+    const update = () => {
+      const y = window.scrollY;
+      if (y < TOP || busy()) dock.classList.remove('is-tucked');
+      else if (y > lastY + STEP) dock.classList.add('is-tucked');
+      else if (y < lastY - STEP) dock.classList.remove('is-tucked');
+      if (Math.abs(y - lastY) > STEP || y < TOP) lastY = y;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    dock.addEventListener('focusin', () => dock.classList.remove('is-tucked'));
+  }
+</script>
