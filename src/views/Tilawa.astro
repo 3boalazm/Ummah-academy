@@ -350,9 +350,9 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
      word sits in a solid block, and a confirmed mistake is burgundy with a wavy underline (a solid
      burgundy block while it is the current word). */
   .tw {
-    --tw-mark: #9b2948;
-    --tw-mark-bg: #f8eaf0;
-    --tw-current-bg: var(--aubergine-800);
+    --tw-mark: var(--brand-magenta);
+    --tw-mark-bg: var(--tint-rose);
+    --tw-current-bg: var(--brand-ink);
     --tw-current-ink: #fff;
   }
 
@@ -819,7 +819,7 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
   }
 
   :global([data-theme='dark']) .tw {
-    --tw-mark: #ff8fb0;
+    --tw-mark: #e7a6c4;
     --tw-mark-bg: rgb(255 143 176 / 0.1);
     --tw-current-bg: #efe7fb;
     --tw-current-ink: var(--aubergine-900);

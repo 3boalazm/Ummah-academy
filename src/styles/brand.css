@@ -1,0 +1,895 @@
+/*
+ * Ummah Academy — brand system (Nov 2026 refactor)
+ *
+ * Built strictly on the brand sheet: ten swatches, the brand's purples first, and the calligraphy
+ * pattern. Loaded last and unlayered, so it re-maps the older global tokens (global.css,
+ * editorial-refresh.css) onto the palette and replaces their glass look with a framed, editorial one:
+ *
+ *   · a lilac canvas with the page on a white rounded sheet (header inside, footer as a dark sheet)
+ *   · tinted and deep tone surfaces, brand gradients, the calligraphy pattern as texture
+ *   · a light, tight display type, status-pill eyebrows, a marker accent, pill buttons
+ *
+ * Sampled from the brand sheet:
+ *   9625 C ink #2c1c44 · 269 C plum #542c6c · 2612 C magenta #7c2484 · 7687 C navy #14448c
+ *   7546 C slate #243444 · 695 C rose #bc6c7c · 2708 sky #b4ccec · 666 C lavender #a494b4
+ *   5155 C mauve #bca4b4 · 663 C mist #e4e4e4 · white
+ */
+
+:root {
+  /* palette */
+  --brand-ink: #2c1c44;
+  --brand-plum: #542c6c;
+  --brand-magenta: #7c2484;
+  --brand-navy: #14448c;
+  --brand-slate: #243444;
+  --brand-rose: #bc6c7c;
+  --brand-sky: #b4ccec;
+  --brand-lavender: #a494b4;
+  --brand-mauve: #bca4b4;
+  --brand-mist: #e4e4e4;
+
+  /* tints for surfaces (the swatch colours mixed into white) */
+  --tint-lavender: #ede8f3;
+  --tint-sky: #e7eefa;
+  --tint-mauve: #f3ecf0;
+  --tint-rose: #f7e9ec;
+  --tint-mist: #f3f2f5;
+
+  /* brand gradients */
+  --grad-dawn: linear-gradient(135deg, #cfc4dc 0%, #b4ccec 100%);
+  --grad-dusk: linear-gradient(135deg, #bca4b4 0%, #a494b4 55%, #b4ccec 100%);
+  --grad-plum: linear-gradient(135deg, #542c6c 0%, #7c2484 100%);
+  --grad-night: linear-gradient(135deg, #2c1c44 0%, #542c6c 60%, #14448c 130%);
+  --grad-rose: linear-gradient(135deg, #bca4b4 0%, #bc6c7c 100%);
+
+  /* re-map the older system onto the palette */
+  --aubergine-950: #1c1130;
+  --aubergine-900: #2c1c44;
+  --aubergine-800: #2c1c44;
+  --indigo-700: #3d2858;
+  --violet-600: #542c6c;
+  --magenta-600: #7c2484;
+  --rose-500: #bc6c7c;
+  --blue-600: #14448c;
+  --teal-900: #243444;
+  --sky-200: #b4ccec;
+  --lavender-300: #a494b4;
+  --mauve-200: #bca4b4;
+  --blush-100: #f7e9ec;
+
+  --canvas: #e9e5ef;
+  --sheet: #ffffff;
+  --surface: var(--tint-mist);
+  --bg: var(--canvas);
+  --ink: #2c1c44;
+  --ink-2: #4e4361;
+  --ink-3: #63597a;
+  --line: rgb(44 28 68 / 0.09);
+  --line-strong: rgb(44 28 68 / 0.16);
+  --accent: #542c6c;
+  --accent-ink: #542c6c;
+  --focus: #7c2484;
+  --grad-accent: linear-gradient(100deg, #7c2484 0%, #542c6c 50%, #14448c 100%);
+  --grad-accent-on: linear-gradient(100deg, #7c2484 0%, #542c6c 50%, #14448c 100%);
+  --hl-bg: #e3d9ef;
+  --hl-ink: #542c6c;
+  --card: #fff;
+  --card-line: rgb(44 28 68 / 0.08);
+  --shadow-soft: 0 1px 2px rgb(44 28 68 / 0.04), 0 24px 48px -32px rgb(44 28 68 / 0.3);
+  --shadow-glass: none;
+  --shadow-lift: 0 1px 2px rgb(44 28 68 / 0.05), 0 30px 60px -36px rgb(44 28 68 / 0.38);
+  --glass-fill: var(--tint-mist);
+  --glass-fill-strong: #fff;
+  --font-calligraphy: 'Aref Ruqaa', 'Amiri', serif;
+  --sheet-gap: clamp(6px, 1vw, 14px);
+  --sheet-radius: clamp(22px, 2.6vw, 40px);
+}
+
+:root[data-theme='dark'] {
+  --tint-lavender: #2a2139;
+  --tint-sky: #1d2638;
+  --tint-mauve: #2c2230;
+  --tint-rose: #33222a;
+  --tint-mist: #221b2e;
+  --grad-dawn: linear-gradient(135deg, #3a2d52 0%, #22324d 100%);
+  --grad-dusk: linear-gradient(135deg, #3d2b40 0%, #34294a 55%, #22324d 100%);
+  --canvas: #0e0916;
+  --sheet: #160f22;
+  --surface: #211a2d;
+  --bg: var(--canvas);
+  --ink: #f3eff8;
+  --ink-2: #d8d0e4;
+  --ink-3: #c2b8d4;
+  --line: rgb(255 255 255 / 0.1);
+  --line-strong: rgb(255 255 255 / 0.18);
+  --accent: #c9a8e6;
+  --accent-ink: #dcc4f2;
+  --focus: #dcc4f2;
+  --hl-bg: rgb(164 148 180 / 0.3);
+  --hl-ink: #f0e2ff;
+  --card: #201830;
+  --card-line: rgb(255 255 255 / 0.09);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 24px 48px -30px rgb(0 0 0 / 0.8);
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.35), 0 30px 60px -32px rgb(0 0 0 / 0.85);
+  --glass-fill: var(--tint-mist);
+  --glass-fill-strong: #201830;
+}
+
+/* ── Canvas and sheet ──────────────────────────────────────────────────────── */
+
+html,
+body {
+  background: var(--canvas);
+}
+
+.aurora {
+  display: none;
+}
+
+main#main {
+  margin: var(--sheet-gap) var(--sheet-gap) 0;
+  padding-top: calc(var(--header-h) + 14px);
+  padding-bottom: clamp(24px, 4vw, 56px);
+  border-radius: var(--sheet-radius);
+  background: var(--sheet);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset;
+  overflow-x: clip;
+}
+
+/* ── Type ──────────────────────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3 {
+  color: var(--ink);
+}
+
+h1,
+h2 {
+  font-weight: 460;
+  letter-spacing: -0.045em;
+}
+
+[dir='rtl'] :is(h1, h2) {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+h3 {
+  font-weight: 560;
+  letter-spacing: -0.02em;
+}
+
+[dir='rtl'] h3 {
+  letter-spacing: 0;
+}
+
+/* Marker accent: the emphasised words of every heading. */
+.accent {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  color: var(--hl-ink);
+  background: linear-gradient(transparent 56%, var(--hl-bg) 56%, var(--hl-bg) 90%, transparent 90%);
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  padding: 0 0.06em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+[dir='rtl'] .accent {
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+:is(.theme-night, .tone--deep) .accent {
+  color: #fff;
+  background: linear-gradient(transparent 56%, rgb(188 164 180 / 0.42) 56%, rgb(188 164 180 / 0.42) 90%, transparent 90%);
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+
+/* Eyebrows → status pills */
+.eyebrow {
+  gap: 0.6em;
+  padding: 0.45em 0.95em 0.45em 0.8em;
+  font-size: 0.82rem;
+  font-weight: 560;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  box-shadow: none;
+}
+
+.eyebrow::before {
+  content: '';
+  flex: none;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--brand-magenta);
+}
+
+:is(.theme-night, .tone--deep) .eyebrow {
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+:is(.theme-night, .tone--deep) .eyebrow::before {
+  background: var(--brand-mauve);
+}
+
+.lead {
+  color: var(--ink-2);
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+
+.btn {
+  border-radius: var(--r-pill);
+}
+
+.btn--primary {
+  color: #fff;
+  background: var(--brand-ink);
+  box-shadow: 0 14px 28px -18px rgb(44 28 68 / 0.75);
+}
+
+.btn--primary:hover {
+  background: var(--brand-plum);
+}
+
+.btn--glass {
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  box-shadow: none;
+}
+
+.btn--glass:hover {
+  background: var(--tint-lavender);
+}
+
+/* soft CTA, as on the reference ("Contact us" in the brand's light blue) */
+.btn--soft {
+  color: var(--brand-ink);
+  background: var(--brand-sky);
+  border: 0;
+}
+
+.btn--soft:hover {
+  background: #a5c0e6;
+}
+
+:root[data-theme='dark'] .btn--primary:not(.theme-night *, .tone--deep *) {
+  color: var(--brand-ink);
+  background: #efe7f8;
+}
+
+:root[data-theme='dark'] .btn--glass:not(.theme-night *, .tone--deep *) {
+  color: var(--ink);
+  background: var(--card);
+  border-color: var(--line-strong);
+}
+
+:is(.theme-night, .tone--deep) .btn--primary {
+  color: var(--brand-ink);
+  background: #fff;
+}
+
+:is(.theme-night, .tone--deep) .btn--glass {
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+  border-color: rgb(255 255 255 / 0.22);
+}
+
+/* ── Surfaces: the old glass becomes flat tinted cards on the white sheet ──── */
+
+.glass,
+.glass--strong {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: 0;
+}
+
+.glass::before,
+.glass::after {
+  display: none;
+}
+
+.glass--interactive {
+  transition:
+    transform 0.4s var(--ease-out),
+    background-color 0.3s;
+}
+
+.glass--interactive:hover {
+  transform: translateY(-3px);
+  background: var(--tint-lavender);
+}
+
+.chip {
+  border: 1px solid var(--card-line);
+  background: var(--card);
+  box-shadow: none;
+}
+
+.icon-badge {
+  color: var(--brand-plum);
+  background: var(--tint-lavender);
+  box-shadow: none;
+}
+
+:root[data-theme='dark'] .icon-badge {
+  color: #dcc4f2;
+}
+
+/* Night panels: the brand ink with a plum → navy glow (no more off-palette gradients). */
+.theme-night {
+  --ink: #f6f2fb;
+  --ink-2: #ddd4ea;
+  --ink-3: #c9bfdb;
+  background:
+    radial-gradient(70% 60% at 10% 0%, rgb(124 36 132 / 0.42), transparent 62%),
+    radial-gradient(60% 60% at 100% 100%, rgb(20 68 140 / 0.4), transparent 62%),
+    var(--brand-ink);
+}
+
+/* ── Tone surfaces ─────────────────────────────────────────────────────────── */
+
+.tone {
+  --tone-bg: var(--tint-lavender);
+  --tone-dot: var(--brand-plum);
+  background: var(--tone-bg);
+  color: var(--ink);
+}
+
+.tone--lavender { --tone-bg: var(--tint-lavender); --tone-dot: var(--brand-plum); }
+.tone--sky { --tone-bg: var(--tint-sky); --tone-dot: var(--brand-navy); }
+.tone--mauve { --tone-bg: var(--tint-mauve); --tone-dot: #7a5a72; }
+.tone--rose { --tone-bg: var(--tint-rose); --tone-dot: #9a4a5a; }
+.tone--mist { --tone-bg: var(--tint-mist); --tone-dot: var(--brand-ink); }
+.tone--dawn { --tone-bg: var(--tint-sky); --tone-dot: var(--brand-navy); background: var(--grad-dawn); }
+.tone--dusk { --tone-bg: var(--tint-lavender); --tone-dot: var(--brand-plum); background: var(--grad-dusk); }
+
+:root[data-theme='dark'] .tone--lavender { --tone-dot: #d4b9ef; }
+:root[data-theme='dark'] .tone--sky { --tone-dot: #b4ccec; }
+:root[data-theme='dark'] .tone--mauve { --tone-dot: #e2c4d8; }
+:root[data-theme='dark'] .tone--rose { --tone-dot: #eeb1bd; }
+:root[data-theme='dark'] .tone--mist { --tone-dot: #e8e0f2; }
+:root[data-theme='dark'] .tone--dawn { --tone-dot: #b4ccec; }
+:root[data-theme='dark'] .tone--dusk { --tone-dot: #d4b9ef; }
+
+/* Deep tones: white text on the brand's dark swatches. */
+.tone--deep {
+  --ink: #fff;
+  --ink-2: #ece4f4;
+  --ink-3: #d9cee6;
+  --tone-dot: var(--brand-mauve);
+  --card: rgb(255 255 255 / 0.1);
+  --card-line: rgb(255 255 255 / 0.18);
+  color: #fff;
+}
+
+.tone--ink { background: var(--brand-ink); }
+.tone--plum { background: var(--brand-plum); }
+.tone--magenta { background: var(--brand-magenta); }
+.tone--navy { background: var(--brand-navy); --tone-dot: var(--brand-sky); }
+.tone--slate { background: var(--brand-slate); --tone-dot: var(--brand-sky); }
+.tone--grad-plum { background: var(--grad-plum); }
+.tone--grad-night { background: var(--grad-night); }
+
+/* ── The calligraphy pattern ───────────────────────────────────────────────── */
+/* Any positioned element: add .pattern, choose a colour with --pattern-color and a strength with
+   --pattern-opacity. The tile is a mask, so it takes any palette colour (like the brand sheet). */
+
+.pattern {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--pattern-color, var(--brand-plum));
+  opacity: var(--pattern-opacity, 0.16);
+  -webkit-mask: url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat;
+  mask: url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat;
+}
+
+.pattern--airy::before {
+  -webkit-mask-image: url('/pattern/calligraphy-b.svg');
+  mask-image: url('/pattern/calligraphy-b.svg');
+}
+
+/* A pattern that fades out towards the content side (inline-start), for text-heavy panels. */
+.pattern--fade::before {
+  -webkit-mask:
+    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat,
+    linear-gradient(90deg, transparent 15%, #000 75%);
+  -webkit-mask-composite: source-in;
+  mask:
+    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat intersect,
+    linear-gradient(90deg, transparent 15%, #000 75%);
+}
+
+[dir='rtl'] .pattern--fade::before {
+  -webkit-mask:
+    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat,
+    linear-gradient(270deg, transparent 15%, #000 75%);
+  -webkit-mask-composite: source-in;
+  mask:
+    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat intersect,
+    linear-gradient(270deg, transparent 15%, #000 75%);
+}
+
+/* ── Components ────────────────────────────────────────────────────────────── */
+
+/* Status pill: ● label */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.42em 0.9em 0.42em 0.75em;
+  border-radius: var(--r-pill);
+  font-size: 0.84rem;
+  font-weight: 560;
+  line-height: 1.2;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  white-space: nowrap;
+}
+
+.status::before {
+  content: '';
+  flex: none;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--tone-dot, var(--brand-magenta));
+}
+
+.status--ghost {
+  background: transparent;
+}
+
+.theme-night .status {
+  color: #f6f2fb;
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+/* Underlined text link with an arrow */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding-bottom: 0.3em;
+  border-bottom: 1.5px solid currentColor;
+  font-weight: 620;
+  color: var(--ink);
+  text-decoration: none;
+  transition: gap 0.3s var(--ease-out);
+}
+
+.link-arrow svg {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.link-arrow:hover {
+  gap: 0.95em;
+}
+
+[dir='rtl'] .link-arrow svg {
+  transform: scaleX(-1);
+}
+
+/* Round arrow button (↗) */
+.arrow-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--arrow-size, 46px);
+  height: var(--arrow-size, 46px);
+  border-radius: 50%;
+  color: var(--brand-ink);
+  background: #fff;
+  box-shadow: 0 8px 20px -12px rgb(44 28 68 / 0.45);
+  transition: transform 0.35s var(--ease-out);
+}
+
+.arrow-btn svg {
+  width: 44%;
+  height: 44%;
+}
+
+[dir='rtl'] .arrow-btn svg {
+  transform: scaleX(-1);
+}
+
+.arrow-btn--dark {
+  color: #fff;
+  background: var(--brand-ink);
+}
+
+:root[data-theme='dark'] .arrow-btn--dark:not(.tone--deep *) {
+  color: var(--brand-ink);
+  background: #efe7f8;
+}
+
+:is(a, button):hover .arrow-btn,
+.arrow-btn:hover {
+  transform: rotate(-45deg);
+}
+
+[dir='rtl'] :is(a, button):hover .arrow-btn,
+[dir='rtl'] .arrow-btn:hover {
+  transform: rotate(45deg);
+}
+
+/* Initials avatar stack (the teachers' initials — no stock faces) */
+.avatars {
+  display: inline-flex;
+  align-items: center;
+}
+
+.avatars > span {
+  display: grid;
+  place-items: center;
+  width: var(--av, 38px);
+  height: var(--av, 38px);
+  border-radius: 50%;
+  font-size: calc(var(--av, 38px) * 0.34);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--brand-ink);
+  border: 2px solid var(--sheet);
+}
+
+.avatars > span + span {
+  margin-inline-start: calc(var(--av, 38px) * -0.32);
+}
+
+.avatars > span:nth-child(4n + 1) { background: #d9cbe8; }
+.avatars > span:nth-child(4n + 2) { background: var(--brand-sky); }
+.avatars > span:nth-child(4n + 3) { background: #e3cbd4; }
+.avatars > span:nth-child(4n + 4) { background: var(--brand-mauve); }
+
+/* Stat tile */
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  padding: clamp(18px, 2.4vw, 26px);
+  border-radius: 26px;
+  min-height: 150px;
+}
+
+.stat-tile__num {
+  display: block;
+  font-size: clamp(2.2rem, 1.6rem + 2vw, 3.4rem);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+[dir='rtl'] .stat-tile__num {
+  letter-spacing: 0;
+}
+
+.stat-tile__label {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+/* Numbered card */
+.num-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(20px, 2.6vw, 28px);
+  border-radius: 26px;
+  background: var(--card);
+  border: 1px solid var(--card-line);
+}
+
+.num-card__num {
+  font-size: clamp(2.6rem, 2rem + 2.2vw, 3.8rem);
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  color: var(--tone-dot, var(--brand-plum));
+  font-variant-numeric: tabular-nums;
+}
+
+/* Marquee ticker */
+.ticker {
+  --ticker-gap: clamp(28px, 4vw, 56px);
+  overflow: hidden;
+  border-block: 1px solid var(--line-strong);
+  padding-block: clamp(14px, 2vw, 20px);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.ticker__track {
+  display: flex;
+  width: max-content;
+  gap: var(--ticker-gap);
+  animation: ticker 40s linear infinite;
+}
+
+.ticker:hover .ticker__track {
+  animation-play-state: paused;
+}
+
+[dir='rtl'] .ticker__track {
+  animation-name: ticker-rtl;
+}
+
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ticker-gap);
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.9rem);
+  font-weight: 420;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+[dir='rtl'] .ticker__item {
+  letter-spacing: 0;
+}
+
+.ticker__item::after {
+  content: '✦';
+  font-size: 0.6em;
+  color: var(--brand-magenta);
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes ticker-rtl {
+  to {
+    transform: translateX(50%);
+  }
+}
+
+/* Rotating circular badge */
+.spin-badge {
+  display: block;
+  overflow: visible;
+  width: var(--spin, 112px);
+  height: var(--spin, 112px);
+  animation: spin 22s linear infinite;
+}
+
+.spin-badge text {
+  font-size: 10.4px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  fill: currentColor;
+}
+
+[dir='rtl'] .spin-badge text {
+  letter-spacing: 0;
+  font-size: 11.5px;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.calligraphy {
+  font-family: var(--font-calligraphy);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+/* Header: a solid bar; the links sit in a segmented capsule with the current page filled. */
+.site-header__bar.glass,
+.site-header__bar {
+  background: color-mix(in srgb, var(--sheet) 92%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px -24px rgb(44 28 68 / 0.5);
+}
+
+.nav__list {
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--tint-mist);
+}
+
+.nav__link {
+  height: 38px;
+  border-radius: var(--r-pill);
+}
+
+.nav__link.is-active,
+.nav__link[aria-current='page'] {
+  color: #fff;
+  background: var(--brand-ink);
+  box-shadow: none;
+}
+
+:root[data-theme='dark'] .nav__link.is-active,
+:root[data-theme='dark'] .nav__link[aria-current='page'] {
+  color: var(--brand-ink);
+  background: #efe7f8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker__track,
+  .spin-badge {
+    animation: none;
+  }
+
+  .ticker__track {
+    flex-wrap: wrap;
+    width: auto;
+  }
+
+  .ticker__item[aria-hidden='true'] {
+    display: none;
+  }
+}
+
+/* Light tone cards inside a dark panel keep the brand ink (they don't inherit the panel's white). */
+.theme-night .tone:not(.tone--deep),
+.tone--deep .tone:not(.tone--deep) {
+  --ink: var(--brand-ink);
+  --ink-2: #4e4361;
+  --ink-3: #63597a;
+  --card: #fff;
+  --card-line: rgb(44 28 68 / 0.08);
+  color: var(--brand-ink);
+}
+
+:root[data-theme='dark'] .theme-night .tone:not(.tone--deep) {
+  --ink: #f3eff8;
+  --ink-2: #d8d0e4;
+  --ink-3: #c2b8d4;
+  --card: #201830;
+  color: #f3eff8;
+}
+
+/* The page hero is now a panel: retire the older editorial masthead behind it. */
+.page-hero::before {
+  display: none;
+}
+
+.page-hero__copy {
+  padding-block: 0;
+  padding-inline: 0;
+}
+
+/* ── Shared page blocks ────────────────────────────────────────────────────── */
+
+/* Feature grids and step lists: brand tints in rotation, white icon chips, light numerals. */
+.feature-card,
+.step {
+  --radius: 28px;
+  border-radius: 28px;
+  padding: clamp(22px, 2.6vw, 30px);
+  background: var(--tint-lavender);
+}
+
+:is(.grid, .steps) > :is(.feature-card, .step):nth-child(4n + 2) {
+  background: var(--tint-sky);
+}
+
+:is(.grid, .steps) > :is(.feature-card, .step):nth-child(4n + 3) {
+  background: var(--tint-mauve);
+}
+
+:is(.grid, .steps) > :is(.feature-card, .step):nth-child(4n + 4) {
+  background: var(--tint-rose);
+}
+
+:is(.feature-card, .step) .icon-badge {
+  background: #fff;
+}
+
+:root[data-theme='dark'] :is(.feature-card, .step) .icon-badge {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.step__num {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 1.9rem + 1.6vw, 3.2rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--brand-plum);
+}
+
+:root[data-theme='dark'] .step__num:not(.theme-night *) {
+  color: #cbb2e6;
+}
+
+.theme-night .step__num {
+  color: var(--brand-mauve);
+}
+
+.theme-night :is(.feature-card, .step) {
+  background: rgb(255 255 255 / 0.07);
+}
+
+/* Section heads: big, light, tight. */
+.section-head h2 {
+  font-size: clamp(2rem, 1.3rem + 2.6vw, 3.4rem);
+  line-height: 1.06;
+}
+
+[dir='rtl'] .section-head h2 {
+  line-height: 1.4;
+}
+
+/* Arabic sub-lines read as calligraphy accents, not serif italics. */
+:is(.section-head__sub, .page-hero__sub) {
+  font-family: var(--font-calligraphy);
+  font-weight: 700;
+  color: var(--brand-magenta);
+}
+
+.theme-night :is(.section-head__sub, .page-hero__sub) {
+  color: var(--brand-mauve);
+}
+
+/* Breadcrumbs inside the ink hero panel */
+.theme-night .breadcrumbs,
+.theme-night .breadcrumbs a {
+  color: #ddd4ea;
+}
+
+/* Forms on the white sheet */
+.input,
+.select,
+.textarea {
+  border-radius: 16px;
+  border-color: var(--line-strong);
+  background: var(--tint-mist);
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--brand-plum);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgb(84 44 108 / 0.14);
+}
+
+/* FAQ accordion rows */
+.faq details,
+.faq__item {
+  border-radius: 22px;
+  background: var(--tint-mist);
+  border: 0;
+}

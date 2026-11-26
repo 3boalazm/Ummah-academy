@@ -38,8 +38,8 @@ const titleLead = cut >= 0 ? C.title.slice(0, cut) : C.title;
 const titleAccent = cut >= 0 ? C.title.slice(cut) : '';
 
 // Tones per programme (the same order as the tracks data: quran, arabic, kids, islamic).
-const TONE: Record<string, string> = { quran: 'lavender', arabic: 'sky', kids: 'peach', islamic: 'mint' };
-const STEP_TONES = ['lavender', 'sky', 'mint', 'butter'];
+const TONE: Record<string, string> = { quran: 'lavender', arabic: 'sky', kids: 'rose', islamic: 'mauve' };
+const STEP_TONES = ['lavender', 'sky', 'mauve', 'rose'];
 const kids = tracks.find((tr) => tr.id === 'kids') ?? tracks[2];
 // Ticker: the four programmes and the three promises, looping.
 const tickerItems = [...tracks.map((tr) => tr.title), ...C.reassure];
@@ -51,7 +51,9 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
   <!-- 1 · Hero: headline with an inline pill, and a bento of photo + figures -->
   <section class="hero2">
-    <div class="container hero2__grid">
+    <div class="container">
+    <div class="hero2__panel theme-night pattern pattern--fade" style="--pattern-color: var(--brand-magenta); --pattern-opacity: .4; --pattern-size: 600px">
+    <div class="hero2__grid">
       <div class="hero2__copy" data-reveal>
         <span class="eyebrow">{C.eyebrow}</span>
         <h1 class="hero2__title">
@@ -91,14 +93,14 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
             <span class="arrow-btn arrow-btn--dark" style="--arrow-size:42px"><Icon name="arrow-up-right" weight="bold" /></span>
           </a>
         </div>
-        <div class="stat-tile tone tone--mint hb-stat">
+        <div class="stat-tile tone tone--sky hb-stat">
           <span class="avatars" style="--av:34px" aria-hidden="true">{teachers.map((tt) => <span>{tt.initials}</span>)}<span>+</span></span>
           <span>
             <span class="stat-tile__num">{C.stats[1][0]}</span>
             <span class="stat-tile__label">{C.stats[1][1]}</span>
           </span>
         </div>
-        <div class="stat-tile tone tone--lavender hb-stat">
+        <div class="stat-tile tone tone--mauve hb-stat">
           <span class="hb-stat__icon" aria-hidden="true"><Icon name="globe-hemisphere-west" weight="duotone" /></span>
           <span>
             <span class="stat-tile__num">{C.stats[0][0]}</span>
@@ -113,6 +115,8 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
           <span class="hb-spin__core"><Icon name="seal-check" weight="fill" /></span>
         </div>
       </div>
+    </div>
+    </div>
     </div>
 
     <!-- Ticker: programmes and promises -->
@@ -135,7 +139,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
         <p class="lead">{C.router.lede}</p>
       </div>
       <div class="rt__grid">
-        <a class="rt-card rt-card--child tone tone--peach" href={lp(lang, kids.href)} data-router="child" data-goal="kids" data-reveal>
+        <a class="rt-card rt-card--child tone tone--rose pattern pattern--fade" style="--pattern-color: var(--brand-rose); --pattern-opacity: .22" href={lp(lang, kids.href)} data-router="child" data-goal="kids" data-reveal>
           <span class="rt-shape rt-shape--a" aria-hidden="true"></span>
           <span class="rt-shape rt-shape--b" aria-hidden="true"></span>
           <div class="rt-card__copy">
@@ -240,7 +244,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
         </article>
         {
           [C.stats[2], C.stats[3]].map(([n, l], i) => (
-            <div class:list={['stat-tile', 'tone', i ? 'tone--sky' : 'tone--butter', 'wb__stat', i ? 'wb__stat--b' : 'wb__stat--a']} data-reveal style={`--reveal-delay:${0.05 + i * 0.05}s`}>
+            <div class:list={['stat-tile', 'tone', i ? 'tone--sky' : 'tone--mauve', 'wb__stat', i ? 'wb__stat--b' : 'wb__stat--a']} data-reveal style={`--reveal-delay:${0.05 + i * 0.05}s`}>
               <Icon name={i ? 'chart-line-up' : 'certificate'} weight="duotone" class="wb__stat-icon" />
               <span>
                 <span class="stat-tile__num">{n}</span>
@@ -249,7 +253,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
             </div>
           ))
         }
-        <a class="wb__itqan tone tone--lime" href="/the-itqan-method-explained-how-thematic-memorization-makes-hifz-easier/" data-reveal style="--reveal-delay:.12s">
+        <a class="wb__itqan tone tone--deep tone--grad-plum pattern" style="--pattern-color: #fff; --pattern-opacity: .09" href="/the-itqan-method-explained-how-thematic-memorization-makes-hifz-easier/" data-reveal style="--reveal-delay:.12s">
           <span class="wb__itqan-copy">
             <span class="status">{C.why.itqan[0]}</span>
             <span class="wb__itqan-text">{C.why.itqan[1]}</span>
@@ -267,7 +271,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
           <h3>{C.why.time[0]}</h3>
           <p>{C.why.time[1]}</p>
         </article>
-        <a class="wb__price tone tone--blush" href={lp(lang, '/pricing/')} data-reveal style="--reveal-delay:.15s">
+        <a class="wb__price tone tone--dusk" href={lp(lang, '/pricing/')} data-reveal style="--reveal-delay:.15s">
           <span class="wb__price-num">{C.why.price[0]}</span>
           <span>{C.why.price[1]}</span>
           <span class="link-arrow">{C.why.price[2]} <Icon name="arrow-right" weight="bold" /></span>
@@ -344,7 +348,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
               <div role="tabpanel" id={`pt-${id}`} aria-labelledby={`tab-${id}`} hidden={id === '60'}>
                 <ul role="list" class="mini-plans">
                   {(list as typeof plans).map((p, i) => (
-                    <li class:list={['mini-plan', 'tone', ['tone--lavender', 'tone--mint', 'tone--sky', 'tone--butter'][i % 4], { 'mini-plan--badge': p.badge }]}>
+                    <li class:list={['mini-plan', 'tone', ['tone--lavender', 'tone--sky', 'tone--mauve', 'tone--rose'][i % 4], { 'mini-plan--badge': p.badge }]}>
                       <div>
                         <p class="mini-plan__name">
                           {p.name} {p.badge && <span class="mini-plan__badge">{p.badge}</span>}
@@ -431,7 +435,13 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
   .hero2 {
     position: relative;
     overflow-x: clip;
-    padding-block: clamp(28px, 4vw, 60px) 0;
+    padding-block: clamp(4px, 1vw, 12px) 0;
+  }
+
+  /* the hero is a deep ink panel with the calligraphy pattern, like the dark swatch of the brand sheet */
+  .hero2__panel {
+    border-radius: var(--sheet-radius);
+    padding: clamp(22px, 4vw, 56px);
   }
 
   .hero2__grid {
@@ -1340,19 +1350,19 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
   }
 
   .rail__track li:nth-child(4n + 1) :global(.tcard) {
-    background: var(--tone-lavender);
+    background: var(--tint-lavender);
   }
 
   .rail__track li:nth-child(4n + 2) :global(.tcard) {
-    background: var(--tone-butter);
+    background: var(--tint-sky);
   }
 
   .rail__track li:nth-child(4n + 3) :global(.tcard) {
-    background: var(--tone-mint);
+    background: var(--tint-mauve);
   }
 
   .rail__track li:nth-child(4n + 4) :global(.tcard) {
-    background: var(--tone-sky);
+    background: var(--tint-rose);
   }
 
   .rail__track li :global(.tcard::before),
@@ -1398,7 +1408,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
     gap: 4px;
     padding: 5px;
     border-radius: var(--r-pill);
-    background: var(--tone-lavender);
+    background: var(--tint-lavender);
     margin-bottom: 14px;
   }
 

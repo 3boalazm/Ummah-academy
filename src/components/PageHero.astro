@@ -17,7 +17,12 @@ const hasVisual = Astro.slots.has('visual');
 ---
 
 <section class:list={['page-hero', { 'page-hero--center': align === 'center', 'page-hero--compact': compact }]}>
-  <div class:list={['container', 'page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
+  <div class="container">
+  <div
+    class:list={['page-hero__panel', 'theme-night', 'pattern', { 'pattern--fade': align !== 'center' }]}
+    style={`--pattern-color: var(--brand-magenta); --pattern-opacity: ${align === 'center' ? 0.2 : 0.34}; --pattern-size: 560px`}
+  >
+  <div class:list={['page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
     <div class="page-hero__copy" data-reveal>
       {crumbs && <Breadcrumbs items={crumbs} lang={lang} />}
       {
@@ -52,12 +57,39 @@ const hasVisual = Astro.slots.has('visual');
       )
     }
   </div>
+  </div>
+  </div>
 </section>
 
 <style>
   .page-hero {
     overflow-x: clip;
-    padding-block: clamp(40px, 6vw, 88px) clamp(32px, 5vw, 72px);
+    padding-block: clamp(4px, 1vw, 12px) clamp(28px, 4vw, 56px);
+  }
+
+  /* Every inner page opens on a deep ink panel with the calligraphy pattern fading out behind the copy. */
+  .page-hero__panel {
+    border-radius: var(--sheet-radius);
+    padding: clamp(26px, 5vw, 72px) clamp(20px, 4.5vw, 64px);
+  }
+
+  /* cards placed in the hero (at-a-glance, badges) are white cards on the dark panel */
+  .page-hero__panel :global(.glass) {
+    --ink: var(--brand-ink);
+    --ink-2: #4e4361;
+    --ink-3: #63597a;
+    --line: rgb(44 28 68 / 0.1);
+    color: var(--brand-ink);
+    background: #fff;
+  }
+
+  :global([data-theme='dark']) .page-hero__panel :global(.glass) {
+    --ink: #f3eff8;
+    --ink-2: #d8d0e4;
+    --ink-3: #c2b8d4;
+    --line: rgb(255 255 255 / 0.12);
+    color: #f3eff8;
+    background: #241b35;
   }
 
   .page-hero--compact {
@@ -91,7 +123,13 @@ const hasVisual = Astro.slots.has('visual');
   }
 
   .page-hero h1 {
-    font-size: var(--fs-h1);
+    font-size: clamp(2.4rem, 1.4rem + 3.8vw, 4.6rem);
+    line-height: 1.04;
+  }
+
+  :global([dir='rtl']) .page-hero h1 {
+    font-size: clamp(2.1rem, 1.3rem + 3vw, 3.8rem);
+    line-height: 1.35;
   }
 
   .page-hero__sub {
