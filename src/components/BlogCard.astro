@@ -19,89 +19,123 @@ interface Props {
 const { href, title, description, category, date, track, lang, pageLang = lang, lead = false } = Astro.props;
 const foreign = lang !== pageLang;
 const fmt = (d: Date) => d.toLocaleDateString(LOCALE[lang].intl, { day: 'numeric', month: 'short', year: 'numeric' });
+// Pastel tone per topic (the same pairing as the home page programmes); the lead card is the deep anchor.
+const TONE: Record<string, string> = { quran: 'lavender', arabic: 'sky', kids: 'rose', islamic: 'mauve', general: 'mist' };
+const tone = lead ? ['tone--deep', 'tone--grad-plum'] : [`tone--${TONE[track] ?? 'lavender'}`];
 ---
 
 <li data-track={track} class:list={['blog-card', { 'blog-card--lead': lead }]}>
-  <a class="glass glass--interactive blog-card__link" href={href} hreflang={foreign ? lang : undefined}>
-    <PostCover title={title} track={track} small={!lead} />
+  <a class:list={['blog-card__link', 'tone', ...tone]} href={href} hreflang={foreign ? lang : undefined}>
+    <span class="blog-card__media">
+      <PostCover title={title} track={track} small={!lead} />
+      <span class="status blog-card__cat" lang={foreign ? lang : undefined} dir={foreign ? LOCALE[lang].dir : undefined}>{category}</span>
+    </span>
     <span class="blog-card__body" lang={foreign ? lang : undefined} dir={foreign ? LOCALE[lang].dir : undefined}>
       <span class="blog-card__meta">
-        <span class="chip chip--accent">{category}</span>
+        <Icon name="calendar-blank" weight="bold" />
         <time datetime={date.toISOString()}>{fmt(date)}</time>
       </span>
       <span class="blog-card__title">{title}</span>
       <span class="blog-card__excerpt">{description}</span>
-      <span class="blog-card__more">
-        {ui(lang).readArticle} <Icon name="arrow-right" weight="bold" />
+      <span class="blog-card__foot">
+        <span class="blog-card__more">{ui(lang).readArticle}</span>
+        <span class:list={['arrow-btn', { 'arrow-btn--dark': !lead }]} style={lead ? undefined : '--arrow-size:42px'} aria-hidden="true">
+          <Icon name="arrow-up-right" weight="bold" />
+        </span>
       </span>
     </span>
   </a>
 </li>
 
 <style>
+  .blog-card {
+    min-width: 0;
+  }
+
   .blog-card[hidden] {
     display: none;
   }
 
-  @media (min-width: 1000px) {
-    .blog-card--lead {
-      grid-column: span 2;
-    }
-
-    .blog-card--lead .blog-card__link {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      align-items: stretch;
-    }
-
-    /* the cover's 16:10 ratio must not drive the column width when stretched */
-    .blog-card--lead .blog-card__link > :global(.cover) {
-      aspect-ratio: auto;
-      height: 100%;
-      min-height: 300px;
-    }
-
-    .blog-card--lead .blog-card__title {
-      font-size: 1.7rem;
-    }
-  }
-
+  /* Reference card: a tinted surface, the rounded photo inset with a status pill on it, and a footer row
+     that ends on a round arrow button. */
   .blog-card__link {
-    --radius: 28px;
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 8px;
+    padding: 10px;
+    border-radius: 30px;
     text-decoration: none;
+    overflow: hidden;
+    box-shadow: none;
+    transition:
+      transform 0.4s var(--ease-out),
+      box-shadow 0.4s var(--ease-out);
+  }
+
+  .blog-card__link:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .blog-card__link:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .blog-card__media {
+    position: relative;
+    display: block;
+  }
+
+  /* the topic sits on the photo as a white pill (white in every theme, so it always reads over the artwork) */
+  .blog-card__cat {
+    position: absolute;
+    inset-block-start: 12px;
+    inset-inline-start: 12px;
+    max-width: calc(100% - 24px);
+    white-space: normal;
+    color: var(--brand-ink);
+    background: #fff;
+    border: 0;
+    box-shadow: 0 6px 16px -10px rgb(44 28 68 / 0.5);
   }
 
   .blog-card__body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 16px 14px 14px;
+    padding: 18px 12px 8px;
     flex: 1;
+    min-width: 0;
   }
 
   .blog-card__meta {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     font-size: 0.84rem;
     color: var(--ink-3);
   }
 
-  .blog-card__title {
-    font-weight: 620;
-    font-size: 1.18rem;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
+  .blog-card__meta :global(svg) {
+    width: 14px;
+    height: 14px;
   }
 
-  :global([dir='rtl']) .blog-card__title {
+  .blog-card__title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  :global([dir='rtl']) .blog-card__title,
+  .blog-card__body:lang(ar) .blog-card__title {
     letter-spacing: 0;
-    line-height: 1.5;
+    line-height: 1.55;
     font-weight: 700;
   }
 
@@ -114,26 +148,85 @@ const fmt = (d: Date) => d.toLocaleDateString(LOCALE[lang].intl, { day: 'numeric
     overflow: hidden;
   }
 
-  .blog-card__more {
-    display: inline-flex;
+  .blog-card__foot {
+    display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: space-between;
+    gap: 12px;
     margin-top: auto;
-    font-weight: 560;
-    font-size: 0.9rem;
-    color: var(--accent-ink);
+    padding-top: 8px;
   }
 
-  .blog-card__more :global(svg) {
-    width: 14px;
-    height: 14px;
+  .blog-card__more {
+    padding-bottom: 0.2em;
+    border-bottom: 1.5px solid currentColor;
+    font-weight: 620;
+    font-size: 0.92rem;
+    color: var(--ink);
   }
 
-  :global([dir='rtl']) .blog-card__more :global(svg) {
-    scale: -1 1;
+  /* an English card on the Arabic page keeps its arrow pointing the English way */
+  .blog-card__body[dir='ltr'] .arrow-btn :global(svg) {
+    transform: none;
   }
 
-  .blog-card__body[dir='ltr'] .blog-card__more :global(svg) {
-    scale: 1;
+  /* Featured first article: a large bento card on the deep plum gradient. */
+  .blog-card--lead .blog-card__link {
+    padding: 12px;
+  }
+
+  .blog-card--lead .blog-card__body {
+    gap: 14px;
+    padding: 22px 16px 10px;
+  }
+
+  .blog-card--lead .blog-card__title {
+    font-weight: 460;
+    font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem);
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+  }
+
+  .blog-card--lead .blog-card__excerpt {
+    font-size: 1.02rem;
+    -webkit-line-clamp: 4;
+  }
+
+  @media (min-width: 1000px) {
+    .blog-card--lead {
+      grid-column: span 2;
+    }
+
+    .blog-card--lead .blog-card__link {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+      min-height: 420px;
+    }
+
+    .blog-card--lead .blog-card__body {
+      padding: 26px 22px 14px;
+    }
+
+    /* the cover's 16:10 ratio must not drive the column width when stretched */
+    .blog-card--lead .blog-card__media :global(.cover) {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 320px;
+    }
+  }
+
+  :global([dir='rtl']) .blog-card--lead .blog-card__title {
+    letter-spacing: 0;
+    line-height: 1.45;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-card__link,
+    .blog-card__link:hover {
+      transition: none;
+      transform: none;
+    }
   }
 </style>

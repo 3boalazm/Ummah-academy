@@ -14,125 +14,171 @@ const { teacher: t, variant = 'full', lang = 'en', delay = 0 } = Astro.props;
 const COPY = copy(lang).teacherCard;
 const L = COPY.L(t);
 const profile = lp(lang, `/teachers/${t.id}/`);
+// Each teacher's hue picks a pastel tone for the card and a brand gradient for the monogram stage.
+const TONE: Record<Teacher['hue'], string> = { violet: 'lavender', sky: 'sky', rose: 'rose' };
 ---
 
-<article class:list={['teacher', 'glass', `teacher--${variant}`, `teacher--${t.hue}`]} data-reveal style={`--reveal-delay:${delay}s`}>
-  <div class="teacher__portrait" aria-hidden="true">
-    <span class="teacher__monogram">{t.initials}</span>
-    <span class="teacher__verified"><Icon name="seal-check" weight="fill" /> {L.verified}</span>
-  </div>
-  <div class="teacher__body">
-    <p class="teacher__role">{t.role}</p>
-    <h3><a class="teacher__name" href={profile}>{t.name}</a></h3>
-    <p class="teacher__spec">{t.specialty}</p>
-    {variant === 'full' && <p class="teacher__bio">{t.bio}</p>}
-    <div class="teacher__lists">
-      <div>
-        <p class="teacher__label">{L.bestFor}</p>
-        <ul role="list" class="cluster">
-          {t.bestFor.map((b) => <li class="chip chip--accent">{b}</li>)}
-        </ul>
-      </div>
-      {
-        variant === 'full' && (
-          <div>
-            <p class="teacher__label">{L.creds}</p>
-            <ul role="list" class="cluster">
-              {t.credentials.map((c) => (
-                <li class="chip">{c}</li>
-              ))}
-            </ul>
-          </div>
-        )
-      }
+<article class:list={['teacher', 'tone', `tone--${TONE[t.hue] ?? 'lavender'}`, `teacher--${variant}`, `teacher--${t.hue}`]} data-reveal style={`--reveal-delay:${delay}s`}>
+  <div class="teacher__inner">
+    <div class="teacher__portrait" aria-hidden="true">
+      <span class="teacher__shape teacher__shape--a"></span>
+      <span class="teacher__shape teacher__shape--b"></span>
+      <span class="teacher__monogram">{t.initials}</span>
+      <span class="status teacher__verified"><Icon name="seal-check" weight="fill" /> {L.verified}</span>
     </div>
-    <div class="cluster teacher__actions">
-      <a class="btn btn--sm btn--primary" href={trialLink({ teacher: t.canonical }, lang)}>
-        {L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
-      </a>
-      <a class="btn btn--sm btn--glass" href={profile} aria-label={`${L.profile}: ${t.name}`}>{L.profile}</a>
+    <div class="teacher__body">
+      <p class="teacher__role">{t.role}</p>
+      <h3><a class="teacher__name" href={profile}>{t.name}</a></h3>
+      <p class="teacher__spec">{t.specialty}</p>
+      {variant === 'full' && <p class="teacher__bio">{t.bio}</p>}
+      <div class="teacher__lists">
+        <div>
+          <p class="teacher__label">{L.bestFor}</p>
+          <ul role="list" class="teacher__chips">
+            {t.bestFor.map((b) => <li class="status">{b}</li>)}
+          </ul>
+        </div>
+        {
+          variant === 'full' && (
+            <div>
+              <p class="teacher__label">{L.creds}</p>
+              <ul role="list" class="teacher__chips">
+                {t.credentials.map((c) => (
+                  <li class="status status--ghost">{c}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </div>
+      <div class="teacher__actions">
+        <a class="btn btn--sm btn--primary" href={trialLink({ teacher: t.canonical }, lang)}>
+          {L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+        </a>
+        <a class="teacher__profile" href={profile} aria-label={`${L.profile}: ${t.name}`}>
+          <span>{L.profile}</span>
+          <span class="arrow-btn arrow-btn--dark" aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
+        </a>
+      </div>
     </div>
   </div>
 </article>
 
 <style>
+  /* Profile card (reference: course / profile cards): a pastel tone card holding a brand-gradient
+     stage with the teacher's initials, then the copy with status-pill chips and a round arrow button. */
   .teacher {
-    --radius: 30px;
-    --tint-a: rgb(175 204 234 / 0.9);
-    --tint-b: rgb(241 205 220 / 0.95);
-    display: grid;
-    gap: 22px;
+    --stage: var(--grad-dusk);
+    container-type: inline-size;
+    border-radius: 30px;
     padding: 10px;
-    align-items: stretch;
+    height: 100%;
   }
 
   .teacher--sky {
-    --tint-a: rgb(173 167 201 / 0.85);
-    --tint-b: rgb(175 204 234 / 0.95);
+    --stage: var(--grad-dawn);
   }
 
   .teacher--rose {
-    --tint-a: rgb(241 205 220 / 0.95);
-    --tint-b: rgb(206 179 193 / 0.9);
+    --stage: var(--grad-rose);
   }
 
-  @media (min-width: 820px) {
-    .teacher--full {
-      grid-template-columns: 300px 1fr;
+  :global([data-theme='dark']) .teacher--rose {
+    --stage: linear-gradient(135deg, var(--tint-mauve) 0%, var(--tint-rose) 100%);
+  }
+
+  .teacher__inner {
+    display: grid;
+    gap: 18px;
+    height: 100%;
+    grid-template-rows: auto 1fr;
+  }
+
+  /* compact cards sit side by side with the stage once the card is wide enough */
+  @container (min-width: 520px) {
+    .teacher--compact .teacher__inner {
+      grid-template-columns: 190px 1fr;
+      grid-template-rows: none;
     }
   }
 
   .teacher__portrait {
     position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: grid;
     place-items: center;
-    min-height: 220px;
+    min-height: 230px;
     border-radius: 24px;
-    overflow: hidden;
-    background:
-      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.9), transparent 60%),
-      radial-gradient(80% 70% at 80% 90%, var(--tint-a), transparent 65%),
-      radial-gradient(90% 80% at 10% 100%, var(--tint-b), transparent 70%),
-      linear-gradient(160deg, #ece6f6, #dfd8ef);
+    background: var(--stage);
   }
 
   .teacher--full .teacher__portrait {
-    border-radius: 150px 150px 22px 22px;
-    min-height: 300px;
+    min-height: 270px;
+  }
+
+  /* abstract shapes, as on the reference cards (soft, plain — no texture) */
+  .teacher__shape {
+    position: absolute;
+    z-index: -1;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.32);
+  }
+
+  .teacher__shape--a {
+    width: 62%;
+    aspect-ratio: 1;
+    inset-block-start: -24%;
+    inset-inline-end: -16%;
+  }
+
+  .teacher__shape--b {
+    width: 48%;
+    height: 28%;
+    inset-block-end: 8%;
+    inset-inline-start: -14%;
+    rotate: -28deg;
+  }
+
+  :global([data-theme='dark']) .teacher__shape {
+    background: rgb(255 255 255 / 0.06);
   }
 
   .teacher__monogram {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 5.2rem;
+    font-family: inherit;
+    font-style: normal;
+    font-size: clamp(4.6rem, 3.6rem + 4vw, 6.4rem);
+    font-weight: 300;
+    letter-spacing: -0.06em;
     line-height: 1;
-    background: var(--grad-accent);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .teacher__monogram {
+    color: var(--ink);
+  }
+
+  .teacher--compact .teacher__monogram {
+    font-size: clamp(3.8rem, 3rem + 3vw, 5rem);
   }
 
   .teacher__verified {
     position: absolute;
-    bottom: 14px;
-    left: 50%;
-    translate: -50% 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: var(--r-pill);
+    inset-block-end: 14px;
+    inset-inline-start: 14px;
+    max-width: calc(100% - 28px);
     font-size: 0.78rem;
-    font-weight: 600;
-    white-space: nowrap;
-    color: var(--accent-ink);
-    background: rgb(255 255 255 / 0.85);
-    box-shadow: 0 6px 14px -8px rgb(46 29 70 / 0.4);
+  }
+
+  .teacher__verified::before {
+    display: none;
   }
 
   .teacher__verified :global(svg) {
+    flex: none;
     width: 15px;
     height: 15px;
+    color: var(--tone-dot);
   }
 
   .teacher__body {
@@ -140,31 +186,33 @@ const profile = lp(lang, `/teachers/${t.id}/`);
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    padding: 10px 14px 18px;
+    min-width: 0;
+    padding: 4px 12px 14px;
   }
 
   .teacher__role {
-    font-size: 0.78rem;
+    font-size: 0.86rem;
     font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-  }
-
-  [dir='rtl'] .teacher__role {
-    letter-spacing: 0;
-    font-size: 0.88rem;
+    color: var(--ink-2);
   }
 
   .teacher h3 {
-    font-size: 1.7rem;
+    font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.8rem);
+    font-weight: 520;
     letter-spacing: -0.03em;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .teacher h3 {
+    letter-spacing: 0;
+    line-height: 1.4;
   }
 
   .teacher__spec {
-    color: var(--ink-2);
-    font-weight: 520;
     margin-top: -4px;
+    font-weight: 560;
+    color: var(--tone-dot);
   }
 
   .teacher__bio {
@@ -178,20 +226,54 @@ const profile = lp(lang, `/teachers/${t.id}/`);
     margin-block: 4px 8px;
   }
 
-  .teacher__lists ul {
-    --cluster: 6px;
-  }
-
   .teacher__label {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--ink-3);
     margin-bottom: 6px;
   }
 
+  .teacher__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .teacher__chips .status {
+    font-size: 0.8rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .teacher__chips .status--ghost {
+    border-color: color-mix(in srgb, var(--tone-dot) 32%, transparent);
+  }
+
   .teacher__actions {
-    --cluster: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 14px;
+    width: 100%;
     margin-top: auto;
+  }
+
+  .teacher__profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 620;
+    font-size: 0.92rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .teacher__profile .arrow-btn {
+    --arrow-size: 40px;
   }
 
   .teacher__name {
@@ -200,23 +282,10 @@ const profile = lp(lang, `/teachers/${t.id}/`);
   }
 
   .teacher__name:hover {
-    color: var(--accent-ink);
+    color: var(--tone-dot);
   }
 
   .teacher__name:focus-visible {
     outline-offset: 4px;
-  }
-  /* ---------- Dark theme: the portrait placeholder (visible only until a photo loads) ---------- */
-  :global([data-theme='dark']) .teacher__portrait {
-    background:
-      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.12), transparent 60%),
-      radial-gradient(80% 70% at 80% 90%, rgb(109 158 214 / 0.28), transparent 65%),
-      radial-gradient(90% 80% at 10% 100%, rgb(200 123 128 / 0.24), transparent 70%),
-      linear-gradient(160deg, #2b2040, #201731);
-  }
-
-  :global([data-theme='dark']) .teacher__verified {
-    background: rgb(255 255 255 / 0.14);
-    box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.75);
   }
 </style>

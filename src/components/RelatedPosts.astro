@@ -38,6 +38,8 @@ if (lang !== 'en') {
 }
 items = items.filter((p) => !exclude.has(p.url)).slice(0, limit);
 const categories = copy(lang).blog.C.categories as Record<string, string>;
+// Pastel tone per topic (the same pairing as the blog cards).
+const TONE: Record<string, string> = { quran: 'lavender', arabic: 'sky', kids: 'rose', islamic: 'mauve', general: 'mist' };
 const label = (p: Post) => (p.lang === lang && p.lang !== 'ar' ? (categories[p.entry.data.category] ?? p.entry.data.category) : p.entry.data.category);
 ---
 
@@ -49,23 +51,30 @@ const label = (p: Post) => (p.lang === lang && p.lang !== 'ar' ? (categories[p.e
           <span class="eyebrow">{L.kicker}</span>
           <h2 id="related-title">{title}</h2>
         </div>
-        <div class="grid grid-3">
+        <ul role="list" class="related__grid">
           {items.map((p, i) => (
-            <a class="related__card glass glass--interactive" href={p.url} hreflang={p.lang !== lang ? p.lang : undefined} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-              <PostCover title={p.entry.data.title} track={p.entry.data.track} small />
-              <span class="related__body" lang={p.lang !== lang ? p.lang : undefined} dir={p.lang !== lang ? LOCALE[p.lang].dir : undefined}>
-                <span class="cluster" style="--cluster:6px">
-                  <span class="chip chip--accent">{label(p)}</span>
-                  {lang !== 'en' && p.lang === 'en' && <span class="chip" lang={lang} dir={LOCALE[lang].dir}>{L.inEn}</span>}
+            <li data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <a class:list={['related__card', 'tone', `tone--${TONE[p.entry.data.track] ?? 'lavender'}`]} href={p.url} hreflang={p.lang !== lang ? p.lang : undefined}>
+                <span class="related__media">
+                  <PostCover title={p.entry.data.title} track={p.entry.data.track} small />
+                  <span class="related__chips">
+                    <span class="status related__cat" lang={p.lang !== lang ? p.lang : undefined} dir={p.lang !== lang ? LOCALE[p.lang].dir : undefined}>{label(p)}</span>
+                    {lang !== 'en' && p.lang === 'en' && L.inEn && <span class="status related__cat" lang={lang} dir={LOCALE[lang].dir}>{L.inEn}</span>}
+                  </span>
                 </span>
-                <span class="related__title">{p.entry.data.title}</span>
-                <span class="related__more">
-                  {L.read} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                <span class="related__body" lang={p.lang !== lang ? p.lang : undefined} dir={p.lang !== lang ? LOCALE[p.lang].dir : undefined}>
+                  <span class="related__title">{p.entry.data.title}</span>
+                  <span class="related__foot">
+                    <span class="related__more">{L.read}</span>
+                    <span class="arrow-btn arrow-btn--dark" style="--arrow-size:40px" aria-hidden="true">
+                      <Icon name="arrow-up-right" weight="bold" />
+                    </span>
+                  </span>
                 </span>
-              </span>
-            </a>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   )
@@ -81,53 +90,118 @@ const label = (p: Post) => (p.lang === lang && p.lang !== 'ar' ? (categories[p.e
   }
 
   .related__head h2 {
-    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+    font-size: clamp(1.8rem, 1.2rem + 2vw, 2.8rem);
+    line-height: 1.08;
   }
 
+  :global([dir='rtl']) .related__head h2 {
+    line-height: 1.4;
+  }
+
+  .related__grid {
+    display: grid;
+    gap: clamp(14px, 1.6vw, 20px);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  }
+
+  .related__grid > li {
+    min-width: 0;
+  }
+
+  /* Reference card: tinted surface, the rounded photo with pills on it, a footer row ending on a round arrow. */
   .related__card {
-    --radius: 26px;
     display: flex;
     flex-direction: column;
-    padding: 8px;
+    height: 100%;
+    padding: 10px;
+    border-radius: 28px;
     text-decoration: none;
+    transition:
+      transform 0.4s var(--ease-out),
+      box-shadow 0.4s var(--ease-out);
+  }
+
+  .related__card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .related__media {
+    position: relative;
+    display: block;
+  }
+
+  .related__chips {
+    position: absolute;
+    inset-block-start: 12px;
+    inset-inline: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* white in every theme, so the pills always read over the artwork */
+  .related__cat {
+    max-width: 100%;
+    white-space: normal;
+    color: var(--brand-ink);
+    background: #fff;
+    border: 0;
+    box-shadow: 0 6px 16px -10px rgb(44 28 68 / 0.5);
   }
 
   .related__body {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 16px 14px 14px;
+    gap: 14px;
+    padding: 18px 10px 6px;
     flex: 1;
+    min-width: 0;
   }
 
   .related__title {
     font-weight: 600;
-    font-size: 1.08rem;
+    font-size: 1.12rem;
     letter-spacing: -0.015em;
     line-height: 1.35;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  :global([dir='rtl']) .related__title,
+  .related__body:lang(ar) .related__title {
+    letter-spacing: 0;
+    line-height: 1.55;
+    font-weight: 700;
+  }
+
+  .related__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
   }
 
   .related__more {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: auto;
-    font-size: 0.88rem;
-    font-weight: 560;
-    color: var(--accent-ink);
+    padding-bottom: 0.2em;
+    border-bottom: 1.5px solid currentColor;
+    font-size: 0.9rem;
+    font-weight: 620;
+    color: var(--ink);
   }
 
-  .related__more :global(svg) {
-    width: 14px;
-    height: 14px;
+  /* an English card on the Arabic page keeps its arrow pointing the English way */
+  .related__body[dir='ltr'] .arrow-btn :global(svg) {
+    transform: none;
   }
 
-  :global([dir='rtl']) .related__more :global(svg) {
-    scale: -1 1;
-  }
-
-  .related__body[dir='ltr'] .related__more :global(svg) {
-    scale: 1;
+  @media (prefers-reduced-motion: reduce) {
+    .related__card,
+    .related__card:hover {
+      transition: none;
+      transform: none;
+    }
   }
 </style>

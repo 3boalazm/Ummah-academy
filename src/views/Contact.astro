@@ -7,38 +7,77 @@ import Faq from '@/components/Faq.astro';
 import Icon from '@/components/Icon.astro';
 import { SITE, waLink } from '@/data/site';
 import { lp, num, type Lang } from '@/i18n';
-import { copy } from '@/locales';
+import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
+const t = ui(lang);
 
 const COPY = copy(lang).contact;
 const C = COPY.C;
+const GET_TONES = ['lavender', 'sky', 'mauve'];
+const STEP_TONES = ['lavender', 'sky', 'rose'];
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} sticky={false}>
-  <section class="section book-hero" id="book" aria-labelledby="book-title">
-    <div class="container book-hero__grid">
-      <div class="book-hero__intro" data-reveal>
+  <!-- Hero: light copy on the sheet, the ways to reach us as choice cards on a gradient stage -->
+  <section class="c-hero">
+    <div class="container c-hero__grid">
+      <div class="c-hero__copy" data-reveal>
         <span class="eyebrow">{C.eyebrow}</span>
         <h1 id="book-title" set:html={C.title} />
         <p class="lead">{C.lede}</p>
+        <ul role="list" class="c-hero__ticks">
+          {t.ctaTicks.map((tick) => <li><Icon name="check-circle" weight="fill" /> {tick}</li>)}
+        </ul>
       </div>
-      <div class="book-hero__form" data-reveal style="--reveal-delay:.08s">
+      <div class="c-hero__stage" data-reveal style="--reveal-delay:.1s">
+        <a class="c-choice c-choice--book tone tone--deep tone--grad-plum" href="#book">
+          <span class="c-choice__icon" aria-hidden="true"><Icon name="calendar-check" /></span>
+          <span class="c-choice__text">
+            <strong>{t.book2}</strong>
+            <small>{t.noCard}</small>
+          </span>
+          <span class="arrow-btn" style="--arrow-size:44px" aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
+        </a>
+        <p class="c-hero__direct">{C.direct}</p>
+        <a class="c-choice" href={waLink()} target="_blank" rel="noopener" data-track="contact-direct">
+          <span class="c-choice__icon c-choice__icon--wa" aria-hidden="true"><Icon name="whatsapp-logo" weight="fill" /></span>
+          <span class="c-choice__text">
+            <strong>{t.whatsapp}</strong>
+            <small dir="ltr">{SITE.whatsapp.display}</small>
+          </span>
+          <span class="arrow-btn arrow-btn--dark" style="--arrow-size:40px" aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
+        </a>
+        <a class="c-choice" href={`mailto:${SITE.email}`}>
+          <span class="c-choice__icon" aria-hidden="true"><Icon name="envelope-simple" /></span>
+          <span class="c-choice__text">
+            <strong class="c-choice__mail">{SITE.email}</strong>
+          </span>
+          <span class="arrow-btn arrow-btn--dark" style="--arrow-size:40px" aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- The booking wizard, with what the trial includes beside it -->
+  <section class="section section--tight book-main" id="book" aria-labelledby="book-title">
+    <div class="container book-main__grid">
+      <div class="book-main__form" data-reveal>
         <BookingWizard lang={lang} />
       </div>
-      <div class="book-hero__aside" data-reveal style="--reveal-delay:.12s">
-        <div class="book-hero__art" aria-hidden="true">
+      <aside class="book-main__aside" data-reveal style="--reveal-delay:.08s">
+        <div class="book-main__art" aria-hidden="true">
           <Image src={welcomeArt} alt="" widths={[360, 560, 720]} sizes="(min-width: 1000px) 420px, 90vw" />
         </div>
         <ul role="list" class="book-gets">
           {
-            C.gets.map(([icon, h, p]) => (
-              <li>
-                <span class="icon-badge">
+            C.gets.map(([icon, h, p], i) => (
+              <li class:list={['tone', `tone--${GET_TONES[i % GET_TONES.length]}`]}>
+                <span class="book-gets__icon">
                   <Icon name={icon} />
                 </span>
                 <div>
@@ -49,25 +88,20 @@ const C = COPY.C;
             ))
           }
         </ul>
-        <div class="book-direct">
-          <p>{C.direct}</p>
-          <div class="cluster">
-            <a class="btn btn--sm btn--glass" href={waLink()} target="_blank" rel="noopener" data-track="contact-direct"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> <span dir="ltr">{SITE.whatsapp.display}</span></a>
-            <a class="btn btn--sm btn--glass" href={`mailto:${SITE.email}`}><Icon name="envelope-simple" /> {SITE.email}</a>
-          </div>
-        </div>
-      </div>
+      </aside>
     </div>
   </section>
 
+  <!-- What happens next: numbered cards on a dotted path -->
   <section class="section section--tight" aria-labelledby="next-title">
     <div class="container">
       <h2 id="next-title" class="next-title" data-reveal>{C.next}</h2>
-      <ol role="list" class="grid grid-3 next">
+      <ol role="list" class="next">
         {
           C.steps.map(([h, p], i) => (
-            <li class="glass next__item" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-              <span class="next__num">{num(lang, i + 1)}</span>
+            <li class:list={['num-card', 'tone', `tone--${STEP_TONES[i % STEP_TONES.length]}`, 'next__item']} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="next__dot" aria-hidden="true"></span>
+              <span class="num-card__num">{pad(i + 1)}.</span>
               <h3>{h}</h3>
               <p>{p}</p>
             </li>
@@ -78,86 +112,289 @@ const C = COPY.C;
   </section>
 
   <section class="section" aria-labelledby="cfaq-title">
-    <div class="container--narrow">
-      <h2 id="cfaq-title" class="next-title" data-reveal>{C.faqTitle}</h2>
+    <div class="container faq-split">
+      <div class="faq-split__head" data-reveal>
+        <h2 id="cfaq-title" class="next-title">{C.faqTitle}</h2>
+        <a class="link-arrow" href={lp(lang, '/faq/')}>{C.allFaq} <Icon name="arrow-right" weight="bold" /></a>
+      </div>
       <Faq items={C.faq} />
-      <p class="more-faq"><a class="btn btn--link" href={lp(lang, '/faq/')}>{C.allFaq} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a></p>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .book-hero__art {
-    overflow: hidden;
-    border-radius: 24px;
-    margin-block-end: 24px;
-    border: 1px solid rgb(91 58 142 / 0.1);
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .c-hero {
+    overflow-x: clip;
+    padding-block: clamp(16px, 3vw, 44px) clamp(20px, 3vw, 40px);
   }
-  .book-hero__art :global(img) {
+
+  .c-hero__grid {
+    display: grid;
+    gap: clamp(28px, 4.5vw, 64px);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .c-hero__grid {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+
+  .c-hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .c-hero__copy h1 {
+    font-size: clamp(2.4rem, 1.4rem + 3.8vw, 4.6rem);
+    line-height: 1.04;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .c-hero__copy h1 {
+    font-size: clamp(2.1rem, 1.3rem + 3vw, 3.8rem);
+    line-height: 1.35;
+  }
+
+  .c-hero__copy .lead {
+    max-width: 54ch;
+  }
+
+  .c-hero__ticks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+
+  .c-hero__ticks li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .c-hero__ticks :global(svg) {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    color: var(--success);
+  }
+
+  .c-hero__stage {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: clamp(14px, 2.2vw, 26px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--grad-dusk);
+  }
+
+  .c-hero__direct {
+    margin-top: 10px;
+    padding-inline: 6px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .c-hero__direct {
+    color: var(--ink);
+  }
+
+  /* choice cards with an arrow button */
+  .c-choice {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding-block: 12px;
+    padding-inline: 14px 12px;
+    border-radius: 24px;
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--card);
+    box-shadow: 0 14px 30px -24px rgb(44 28 68 / 0.6);
+    transition: transform 0.35s var(--ease-out);
+  }
+
+  .c-choice:hover {
+    transform: translateY(-2px);
+  }
+
+  .c-choice--book {
+    padding: clamp(16px, 2vw, 22px);
+    border-radius: 28px;
+    color: #fff;
+    background: var(--grad-plum);
+  }
+
+  .c-choice__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: var(--brand-plum);
+    background: var(--tint-lavender);
+  }
+
+  .c-choice__icon :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
+
+  :global([data-theme='dark']) .c-choice__icon {
+    color: var(--accent-ink);
+  }
+
+  .c-choice__icon--wa {
+    color: var(--brand-navy);
+    background: var(--tint-sky);
+  }
+
+  :global([data-theme='dark']) .c-choice__icon--wa {
+    color: var(--brand-sky);
+  }
+
+  .c-choice--book .c-choice__icon {
+    width: 54px;
+    height: 54px;
+    color: #fff;
+    background: rgb(255 255 255 / 0.14);
+  }
+
+  .c-choice__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .c-choice__text strong {
+    font-size: 1.02rem;
+    font-weight: 620;
+    line-height: 1.25;
+  }
+
+  .c-choice--book .c-choice__text strong {
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
+    font-weight: 560;
+    letter-spacing: -0.02em;
+  }
+
+  :global([dir='rtl']) .c-choice--book .c-choice__text strong {
+    letter-spacing: 0;
+  }
+
+  .c-choice__text small {
+    font-size: 0.86rem;
+    color: var(--ink-2);
+  }
+
+  :global([dir='rtl']) .c-choice__text small[dir='ltr'] {
+    text-align: end;
+  }
+
+  .c-choice__mail {
+    overflow-wrap: anywhere;
+  }
+
+  /* ── Booking ──────────────────────────────────────────────── */
+  .book-main {
+    scroll-margin-top: calc(var(--header-h) + 8px);
+  }
+
+  .book-main__grid {
+    display: grid;
+    gap: clamp(20px, 3vw, 28px);
+    align-items: start;
+  }
+
+  @media (min-width: 1000px) {
+    .book-main__grid {
+      grid-template-columns: 1.35fr 0.85fr;
+    }
+
+    .book-main__aside {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+    }
+  }
+
+  .book-main__form,
+  .book-main__aside {
+    min-width: 0;
+  }
+
+  .book-main__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .book-main__art {
+    overflow: hidden;
+    border-radius: 28px;
+  }
+
+  .book-main__art :global(img) {
     display: block;
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 3;
     object-fit: cover;
   }
+
   /* Keep the booking form ahead of decorative art on narrow screens. */
   @media (max-width: 999px) {
-    .book-hero__art { display: none; }
-  }
-
-  .book-hero {
-    padding-top: clamp(28px, 4vw, 56px);
-    scroll-margin-top: calc(var(--header-h) + 8px);
-  }
-
-  .book-hero__grid {
-    display: grid;
-    gap: clamp(20px, 3vw, 28px) clamp(28px, 4vw, 56px);
-    grid-template-areas: 'intro' 'form' 'aside';
-    align-items: start;
-  }
-
-  @media (min-width: 1000px) {
-    .book-hero__grid {
-      grid-template-columns: 0.85fr 1.15fr;
-      grid-template-areas: 'intro form' 'aside form';
-      grid-template-rows: auto 1fr;
+    .book-main__art {
+      display: none;
     }
-  }
-
-  .book-hero__intro {
-    grid-area: intro;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px;
-  }
-
-  .book-hero__intro h1 {
-    font-size: clamp(2.2rem, 1.4rem + 3vw, 3.8rem);
-  }
-
-  .book-hero__form {
-    grid-area: form;
-  }
-
-  .book-hero__aside {
-    grid-area: aside;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
   }
 
   .book-gets {
     display: grid;
-    gap: 16px;
-    margin-top: 4px;
+    gap: 10px;
   }
 
   .book-gets li {
     display: flex;
     gap: 14px;
     align-items: flex-start;
+    padding: 16px 18px;
+    border-radius: 22px;
+  }
+
+  .book-gets li > div {
+    min-width: 0;
+  }
+
+  .book-gets__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: var(--tone-dot);
+    background: var(--card);
+  }
+
+  :global([data-theme='dark']) .book-gets__icon {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .book-gets__icon :global(svg) {
+    width: 21px;
+    height: 21px;
   }
 
   .book-gets strong {
@@ -168,60 +405,103 @@ const C = COPY.C;
 
   .book-gets p {
     color: var(--ink-2);
-    font-size: 0.95rem;
+    font-size: 0.93rem;
   }
 
-  .book-direct {
-    display: grid;
-    gap: 10px;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    width: 100%;
-    color: var(--ink-2);
-    font-size: 0.95rem;
-  }
-
+  /* ── What happens next ───────────────────────────────────── */
   .next-title {
-    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+    font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.6rem);
+    line-height: 1.08;
     margin-bottom: 22px;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .next-title {
+    line-height: 1.4;
   }
 
   .next {
+    position: relative;
+    display: grid;
+    gap: 14px;
     list-style: none;
     padding: 0;
   }
 
+  @media (min-width: 760px) {
+    .next {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding-top: 26px;
+    }
+
+    /* the dotted path the cards hang from */
+    .next::before {
+      content: '';
+      position: absolute;
+      inset: 8px 8% auto;
+      border-top: 2px dotted var(--brand-lavender);
+    }
+  }
+
   .next__item {
-    --radius: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 24px;
-  }
-
-  .next__num {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 2rem;
-    line-height: 1;
-    color: var(--accent-ink);
-  }
-
-  :global([dir='rtl']) .next__num {
-    font-family: var(--font-arabic);
-    font-style: normal;
-    font-weight: 700;
+    border: 0;
+    min-width: 0;
+    min-height: 220px;
+    background: var(--tone-bg);
   }
 
   .next__item h3 {
-    font-size: 1.12rem;
+    margin-top: 18px;
+  }
+
+  .next__dot {
+    display: none;
+  }
+
+  @media (min-width: 760px) {
+    .next__dot {
+      position: absolute;
+      inset-block-start: -26px;
+      inset-inline-start: clamp(20px, 2.6vw, 28px);
+      display: block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--tone-dot);
+      box-shadow: 0 0 0 4px var(--sheet);
+    }
+  }
+
+  .next__item h3 {
+    font-size: 1.15rem;
   }
 
   .next__item p {
     color: var(--ink-2);
   }
 
-  .more-faq {
-    margin-top: 16px;
+  /* ── FAQ ──────────────────────────────────────────────────── */
+  .faq-split {
+    display: grid;
+    gap: 22px;
+    align-items: start;
+  }
+
+  .faq-split__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  @media (min-width: 960px) {
+    .faq-split {
+      grid-template-columns: 0.8fr 1.4fr;
+    }
+
+    .faq-split__head {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+    }
   }
 </style>

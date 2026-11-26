@@ -2,21 +2,26 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHero from '@/components/PageHero.astro';
-import FeatureGrid from '@/components/FeatureGrid.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import art from '@/assets/art/teacher-welcome.webp';
-import { lp, type Lang } from '@/i18n';
+import { lp, num, type Lang } from '@/i18n';
 import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const t = ui(lang);
 const COPY = copy(lang).about;
 const C = COPY.C;
+
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
+const TONES = ['lavender', 'sky', 'mauve', 'rose'];
+const STAT_TONES = ['sky', 'mauve', 'lavender', 'rose'];
+const STAT_ICONS = ['globe-hemisphere-west', 'users-three', 'chalkboard-teacher', 'certificate'];
+// Values: each card closes with an underlined link to where the value is explained.
+const VALUE_LINKS = ['#method-title', lp(lang, '/courses/'), '#ummah-title'];
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -36,28 +41,95 @@ const C = COPY.C;
     </Fragment>
   </PageHero>
 
+  <!-- Mission: a large statement, then a bento of the name, the figures and Al-Azhar -->
   <section class="section" aria-labelledby="vision-title">
-    <div class="container split">
-      <div class="stack" style="--stack:18px" data-reveal>
-        <span class="eyebrow" style="align-self:flex-start">{C.visionKicker}</span>
-        <h2 id="vision-title" class="h2" set:html={C.visionTitle} />
-        <p class="lead">{C.vision}</p>
+    <div class="container">
+      <div class="mission" data-reveal>
+        <span class="eyebrow">{C.visionKicker}</span>
+        <h2 id="vision-title" class="mission__title" set:html={C.visionTitle} />
+        <p class="lead mission__lede">{C.vision}</p>
       </div>
-      <FeatureGrid items={C.values} cols={2} />
+
+      <div class="ab">
+        <article class="ab__deep tone tone--deep tone--grad-plum" aria-labelledby="ummah-title" data-reveal>
+          <span class="status">{C.meaningKicker}</span>
+          <div class="ab__deep-copy">
+            <h2 id="ummah-title">{C.meaningTitle}</h2>
+            <p>{C.meaning}</p>
+          </div>
+          <span class="ab__word quranic" aria-hidden="true">أُمَّة</span>
+        </article>
+
+        {
+          C.stats.map(([n, l], i) => (
+            <div class:list={['stat-tile', 'tone', `tone--${STAT_TONES[i % 4]}`, 'ab__stat', `ab__stat--${i + 1}`]} data-reveal style={`--reveal-delay:${0.04 + i * 0.04}s`}>
+              <Icon name={STAT_ICONS[i % 4]} weight="duotone" class="ab__stat-icon" />
+              <span>
+                <span class="stat-tile__num">{n}</span>
+                <span class="stat-tile__label">{l}</span>
+              </span>
+            </div>
+          ))
+        }
+
+        <a class="ab__feat tone tone--sky" href={lp(lang, '/teachers/')} aria-labelledby="azhar-title" data-reveal style="--reveal-delay:.1s">
+          <ul role="list" class="ab__tags">
+            {C.azharList.map((x, i) => <li class:list={['ab__tag', { 'ab__tag--on': i === 0 }]}>{x}</li>)}
+          </ul>
+          <span class="ab__feat-body">
+            <span class="ab__feat-copy">
+              <h2 id="azhar-title">{C.azharTitle}</h2>
+              <span class="ab__feat-text">{C.azhar}</span>
+            </span>
+            <span class="ab__feat-arrow" aria-hidden="true"><Icon name="arrow-up-right" weight="light" /></span>
+          </span>
+        </a>
+
+        <article class="ab__cert" data-reveal style="--reveal-delay:.14s">
+          <span class="icon-badge"><Icon name="certificate" /></span>
+          <h3>{C.certTitle}</h3>
+          <p>{C.cert}</p>
+        </article>
+      </div>
     </div>
   </section>
 
-  <section class="section section--tight" aria-labelledby="journey-title">
+  <!-- Values: pastel cards with status pills and underlined links -->
+  <section class="section section--tight" aria-label={C.visionKicker}>
     <div class="container">
-      <h2 id="journey-title" class="block-title" data-reveal>{C.journeyTitle}</h2>
-    </div>
-    <div class="rail" tabindex="0" aria-label={C.journeyTitle}>
-      <ol role="list" class="rail__track">
+      <ul role="list" class="vals">
         {
-          C.journey.map(([y, tag, text]) => (
-            <li class="glass jcard">
-              <span class="jcard__year">{y}</span>
-              <span class="chip chip--accent">{tag}</span>
+          C.values.map((v, i) => (
+            <li class:list={['val', 'tone', `tone--${TONES[i % 4]}`]} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="val__shape val__shape--a" aria-hidden="true"></span>
+              <span class="val__shape val__shape--b" aria-hidden="true"></span>
+              <span class="status">{pad(i + 1)}</span>
+              <span class="val__icon" aria-hidden="true"><Icon name={v.icon} weight="duotone" /></span>
+              <h3>{v.title}</h3>
+              <p set:html={v.text} />
+              <a class="link-arrow val__link" href={VALUE_LINKS[i] ?? lp(lang, '/courses/')}>
+                {t.learnMore} <Icon name="arrow-right" weight="bold" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Story: numbered cards on a dotted path -->
+  <section class="section" aria-labelledby="journey-title">
+    <div class="container">
+      <div class="head" data-reveal>
+        <h2 id="journey-title" class="block-title">{C.journeyTitle}</h2>
+      </div>
+      <ol role="list" class="path" aria-label={C.journeyTitle}>
+        {
+          C.journey.map(([y, tag, text], i) => (
+            <li class:list={['num-card', 'tone', `tone--${TONES[i % 4]}`, 'path__card', { 'path__card--now': i === C.journey.length - 1 }]} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="path__dot" aria-hidden="true"></span>
+              <span class="num-card__num path__year">{y}</span>
+              <span class="status">{tag}</span>
               <p>{text}</p>
             </li>
           ))
@@ -66,27 +138,10 @@ const C = COPY.C;
     </div>
   </section>
 
-  <section class="section section--tight" aria-labelledby="ummah-title">
-    <div class="night-panel theme-night meaning">
-      <div class="stars"></div>
-      <div class="container meaning__inner">
-        <div class="stack" style="--stack:16px" data-reveal>
-          <span class="eyebrow" style="align-self:flex-start">{C.meaningKicker}</span>
-          <h2 id="ummah-title" class="h2">{C.meaningTitle}</h2>
-          <p class="lead">{C.meaning}</p>
-        </div>
-        <ul role="list" class="meaning__stats">
-          {C.stats.map(([n, l]) => <li class="glass"><strong>{n}</strong><span>{l}</span></li>)}
-        </ul>
-        <span class="meaning__word quranic" aria-hidden="true">أُمَّة</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="diff-title">
+  <section class="section section--tight" aria-labelledby="diff-title">
     <div class="container">
       <h2 id="diff-title" class="block-title" data-reveal>{C.diffTitle}</h2>
-      <div class="glass table-wrap diff" data-reveal>
+      <div class="table-wrap diff" data-reveal>
         <table class="table">
           <thead>
             <tr>{C.diffCols.map((c, i) => <th scope="col" class:list={{ diff__us: i === 1 }}>{c || <span class="sr-only">{C.aspect}</span>}</th>)}</tr>
@@ -109,25 +164,24 @@ const C = COPY.C;
     </div>
   </section>
 
-  <section class="section section--tight" aria-labelledby="method-title">
+  <!-- Method: numbered cards, the first one featured -->
+  <section class="section" aria-labelledby="method-title">
     <div class="container">
       <h2 id="method-title" class="block-title" data-reveal>{C.methodTitle}</h2>
-      <FeatureGrid items={C.method} cols={4} />
-    </div>
-  </section>
-
-  <section class="section section--tight" aria-labelledby="azhar-title">
-    <div class="container split">
-      <div class="glass azhar" data-reveal>
-        <h2 id="azhar-title">{C.azharTitle}</h2>
-        <p>{C.azhar}</p>
-        <ul class="checklist">{C.azharList.map((x) => <li>{x}</li>)}</ul>
-      </div>
-      <div class="card glass cert" data-reveal style="--reveal-delay:.08s">
-        <span class="icon-badge"><Icon name="certificate" /></span>
-        <h3>{C.certTitle}</h3>
-        <p>{C.cert}</p>
-      </div>
+      <ol role="list" class="mt">
+        {
+          C.method.map((m, i) => (
+            <li class:list={['num-card', 'mt__card', i === 0 ? 'tone tone--dawn mt__card--feat' : `tone tone--${TONES[i % 4]}`]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="mt__top">
+                <span class="num-card__num">{pad(i + 1)}.</span>
+                <span class="mt__icon" aria-hidden="true"><Icon name={m.icon} weight="duotone" /></span>
+              </span>
+              <h3>{m.title}</h3>
+              <p set:html={m.text} />
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
@@ -135,15 +189,18 @@ const C = COPY.C;
 </BaseLayout>
 
 <style>
-  .h2 {
-    font-size: var(--fs-h2);
-  }
-
   .block-title {
-    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
-    margin-bottom: clamp(20px, 3vw, 32px);
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3rem);
+    line-height: 1.08;
+    margin-bottom: clamp(22px, 3vw, 36px);
+    overflow-wrap: anywhere;
   }
 
+  :global([dir='rtl']) .block-title {
+    line-height: 1.4;
+  }
+
+  /* ── Hero visual ─────────────────────────────────────────── */
   .a-visual {
     position: relative;
     width: min(100%, 420px);
@@ -163,6 +220,8 @@ const C = COPY.C;
     gap: 4px;
     padding: 14px 18px;
     max-width: 230px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
     animation: float-y 8s ease-in-out infinite;
   }
 
@@ -178,7 +237,13 @@ const C = COPY.C;
 
   .a-card__big {
     font-size: 2rem;
+    font-weight: 400 !important;
     letter-spacing: -0.04em;
+    color: var(--brand-plum);
+  }
+
+  :global([data-theme='dark']) .a-card__big {
+    color: #dcc4f2;
   }
 
   .a-card--a {
@@ -193,7 +258,6 @@ const C = COPY.C;
   }
 
   @media (max-width: 480px) {
-    /* phones: keep the floating glass inside the screen edge */
     .a-card--a {
       inset-inline-start: -10px;
     }
@@ -203,117 +267,414 @@ const C = COPY.C;
     }
   }
 
-  .rail {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    padding: 6px 0 24px;
-  }
-
-  .rail::-webkit-scrollbar {
-    display: none;
-  }
-
-  .rail__track {
-    display: flex;
-    gap: 14px;
-    width: max-content;
-    padding-inline: max(var(--gutter), calc((100vw - var(--maxw)) / 2));
-  }
-
-  .jcard {
-    --radius: 24px;
-    width: min(78vw, 300px);
-    scroll-snap-align: start;
+  /* ── Mission statement ───────────────────────────────────── */
+  .mission {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 24px;
+    gap: 18px;
+    max-width: 980px;
+    margin-bottom: clamp(32px, 5vw, 60px);
   }
 
-  .jcard__year {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 2.4rem;
-    line-height: 1;
-    background: var(--grad-accent);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .mission__title {
+    font-size: clamp(2.3rem, 1.3rem + 4vw, 4.8rem);
+    line-height: 1.02;
+    overflow-wrap: anywhere;
   }
 
-  :global([dir='rtl']) .jcard__year {
-    font-family: var(--font-arabic);
-    font-style: normal;
-    font-weight: 700;
+  :global([dir='rtl']) .mission__title {
+    line-height: 1.35;
   }
 
-  .jcard p {
-    color: var(--ink-2);
-    font-size: 0.95rem;
+  .mission__lede {
+    max-width: 68ch;
   }
 
-  .meaning {
-    position: relative;
-    padding-block: clamp(56px, 8vw, 104px);
-  }
-
-  .meaning__inner {
-    position: relative;
+  /* ── Bento ───────────────────────────────────────────────── */
+  .ab {
     display: grid;
-    /* minmax(0, 1fr): long localized figures (“1.000+”, “1 000+”) must never widen the column */
-    grid-template-columns: minmax(0, 1fr);
-    gap: 36px;
-    align-items: center;
-  }
-
-  @media (min-width: 960px) {
-    .meaning__inner {
-      grid-template-columns: 1.2fr 1fr;
-    }
-  }
-
-  .meaning__stats {
-    display: grid;
+    gap: 14px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
   }
 
-  .meaning__stats li {
-    --radius: 22px;
+  .ab__deep,
+  .ab__feat,
+  .ab__cert {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 1000px) {
+    .ab {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-areas:
+        'deep deep s1 s2'
+        'deep deep s3 s4'
+        'feat feat feat cert';
+    }
+
+    .ab__deep { grid-area: deep; }
+    .ab__stat--1 { grid-area: s1; }
+    .ab__stat--2 { grid-area: s2; }
+    .ab__stat--3 { grid-area: s3; }
+    .ab__stat--4 { grid-area: s4; }
+    .ab__feat { grid-area: feat; }
+    .ab__cert { grid-area: cert; }
+  }
+
+  .ab__deep {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding: clamp(16px, 4.5vw, 22px);
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    min-height: 320px;
+    padding: clamp(24px, 3vw, 38px);
+    border-radius: 32px;
   }
 
-  .meaning__stats strong {
-    font-size: clamp(1.75rem, 8vw, 2.4rem);
-    font-weight: 620;
-    letter-spacing: -0.045em;
-    line-height: 1;
+  .ab__deep-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 46ch;
   }
 
-  .meaning__stats span {
+  .ab__deep h2 {
+    font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.6rem);
+    line-height: 1.1;
+    color: #fff;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .ab__deep h2 {
+    line-height: 1.4;
+  }
+
+  .ab__deep p {
     color: var(--ink-2);
-    margin-top: 6px;
   }
 
-  .meaning__word {
+  .ab__word {
     position: absolute;
-    inset-inline-end: 2%;
-    top: 50%;
-    translate: 0 -50%;
     z-index: -1;
-    font-size: clamp(8rem, 18vw, 16rem);
+    inset-block-start: 8%;
+    inset-inline-end: 4%;
+    font-size: clamp(5rem, 12vw, 9rem);
     line-height: 1;
-    color: rgb(255 255 255 / 0.05);
+    color: rgb(255 255 255 / 0.1);
     pointer-events: none;
   }
 
+  .ab__stat {
+    min-width: 0;
+  }
+
+  .ab__stat :global(.ab__stat-icon) {
+    width: 28px;
+    height: 28px;
+    color: var(--tone-dot);
+  }
+
+  .ab__stat .stat-tile__num {
+    font-size: clamp(1.8rem, 1.2rem + 2.4vw, 3.2rem);
+    overflow-wrap: anywhere;
+  }
+
+  .ab__feat {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(22px, 3vw, 34px);
+    padding: clamp(22px, 3vw, 34px);
+    border-radius: 32px;
+    color: var(--ink);
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+
+  .ab__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ab__tag {
+    padding: 0.42em 0.95em;
+    border-radius: var(--r-pill);
+    font-size: 0.84rem;
+    font-weight: 540;
+    line-height: 1.3;
+    border: 1px solid color-mix(in srgb, var(--brand-ink) 40%, transparent);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .ab__tag--on {
+    color: #fff;
+    background: var(--brand-ink);
+    border-color: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .ab__tag {
+    border-color: rgb(255 255 255 / 0.3);
+  }
+
+  :global([data-theme='dark']) .ab__tag--on {
+    color: var(--brand-ink);
+    background: #efe7f8;
+    border-color: #efe7f8;
+  }
+
+  .ab__feat-body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .ab__feat-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .ab__feat h2 {
+    font-size: clamp(1.8rem, 1.2rem + 2.2vw, 3rem);
+    line-height: 1.05;
+    padding-bottom: 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .ab__feat h2 {
+    line-height: 1.4;
+  }
+
+  .ab__feat-text {
+    max-width: 60ch;
+    color: var(--ink-2);
+  }
+
+  .ab__feat-arrow {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: clamp(56px, 7vw, 92px);
+    height: clamp(56px, 7vw, 92px);
+    color: var(--ink);
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .ab__feat-arrow :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  :global([dir='rtl']) .ab__feat-arrow :global(svg) {
+    transform: scaleX(-1);
+  }
+
+  .ab__feat:hover .ab__feat-arrow {
+    transform: translate(4px, -4px);
+  }
+
+  :global([dir='rtl']) .ab__feat:hover .ab__feat-arrow {
+    transform: translate(-4px, -4px);
+  }
+
+  .ab__cert {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 26px;
+    border-radius: 32px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .ab__cert h3 {
+    font-size: 1.2rem;
+  }
+
+  .ab__cert p {
+    color: var(--ink-2);
+  }
+
+  /* ── Values (pastel cards) ───────────────────────────────── */
+  .vals {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  }
+
+  .val {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    min-height: 320px;
+    padding: clamp(22px, 3vw, 32px);
+    border-radius: 30px;
+  }
+
+  .val__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-top: auto;
+    border-radius: 16px;
+    color: var(--tone-dot);
+    background: var(--card);
+  }
+
+  .val__icon :global(svg) {
+    width: 26px;
+    height: 26px;
+  }
+
+  .val h3 {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+  }
+
+  :global([dir='rtl']) .val h3 {
+    letter-spacing: 0;
+  }
+
+  .val p {
+    color: var(--ink-2);
+    max-width: 34ch;
+  }
+
+  .val__link {
+    margin-top: 6px;
+    font-size: 0.95rem;
+  }
+
+  .val__shape {
+    position: absolute;
+    z-index: -1;
+    border-radius: 999px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--tone-dot) 50%, transparent), transparent 78%);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .val__shape--a {
+    width: 150px;
+    height: 220px;
+    inset-block-start: -50px;
+    inset-inline-end: -40px;
+    rotate: 28deg;
+  }
+
+  .val__shape--b {
+    width: 110px;
+    height: 110px;
+    inset-block-start: 110px;
+    inset-inline-end: 30px;
+  }
+
+  /* ── Story: numbered cards on a dotted path ──────────────── */
+  .path {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    padding-inline-start: 34px;
+  }
+
+  /* phones and tablets: a vertical dotted line along the start edge */
+  .path::before {
+    content: '';
+    position: absolute;
+    inset-block: 24px;
+    inset-inline-start: 9px;
+    border-inline-start: 2px dotted color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .path__card {
+    border: 0;
+    background: var(--tone-bg);
+    min-width: 0;
+  }
+
+  .path__dot {
+    position: absolute;
+    inset-block-start: 30px;
+    inset-inline-start: -31px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--tone-dot);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--tone-dot) 18%, transparent);
+  }
+
+  .path__year {
+    font-size: clamp(2.2rem, 1.8rem + 1.6vw, 3.2rem);
+  }
+
+  :global([dir='rtl']) .path__year {
+    letter-spacing: 0;
+  }
+
+  .path__card .status {
+    align-self: flex-start;
+  }
+
+  .path__card p {
+    color: var(--ink-2);
+    font-size: 0.97rem;
+  }
+
+  .path__card--now {
+    background: var(--grad-dawn);
+  }
+
+  @media (min-width: 1100px) {
+    .path {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      padding-inline-start: 0;
+      padding-top: 34px;
+    }
+
+    .path::before {
+      inset-block: 9px auto;
+      inset-inline: 30px;
+      border-inline-start: 0;
+      border-top: 2px dotted color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+
+    .path__dot {
+      inset-block-start: -31px;
+      inset-inline-start: 26px;
+    }
+
+    .path__card:nth-child(even) {
+      margin-top: 36px;
+    }
+
+    /* the dot stays on the dotted line when the card steps down */
+    .path__card:nth-child(even) .path__dot {
+      inset-block-start: -67px;
+    }
+  }
+
+  /* ── Comparison table ────────────────────────────────────── */
   .diff {
-    --radius: 30px;
     padding: 8px;
+    border-radius: 30px;
+    background: var(--tint-mist);
   }
 
   .diff td {
@@ -323,7 +684,7 @@ const C = COPY.C;
   .diff td.diff__us {
     color: var(--ink);
     font-weight: 520;
-    background: rgb(255 255 255 / 0.5);
+    background: var(--tint-lavender);
   }
 
   .diff thead .diff__us {
@@ -339,23 +700,67 @@ const C = COPY.C;
     color: var(--success);
   }
 
-  .azhar {
-    --radius: var(--r-xl);
+  /* ── Method: numbered cards, the first featured ──────────── */
+  .mt {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  }
+
+  @media (min-width: 1000px) {
+    .mt {
+      grid-template-columns: 1.5fr repeat(3, minmax(0, 1fr));
+    }
+
+    .mt__card--feat {
+      min-height: 340px;
+    }
+  }
+
+  .mt__card {
+    border: 0;
+    min-width: 0;
+  }
+
+  .mt__card:not(.mt__card--feat) {
+    background: var(--tone-bg);
+  }
+
+  .mt__top {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: clamp(26px, 3.5vw, 44px);
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: auto;
+    padding-bottom: 22px;
   }
 
-  .azhar h2 {
-    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem);
+  .mt__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: var(--tone-dot);
+    background: var(--card);
   }
 
-  .azhar > p {
+  .mt__icon :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mt__card h3 {
+    font-size: 1.15rem;
+  }
+
+  .mt__card--feat h3 {
+    font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
+    font-weight: 500;
+  }
+
+  .mt__card p {
     color: var(--ink-2);
-  }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .diff td.diff__us {
-    background: rgb(255 255 255 / 0.09);
+    font-size: 0.97rem;
   }
 </style>

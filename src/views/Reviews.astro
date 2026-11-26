@@ -21,10 +21,11 @@ const stories = getTestimonials(lang);
   <PageHero eyebrow={C.eyebrow} title={C.title} lede={C.lede} crumbs={[{ label: C.crumb }]} compact lang={lang} />
   <section class="section section--tight">
     <div class="container">
-      <ul role="list" class="grid grid-2">
+      <!-- A wall of event-style story cards: pastel tones by programme, with a deep anchor card or two -->
+      <ul role="list" class="story-wall">
         {stories.map((s, i) => (
-          <li data-reveal style={`--reveal-delay:${i * 0.04}s`}>
-            <TestimonialCard t={s} lang={lang} />
+          <li data-reveal style={`--reveal-delay:${Math.min(i, 8) * 0.04}s`}>
+            <TestimonialCard t={s} lang={lang} tone={i === 0 ? 'grad-plum' : i === 5 ? 'ink' : undefined} />
           </li>
         ))}
       </ul>
@@ -35,6 +36,21 @@ const stories = getTestimonials(lang);
 </BaseLayout>
 
 <style>
+  /* masonry wall: cards keep their natural height and stack in columns */
+  .story-wall {
+    columns: 3 300px;
+    column-gap: clamp(14px, 1.6vw, 20px);
+  }
+
+  .story-wall > li {
+    break-inside: avoid;
+    margin-bottom: clamp(14px, 1.6vw, 20px);
+  }
+
+  .story-wall > li :global(.tcard) {
+    height: auto;
+  }
+
   .reviews-note {
     margin-top: 24px;
   }

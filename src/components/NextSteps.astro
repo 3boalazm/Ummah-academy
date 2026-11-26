@@ -11,6 +11,7 @@ const { lang = 'en' } = Astro.props;
 const C = NEXT_STEPS[lang];
 const art = [familyArt, arabicArt, teacherArt];
 const routes = ['/courses/', '/placement-test/', '/contact/#book'];
+const TONES = ['lavender', 'sky', 'rose'];
 ---
 
 <section class="section section--tight next-steps" aria-labelledby="next-steps-title">
@@ -20,18 +21,19 @@ const routes = ['/courses/', '/placement-test/', '/contact/#book'];
       <h2 id="next-steps-title" class="h2">{typo(lang, C.title)}</h2>
       <p class="lead">{typo(lang, C.lede)}</p>
     </div>
-    <div class="grid grid-3">
+    <div class="grid grid-3 next-steps__grid">
       {C.cards.map(([title, text, label], i) => (
-        <article class="next-step glass" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+        <article class:list={['next-step', 'tone', `tone--${TONES[i % TONES.length]}`]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
           <div class="next-step__art" aria-hidden="true">
             <Image src={art[i]} alt="" widths={[320, 480, 640]} sizes="(min-width: 960px) 360px, (min-width: 700px) 45vw, 90vw" />
+            <span class="status next-step__index">{num(lang, i + 1).padStart(2, lang === 'ar' ? '٠' : '0')}</span>
           </div>
           <div class="next-step__copy">
-            <span class="next-step__index" aria-hidden="true">{num(lang, i + 1).padStart(2, lang === 'ar' ? '٠' : '0')}</span>
             <h3>{typo(lang, title)}</h3>
             <p>{typo(lang, text)}</p>
-            <a class:list={['btn', i === 2 ? 'btn--primary' : 'btn--glass']} href={lp(lang, routes[i])} data-track="next-step">
-              {typo(lang, label)} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+            <a class="next-step__link" href={lp(lang, routes[i])} data-track="next-step">
+              <span>{typo(lang, label)}</span>
+              <span class="arrow-btn arrow-btn--dark" aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
             </a>
           </div>
         </article>
@@ -42,22 +44,31 @@ const routes = ['/courses/', '/placement-test/', '/contact/#book'];
 
 <style>
   .next-steps { padding-block-end: clamp(48px, 7vw, 88px); }
-  .next-steps__head { display: grid; gap: 14px; max-width: 760px; margin-block-end: 28px; }
+  .next-steps__head { display: grid; gap: 14px; max-width: 760px; margin-block-end: clamp(28px, 4vw, 40px); }
   .next-steps__head .eyebrow { justify-self: start; }
-  .next-step { overflow: hidden; display: flex; flex-direction: column; --radius: var(--r-lg); }
-  .next-step__art { margin: 8px 8px 0; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9; background: #eee5da; }
-  .next-step__art :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .next-step__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 22px; flex: 1; }
-  .next-step__index { color: var(--accent-ink); font-size: .8rem; font-weight: 700; letter-spacing: .12em; line-height: 1; }
-  :global([dir="rtl"]) .next-step__index { letter-spacing: 0; }
-  .next-step__copy h3 { font-size: clamp(1.15rem, 1.05rem + .35vw, 1.4rem); }
+  .next-steps__grid { gap: 14px; }
+  /* tone cards: photo with a large radius, a status chip on it, an underlined CTA with a round arrow */
+  .next-step.tone { position: relative; overflow: hidden; display: flex; flex-direction: column; min-width: 0; border: 0; border-radius: 30px; box-shadow: none; transition: transform .4s var(--ease-out); }
+  .next-step.tone:hover { transform: translateY(-3px); }
+  .next-step__art { position: relative; margin: 10px 10px 0; border-radius: 24px; overflow: hidden; aspect-ratio: 16 / 10; background: var(--tint-mist); }
+  .next-step__art :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+  .next-step:hover .next-step__art :global(img) { transform: scale(1.05); }
+  .next-step__index { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; font-size: .8rem; font-variant-numeric: tabular-nums; color: var(--brand-ink); background: rgb(255 255 255 / .88); border-color: rgb(255 255 255 / .9); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .next-step__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 22px 24px 24px; flex: 1; min-width: 0; }
+  .next-step__copy h3 { font-size: clamp(1.2rem, 1.05rem + .45vw, 1.5rem); overflow-wrap: anywhere; }
   .next-step__copy p { color: var(--ink-2); margin-block-end: 6px; }
-  .next-step__copy a { margin-block-start: auto; max-width: 100%; white-space: normal; }
+  .next-step__link { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-block-start: auto; padding-block-start: 14px; border-top: 1px solid var(--line-strong); font-weight: 620; color: var(--ink); text-decoration: none; }
+  .next-step__link > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+  .next-step__link .arrow-btn { --arrow-size: 42px; }
+  .next-step__link:focus-visible { outline: 2.5px solid var(--focus); outline-offset: 4px; border-radius: 12px; }
   @media (max-width: 599px) {
-    .next-step { flex-direction: row; align-items: stretch; }
-    .next-step__art { flex: 0 0 29%; margin: 8px 0 8px; margin-inline-start: 8px; aspect-ratio: auto; border-radius: 18px; }
+    .next-step.tone { flex-direction: row; align-items: stretch; }
+    .next-step__art { flex: 0 0 29%; margin: 8px 0 8px; margin-inline-start: 8px; aspect-ratio: auto; border-radius: 20px; }
     .next-step__art :global(img) { object-position: 48% center; }
-    .next-step__copy { padding: 18px 14px; gap: 10px; min-width: 0; }
-    .next-step__copy a { font-size: .85rem; padding: 10px 12px; }
+    .next-step__index { inset-block-start: 8px; inset-inline-start: 8px; font-size: .72rem; padding: .3em .6em; }
+    .next-step__index::before { display: none; }
+    .next-step__copy { padding: 18px 14px; gap: 8px; }
+    .next-step__link { font-size: .9rem; }
+    .next-step__link .arrow-btn { --arrow-size: 36px; }
   }
 </style>

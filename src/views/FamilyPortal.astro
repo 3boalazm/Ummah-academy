@@ -12,12 +12,23 @@ interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 
 const COPY = copy(lang).familyPortal;
 const C = COPY.C;
 const M = C.mock;
 const P = C.preview;
+
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
+const TINTS = ['lavender', 'sky', 'mauve', 'rose'];
+// Dashboard figures, all taken from the sample copy (the mock and the labelled preview).
+const soonCount = C.features.filter((f) => f.soon).length;
+const attendance = P.academicRows[0];
+// Alerts as coloured event cards.
+const ALERTS: [string, string][] = [
+  ['bell', 'lavender'],
+  ['calendar', 'sky'],
+  ['credit-card', 'rose'],
+];
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -27,51 +38,95 @@ const P = C.preview;
       <a class="btn btn--glass" href={portalLinks.login}>{C.signIn}</a>
     </Fragment>
     <Fragment slot="visual">
-      <div class="portal glass glass--strong" role="img" aria-label={M.aria}>
+      <div class="portal" role="img" aria-label={M.aria}>
         <div class="portal__head">
           <span class="portal__avatar">{M.initials}</span>
-          <span><small>{M.brand}</small><strong>{M.parent}</strong></span>
+          <span class="portal__who"><small>{M.brand}</small><strong>{M.parent}</strong></span>
+          <span class="portal__bell" aria-hidden="true"><Icon name="bell" weight="fill" /></span>
         </div>
-        <p class="portal__label">{M.kidsLabel}</p>
+
         <div class="portal__kids">
-          {M.kids.map((k, i) => <span class:list={['portal__kid', { 'is-active': i === 0 }]}><b>{k.i}</b>{k.name}<small>{k.sub}</small></span>)}
+          <p class="portal__label">{M.kidsLabel}</p>
+          <div class="portal__kid-row">
+            {M.kids.map((k, i) => <span class:list={['portal__kid', { 'is-active': i === 0 }]}><b>{k.i}</b><span>{k.name}<small>{k.sub}</small></span></span>)}
+          </div>
         </div>
-        <div class="portal__next">
-          <p class="portal__label">{M.nextLabel}</p>
-          <strong>{M.nextWhen}</strong>
-          <small>{M.nextWho}</small>
-          <span class="btn btn--sm btn--primary portal__join"><Icon name="play" weight="fill" /> {M.join}</span>
+
+        <div class="portal__stats">
+          <span class="portal__stat portal__stat--sky">
+            <strong>{num(lang, M.kids.length)}</strong>
+            <small>{M.kidsLabel}</small>
+          </span>
+          <span class="portal__stat portal__stat--lavender">
+            <strong>{pct(lang, 65)}</strong>
+            <small>{M.progress}</small>
+            <span class="portal__bar"><i style="width:65%"></i></span>
+          </span>
+          <span class="portal__stat portal__stat--dashed">
+            <strong>{attendance.value}</strong>
+            <small>{attendance.label}</small>
+          </span>
         </div>
-        <div class="portal__progress">
-          <span>{M.progress}</span><strong>{pct(lang, 65)}</strong>
-          <span class="portal__bar"><i style="width:65%"></i></span>
+
+        <div class="portal__event">
+          <p class="portal__event-head"><Icon name="video-camera" weight="fill" /> {M.nextLabel}</p>
+          <div class="portal__event-body">
+            <strong>{M.nextWhen}</strong>
+            <small>{M.nextWho}</small>
+          </div>
+          <span class="portal__join"><Icon name="play" weight="fill" /> {M.join}</span>
         </div>
+
         <ul role="list" class="portal__alerts">
-          <li><Icon name="bell" weight="fill" /> {M.alerts[0]}</li>
-          <li><Icon name="calendar" weight="fill" /> {M.alerts[1]}</li>
-          <li><Icon name="credit-card" weight="fill" /> {M.alerts[2]}</li>
+          {
+            M.alerts.map((a, i) => (
+              <li class={`portal__alert portal__alert--${ALERTS[i % 3][1]}`}>
+                <Icon name={ALERTS[i % 3][0]} weight="fill" /> {a}
+              </li>
+            ))
+          }
         </ul>
+
+        <span class="portal__dock" aria-hidden="true">
+          {C.features.map((f, i) => <span class={`portal__tool portal__tool--${TINTS[i % 4]}`}><Icon name={f.icon} weight="duotone" /></span>)}
+        </span>
       </div>
     </Fragment>
   </PageHero>
 
+  <!-- Features: a learning-plan board — figures on top, cards linked by a dotted path -->
   <section class="section" aria-labelledby="pf-title">
     <div class="container">
-      <SectionHead id="pf-title" eyebrow={C.featuresEyebrow} title={C.featuresTitle} lede={C.featuresLede} />
-      <ol role="list" class="grid grid-3 pf">
+      <div class="pf-head">
+        <SectionHead id="pf-title" align="start" eyebrow={C.featuresEyebrow} title={C.featuresTitle} lede={C.featuresLede} />
+        <div class="pf-stats" data-reveal style="--reveal-delay:.08s">
+          <div class="stat-tile tone tone--sky pf-stats__tile">
+            <span class="stat-tile__num">{num(lang, C.features.length)}</span>
+            <span class="stat-tile__label">{C.featuresEyebrow}</span>
+          </div>
+          <div class="stat-tile pf-stats__tile pf-stats__tile--soon">
+            <span class="stat-tile__num">{num(lang, soonCount)}</span>
+            <span class="stat-tile__label">{C.soon}</span>
+          </div>
+        </div>
+      </div>
+
+      <ol role="list" class="pf">
         {
           C.features.map((f, i) => (
-            <li class="card glass" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+            <li class:list={['pf__card', { 'pf__card--feat tone tone--lavender': i === 0, 'pf__card--soon': f.soon }]} data-reveal style={`--reveal-delay:${Math.min(i, 6) * 0.05}s`}>
+              <span class="pf__dot" aria-hidden="true"></span>
               <div class="pf__top">
-                <span class="icon-badge">
+                <span class={`pf__icon pf__icon--${TINTS[i % 4]}`}>
                   <Icon name={f.icon} />
                 </span>
-                <span class="pf__num" aria-hidden="true">{num(lang, `0${i + 1}`)}</span>
+                <span class="pf__num" aria-hidden="true">{pad(i + 1)}</span>
               </div>
-              <h3>
-                {f.title} {f.soon && <span class="chip chip--accent">{C.soon}</span>}
-              </h3>
+              <h3>{f.title}</h3>
               <p>{f.text}</p>
+              <div class="pf__foot">
+                {f.soon ? <span class="status pf__status">{C.soon}</span> : <span class="pf__check" aria-hidden="true"><Icon name="check" weight="bold" /></span>}
+              </div>
             </li>
           ))
         }
@@ -79,29 +134,43 @@ const P = C.preview;
     </div>
   </section>
 
+  <!-- Preview: a deep anchor card beside two coloured event cards -->
   <section class="section section--tight" aria-labelledby="preview-title">
-    <div class="container">
-      <SectionHead id="preview-title" eyebrow={P.eyebrow} title={P.title} lede={P.lede} />
-      <p class="chip chip--accent portal-sample">{P.sample}</p>
-      <div class="grid grid-2 preview-grid">
-        <article class="card glass preview-card" data-reveal>
-          <p class="portal__label">{P.academicTitle}</p>
-          <h3>{P.academicChild}</h3>
-          <dl class="preview-dl">
-            {P.academicRows.map((row) => (
-              <div>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
+    <div class="container pv">
+      <div class="pv__intro tone tone--deep tone--grad-plum" data-reveal>
+        <span class="eyebrow">{P.eyebrow}</span>
+        <h2 id="preview-title" set:html={P.title} />
+        <p class="lead">{P.lede}</p>
+        <p class="status portal-sample">{P.sample}</p>
+      </div>
+
+      <div class="pv__events">
+        <article class="pv-event tone tone--sky" data-reveal style="--reveal-delay:.06s">
+          <header class="pv-event__head">
+            <span class="pv-event__kind"><Icon name="chart-bar" weight="duotone" /> {P.academicTitle}</span>
+          </header>
+          <div class="pv-event__body">
+            <h3>{P.academicChild}</h3>
+            <dl class="preview-dl">
+              {P.academicRows.map((row) => (
+                <div>
+                  <dt>{row.label}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </article>
-        <article class="card glass preview-card" data-reveal style="--reveal-delay:.08s">
-          <p class="portal__label">{P.placementTitle}</p>
-          <h3>{P.placementChild}</h3>
-          <p class="preview-level">{P.placementLevel}</p>
-          <p class="preview-date">{P.placementDate}</p>
-          <p>{P.placementNote}</p>
+        <article class="pv-event tone tone--mauve" data-reveal style="--reveal-delay:.12s">
+          <header class="pv-event__head">
+            <span class="pv-event__kind"><Icon name="list-checks" weight="duotone" /> {P.placementTitle}</span>
+          </header>
+          <div class="pv-event__body">
+            <h3>{P.placementChild}</h3>
+            <p class="preview-level">{P.placementLevel}</p>
+            <p>{P.placementNote}</p>
+          </div>
+          <p class="pv-event__when preview-date"><Icon name="clock" weight="bold" /> {P.placementDate}</p>
         </article>
       </div>
     </div>
@@ -111,13 +180,17 @@ const P = C.preview;
 </BaseLayout>
 
 <style>
+  /* ── Hero mock: a parent dashboard ───────────────────────── */
   .portal {
-    --radius: 30px;
     display: grid;
-    gap: 14px;
-    padding: 22px;
-    max-width: 440px;
+    gap: 12px;
+    padding: clamp(14px, 2.4vw, 20px);
+    max-width: 460px;
     margin-inline: auto;
+    border-radius: 28px;
+    background: var(--card);
+    box-shadow: var(--shadow-lift);
+    min-width: 0;
   }
 
   .portal__head {
@@ -126,7 +199,12 @@ const P = C.preview;
     gap: 12px;
   }
 
-  .portal__head small {
+  .portal__who {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .portal__who small {
     display: block;
     font-size: 0.75rem;
     color: var(--ink-3);
@@ -135,197 +213,605 @@ const P = C.preview;
   .portal__avatar {
     display: grid;
     place-items: center;
+    flex: none;
     width: 44px;
     height: 44px;
     border-radius: 50%;
     color: #fff;
     font-weight: 650;
     font-size: 0.85rem;
-    background: var(--grad-accent);
+    background: var(--grad-plum);
+  }
+
+  .portal__bell {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: var(--brand-plum);
+    background: var(--tint-lavender);
+  }
+
+  .portal__bell :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  :global([data-theme='dark']) .portal__bell {
+    color: #dcc4f2;
   }
 
   .portal__label {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 650;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
     color: var(--ink-3);
+    margin-bottom: 6px;
   }
 
-  .portal__kids {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+  .portal__kid-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .portal__kid {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
     align-items: center;
-    gap: 2px;
-    padding: 10px 6px;
-    border-radius: 16px;
+    gap: 8px;
+    padding: 5px 12px 5px 5px;
+    border-radius: 999px;
     font-weight: 600;
-    font-size: 0.9rem;
-    background: rgb(255 255 255 / 0.6);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.06);
+    font-size: 0.84rem;
+    line-height: 1.15;
+    background: var(--tint-mist);
+    min-width: 0;
+  }
+
+  :global([dir='rtl']) .portal__kid {
+    padding: 5px 5px 5px 12px;
+  }
+
+  .portal__kid small {
+    display: block;
+    font-weight: 450;
+    font-size: 0.7rem;
+    color: var(--ink-3);
   }
 
   .portal__kid.is-active {
-    box-shadow: inset 0 0 0 2px var(--violet-600);
-    background: #fff;
+    color: #fff;
+    background: var(--brand-ink);
+  }
+
+  .portal__kid.is-active small {
+    color: #ddd4ea;
+  }
+
+  :global([data-theme='dark']) .portal__kid.is-active {
+    color: var(--brand-ink);
+    background: #efe7f8;
+  }
+
+  :global([data-theme='dark']) .portal__kid.is-active small {
+    color: #4e4361;
   }
 
   .portal__kid b {
     display: grid;
     place-items: center;
-    width: 30px;
-    height: 30px;
+    flex: none;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    font-size: 0.8rem;
-    color: var(--accent-ink);
-    background: var(--blush-100);
+    font-size: 0.78rem;
+    color: var(--brand-ink);
+    background: var(--brand-sky);
   }
 
-  .portal__kid small {
-    font-weight: 450;
-    font-size: 0.72rem;
-    color: var(--ink-3);
-  }
-
-  .portal__next {
+  .portal__stats {
     display: grid;
-    gap: 2px;
-    padding: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .portal__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 10px;
     border-radius: 18px;
-    background:
-      radial-gradient(120% 100% at 100% 0%, rgb(175 204 234 / 0.6), transparent 60%),
-      rgb(255 255 255 / 0.7);
+    text-align: center;
+    min-width: 0;
   }
 
-  .portal__next small {
-    color: var(--ink-3);
+  .portal__stat strong {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.7rem);
+    font-weight: 420;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
 
-  .portal__join {
-    margin-top: 10px;
-    width: fit-content;
-    pointer-events: none;
+  :global([dir='rtl']) .portal__stat strong {
+    letter-spacing: 0;
   }
 
-  .portal__progress {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 6px;
-    font-size: 0.88rem;
+  .portal__stat small {
+    font-size: 0.7rem;
+    line-height: 1.25;
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  .portal__stat--sky {
+    background: var(--tint-sky);
+  }
+
+  .portal__stat--lavender {
+    background: var(--tint-lavender);
+  }
+
+  .portal__stat--dashed {
+    border: 1.5px dashed var(--line-strong);
   }
 
   .portal__bar {
-    grid-column: 1 / -1;
-    height: 7px;
+    height: 5px;
+    margin-top: 2px;
     border-radius: 99px;
-    background: rgb(46 29 70 / 0.08);
+    background: color-mix(in srgb, var(--brand-plum) 14%, transparent);
     overflow: hidden;
   }
 
   .portal__bar i {
     display: block;
     height: 100%;
-    background: var(--grad-accent);
+    border-radius: inherit;
+    background: var(--grad-plum);
+  }
+
+  .portal__event {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 20px;
+    background: var(--tint-sky);
+  }
+
+  .portal__event-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 6px;
+    font-size: 0.82rem;
+    font-weight: 620;
+  }
+
+  .portal__event-head :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--brand-navy);
+  }
+
+  :global([data-theme='dark']) .portal__event-head :global(svg) {
+    color: var(--brand-sky);
+  }
+
+  .portal__event-body {
+    display: grid;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--card);
+  }
+
+  .portal__event-body small {
+    color: var(--ink-3);
+  }
+
+  .portal__join {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--brand-ink);
+  }
+
+  .portal__join :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  :global([data-theme='dark']) .portal__join {
+    color: var(--brand-ink);
+    background: #efe7f8;
   }
 
   .portal__alerts {
     display: grid;
-    gap: 8px;
-    font-size: 0.86rem;
+    gap: 6px;
+    font-size: 0.84rem;
     color: var(--ink-2);
   }
 
-  .portal__alerts li {
+  .portal__alert {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 14px;
+    border-inline-start: 4px solid var(--alert-line);
+    background: var(--alert-bg);
   }
 
-  .portal__alerts :global(svg) {
+  .portal__alert--lavender { --alert-bg: var(--tint-lavender); --alert-line: var(--brand-lavender); }
+  .portal__alert--sky { --alert-bg: var(--tint-sky); --alert-line: var(--brand-sky); }
+  .portal__alert--rose { --alert-bg: var(--tint-rose); --alert-line: var(--brand-rose); }
+
+  .portal__alert :global(svg) {
+    flex: none;
     width: 16px;
     height: 16px;
     color: var(--accent-ink);
   }
 
+  /* tool row, as on the reference dock */
+  .portal__dock {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 6px;
+    border-radius: 999px;
+    background: var(--brand-ink);
+  }
+
+  .portal__tool {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: var(--brand-ink);
+  }
+
+  .portal__tool :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .portal__tool--lavender { background: #d9cbe8; }
+  .portal__tool--sky { background: var(--brand-sky); }
+  .portal__tool--mauve { background: var(--brand-mauve); }
+  .portal__tool--rose { background: #e3cbd4; }
+
+  :global([data-theme='dark']) .portal__dock {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  /* ── Features board ──────────────────────────────────────── */
+  .pf-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: clamp(28px, 4vw, 48px);
+  }
+
+  .pf-head > :global(.section-head) {
+    flex: 1 1 420px;
+    min-width: 0;
+    max-width: 720px;
+    margin-bottom: 0;
+  }
+
+  .pf-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    flex: 0 1 340px;
+    min-width: 0;
+  }
+
+  .pf-stats__tile {
+    min-height: 130px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pf-stats__tile--soon {
+    border: 1.5px dashed var(--line-strong);
+  }
+
+  .pf-stats__tile .stat-tile__label {
+    overflow-wrap: anywhere;
+  }
+
   .pf {
+    position: relative;
+    display: grid;
+    gap: 14px;
     list-style: none;
     padding: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pf__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: clamp(20px, 2.6vw, 28px);
+    border-radius: 28px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-soft);
+    min-width: 0;
+  }
+
+  .pf__card--feat {
+    border: 0;
+  }
+
+  .pf__card h3 {
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
+    overflow-wrap: anywhere;
+  }
+
+  .pf__card--feat h3 {
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+    font-weight: 500;
+  }
+
+  .pf__card p {
+    color: var(--ink-2);
   }
 
   .pf__top {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .pf__icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: var(--brand-ink);
+  }
+
+  .pf__icon :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+
+  .pf__icon--lavender { background: var(--tint-lavender); }
+  .pf__icon--sky { background: var(--tint-sky); }
+  .pf__icon--mauve { background: var(--tint-mauve); }
+  .pf__icon--rose { background: var(--tint-rose); }
+
+  .pf__card--feat .pf__icon {
+    background: var(--card);
+  }
+
+  :global([data-theme='dark']) .pf__icon {
+    color: var(--ink);
   }
 
   .pf__num {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 2rem;
-    color: rgb(91 58 142 / 0.3);
+    font-size: 1.9rem;
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--brand-plum);
+    font-variant-numeric: tabular-nums;
   }
 
   :global([dir='rtl']) .pf__num {
-    font-family: var(--font-arabic);
-    font-style: normal;
-    font-weight: 600;
-    font-size: 1.6rem;
-  }
-
-  :global([dir='rtl']) .portal__label {
     letter-spacing: 0;
   }
 
-  .pf h3 {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-  }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .portal__kid {
-    background: rgb(255 255 255 / 0.07);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
-  }
-
-  :global([data-theme='dark']) .portal__kid.is-active {
-    background: #2b2040;
-  }
-
-  :global([data-theme='dark']) .portal__next {
-    background:
-      radial-gradient(120% 100% at 100% 0%, rgb(109 158 214 / 0.24), transparent 60%),
-      rgb(255 255 255 / 0.07);
-  }
-
-  :global([data-theme='dark']) .portal__bar {
-    background: rgb(255 255 255 / 0.12);
-  }
-
   :global([data-theme='dark']) .pf__num {
-    color: rgb(201 160 255 / 0.36);
+    color: #cbb2e6;
+  }
+
+  .pf__foot {
+    display: flex;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .pf__status {
+    --tone-dot: var(--brand-rose);
+    background: var(--tint-mist);
+    border-color: transparent;
+  }
+
+  .pf__check {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--brand-ink);
+  }
+
+  .pf__check :global(svg) {
+    width: 15px;
+    height: 15px;
+  }
+
+  :global([data-theme='dark']) .pf__check {
+    color: var(--brand-ink);
+    background: #efe7f8;
+  }
+
+  .pf__dot {
+    display: none;
+  }
+
+  /* two columns, staggered, linked by a dotted spine (the learning-plan board) */
+  @media (min-width: 860px) {
+    .pf {
+      --pf-gap: 64px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--pf-gap);
+      row-gap: 18px;
+      padding-bottom: 70px;
+    }
+
+    .pf::before {
+      content: '';
+      position: absolute;
+      inset-block: 30px 90px;
+      inset-inline-start: 50%;
+      border-inline-start: 2px dotted color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+
+    .pf__card:nth-child(even) {
+      top: 70px;
+    }
+
+    .pf__dot {
+      display: block;
+      position: absolute;
+      inset-block-start: 50%;
+      width: 12px;
+      height: 12px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: var(--brand-plum);
+      box-shadow: 0 0 0 5px color-mix(in srgb, var(--brand-plum) 16%, transparent);
+    }
+
+    .pf__card:nth-child(odd) .pf__dot {
+      inset-inline-end: calc(var(--pf-gap) / -2 - 7px);
+    }
+
+    .pf__card:nth-child(even) .pf__dot {
+      inset-inline-start: calc(var(--pf-gap) / -2 - 5px);
+    }
+
+    :global([data-theme='dark']) .pf__dot {
+      background: #cbb2e6;
+    }
+  }
+
+  /* ── Preview: deep card + event cards ────────────────────── */
+  .pv {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 960px) {
+    .pv {
+      grid-template-columns: 0.9fr 1.1fr;
+      align-items: stretch;
+    }
+  }
+
+  .pv__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: clamp(24px, 3.5vw, 44px);
+    border-radius: 32px;
+  }
+
+  .pv__intro h2 {
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3rem);
+    line-height: 1.08;
+    color: #fff;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .pv__intro h2 {
+    line-height: 1.4;
+  }
+
+  .pv__intro .lead {
+    color: var(--ink-2);
   }
 
   .portal-sample {
-    margin: 0 0 22px;
-    width: fit-content;
+    margin-top: auto;
+    white-space: normal;
   }
 
-  .preview-card {
+  .pv__events {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  }
+
+  .pv-event {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 28px;
+    min-width: 0;
+  }
+
+  .pv-event__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px 2px;
+  }
+
+  .pv-event__kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 620;
+  }
+
+  .pv-event__kind :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--tone-dot);
+  }
+
+  .pv-event__body {
     display: grid;
     gap: 8px;
     align-content: start;
+    flex: 1;
+    padding: 18px;
+    border-radius: 20px;
+    background: var(--card);
   }
 
-  .preview-card h3 {
+  .pv-event__body h3 {
     margin: 0;
     font-size: 1.15rem;
+  }
+
+  .pv-event__body p {
+    margin: 0;
+    color: var(--ink-2);
   }
 
   .preview-dl {
@@ -336,7 +822,7 @@ const P = C.preview;
 
   .preview-dl div {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
     padding-top: 8px;
     border-top: 1px solid var(--line);
@@ -350,16 +836,30 @@ const P = C.preview;
   .preview-dl dd {
     margin: 0;
     font-weight: 600;
+    text-align: end;
   }
 
   .preview-level {
     font-weight: 600;
-    margin: 0;
+    color: var(--ink) !important;
   }
 
-  .preview-date {
+  .pv-event__when {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     margin: 0;
+    padding: 10px 14px;
+    border-radius: 999px;
     font-size: 0.88rem;
-    color: var(--ink-3);
+    font-weight: 560;
+    color: var(--ink);
+    background: var(--card);
+  }
+
+  .pv-event__when :global(svg) {
+    width: 16px;
+    height: 16px;
   }
 </style>

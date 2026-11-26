@@ -10,19 +10,23 @@ interface Props {
   lang?: Lang;
   delay?: number;
   compact?: boolean;
+  /** brand tone surface; defaults to the programme's own tint */
+  tone?: string;
 }
-const { track, lang = 'en', delay = 0, compact = false } = Astro.props;
+const TRACK_TONE: Record<string, string> = { quran: 'lavender', arabic: 'sky', kids: 'rose', islamic: 'mauve' };
+const { track, lang = 'en', delay = 0, compact = false, tone = TRACK_TONE[track.id] ?? 'lavender' } = Astro.props;
 const t = ui(lang);
 const href = lp(lang, track.href);
+const DEEP = ['ink', 'plum', 'magenta', 'navy', 'slate', 'grad-plum', 'grad-night'];
+const deep = DEEP.includes(tone);
 ---
 
-<article class:list={['track-card', 'glass', 'glass--interactive', { 'track-card--compact': compact }]} data-reveal style={`--reveal-delay:${delay}s`}>
-  <div class="track-card__media" aria-hidden="true">
+<article class:list={['track-card', 'tone', `tone--${tone}`, { 'tone--deep': deep, 'track-card--compact': compact }]} data-reveal style={`--reveal-delay:${delay}s`}>
+  <div class="track-card__media">
     <Image src={track.image} alt="" widths={[360, 560, 720]} sizes="(min-width: 1100px) 290px, (min-width: 700px) 45vw, 92vw" />
-    <span class="icon-badge track-card__badge"><Icon name={track.icon} /></span>
+    <p class="status track-card__badge track-card__sub"><Icon name={track.icon} /> {track.subtitle}</p>
   </div>
   <div class="track-card__body">
-    <p class="track-card__sub">{track.subtitle}</p>
     <h3><a href={href}>{track.title}</a></h3>
     <p class="track-card__intro">{track.intro}</p>
     {
@@ -36,24 +40,38 @@ const href = lp(lang, track.href);
     }
     <div class="track-card__foot">
       <span class="track-card__price"><small>{t.from}</small> <Money usd={track.from} lang={lang} /><small>{t.perMonth}</small></span>
-      <span class="track-card__go" aria-hidden="true"><Icon name="arrow-right" weight="bold" class="icon-arrow" /></span>
+      <span class:list={['arrow-btn', 'track-card__go', { 'arrow-btn--dark': !deep }]} aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
     </div>
   </div>
 </article>
 
 <style>
-  .track-card {
-    --radius: var(--r-lg);
+  .track-card.tone {
+    position: relative;
     display: flex;
     flex-direction: column;
+    min-width: 0;
     overflow: hidden;
+    border: 0;
+    border-radius: 30px;
+    box-shadow: none;
+    transition: transform 0.4s var(--ease-out);
   }
 
-  .track-card__media {
+  .track-card.tone:hover {
+    transform: translateY(-3px);
+  }
+
+  .track-card.tone--dusk {
+    --ink-2: var(--ink);
+    --ink-3: var(--ink);
+  }
+
+  .track-card__media.track-card__media {
     position: relative;
     aspect-ratio: 16 / 11;
-    margin: 8px 8px 0;
-    border-radius: 22px;
+    margin: 10px 10px 0;
+    border-radius: 24px;
     overflow: hidden;
   }
 
@@ -62,6 +80,7 @@ const href = lp(lang, track.href);
   }
 
   .track-card__media :global(img) {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -72,10 +91,30 @@ const href = lp(lang, track.href);
     transform: scale(1.05);
   }
 
+  /* status chip on the photo */
   .track-card__badge {
     position: absolute;
-    inset-inline-start: 14px;
-    bottom: 14px;
+    inset-inline-start: 12px;
+    inset-block-start: 12px;
+    max-width: calc(100% - 24px);
+    white-space: normal;
+    font-size: 0.78rem;
+    color: var(--brand-ink);
+    background: rgb(255 255 255 / 0.88);
+    border-color: rgb(255 255 255 / 0.9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .track-card__badge::before {
+    display: none;
+  }
+
+  .track-card__badge :global(svg) {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    color: var(--brand-plum);
   }
 
   .track-card__body {
@@ -86,17 +125,13 @@ const href = lp(lang, track.href);
     flex: 1;
   }
 
-  .track-card__sub {
-    font-size: 0.82rem;
-    color: var(--accent-ink);
-    font-weight: 560;
-  }
-
   .track-card h3 {
     font-size: 1.45rem;
+    overflow-wrap: anywhere;
   }
 
   .track-card h3 a {
+    color: inherit;
     text-decoration: none;
   }
 
@@ -133,13 +168,21 @@ const href = lp(lang, track.href);
     gap: 12px;
     margin-top: auto;
     padding-top: 14px;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .tone--deep .track-card__foot {
+    border-top-color: rgb(255 255 255 / 0.2);
   }
 
   .track-card__price {
-    font-size: 1.45rem;
-    font-weight: 620;
-    letter-spacing: -0.03em;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+  }
+
+  :global([dir='rtl']) .track-card__price {
+    letter-spacing: 0;
   }
 
   .track-card__price small {
@@ -149,31 +192,9 @@ const href = lp(lang, track.href);
     letter-spacing: 0;
   }
 
-  .track-card__go {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
+  /* the round arrow button (outranks the older square radius) */
+  .track-card__go.arrow-btn {
+    --arrow-size: 44px;
     border-radius: 50%;
-    color: #fff;
-    background: var(--aubergine-800);
-    transition: transform 0.4s var(--ease-out);
-  }
-
-  .track-card__go :global(svg) {
-    width: 18px;
-    height: 18px;
-  }
-
-  [dir='rtl'] .track-card__go :global(svg) {
-    transform: scaleX(-1);
-  }
-
-  .track-card:hover .track-card__go {
-    transform: translateX(3px);
-  }
-
-  [dir='rtl'] .track-card:hover .track-card__go {
-    transform: translateX(-3px);
   }
 </style>

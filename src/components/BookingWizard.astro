@@ -8,7 +8,7 @@ import Icon from './Icon.astro';
 import { TRIAL_COURSES, courseLabel } from '@/data/tracks';
 import { COUNTRIES, countryName } from '@/data/countries';
 import { SITE, waLink } from '@/data/site';
-import { lp, type Lang } from '@/i18n';
+import { lp, num, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
 interface Props {
@@ -35,10 +35,16 @@ const i18n = {
 };
 ---
 
-<form class="booking glass glass--strong" id="book-form" novalidate data-booking data-endpoint={SITE.leadEndpoint} data-wa={SITE.whatsapp.number}>
-  <div class="booking__progress" aria-live="polite">
-    <span class="booking__steplabel" data-step-label>{L.step(1)}</span>
-    <span class="booking__bar"><span data-step-bar style="width:33.3%"></span></span>
+<form class="booking" id="book-form" novalidate data-booking data-endpoint={SITE.leadEndpoint} data-wa={SITE.whatsapp.number}>
+  <div class="booking__head">
+    <!-- step pills: decorative; the live label beside the bar announces the step -->
+    <ol class="booking__pills" aria-hidden="true">
+      {[1, 2, 3].map((n) => <li class="booking__pill"><span>{num(lang, n)}</span></li>)}
+    </ol>
+    <div class="booking__progress" aria-live="polite">
+      <span class="booking__steplabel" data-step-label>{L.step(1)}</span>
+      <span class="booking__bar"><span data-step-bar style="width:33.3%"></span></span>
+    </div>
   </div>
 
   <noscript>
@@ -112,7 +118,7 @@ const i18n = {
         { key: 'time', label: L.time, opts: L.timeO },
         { key: 'teacherGender', label: L.teacher, opts: L.teacherO },
       ].map((g) => (
-        <div class="field">
+        <div class="field booking__group">
           <p class="booking__sublabel" id={`bk-${g.key}`}>{g.label}</p>
           <div class="seg" role="radiogroup" aria-labelledby={`bk-${g.key}`}>
             {g.opts.map(([v, l], i) => (
@@ -186,10 +192,98 @@ const i18n = {
 
 <style>
   .booking {
-    --radius: 32px;
     display: grid;
-    gap: 18px;
-    padding: clamp(20px, 3.2vw, 36px);
+    gap: 20px;
+    min-width: 0;
+    padding: clamp(18px, 3vw, 34px);
+    border-radius: 32px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ── Progress: step pills + label + gradient bar ──────────── */
+  .booking__head {
+    display: grid;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 24px;
+    background: var(--surface);
+  }
+
+  .booking__pills {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .booking__pill {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 8px;
+  }
+
+  .booking__pill:last-child {
+    flex: none;
+  }
+
+  .booking__pill span {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 0.86rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  /* the connector between two pills */
+  .booking__pill:not(:last-child)::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    margin-inline-end: 8px;
+    border-radius: 2px;
+    background: var(--line-strong);
+    transition: background-color 0.3s;
+  }
+
+  /* reached pills: the first by default, then whichever steps the active one has passed */
+  .booking__pill:first-child span,
+  .booking:has([data-bstep='2'].is-active) .booking__pill:nth-child(-n + 2) span,
+  .booking:has([data-bstep='3'].is-active) .booking__pill span {
+    color: #fff;
+    background: var(--grad-plum);
+    border-color: transparent;
+  }
+
+  .booking:has([data-bstep='2'].is-active) .booking__pill:nth-child(1)::after,
+  .booking:has([data-bstep='3'].is-active) .booking__pill:nth-child(-n + 2)::after {
+    background: var(--brand-plum);
+  }
+
+  /* the current pill gets a soft ring */
+  .booking:has([data-bstep='1'].is-active) .booking__pill:nth-child(1) span,
+  .booking:has([data-bstep='2'].is-active) .booking__pill:nth-child(2) span,
+  .booking:has([data-bstep='3'].is-active) .booking__pill:nth-child(3) span {
+    box-shadow: 0 0 0 5px var(--tint-lavender);
+  }
+
+  :global([data-theme='dark']) .booking:has([data-bstep='2'].is-active) .booking__pill:nth-child(1)::after,
+  :global([data-theme='dark']) .booking:has([data-bstep='3'].is-active) .booking__pill:nth-child(-n + 2)::after {
+    background: var(--accent);
   }
 
   .booking__progress {
@@ -198,7 +292,7 @@ const i18n = {
     gap: 14px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--ink-3);
+    color: var(--ink-2);
   }
 
   .booking__steplabel {
@@ -208,9 +302,10 @@ const i18n = {
 
   .booking__bar {
     flex: 1;
-    height: 6px;
+    height: 8px;
     border-radius: 99px;
-    background: rgb(46 29 70 / 0.08);
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--card-line);
     overflow: hidden;
   }
 
@@ -222,6 +317,7 @@ const i18n = {
     transition: width 0.5s var(--ease-out);
   }
 
+  /* ── Steps ────────────────────────────────────────────────── */
   .booking__step {
     border: 0;
     margin: 0;
@@ -238,15 +334,18 @@ const i18n = {
   .booking__legend {
     padding: 0;
     margin-bottom: 6px;
-    font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.75rem);
-    font-weight: 620;
-    letter-spacing: -0.025em;
-    line-height: 1.25;
+    font-size: clamp(1.4rem, 1.15rem + 1vw, 1.95rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
     outline: none;
   }
 
-  [dir='rtl'] .booking__legend {
+  :global([dir='rtl']) .booking__legend {
+    font-weight: 600;
     letter-spacing: 0;
+    line-height: 1.45;
   }
 
   .booking__q,
@@ -256,22 +355,94 @@ const i18n = {
     margin-top: 4px;
   }
 
+  /* ── Choice cards ─────────────────────────────────────────── */
+  .booking .choice__box {
+    position: relative;
+    min-width: 0;
+    padding-block: 14px;
+    padding-inline: 16px 44px;
+    border-radius: 20px;
+    background: var(--tint-mist);
+    box-shadow: inset 0 0 0 1px var(--card-line);
+    overflow-wrap: anywhere;
+  }
+
+  /* radio indicator at the inline end */
+  .booking .choice__box::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-end: 14px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--line-strong);
+    background: var(--card);
+    transition:
+      background-color 0.2s,
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .booking .choice input:hover + .choice__box {
+    background: var(--tint-lavender);
+  }
+
+  .booking .choice input:checked + .choice__box {
+    background: var(--tint-lavender);
+    box-shadow:
+      inset 0 0 0 2px var(--accent),
+      0 12px 26px -18px rgb(44 28 68 / 0.6);
+  }
+
+  .booking .choice input:checked + .choice__box::after {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: inset 0 0 0 3px var(--card);
+  }
+
+  .booking .choice__box :global(svg) {
+    box-sizing: content-box;
+    width: 22px;
+    height: 22px;
+    padding: 10px;
+    border-radius: 50%;
+    color: var(--accent-ink);
+    background: var(--card);
+  }
+
+  .booking .choice__box small {
+    color: var(--ink-2);
+  }
+
   .booking__learners {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .booking__learners .choice__box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding-block: 16px;
+    padding-inline: 16px 44px;
   }
 
   @media (max-width: 520px) {
     .booking__learners {
       grid-template-columns: 1fr;
     }
+
+    .booking__learners .choice__box {
+      flex-direction: row;
+      align-items: center;
+    }
   }
 
   .booking__courses {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
   }
 
-  .booking__courses :global(.choice__box) {
-    padding: 12px 14px;
+  .booking__courses .choice__box {
     font-size: 0.95rem;
   }
 
@@ -288,21 +459,75 @@ const i18n = {
     display: block;
   }
 
+  /* ── Segmented pills ──────────────────────────────────────── */
+  .booking .seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-self: flex-start;
+    justify-self: start;
+    gap: 4px;
+    max-width: 100%;
+    padding: 5px;
+    border-radius: 26px;
+    background: var(--tint-mist);
+    border: 1px solid var(--card-line);
+  }
+
+  .booking .seg__opt span {
+    min-height: 42px;
+    padding: 0 16px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .booking .seg__opt input:hover + span {
+    background: var(--card);
+  }
+
+  .booking .seg__opt input:checked + span {
+    color: #fff;
+    background: var(--brand-ink);
+    box-shadow: 0 10px 20px -12px rgb(44 28 68 / 0.8);
+  }
+
+  :global([data-theme='dark']) .booking .seg__opt input:checked + span {
+    color: var(--brand-ink);
+    background: #efe7f8;
+  }
+
+  .booking__group {
+    gap: 10px;
+  }
+
   .booking__tz {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: 16px;
+    color: var(--ink-2);
+    background: var(--tint-sky);
   }
 
   .booking__tz :global(svg) {
     width: 14px;
     height: 14px;
+    color: var(--brand-navy);
   }
 
+  :global([data-theme='dark']) .booking__tz :global(svg) {
+    color: var(--brand-sky);
+  }
+
+  /* ── Fields ───────────────────────────────────────────────── */
   .booking__grid {
     display: grid;
     gap: 14px;
+  }
+
+  .booking__grid > .field {
+    min-width: 0;
   }
 
   @media (min-width: 560px) {
@@ -315,37 +540,57 @@ const i18n = {
     }
   }
 
+  .booking :is(.input, .select) {
+    min-height: 52px;
+    border-radius: 18px;
+  }
+
+  .booking .textarea {
+    border-radius: 20px;
+  }
+
+  :global([data-theme='dark']) .booking :is(.input, .select, .textarea):focus-visible {
+    background: var(--card);
+  }
+
   .booking__nav {
     display: flex;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
     margin-top: 6px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
   }
 
   .booking__nav--end {
     justify-content: flex-end;
   }
 
-  [dir='rtl'] .booking :global(.icon-arrow-back) {
+  :global([dir='rtl']) .booking :global(.icon-arrow-back) {
     transform: scaleX(-1);
   }
 
   .booking__note {
+    justify-self: center;
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 560;
     color: var(--ink-2);
+    background: var(--tint-lavender);
   }
 
   .booking__privacy {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 6px;
     font-size: 0.82rem;
-    color: var(--ink-3);
-    margin-top: -8px;
+    color: var(--ink-2);
+    margin-top: -6px;
   }
 
   .booking__privacy :global(svg) {
@@ -355,19 +600,15 @@ const i18n = {
 
   .booking__nojs {
     padding: 12px 14px;
-    border-radius: 14px;
-    background: rgb(255 255 255 / 0.8);
+    border-radius: 16px;
+    background: var(--tint-rose);
   }
 
   .req {
-    color: var(--magenta-600);
-  }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .booking__bar {
-    background: rgb(255 255 255 / 0.1);
+    color: var(--brand-magenta);
   }
 
-  :global([data-theme='dark']) .booking__nojs {
-    background: rgb(255 255 255 / 0.08);
+  :global([data-theme='dark']) .req {
+    color: var(--accent-ink);
   }
 </style>

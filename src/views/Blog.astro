@@ -56,7 +56,7 @@ const ld = {
   <section class:list={['section', { 'section--tight': !ar }]} aria-labelledby={ar ? 'en-posts' : undefined} aria-label={ar ? undefined : C.meta.title}>
     <div class="container">
       {ar && C.enHead && <SectionHead id="en-posts" eyebrow={C.enHead.eyebrow} title={C.enHead.title} lede={C.enHead.lede} />}
-      <div class="blog-filters glass" role="toolbar" aria-label={C.filtersLabel}>
+      <div class="blog-filters" role="toolbar" aria-label={C.filtersLabel}>
         {C.filters.map((f, i) => <button type="button" class:list={['blog-filter', { 'is-active': i === 0 }]} data-filter={f.key} aria-pressed={i === 0 ? 'true' : 'false'}>{f.label}</button>)}
       </div>
       <ul role="list" class="blog-grid" data-blog-grid>
@@ -94,45 +94,85 @@ const ld = {
 </script>
 
 <style>
+  /* Topic filters: a row of pills (the reference's filter chips); the current topic is filled. */
   .blog-filters {
-    --radius: var(--r-pill);
     display: flex;
-    gap: 4px;
-    padding: 6px;
-    width: fit-content;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
     max-width: 100%;
-    margin: 0 auto 32px;
-    overflow-x: auto;
-    scrollbar-width: none;
+    margin: 0 auto clamp(24px, 3.5vw, 40px);
   }
 
   .blog-filter {
-    border: 0;
-    background: transparent;
-    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    min-height: 44px;
+    padding: 0 18px 0 15px;
+    border: 1px solid var(--line-strong);
     border-radius: var(--r-pill);
-    font-weight: 540;
+    background: var(--card);
+    font: inherit;
+    font-weight: 560;
     font-size: 0.93rem;
-    color: var(--ink-2);
+    color: var(--ink);
     white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.25s,
+      color 0.25s,
+      border-color 0.25s;
+  }
+
+  .blog-filter::before {
+    content: '';
+    flex: none;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--brand-lavender);
+    transition: background-color 0.25s;
   }
 
   .blog-filter:hover {
-    background: rgb(255 255 255 / 0.7);
+    background: var(--tint-lavender);
+  }
+
+  .blog-filter:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 
   .blog-filter.is-active {
     color: #fff;
-    background: var(--aubergine-800);
+    background: var(--brand-ink);
+    border-color: var(--brand-ink);
+  }
+
+  .blog-filter.is-active::before {
+    background: var(--brand-mauve);
   }
 
   .blog-grid {
     display: grid;
-    gap: 18px;
+    gap: clamp(14px, 1.6vw, 20px);
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   }
+
+  .blog-empty {
+    margin-top: 18px;
+    text-align: center;
+  }
+
   /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .blog-filter:hover {
-    background: rgb(255 255 255 / 0.1);
+  :global([data-theme='dark']) .blog-filter.is-active {
+    color: var(--brand-ink);
+    background: #efe7f8;
+    border-color: #efe7f8;
+  }
+
+  :global([data-theme='dark']) .blog-filter.is-active::before {
+    background: var(--brand-plum);
   }
 </style>

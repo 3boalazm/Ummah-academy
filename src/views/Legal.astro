@@ -16,58 +16,140 @@ const t = ui(lang);
 const c = getLegal(doc, lang);
 const path = doc === 'privacy' ? '/privacy-policy/' : '/terms-of-service/';
 const fill = (html: string) => html.replaceAll('{email}', SITE.email).replaceAll('{pricing}', lp(lang, '/pricing/'));
+const sid = (i: number) => `${doc}-${i + 1}`;
 ---
 
 <BaseLayout title={c.meta.title} description={c.meta.desc} lang={lang}>
   <PageHero eyebrow={t.legal} title={c.title} lede={c.lede} crumbs={[{ label: c.title }]} compact lang={lang} />
   <section class="section section--tight">
-    <div class="container--narrow">
+    <div class="container read">
       {
-        t.legalNotice && (
-          <p class="legal__notice glass" role="note">
-            <Icon name="info" weight="fill" />
-            <span>
-              {t.legalNotice}{' '}
-              <a href={path} hreflang="en" lang="en">English version</a>
-            </span>
-          </p>
+        c.sections.length > 1 && (
+          <nav class="read__toc" aria-label={c.title}>
+            <ol role="list">
+              {c.sections.map((s, i) => (
+                <li>
+                  <a href={`#${sid(i)}`}>{s.h}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
         )
       }
-      <article class="glass glass--strong legal prose">
-        <p><em>{c.updated}</em></p>
-        <p>{c.intro}</p>
+      <div class="read__main">
         {
-          c.sections.map((s) => (
-            <>
-              <h2>{s.h}</h2>
-              <Fragment set:html={fill(s.html)} />
-            </>
-          ))
+          t.legalNotice && (
+            <p class="read__notice" role="note">
+              <Icon name="info" weight="fill" />
+              <span>
+                {t.legalNotice}{' '}
+                <a href={path} hreflang="en" lang="en">English version</a>
+              </span>
+            </p>
+          )
         }
-        <p><em>{c.note}</em></p>
-      </article>
+        <article class="legal prose">
+          <p class="read__updated"><em>{c.updated}</em></p>
+          <p class="read__intro">{c.intro}</p>
+          {
+            c.sections.map((s, i) => (
+              <>
+                <h2 id={sid(i)}>{s.h}</h2>
+                <Fragment set:html={fill(s.html)} />
+              </>
+            ))
+          }
+          <p class="read__note"><em>{c.note}</em></p>
+        </article>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .legal {
-    --radius: var(--r-xl);
-    padding: clamp(24px, 4vw, 56px);
+  /* Calm long-form reading: a pill contents list beside a single prose column. */
+  .read {
+    display: grid;
+    gap: clamp(20px, 3vw, 48px);
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .legal__notice {
-    --radius: var(--r-md);
+  @media (min-width: 1000px) {
+    .read {
+      grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .read__toc {
+      position: sticky;
+      top: calc(var(--header-h, 72px) + 24px);
+      max-height: calc(100vh - var(--header-h, 72px) - 48px);
+      overflow-y: auto;
+    }
+
+    .read__toc ol {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .read__toc {
+    padding: 10px;
+    border-radius: 28px;
+    background: var(--tint-mist);
+  }
+
+  .read__toc ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .read__toc a {
+    display: block;
+    padding: 0.55em 1em;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 540;
+    line-height: 1.3;
+    color: var(--ink-2);
+    text-decoration: none;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    overflow-wrap: anywhere;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .read__toc a:hover {
+    color: var(--ink);
+    background: var(--tint-lavender);
+  }
+
+  .read__toc a:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .read__main {
+    min-width: 0;
+    max-width: 760px;
+  }
+
+  .read__notice {
     display: flex;
     gap: 10px;
     align-items: flex-start;
     padding: 14px 18px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    border-radius: 20px;
     font-size: 0.95rem;
     color: var(--ink-2);
+    background: var(--tint-sky);
   }
 
-  .legal__notice :global(svg) {
+  .read__notice :global(svg) {
     flex: none;
     width: 18px;
     height: 18px;
@@ -75,8 +157,89 @@ const fill = (html: string) => html.replaceAll('{email}', SITE.email).replaceAll
     color: var(--accent-ink);
   }
 
-  .legal__notice a {
+  .read__notice a {
     color: var(--accent-ink);
     font-weight: 560;
+  }
+
+  .legal {
+    color: var(--ink-2);
+  }
+
+  .read__updated {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    margin-top: 0;
+    padding: 0.42em 0.95em 0.42em 0.8em;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 560;
+    color: var(--ink);
+    background: var(--tint-lavender);
+  }
+
+  .read__updated::before {
+    content: '';
+    flex: none;
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: var(--brand-magenta);
+  }
+
+  .read__updated em,
+  .read__note em {
+    font-style: normal;
+  }
+
+  .read__intro {
+    font-size: 1.12rem;
+    color: var(--ink);
+  }
+
+  .legal :global(h2) {
+    margin-top: 2.2em;
+    padding-top: 1.1em;
+    border-top: 1px solid var(--line);
+    font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.75rem);
+    line-height: 1.2;
+    color: var(--ink);
+    scroll-margin-top: calc(var(--header-h, 72px) + 24px);
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .legal :global(h2) {
+    line-height: 1.45;
+  }
+
+  .legal :global(a) {
+    color: var(--accent-ink);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+  }
+
+  .legal :global(li::marker) {
+    color: var(--brand-magenta);
+  }
+
+  :global([data-theme='dark']) .legal :global(li::marker) {
+    color: var(--accent-ink);
+  }
+
+  :global([data-theme='dark']) .read__updated::before {
+    background: var(--accent-ink);
+  }
+
+  .legal :global(strong) {
+    color: var(--ink);
+  }
+
+  .read__note {
+    margin-top: 2.4em;
+    padding: 16px 20px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    background: var(--tint-mist);
   }
 </style>

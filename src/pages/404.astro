@@ -34,77 +34,99 @@ const detect = `var m=location.pathname.match(/^\\/(${PREFIXED.join('|')})(\\/|$
 
 <BaseLayout title="Page not found · الصفحة غير موجودة | Ummah Academy" description="The page you're looking for may have moved." noindex>
   <script is:inline slot="head" set:html={detect} />
-  <section class="section">
-    <div class="container nf">
-      <p class="nf__code quranic" aria-hidden="true">٤٠٤</p>
-      <div class="nf__panels">
-        {
-          panels.map((p) => (
-            <div class:list={['nf__panel', 'glass', `nf__panel--${p.lang}`]} lang={p.lang} dir={p.dir}>
-              <span class="eyebrow">{p.eyebrow}</span>
-              <h1 class="nf__title">{p.title}</h1>
-              <p class="nf__lede">{p.lede}</p>
-              <ul role="list" class="nf__links">
-                {p.links.map((l) => (
-                  <li>
-                    <a class="btn btn--sm btn--glass" href={l.href}>
-                      <Icon name={l.icon} /> {l.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <div class="cluster nf__cta">
-                <a class="btn btn--primary" href={p.home.href}>{p.home.label}</a>
-                <a class="btn btn--glass" href={waLink()} target="_blank" rel="noopener">
-                  <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {p.wa}
-                </a>
+  <section class="section nf-section">
+    <div class="container">
+      <div class="nf">
+        <p class="nf__code" aria-hidden="true">٤٠٤</p>
+        <div class="nf__panels">
+          {
+            panels.map((p) => (
+              <div class:list={['nf__panel', `nf__panel--${p.lang}`]} lang={p.lang} dir={p.dir}>
+                <span class="eyebrow">{p.eyebrow}</span>
+                <h1 class="nf__title">{p.title}</h1>
+                <p class="nf__lede">{p.lede}</p>
+                <ul role="list" class="nf__links">
+                  {p.links.map((l) => (
+                    <li>
+                      <a class="nf-choice" href={l.href}>
+                        <span class="nf-choice__icon">
+                          <Icon name={l.icon} />
+                        </span>
+                        <span class="nf-choice__label">{l.label}</span>
+                        <span class="arrow-btn arrow-btn--dark" style="--arrow-size:38px">
+                          <Icon name="arrow-up-right" weight="bold" />
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <div class="cluster nf__cta">
+                  <a class="btn btn--primary" href={p.home.href}>{p.home.label}</a>
+                  <a class="btn btn--glass" href={waLink()} target="_blank" rel="noopener">
+                    <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {p.wa}
+                  </a>
+                </div>
               </div>
-            </div>
-          ))
-        }
+            ))
+          }
+        </div>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
+  .nf-section {
+    padding-top: clamp(4px, 1vw, 12px);
+  }
+
+  /* Light, reference-led: a soft brand panel, a big light numeral, white cards with choice tiles. */
   .nf {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
-    padding-block: 24px;
+    gap: clamp(14px, 2vw, 24px);
+    padding: clamp(24px, 4.5vw, 64px) clamp(14px, 3.5vw, 48px);
+    border-radius: var(--sheet-radius);
+    background: var(--grad-dawn);
   }
 
   .nf__code {
-    font-size: clamp(5.5rem, 16vw, 10rem);
+    font-family: inherit;
+    font-size: clamp(5.5rem, 18vw, 11rem);
+    font-weight: 300;
+    letter-spacing: 0;
     line-height: 1;
-    background: var(--grad-accent);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--brand-plum);
+  }
+
+  :global([data-theme='dark']) .nf__code {
+    color: #dcc4f2;
   }
 
   .nf__panels {
     display: grid;
-    gap: 16px;
+    gap: 14px;
     width: 100%;
-    max-width: 1040px;
+    max-width: 1120px;
   }
 
   @media (min-width: 900px) {
     .nf__panels {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   .nf__panel {
-    --radius: var(--r-xl);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
+    gap: 16px;
     padding: clamp(22px, 3vw, 36px);
+    border-radius: 32px;
+    background: var(--card);
+    box-shadow: var(--shadow-soft);
+    min-width: 0;
   }
 
   /* default: English + Arabic; on a /de/ /fr/ /it/ path: that language first, then English */
@@ -129,13 +151,15 @@ const detect = `var m=location.pathname.match(/^\\/(${PREFIXED.join('|')})(\\/|$
   }
 
   .nf__title {
-    font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.4rem);
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.2rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
   }
 
   .nf__panel--ar .nf__title {
     letter-spacing: 0;
     line-height: 1.35;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .nf__lede {
@@ -143,9 +167,65 @@ const detect = `var m=location.pathname.match(/^\\/(${PREFIXED.join('|')})(\\/|$
   }
 
   .nf__links {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 8px;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  }
+
+  .nf-choice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 100%;
+    padding: 10px 10px 10px 12px;
+    border-radius: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--tint-mist);
+    border: 1px solid var(--card-line);
+    transition: background-color 0.25s;
+  }
+
+  .nf__panel--ar .nf-choice {
+    padding: 10px 12px 10px 10px;
+  }
+
+  .nf-choice:hover {
+    background: var(--tint-lavender);
+  }
+
+  .nf__links li:nth-child(2) .nf-choice__icon { background: var(--tint-sky); }
+  .nf__links li:nth-child(3) .nf-choice__icon { background: var(--tint-mauve); }
+  .nf__links li:nth-child(4) .nf-choice__icon { background: var(--tint-rose); }
+
+  .nf-choice__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--brand-plum);
+    background: var(--tint-lavender);
+  }
+
+  .nf-choice__icon :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  :global([data-theme='dark']) .nf-choice__icon {
+    color: #dcc4f2;
+    background: rgb(255 255 255 / 0.08) !important;
+  }
+
+  .nf-choice__label {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
   }
 
   .nf__cta {

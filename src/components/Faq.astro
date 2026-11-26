@@ -22,12 +22,13 @@ const ld = {
 };
 ---
 
+<!-- Accordion rows: rounded tinted rows with a round +/− button (tint per row via --faq-row / --faq-row-open). -->
 <div class="faq">
   {
     items.map((it, i) => (
-      <details class="glass glass--flat" open={i === open} data-reveal style={`--reveal-delay:${Math.min(i, 6) * 0.04}s`}>
+      <details class="faq__item" open={i === open} data-reveal style={`--reveal-delay:${Math.min(i, 6) * 0.04}s`}>
         <summary>
-          <span>
+          <span class="faq__q">
             {it.q}
             {it.qAr && (
               <span class="faq__q-ar" lang="ar" dir="rtl">
@@ -35,6 +36,7 @@ const ld = {
               </span>
             )}
           </span>
+          <span class="faq__toggle" aria-hidden="true" />
         </summary>
         <div class="faq__body">
           <p set:html={it.a} />
@@ -51,6 +53,101 @@ const ld = {
 {schema && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}
 
 <style>
+  .faq {
+    display: grid;
+    gap: 10px;
+  }
+
+  .faq details {
+    border: 0;
+    border-radius: 24px;
+    background: var(--faq-row, var(--tint-mist));
+    box-shadow: none;
+    transition: background-color 0.3s;
+  }
+
+  .faq details:hover {
+    background: var(--faq-row-open, var(--tint-lavender));
+  }
+
+  .faq details[open] {
+    background: var(--faq-row-open, var(--tint-lavender));
+  }
+
+  .faq summary {
+    gap: 16px;
+    padding: 18px 18px 18px 24px;
+    padding-inline: 24px 14px;
+    border-radius: 24px;
+    font-weight: 580;
+    font-size: 1.04rem;
+    line-height: 1.4;
+  }
+
+  .faq summary:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* the round +/− button replaces the global marker */
+  .faq summary::after {
+    display: none;
+  }
+
+  .faq__q {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .faq__toggle {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--brand-ink);
+    background: #fff;
+    box-shadow: 0 8px 18px -14px rgb(44 28 68 / 0.5);
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .faq__toggle::before,
+  .faq__toggle::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    width: 14px;
+    height: 2px;
+    margin-block-start: -1px;
+    margin-inline-start: -7px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: transform 0.35s var(--ease-out);
+  }
+
+  .faq__toggle::after {
+    transform: rotate(90deg);
+  }
+
+  .faq details[open] .faq__toggle {
+    color: #fff;
+    background: var(--brand-ink);
+  }
+
+  /* open: the vertical bar folds away, leaving − */
+  .faq details[open] .faq__toggle::after {
+    transform: rotate(90deg) scaleX(0);
+  }
+
+  .faq__body {
+    padding: 0 24px 22px;
+    color: var(--ink-2);
+    max-width: 70ch;
+  }
+
   .faq__q-ar {
     display: block;
     margin-top: 4px;
@@ -59,13 +156,51 @@ const ld = {
     font-size: 0.92rem;
     color: var(--ink-3);
   }
+
   .faq__a-ar {
     margin-top: 10px;
     font-family: var(--font-arabic);
     color: var(--ink-3);
   }
+
   .faq__body :global(a) {
-    color: var(--accent-ink);
+    color: var(--brand-plum);
     font-weight: 560;
+    text-decoration-color: var(--brand-lavender);
+    text-underline-offset: 0.2em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__toggle::before,
+    .faq__toggle::after {
+      transition: none;
+    }
+  }
+
+  /* ---------- Dark theme ---------- */
+  :global([data-theme='dark']) .faq__toggle {
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  }
+
+  :global([data-theme='dark']) .faq details[open] .faq__toggle {
+    color: var(--brand-ink);
+    background: #efe7f8;
+    box-shadow: none;
+  }
+
+  :global([data-theme='dark']) .faq__body :global(a) {
+    color: #dcc4f2;
+  }
+
+  /* inside a night panel the rows read as soft glass */
+  :global(.theme-night) .faq details {
+    background: rgb(255 255 255 / 0.07);
+  }
+
+  :global(.theme-night) .faq details[open],
+  :global(.theme-night) .faq details:hover {
+    background: rgb(255 255 255 / 0.12);
   }
 </style>

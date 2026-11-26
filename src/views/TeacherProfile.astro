@@ -8,7 +8,6 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import SanadChain from '@/components/SanadChain.astro';
 import CourseCard from '@/components/CourseCard.astro';
-import TestimonialCard from '@/components/TestimonialCard.astro';
 import TeacherCard from '@/components/TeacherCard.astro';
 import Steps from '@/components/Steps.astro';
 import Faq from '@/components/Faq.astro';
@@ -17,8 +16,8 @@ import Icon from '@/components/Icon.astro';
 import { getTeachers, getTestimonials, teacherById } from '@/data/people';
 import { trackById } from '@/data/tracks';
 import { SITE, trialLink, waLink } from '@/data/site';
-import { lp, type Lang } from '@/i18n';
-import { copy } from '@/locales';
+import { lp, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
 
 interface Props {
   id: string;
@@ -56,83 +55,126 @@ const ld = {
   },
 };
 const meta = COPY.meta(t);
+
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
+const CRED_TONES = ['lavender', 'sky', 'mauve'];
+const STORY_TONES = ['sky', 'lavender', 'rose', 'mauve'];
 ---
 
 <BaseLayout title={meta.title} description={meta.desc} jsonLd={ld} lang={lang}>
+  <!-- Hero: copy on the sheet, the initials monogram on a brand-gradient stage -->
   <section class={`page-hero tprof tprof--${t.hue}`}>
     <div class="container tprof__grid">
       <div class="tprof__copy" data-reveal>
         <Breadcrumbs items={[{ label: L.teachers, href: lp(lang, '/teachers/') }, { label: t.name }]} lang={lang} />
         <span class="eyebrow">{t.role}</span>
         <h1>{t.name}</h1>
-        <p class="tprof__spec">{t.specialty}</p>
-        <p class="lead">{t.bio}</p>
-        <div class="tprof__best">
-          <p class="tprof__label">{L.bestFor}</p>
-          <ul role="list" class="cluster">
-            {t.bestFor.map((b) => <li class="chip chip--accent">{b}</li>)}
-          </ul>
-        </div>
+        <ul role="list" class="tprof__pills">
+          <li class="status tprof__spec">{t.specialty}</li>
+          {t.credentials.map((c) => <li class="status status--ghost">{c}</li>)}
+        </ul>
         <div class="cluster tprof__actions">
-          <a class="btn btn--primary" href={book}>{L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
-          <a class="btn btn--glass" href={waLink(L.waText)} target="_blank" rel="noopener" data-track="teacher_profile">
+          <a class="btn btn--lg btn--primary" href={book}>{L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+          <a class="btn btn--lg btn--glass" href={waLink(L.waText)} target="_blank" rel="noopener" data-track="teacher_profile">
             <Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {L.ask}
           </a>
         </div>
       </div>
       <div class="tprof__visual" data-reveal style="--reveal-delay:0.08s">
-        <div class="tprof__portrait" aria-hidden="true">
-          <span class="tprof__monogram">{en.initials}</span>
+        <div class="tprof__stage">
+          <div class="tprof__portrait" aria-hidden="true">
+            <span class="tprof__shape tprof__shape--a"></span>
+            <span class="tprof__shape tprof__shape--b"></span>
+            <span class="tprof__monogram">{en.initials}</span>
+            <span class="status tprof__track">{track.title}</span>
+          </div>
+          <span class="status tprof__verified"><Icon name="seal-check" weight="fill" /> {L.verified}</span>
         </div>
-        <span class="tprof__verified glass"><Icon name="seal-check" weight="fill" /> {L.verified}</span>
       </div>
     </div>
   </section>
 
-  <section class="section section--tight" aria-label={L.creds}>
-    <div class="container tprof__proof">
-      <div class="glass glass--strong tprof__card" data-reveal>
-        <h2 class="tprof__h2">{L.creds}</h2>
-        <ul role="list" class="tprof__creds">
+  <!-- About: the bio, and "best for" as choice rows -->
+  <section class="section section--tight">
+    <div class="container tprof-about">
+      <div class="tprof-about__bio" data-reveal>
+        <span class="avatars" style="--av:52px" aria-hidden="true"><span>{t.initials}</span></span>
+        <p>{t.bio}</p>
+      </div>
+      <div class="tprof-best tone tone--lavender" data-reveal style="--reveal-delay:0.06s">
+        <h2 class="tprof-best__title">{L.bestFor}</h2>
+        <ul role="list" class="tprof-best__rows">
           {
-            t.credentials.map((c) => (
+            t.bestFor.map((b) => (
               <li>
-                <Icon name="seal-check" weight="fill" /> {c}
+                <a href={book}>
+                  <span>{b}</span>
+                  <span class="arrow-btn" style="--arrow-size:36px" aria-hidden="true">
+                    <Icon name="arrow-up-right" weight="bold" />
+                  </span>
+                </a>
               </li>
             ))
           }
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Credentials: tone cards, the Sanad (deep card) and how she was vetted -->
+  <section class="section section--tight" aria-label={L.creds}>
+    <div class="container">
+      <div class="tprof__head" data-reveal>
+        <h2>{L.creds}</h2>
+      </div>
+      <ul role="list" class="tprof-creds">
+        {
+          t.credentials.map((c, i) => (
+            <li class:list={['tprof-cred', 'tone', `tone--${CRED_TONES[i % CRED_TONES.length]}`]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="icon-badge">
+                <Icon name="seal-check" weight="fill" />
+              </span>
+              <span class="tprof-cred__text">{c}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <div class:list={['tprof-proof', { 'tprof-proof--solo': !t.ijazah }]}>
         {
           t.ijazah && (
-            <div class="tprof__sanad">
+            <article class="tprof-sanad theme-night" data-reveal>
+              <span class="status">{L.verified}</span>
               <h3>{L.sanadTitle}</h3>
               <p>{L.sanadText}</p>
-              <SanadChain lang={lang} />
+              <div class="tprof-sanad__chain">
+                <SanadChain dark lang={lang} />
+              </div>
               <p class="tprof__note">
                 <Icon name="shield-check" weight="fill" /> {L.sanadNote}{' '}
                 <a href={L.sanadHref}>{L.sanadMore}</a>
               </p>
-            </div>
+            </article>
           )
         }
-      </div>
-      <div class="glass tprof__card" data-reveal style="--reveal-delay:0.06s">
-        <h2 class="tprof__h2">{L.vetTitle}</h2>
-        <ol role="list" class="tprof__vet">
-          {
-            L.vet.map((v) => (
-              <li>
-                <span class="icon-badge">
-                  <Icon name={v.icon} />
-                </span>
-                <span>
-                  <strong>{v.title}</strong>
-                  <small>{v.text}</small>
-                </span>
-              </li>
-            ))
-          }
-        </ol>
+        <div class="tprof-vet tone tone--mist" data-reveal style="--reveal-delay:0.06s">
+          <h2 class="tprof__h2">{L.vetTitle}</h2>
+          <ol role="list" class="tprof-vet__list">
+            {
+              L.vet.map((v, i) => (
+                <li>
+                  <span class="tprof-vet__num">{pad(i + 1)}.</span>
+                  <span class="icon-badge">
+                    <Icon name={v.icon} />
+                  </span>
+                  <span class="tprof-vet__text">
+                    <strong>{v.title}</strong>
+                    <small>{v.text}</small>
+                  </span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
       </div>
     </div>
   </section>
@@ -156,11 +198,32 @@ const meta = COPY.meta(t);
           <div class="tprof__head" data-reveal>
             <h2 id="stories">{L.storiesTitle}</h2>
           </div>
-          <div class="grid grid-2 tprof__stories">
-            {stories.map((s) => (
-              <div data-reveal>
-                <TestimonialCard t={s} lang={lang} showTeacher={false} />
-              </div>
+          <div class="tprof-stories">
+            {stories.map((s, i) => (
+              <figure class:list={['ev', 'tone', `tone--${STORY_TONES[i % STORY_TONES.length]}`]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+                <div class="ev__head">
+                  <span class="ev__type">
+                    <Icon name="quotes" weight="fill" /> {s.program}
+                  </span>
+                  <span class="ev__stars" role="img" aria-label={ui(lang).stars}>
+                    {Array.from({ length: 5 }).map(() => <Icon name="star" weight="fill" />)}
+                  </span>
+                </div>
+                <blockquote class="ev__body">
+                  <p>“{s.quote}”</p>
+                </blockquote>
+                <p class="ev__result">
+                  <Icon name="check-circle" weight="fill" />
+                  <span>{s.result}</span>
+                </p>
+                <figcaption class="ev__by">
+                  <span class="avatars" style="--av:40px" aria-hidden="true"><span>{s.initials}</span></span>
+                  <span>
+                    <strong>{s.name}</strong>
+                    <small>{s.location}</small>
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
@@ -191,7 +254,7 @@ const meta = COPY.meta(t);
       <div class="tprof__head" data-reveal>
         <h2 id="others">{L.othersTitle}</h2>
       </div>
-      <div class="grid grid-2">
+      <div class="tprof-others">
         {others.map((o, i) => <TeacherCard teacher={o} variant="compact" lang={lang} delay={i * 0.05} />)}
       </div>
     </div>
@@ -201,30 +264,35 @@ const meta = COPY.meta(t);
 </BaseLayout>
 
 <style>
+  /* ── Hero ─────────────────────────────────────────────────── */
   .tprof {
-    --tint-a: rgb(175 204 234 / 0.9);
-    --tint-b: rgb(241 205 220 / 0.95);
+    --stage: var(--grad-dusk);
+    overflow-x: clip;
+    padding-block: clamp(4px, 1vw, 12px) clamp(28px, 4vw, 56px);
   }
 
   .tprof--sky {
-    --tint-a: rgb(173 167 201 / 0.85);
-    --tint-b: rgb(175 204 234 / 0.95);
+    --stage: var(--grad-dawn);
   }
 
   .tprof--rose {
-    --tint-a: rgb(241 205 220 / 0.95);
-    --tint-b: rgb(206 179 193 / 0.9);
+    --stage: var(--grad-rose);
+  }
+
+  :global([data-theme='dark']) .tprof--rose {
+    --stage: linear-gradient(135deg, var(--tint-mauve) 0%, var(--tint-rose) 100%);
   }
 
   .tprof__grid {
     display: grid;
-    gap: clamp(28px, 5vw, 64px);
+    gap: clamp(32px, 5vw, 72px);
     align-items: center;
+    padding-block: clamp(12px, 3vw, 40px);
   }
 
-  @media (min-width: 900px) {
+  @media (min-width: 960px) {
     .tprof__grid {
-      grid-template-columns: 1.25fr 1fr;
+      grid-template-columns: 1.1fr 0.9fr;
     }
   }
 
@@ -232,29 +300,55 @@ const meta = COPY.meta(t);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 20px;
+    min-width: 0;
+    max-width: 780px;
   }
 
   .tprof__copy h1 {
-    font-size: var(--fs-h1);
+    font-size: clamp(2.6rem, 1.4rem + 4.4vw, 5rem);
+    line-height: 1.02;
+    overflow-wrap: anywhere;
   }
 
+  :global([dir='rtl']) .tprof__copy h1 {
+    font-size: clamp(2.2rem, 1.3rem + 3.4vw, 4rem);
+    line-height: 1.35;
+  }
+
+  .tprof__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .tprof__pills .status {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* the specialty leads, as a filled pill */
   .tprof__spec {
-    margin-top: -6px;
-    font-size: 1.15rem;
-    font-weight: 540;
-    color: var(--accent-ink);
+    color: #fff;
+    background: var(--brand-ink);
+    border-color: var(--brand-ink);
   }
 
-  .tprof__label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--ink-3);
-    margin-bottom: 6px;
+  .tprof__spec::before {
+    background: var(--brand-mauve);
   }
 
-  .tprof__best ul {
-    --cluster: 6px;
+  :global([data-theme='dark']) .tprof__spec {
+    color: var(--brand-ink);
+    background: #fff;
+    border-color: #fff;
+  }
+
+  :global([data-theme='dark']) .tprof__spec::before {
+    background: var(--brand-plum);
   }
 
   .tprof__actions {
@@ -262,114 +356,280 @@ const meta = COPY.meta(t);
   }
 
   .tprof__visual {
+    min-width: 0;
+  }
+
+  .tprof__stage {
     position: relative;
-    width: min(100%, 420px);
+    width: min(100%, 460px);
     margin-inline: auto;
+    padding: clamp(14px, 2.2vw, 22px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--stage);
   }
 
   .tprof__portrait {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: grid;
     place-items: center;
-    aspect-ratio: 4 / 5;
-    border-radius: 999px 999px 32px 32px / 70% 70% 32px 32px;
-    overflow: hidden;
-    background:
-      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.9), transparent 60%),
-      radial-gradient(80% 70% at 80% 90%, var(--tint-a), transparent 65%),
-      radial-gradient(90% 80% at 10% 100%, var(--tint-b), transparent 70%),
-      linear-gradient(160deg, #ece6f6, #dfd8ef);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.7),
-      0 40px 80px -40px rgb(46 29 70 / 0.45);
+    aspect-ratio: 4 / 4.6;
+    border-radius: 999px 999px 26px 26px / 62% 62% 26px 26px;
+    background: rgb(255 255 255 / 0.28);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+  }
+
+  :global([data-theme='dark']) .tprof__portrait {
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+
+  /* abstract shapes, as on the reference cards (soft, plain — no texture) */
+  .tprof__shape {
+    position: absolute;
+    z-index: -1;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.34);
+  }
+
+  .tprof__shape--a {
+    width: 70%;
+    aspect-ratio: 1;
+    inset-block-start: -18%;
+    inset-inline-end: -22%;
+  }
+
+  .tprof__shape--b {
+    width: 56%;
+    height: 22%;
+    inset-block-end: 14%;
+    inset-inline-start: -18%;
+    rotate: -28deg;
+  }
+
+  :global([data-theme='dark']) .tprof__shape {
+    background: rgb(255 255 255 / 0.06);
   }
 
   .tprof__monogram {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(5rem, 12vw, 8rem);
+    font-family: inherit;
+    font-style: normal;
+    font-size: clamp(6rem, 4rem + 9vw, 10rem);
+    font-weight: 300;
+    letter-spacing: -0.07em;
     line-height: 1;
-    background: var(--grad-accent);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .tprof__monogram {
+    color: var(--ink);
+  }
+
+  .tprof__track {
+    position: absolute;
+    inset-block-start: 11%;
+    inset-inline: 16px;
+    justify-self: center;
+    width: fit-content;
+    max-width: calc(100% - 32px);
+    margin-inline: auto;
+    white-space: normal;
+    text-align: center;
   }
 
   .tprof__verified {
-    --radius: var(--r-pill);
     position: absolute;
-    left: 50%;
-    bottom: 22px;
-    translate: -50% 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    font-weight: 600;
+    inset-block-end: clamp(26px, 4vw, 40px);
+    inset-inline: 24px;
+    width: fit-content;
+    max-width: calc(100% - 48px);
+    margin-inline: auto;
+    padding: 0.7em 1.15em;
     font-size: 0.9rem;
-    white-space: nowrap;
-    color: var(--accent-ink);
+    white-space: normal;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .tprof__verified::before {
+    display: none;
   }
 
   .tprof__verified :global(svg) {
+    flex: none;
     width: 18px;
     height: 18px;
+    color: var(--accent-ink);
   }
 
-  .tprof__proof {
+  /* ── About ────────────────────────────────────────────────── */
+  .tprof-about {
     display: grid;
-    gap: 18px;
-    align-items: start;
+    gap: 16px;
+    align-items: stretch;
   }
 
-  @media (min-width: 900px) {
-    .tprof__proof {
+  @media (min-width: 960px) {
+    .tprof-about {
+      grid-template-columns: 1.3fr 1fr;
+      gap: clamp(24px, 4vw, 56px);
+    }
+  }
+
+  .tprof-about__bio {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .tprof-about__bio p {
+    font-size: clamp(1.2rem, 1rem + 0.8vw, 1.6rem);
+    font-weight: 420;
+    letter-spacing: -0.015em;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+
+  :global([dir='rtl']) .tprof-about__bio p {
+    letter-spacing: 0;
+    line-height: 1.8;
+  }
+
+  .tprof-best {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: clamp(22px, 3vw, 32px);
+    border-radius: 30px;
+  }
+
+  .tprof-best__title {
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  }
+
+  .tprof-best__rows {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .tprof-best__rows a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 10px;
+    padding-inline: 18px 10px;
+    border-radius: 20px;
+    font-weight: 560;
+    color: var(--ink);
+    text-decoration: none;
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    border: 1px solid var(--card-line);
+    transition: background-color 0.25s;
+  }
+
+  .tprof-best__rows a > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .tprof-best__rows a:hover {
+    background: var(--card);
+  }
+
+  /* ── Credentials ──────────────────────────────────────────── */
+  .tprof-creds {
+    display: grid;
+    gap: 14px;
+    padding: 0;
+    margin: 0 0 14px;
+    list-style: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+
+  .tprof-cred {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 26px;
+    min-width: 0;
+    min-height: 150px;
+    padding: clamp(20px, 2.6vw, 26px);
+    border-radius: 26px;
+  }
+
+  .tprof-cred .icon-badge {
+    background: #fff;
+    color: var(--tone-dot);
+  }
+
+  :global([data-theme='dark']) .tprof-cred .icon-badge {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .tprof-cred__text {
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
+    font-weight: 540;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .tprof-cred__text {
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  .tprof-proof {
+    display: grid;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  @media (min-width: 960px) {
+    .tprof-proof:not(.tprof-proof--solo) {
       grid-template-columns: 1.2fr 1fr;
     }
   }
 
-  .tprof__card {
-    --radius: var(--r-xl);
-    display: grid;
-    gap: 18px;
-    padding: clamp(22px, 3vw, 34px);
-  }
-
-  .tprof__h2 {
-    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
-  }
-
-  .tprof__creds {
-    display: grid;
-    gap: 10px;
-  }
-
-  .tprof__creds li {
+  .tprof-sanad {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 540;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+    padding: clamp(24px, 3.4vw, 40px);
+    border-radius: 32px;
   }
 
-  .tprof__creds :global(svg) {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    color: var(--accent-ink);
+  .tprof-sanad h3 {
+    font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.1rem);
+    font-weight: 520;
+    line-height: 1.15;
   }
 
-  .tprof__sanad {
-    display: grid;
-    gap: 12px;
-    padding-top: 18px;
-    border-top: 1px solid rgb(46 29 70 / 0.08);
+  :global([dir='rtl']) .tprof-sanad h3 {
+    line-height: 1.45;
   }
 
-  .tprof__sanad h3 {
-    font-size: 1.2rem;
-  }
-
-  .tprof__sanad > p {
+  .tprof-sanad > p {
     color: var(--ink-2);
+  }
+
+  .tprof-sanad__chain {
+    width: 100%;
+    margin-block: 6px;
+    padding: clamp(22px, 3vw, 32px) clamp(12px, 2vw, 22px);
+    border-radius: 24px;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
   }
 
   .tprof__note {
@@ -384,60 +644,217 @@ const meta = COPY.meta(t);
   .tprof__note :global(svg) {
     width: 16px;
     height: 16px;
-    color: var(--accent-ink);
+    color: var(--brand-mauve);
   }
 
   .tprof__note a {
-    color: var(--accent-ink);
-    font-weight: 560;
+    color: #fff;
+    font-weight: 600;
+    text-underline-offset: 3px;
   }
 
-  .tprof__vet {
-    display: grid;
-    gap: 14px;
-  }
-
-  .tprof__vet li {
+  .tprof-vet {
     display: flex;
-    gap: 12px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+    padding: clamp(22px, 3vw, 34px);
+    border-radius: 30px;
   }
 
-  .tprof__vet strong {
+  .tprof__h2 {
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  }
+
+  .tprof-vet__list {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .tprof-proof--solo .tprof-vet__list {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  }
+
+  .tprof-vet__list li {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+  }
+
+  .tprof-vet__num {
+    min-width: 2.2ch;
+    font-size: 1.6rem;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1.3;
+    color: var(--brand-plum);
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global([dir='rtl']) .tprof-vet__num {
+    letter-spacing: 0;
+  }
+
+  :global([data-theme='dark']) .tprof-vet__num {
+    color: var(--accent-ink);
+  }
+
+  .tprof-vet__text strong {
     display: block;
     font-weight: 600;
+    overflow-wrap: anywhere;
   }
 
-  .tprof__vet small {
+  .tprof-vet__text small {
     display: block;
     color: var(--ink-2);
     font-size: 0.92rem;
   }
 
+  /* ── Section heads ────────────────────────────────────────── */
   .tprof__head {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
     margin-bottom: 24px;
+    max-width: 760px;
   }
 
   .tprof__head h2 {
-    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
-  }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .tprof__portrait {
-    background:
-      radial-gradient(70% 60% at 30% 20%, rgb(255 255 255 / 0.12), transparent 60%),
-      radial-gradient(80% 70% at 80% 90%, rgb(109 158 214 / 0.28), transparent 65%),
-      radial-gradient(90% 80% at 10% 100%, rgb(200 123 128 / 0.24), transparent 70%),
-      linear-gradient(160deg, #2b2040, #201731);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.16),
-      0 40px 80px -40px rgb(0 0 0 / 0.8);
+    font-size: clamp(1.8rem, 1.3rem + 1.8vw, 2.8rem);
+    line-height: 1.08;
+    overflow-wrap: anywhere;
   }
 
-  :global([data-theme='dark']) .tprof__sanad {
-    border-top-color: rgb(255 255 255 / 0.1);
+  :global([dir='rtl']) .tprof__head h2 {
+    line-height: 1.4;
+  }
+
+  /* ── Stories: coloured event-style cards ──────────────────── */
+  .tprof-stories {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  }
+
+  .ev {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    min-width: 0;
+    padding: 12px;
+    border-radius: 28px;
+  }
+
+  .ev__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 14px;
+    padding: 8px 10px 2px;
+  }
+
+  .ev__type {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 0.9rem;
+    font-weight: 620;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .ev__type :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--tone-dot);
+  }
+
+  .ev__stars {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--tone-dot);
+  }
+
+  .ev__stars :global(svg) {
+    width: 15px;
+    height: 15px;
+  }
+
+  .ev__body {
+    margin: 0;
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: var(--card);
+    font-size: 1.04rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .ev__result {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--card) 60%, transparent);
+    font-size: 0.9rem;
+    font-weight: 560;
+    color: var(--ink);
+  }
+
+  .ev__result :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--success);
+  }
+
+  .ev__by {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding: 4px 8px 6px;
+  }
+
+  .ev__by .avatars > span {
+    border-color: transparent;
+  }
+
+  .ev__by strong {
+    display: block;
+    font-weight: 600;
+    font-size: 0.97rem;
+  }
+
+  .ev__by small {
+    color: var(--ink-3);
+    font-size: 0.84rem;
+  }
+
+  /* ── Other teachers ───────────────────────────────────────── */
+  .tprof-others {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  }
+
+  .tprof-others > :global(*) {
+    min-width: 0;
   }
 </style>
