@@ -18,10 +18,7 @@ const hasVisual = Astro.slots.has('visual');
 
 <section class:list={['page-hero', { 'page-hero--center': align === 'center', 'page-hero--compact': compact }]}>
   <div class="container">
-  <div
-    class:list={['page-hero__panel', 'theme-night', 'pattern', { 'pattern--fade': align !== 'center' }]}
-    style={`--pattern-color: var(--brand-magenta); --pattern-opacity: ${align === 'center' ? 0.2 : 0.34}; --pattern-size: 560px`}
-  >
+  <div class:list={['page-hero__panel', { 'page-hero__panel--soft': !hasVisual }]}>
   <div class:list={['page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
     <div class="page-hero__copy" data-reveal>
       {crumbs && <Breadcrumbs items={crumbs} lang={lang} />}
@@ -52,7 +49,9 @@ const hasVisual = Astro.slots.has('visual');
     {
       hasVisual && (
         <div class="page-hero__visual" data-reveal style="--reveal-delay:.12s">
-          <slot name="visual" />
+          <div class="page-hero__stage">
+            <slot name="visual" />
+          </div>
         </div>
       )
     }
@@ -67,29 +66,32 @@ const hasVisual = Astro.slots.has('visual');
     padding-block: clamp(4px, 1vw, 12px) clamp(28px, 4vw, 56px);
   }
 
-  /* Every inner page opens on a deep ink panel with the calligraphy pattern fading out behind the copy. */
+  /* Reference-led hero: the copy on the white sheet, the visual on a brand-gradient stage.
+     Heroes without a visual sit on a soft lavender → sky panel instead. */
   .page-hero__panel {
     border-radius: var(--sheet-radius);
-    padding: clamp(26px, 5vw, 72px) clamp(20px, 4.5vw, 64px);
+    padding-block: clamp(12px, 3vw, 40px);
   }
 
-  /* cards placed in the hero (at-a-glance, badges) are white cards on the dark panel */
-  .page-hero__panel :global(.glass) {
-    --ink: var(--brand-ink);
-    --ink-2: #4e4361;
-    --ink-3: #63597a;
-    --line: rgb(44 28 68 / 0.1);
-    color: var(--brand-ink);
+  .page-hero__panel--soft {
+    padding: clamp(28px, 5vw, 76px) clamp(20px, 4.5vw, 64px);
+    background: var(--grad-dawn);
+  }
+
+  .page-hero__stage {
+    position: relative;
+    padding: clamp(14px, 2.2vw, 26px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--grad-dusk);
+  }
+
+  /* cards placed on the stage (at-a-glance, badges) are white cards */
+  .page-hero__stage :global(.glass) {
     background: #fff;
   }
 
-  :global([data-theme='dark']) .page-hero__panel :global(.glass) {
-    --ink: #f3eff8;
-    --ink-2: #d8d0e4;
-    --ink-3: #c2b8d4;
-    --line: rgb(255 255 255 / 0.12);
-    color: #f3eff8;
-    background: #241b35;
+  :global([data-theme='dark']) .page-hero__stage :global(.glass) {
+    background: #201830;
   }
 
   .page-hero--compact {

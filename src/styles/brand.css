@@ -1,12 +1,12 @@
 /*
  * Ummah Academy — brand system (Nov 2026 refactor)
  *
- * Built strictly on the brand sheet: ten swatches, the brand's purples first, and the calligraphy
- * pattern. Loaded last and unlayered, so it re-maps the older global tokens (global.css,
+ * Colours strictly from the brand sheet (ten swatches, the purples first); layout and components
+ * from the reference board. Loaded last and unlayered, so it re-maps the older global tokens (global.css,
  * editorial-refresh.css) onto the palette and replaces their glass look with a framed, editorial one:
  *
  *   · a lilac canvas with the page on a white rounded sheet (header inside, footer as a dark sheet)
- *   · tinted and deep tone surfaces, brand gradients, the calligraphy pattern as texture
+ *   · tinted and deep tone surfaces and brand gradients
  *   · a light, tight display type, status-pill eyebrows, a marker accent, pill buttons
  *
  * Sampled from the brand sheet:
@@ -385,54 +385,6 @@ h3 {
 .tone--slate { background: var(--brand-slate); --tone-dot: var(--brand-sky); }
 .tone--grad-plum { background: var(--grad-plum); }
 .tone--grad-night { background: var(--grad-night); }
-
-/* ── The calligraphy pattern ───────────────────────────────────────────────── */
-/* Any positioned element: add .pattern, choose a colour with --pattern-color and a strength with
-   --pattern-opacity. The tile is a mask, so it takes any palette colour (like the brand sheet). */
-
-.pattern {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.pattern::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: var(--pattern-color, var(--brand-plum));
-  opacity: var(--pattern-opacity, 0.16);
-  -webkit-mask: url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat;
-  mask: url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat;
-}
-
-.pattern--airy::before {
-  -webkit-mask-image: url('/pattern/calligraphy-b.svg');
-  mask-image: url('/pattern/calligraphy-b.svg');
-}
-
-/* A pattern that fades out towards the content side (inline-start), for text-heavy panels. */
-.pattern--fade::before {
-  -webkit-mask:
-    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat,
-    linear-gradient(90deg, transparent 15%, #000 75%);
-  -webkit-mask-composite: source-in;
-  mask:
-    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat intersect,
-    linear-gradient(90deg, transparent 15%, #000 75%);
-}
-
-[dir='rtl'] .pattern--fade::before {
-  -webkit-mask:
-    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat,
-    linear-gradient(270deg, transparent 15%, #000 75%);
-  -webkit-mask-composite: source-in;
-  mask:
-    url('/pattern/calligraphy-a.svg') 0 0 / var(--pattern-size, 520px) auto repeat intersect,
-    linear-gradient(270deg, transparent 15%, #000 75%);
-}
 
 /* ── Components ────────────────────────────────────────────────────────────── */
 
