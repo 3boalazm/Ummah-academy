@@ -211,6 +211,13 @@ const t = ui(lang).fx;
     text-transform: uppercase;
   }
 
+  /* the label icon had no size and filled the whole sheet width on phones */
+  .fxchips__label :global(svg) {
+    flex: none;
+    width: 14px;
+    height: 14px;
+  }
+
   .fxchips ul {
     display: flex;
     flex-wrap: wrap;

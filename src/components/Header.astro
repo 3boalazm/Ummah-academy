@@ -610,14 +610,23 @@ const isActive = (href: string) => path.startsWith(href);
     margin-top: 4px;
   }
 
-  .mobile-menu__links a {
+  /* the search row is a <button>: give it the same look as the link rows */
+  .mobile-menu__links :is(a, button) {
     display: block;
+    width: 100%;
     padding: 13px 8px;
+    font: inherit;
     font-size: 1.12rem;
     font-weight: 540;
     letter-spacing: -0.015em;
+    text-align: start;
     text-decoration: none;
+    color: inherit;
+    background: none;
+    border: 0;
     border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    cursor: pointer;
   }
 
   .mobile-menu__cta {
