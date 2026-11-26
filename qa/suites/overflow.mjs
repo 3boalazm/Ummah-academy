@@ -30,7 +30,7 @@ export function measure() {
     return false;
   };
   const hidden = (el) => {
-    if (el.closest('[hidden], dialog:not([open]), details:not([open]) > :not(summary), .sr-only, .aurora')) return true;
+    if (el.closest('[hidden], dialog:not([open]), details:not([open]) > :not(summary), .sr-only, .aurora, [data-overflow-ok]')) return true;
     for (let p = el; p && p !== document.body; p = p.parentElement) {
       const s = getComputedStyle(p);
       if (s.visibility === 'hidden' || s.display === 'none' || s.opacity === '0') return true;
@@ -52,7 +52,8 @@ export function measure() {
   // 2 · text cut off by a clipping ancestor
   const ownText = (el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
   const clippers = [...document.body.querySelectorAll('*')].filter((c) => {
-    if (c.closest('.sr-only, .aurora')) return false;
+    // [data-overflow-ok]: designed to run past its box (a marquee, text on a circle path)
+    if (c.closest('.sr-only, .aurora, [data-overflow-ok]')) return false;
     const s = getComputedStyle(c);
     return (s.overflowX === 'hidden' || s.overflowX === 'clip') && s.textOverflow !== 'ellipsis' && !hidden(c);
   });

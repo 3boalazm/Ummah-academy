@@ -198,6 +198,16 @@ const example = ['قُلْ', 'هُوَ', 'ٱللَّهُ', 'أَحَدٌ'];
     align-items: start;
   }
 
+  /* grid children may shrink below their longest word (long German words at 320px) */
+  .tw-layout > * {
+    min-width: 0;
+  }
+
+  .tw,
+  .tw-aside {
+    overflow-wrap: anywhere;
+  }
+
   @media (min-width: 1020px) {
     .tw-layout {
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
