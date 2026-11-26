@@ -79,7 +79,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
             <li class:list={['role', 'tone', `tone--${TONES[i % TONES.length]}`, { 'role--wide': i === 0 }]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
               <span class="role__shape role__shape--a" aria-hidden="true"></span>
               <span class="role__shape role__shape--b" aria-hidden="true"></span>
-              <span class="status">{C.rolesTitle}</span>
+              <span class="status">{C.roleOpen}</span>
               <span class="role__num" aria-hidden="true">{pad(i + 1)}</span>
               <h3>{r}</h3>
               <p>{d}</p>
@@ -502,7 +502,7 @@ const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
     font-size: 1.3rem;
     font-weight: 300;
     letter-spacing: -0.04em;
-    color: var(--brand-mauve);
+    color: #fff;
     font-variant-numeric: tabular-nums;
   }
 

@@ -29,6 +29,8 @@ export default {
       { icon: 'heart', title: 'Love of teaching', text: 'Genuine joy in teaching — especially beginners and children.' },
     ],
     rolesTitle: 'Open positions',
+    /** status pill on each open role card */
+    roleOpen: 'Open',
     roles: [
       ['Tajweed Specialist', 'All 3 levels · Ijazah required'],
       ['Hifz Teacher', 'Full Qur’an Hafiz · Ijazah required'],

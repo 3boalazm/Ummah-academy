@@ -79,7 +79,9 @@ export function initBooking(): void {
     if (focus) {
       steps[idx].querySelector<HTMLElement>('legend')?.focus({ preventScroll: true });
       const top = form.getBoundingClientRect().top + window.scrollY - 110;
-      if (window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
+      // smooth unless the visitor asked for reduced motion
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (window.scrollY > top) window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
     }
   };
 

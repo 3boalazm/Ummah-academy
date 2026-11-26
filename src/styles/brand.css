@@ -845,3 +845,44 @@ h3 {
   background: var(--tint-mist);
   border: 0;
 }
+
+/* The active nav pill beats the header's own scoped hover/active fills in both themes. */
+.site-header .nav .nav__link.is-active,
+.site-header .nav .nav__link[aria-current='page'] {
+  color: #fff;
+  background: var(--brand-ink);
+}
+
+:root[data-theme='dark'] .site-header .nav .nav__link.is-active,
+:root[data-theme='dark'] .site-header .nav .nav__link[aria-current='page'] {
+  color: var(--brand-ink);
+  background: #efe7f8;
+}
+
+/* Breadcrumbs on the soft gradient hero panel read in the darker ink. */
+.page-hero__panel--soft .breadcrumbs,
+.page-hero__panel--soft .breadcrumbs a {
+  color: var(--ink-2);
+}
+
+/* Long labels (German, Italian) wrap instead of running out of their card or the sheet. */
+.status {
+  max-width: 100%;
+  white-space: normal;
+}
+
+main .btn {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+.page-hero__panel--soft .breadcrumbs :is(li, span, [aria-current]) {
+  color: var(--ink-2);
+}
+
+/* On deep cards the dark arrow button turns white so it stays visible. */
+.tone--deep .arrow-btn--dark {
+  color: var(--brand-ink);
+  background: #fff;
+}

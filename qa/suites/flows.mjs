@@ -18,6 +18,25 @@ const LANG_LINE = {
   it: 'Lingua / Language: italiano (it)',
 };
 
+/** The wizard scrolls back to the form top (smoothly) on every step change: wait until the page stops moving, as a visitor would, before tapping the next control. */
+const settleScroll = (page) =>
+  page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        let last = -1;
+        let still = 0;
+        const tick = () => {
+          if (window.scrollY === last) still += 1;
+          else still = 0;
+          last = window.scrollY;
+          if (still >= 3) resolve(true);
+          else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        setTimeout(() => resolve(false), 2000);
+      }),
+  );
+
 async function booking(browser, base, lang) {
   const problems = [];
   const page = await newPage(browser, { width: 390, height: 844, mobile: true, touch: true });
@@ -33,8 +52,10 @@ async function booking(browser, base, lang) {
       document.querySelector('input[name="course"]').click();
     });
     await page.click('[data-bstep].is-active [data-next]');
+    await settleScroll(page);
     // step 2 — defaults are preselected
     await page.click('[data-bstep].is-active [data-next]');
+    await settleScroll(page);
     // step 3 — contact details
     const step = await page.evaluate(() => [...document.querySelectorAll('[data-bstep]')].findIndex((s) => s.classList.contains('is-active')));
     if (step !== 2) problems.push(`expected step 3, on step ${step + 1}`);
