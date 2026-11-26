@@ -29,6 +29,8 @@ export default {
       { icon: 'heart', title: 'Freude am Unterrichten', text: 'Echte Freude am Lehren – besonders mit Anfängern und Kindern.' },
     ],
     rolesTitle: 'Offene Stellen',
+    /** status pill on each open role card */
+    roleOpen: 'Offen',
     roles: [
       ['Tajweed-Spezialist/in', 'Alle 3 Stufen · Ijaza erforderlich'],
       ['Hifz-Lehrkraft', 'Hafiz des gesamten Korans · Ijaza erforderlich'],

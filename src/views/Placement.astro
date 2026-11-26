@@ -11,10 +11,10 @@ interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const tests = getTests(lang);
 const COPY = copy(lang).placement;
 const C = COPY.C;
+const TRACK_TONES = ['lavender', 'sky', 'rose', 'mauve'];
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -22,73 +22,85 @@ const C = COPY.C;
     <ul role="list" class="cluster pt-chips">{C.chips.map((c) => <li class="chip"><Icon name="check-circle" weight="fill" /> {c}</li>)}</ul>
   </PageHero>
 
+  <!-- The quiz as a dashboard: a tinted panel holding white cards, tinted choice cards and a bento result -->
   <section class="section section--tight">
-    <div class="container--narrow">
-      <div class="glass glass--strong pt" data-pt data-wa={SITE.whatsapp.number} data-lang={lang} data-endpoint={SITE.leadEndpoint}>
+    <div class="container pt-wrap">
+      <div class="pt" data-pt data-wa={SITE.whatsapp.number} data-lang={lang} data-endpoint={SITE.leadEndpoint}>
         <div class="pt__step" data-step="track">
-          <h2 class="pt__title pt__focus">{C.pick}</h2>
-          <div class="choices pt__tracks" role="radiogroup" aria-label={C.pick}>
-            {
-              tests.map((tt) => (
-                <label class="choice">
-                  <input type="radio" name="pt-track" value={tt.key} />
-                  <span class="choice__box">
-                    <Icon name={tt.icon} />
-                    <span>{tt.label}</span>
-                  </span>
-                </label>
-              ))
-            }
+          <div class="pt__card">
+            <h2 class="pt__title pt__focus">{C.pick}</h2>
+            <div class="choices pt__tracks" role="radiogroup" aria-label={C.pick}>
+              {
+                tests.map((tt, i) => (
+                  <label class:list={['choice', `tone--${TRACK_TONES[i % TRACK_TONES.length]}`]}>
+                    <input type="radio" name="pt-track" value={tt.key} />
+                    <span class="choice__box">
+                      <Icon name={tt.icon} />
+                      <span class="pt__track-label">{tt.label}</span>
+                      <span class="arrow-btn arrow-btn--dark pt__track-arrow" aria-hidden="true">
+                        <Icon name="arrow-up-right" weight="bold" />
+                      </span>
+                    </span>
+                  </label>
+                ))
+              }
+            </div>
           </div>
         </div>
 
         <div class="pt__step" data-step="quiz" hidden>
-          <div class="pt__meta">
-            <span class="chip chip--accent" data-q-track></span>
-            <span class="pt__count" data-q-count></span>
+          <div class="pt__card pt__head">
+            <div class="pt__meta">
+              <span class="chip chip--accent" data-q-track></span>
+              <span class="pt__count" data-q-count></span>
+            </div>
+            <div class="pt__bar"><span data-q-bar></span></div>
           </div>
-          <div class="pt__bar"><span data-q-bar></span></div>
-          <fieldset class="pt__q">
-            <legend class="pt__prompt pt__focus" data-q-prompt></legend>
-            <div class="choices pt__options" data-q-options></div>
-          </fieldset>
-          <div class="pt__nav">
-            <button class="btn btn--glass" type="button" data-back><Icon name="arrow-left" weight="bold" class="icon-arrow-back" /> {C.back}</button>
-            <button class="btn btn--primary" type="button" data-next disabled>{C.next} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></button>
+          <div class="pt__card">
+            <fieldset class="pt__q">
+              <legend class="pt__prompt pt__focus" data-q-prompt></legend>
+              <div class="choices pt__options" data-q-options></div>
+            </fieldset>
+            <div class="pt__nav">
+              <button class="btn btn--glass" type="button" data-back><Icon name="arrow-left" weight="bold" class="icon-arrow-back" /> {C.back}</button>
+              <button class="btn btn--primary" type="button" data-next disabled>{C.next} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></button>
+            </div>
           </div>
         </div>
 
         <div class="pt__step pt__result" data-step="result" hidden aria-live="polite">
-          <span class="pt__level" data-r-level></span>
-          <h2 class="pt__headline pt__focus" data-r-headline></h2>
-          <p class="pt__score" data-r-score></p>
-          <div class="pt__cols">
-            <div class="pt__col">
+          <div class="pt__bento">
+            <div class="pt__verdict tone tone--deep tone--grad-plum">
+              <span class="pt__level" data-r-level></span>
+              <h2 class="pt__headline pt__focus" data-r-headline></h2>
+              <p class="pt__score" data-r-score></p>
+            </div>
+            <div class="pt__col pt__col--strengths tone tone--sky">
               <h3><Icon name="sparkle" weight="fill" /> {C.strengths}</h3>
               <ul class="checklist" data-r-strengths></ul>
             </div>
-            <div class="pt__col">
+            <div class="pt__col pt__col--focus tone tone--rose">
               <h3><Icon name="target" weight="fill" /> {C.focus}</h3>
               <ul class="pt__focuslist" data-r-focus></ul>
             </div>
-          </div>
-          <div class="pt__rec">
-            <p class="pt__rec-kicker">{C.recKicker}</p>
-            <p class="pt__rec-title" data-r-course></p>
-            <p class="muted" data-r-why></p>
-            <div class="cluster">
-              <a class="btn btn--primary" href="#" data-r-book>{C.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
-              <a class="btn btn--glass" href="#" data-r-link>{C.see}</a>
+            <div class="pt__rec">
+              <p class="status pt__rec-kicker">{C.recKicker}</p>
+              <p class="pt__rec-title" data-r-course></p>
+              <p class="pt__rec-why" data-r-why></p>
+              <div class="pt__rec-actions">
+                <a class="btn btn--primary" href="#" data-r-book>{C.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+                <a class="link-arrow" href="#" data-r-link>{C.see} <Icon name="arrow-right" weight="bold" /></a>
+              </div>
+            </div>
+            <div class="pt__share tone tone--dawn">
+              <a class="btn btn--glass" href="#" target="_blank" rel="noopener" data-r-wa><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.share}</a>
+              <p class="pt__voice">{C.voice}</p>
             </div>
           </div>
-          <div class="pt__share">
-            <a class="btn btn--glass" href="#" target="_blank" rel="noopener" data-r-wa><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.share}</a>
-            <p class="muted pt__voice">{C.voice}</p>
-          </div>
-          <button class="btn btn--link" type="button" data-restart>{C.restart}</button>
+          <button class="btn btn--link pt__restart" type="button" data-restart><Icon name="arrow-counter-clockwise" weight="bold" /> {C.restart}</button>
         </div>
       </div>
-      <p class="pt__disclaimer muted">{C.disclaimer}</p>
+      <p class="pt__disclaimer">{C.disclaimer}</p>
     </div>
   </section>
 
@@ -110,48 +122,138 @@ const C = COPY.C;
     color: var(--success);
   }
 
+  .pt-wrap {
+    max-width: 1080px;
+  }
+
+  /* ── Dashboard panel ──────────────────────────────────────── */
   .pt {
-    --radius: var(--r-xl);
-    padding: clamp(22px, 4vw, 48px);
+    padding: clamp(10px, 2vw, 20px);
+    border-radius: clamp(28px, 3vw, 40px);
+    background: var(--surface);
     min-height: 360px;
   }
 
   .pt__step {
     display: flex;
     flex-direction: column;
+    gap: clamp(10px, 1.6vw, 14px);
+    min-width: 0;
+  }
+
+  .pt__card {
+    display: flex;
+    flex-direction: column;
     gap: 22px;
+    min-width: 0;
+    padding: clamp(18px, 3vw, 36px);
+    border-radius: 28px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
   }
 
   .pt__title {
-    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
-    letter-spacing: -0.02em;
-    line-height: 1.3;
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.2rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
     outline: none;
   }
 
+  /* track cards: tinted, with an icon chip and an arrow button */
   .pt__tracks {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  }
+
+  .pt__tracks .choice__box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    min-width: 0;
+    min-height: 168px;
+    padding: 18px;
+    border-radius: 24px;
+    font-size: 1.08rem;
+    font-weight: 600;
+    background: var(--tone-bg);
+    box-shadow: none;
+    overflow-wrap: anywhere;
+  }
+
+  .pt__tracks .choice__box > :global(svg:first-child) {
+    box-sizing: content-box;
+    width: 24px;
+    height: 24px;
+    padding: 11px;
+    border-radius: 50%;
+    color: var(--tone-dot);
+    background: var(--card);
+  }
+
+  .pt__track-label {
+    flex: 1;
+  }
+
+  .pt__track-arrow {
+    --arrow-size: 38px;
+    align-self: flex-end;
+  }
+
+  .pt__tracks .choice input:hover + .choice__box,
+  .pt__tracks .choice input:checked + .choice__box {
+    background: var(--tone-bg);
+    box-shadow:
+      inset 0 0 0 2px var(--accent),
+      0 14px 28px -20px rgb(44 28 68 / 0.6);
+  }
+
+  .pt__tracks .choice input:hover + .choice__box .arrow-btn {
+    transform: rotate(-45deg);
+  }
+
+  :global([dir='rtl']) .pt__tracks .choice input:hover + .choice__box .arrow-btn {
+    transform: rotate(45deg);
+  }
+
+  /* ── Quiz ─────────────────────────────────────────────────── */
+  .pt__head {
+    gap: 14px;
+    padding-block: clamp(14px, 2vw, 20px);
   }
 
   .pt__meta {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
+  }
+
+  .pt__meta .chip {
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--tint-lavender);
+    border-color: transparent;
   }
 
   .pt__count {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--ink-3);
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
 
+  :global([dir='rtl']) .pt__count {
+    letter-spacing: 0;
+  }
+
   .pt__bar {
-    height: 6px;
+    height: 10px;
     border-radius: 99px;
-    background: rgb(46 29 70 / 0.08);
+    background: var(--tint-mist);
+    box-shadow: inset 0 0 0 1px var(--card-line);
     overflow: hidden;
-    margin-top: -10px;
   }
 
   .pt__bar span {
@@ -159,7 +261,7 @@ const C = COPY.C;
     height: 100%;
     width: 0;
     border-radius: inherit;
-    background: var(--grad-accent-on);
+    background: var(--grad-accent);
     transition: width 0.5s var(--ease-out);
   }
 
@@ -174,21 +276,26 @@ const C = COPY.C;
 
   .pt__prompt {
     padding: 0;
-    font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.8rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.35;
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.95rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
     margin-bottom: 18px;
+    overflow-wrap: anywhere;
     outline: none;
   }
 
   :global([dir='rtl']) .pt__prompt,
   :global([dir='rtl']) .pt__title {
+    font-weight: 600;
     letter-spacing: 0;
+    line-height: 1.5;
   }
 
+  /* answer options (rendered by the script): choice cards with a letter marker */
   .pt__options {
     grid-template-columns: 1fr;
+    counter-reset: opt;
   }
 
   @media (min-width: 640px) {
@@ -197,9 +304,60 @@ const C = COPY.C;
     }
   }
 
+  .pt__options :global(.choice) {
+    counter-increment: opt;
+    min-width: 0;
+  }
+
   .pt__options :global(.choice__box) {
+    gap: 14px;
+    min-height: 64px;
+    padding-block: 12px;
+    padding-inline: 12px 16px;
+    border-radius: 20px;
     font-size: 1.02rem;
-    min-height: 60px;
+    background: var(--tint-mist);
+    box-shadow: inset 0 0 0 1px var(--card-line);
+    overflow-wrap: anywhere;
+  }
+
+  .pt__options :global(.choice__box)::before {
+    content: counter(opt, upper-alpha);
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    font-weight: 650;
+    color: var(--accent-ink);
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--card-line);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  :global([dir='rtl']) .pt__options :global(.choice__box)::before {
+    content: counter(opt, arabic-indic);
+  }
+
+  .pt__options :global(.choice input:hover + .choice__box) {
+    background: var(--tint-lavender);
+  }
+
+  .pt__options :global(.choice input:checked + .choice__box) {
+    background: var(--tint-lavender);
+    box-shadow:
+      inset 0 0 0 2px var(--accent),
+      0 12px 26px -18px rgb(44 28 68 / 0.6);
+  }
+
+  .pt__options :global(.choice input:checked + .choice__box)::before {
+    color: #fff;
+    background: var(--grad-plum);
+    box-shadow: none;
   }
 
   .pt__options :global(.ar-opt) {
@@ -210,63 +368,150 @@ const C = COPY.C;
 
   .pt__nav {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
   }
 
   :global([dir='rtl']) .pt :global(.icon-arrow-back) {
     transform: scaleX(-1);
   }
 
+  /* ── Result bento ─────────────────────────────────────────── */
   .pt__result {
+    align-items: stretch;
+  }
+
+  .pt__bento {
+    display: grid;
+    gap: clamp(10px, 1.6vw, 14px);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 640px) {
+    .pt__bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pt__verdict,
+    .pt__rec,
+    .pt__share {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .pt__bento {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-areas:
+        'verdict verdict rec'
+        'strengths focus rec'
+        'share share share';
+    }
+
+    .pt__verdict {
+      grid-area: verdict;
+    }
+
+    .pt__col--strengths {
+      grid-area: strengths;
+    }
+
+    .pt__col--focus {
+      grid-area: focus;
+    }
+
+    .pt__rec {
+      grid-area: rec;
+    }
+
+    .pt__share {
+      grid-area: share;
+    }
+
+    .pt__verdict,
+    .pt__rec,
+    .pt__share {
+      grid-column: auto;
+    }
+  }
+
+  .pt__verdict {
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
+    min-width: 0;
+    padding: clamp(22px, 3vw, 36px);
+    border-radius: 28px;
   }
 
   .pt__level {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 14px;
+    padding: 7px 14px 7px 12px;
     border-radius: var(--r-pill);
-    font-weight: 650;
+    font-size: 0.88rem;
+    font-weight: 620;
     color: #fff;
-    background: var(--grad-accent);
+    background: rgb(255 255 255 / 0.12);
+    border: 1px solid rgb(255 255 255 / 0.2);
+  }
+
+  .pt__level::before {
+    content: '';
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: var(--brand-mauve);
   }
 
   .pt__headline {
-    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+    font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.6rem);
+    line-height: 1.12;
+    color: #fff;
+    overflow-wrap: anywhere;
     outline: none;
+  }
+
+  :global([dir='rtl']) .pt__headline {
+    line-height: 1.45;
   }
 
   .pt__score {
     color: var(--ink-2);
-    margin-top: -10px;
   }
 
-  .pt__cols {
-    display: grid;
-    gap: 16px;
-    width: 100%;
-  }
-
-  @media (min-width: 640px) {
-    .pt__cols {
-      grid-template-columns: 1fr 1fr;
-    }
+  .pt__col {
+    min-width: 0;
+    padding: clamp(18px, 2.4vw, 26px);
+    border-radius: 26px;
   }
 
   .pt__col h3 {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 1.05rem;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .pt__col h3 :global(svg) {
+    box-sizing: content-box;
+    flex: none;
     width: 18px;
     height: 18px;
-    color: var(--accent-ink);
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--tone-dot);
+    background: var(--card);
+  }
+
+  :global([data-theme='dark']) .pt__col h3 :global(svg) {
+    background: rgb(255 255 255 / 0.08);
   }
 
   .pt__focuslist {
@@ -276,65 +521,99 @@ const C = COPY.C;
     color: var(--ink-2);
   }
 
+  .pt__focuslist :global(li)::marker {
+    color: var(--tone-dot);
+  }
+
   .pt__rec {
-    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 24px;
-    border-radius: 24px;
-    background:
-      radial-gradient(120% 100% at 100% 0%, rgb(175 204 234 / 0.5), transparent 60%),
-      radial-gradient(100% 100% at 0% 100%, rgb(241 205 220 / 0.6), transparent 60%),
-      rgb(255 255 255 / 0.7);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.07);
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    padding: clamp(20px, 2.6vw, 28px);
+    border-radius: 28px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
   }
 
   .pt__rec-kicker {
-    font-size: 0.78rem;
-    font-weight: 650;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-  }
-
-  :global([dir='rtl']) .pt__rec-kicker {
-    letter-spacing: 0;
-    font-size: 0.9rem;
+    white-space: normal;
+    background: var(--tint-lavender);
+    border-color: transparent;
   }
 
   .pt__rec-title {
-    font-size: 1.5rem;
-    font-weight: 620;
+    font-size: clamp(1.4rem, 1.15rem + 1vw, 1.8rem);
+    font-weight: 560;
     letter-spacing: -0.03em;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .pt__rec-title {
+    letter-spacing: 0;
+    line-height: 1.45;
+  }
+
+  .pt__rec-why {
+    color: var(--ink-2);
+  }
+
+  .pt__rec-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: auto;
+    padding-top: 8px;
+    width: 100%;
+  }
+
+  .pt__rec-actions .btn {
+    max-width: 100%;
+    white-space: normal;
+    text-align: start;
   }
 
   .pt__share {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    min-width: 0;
+    padding: clamp(16px, 2.2vw, 22px);
+    border-radius: 26px;
+  }
+
+  .pt__share .btn {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .pt__voice {
-    font-size: 0.86rem;
+    flex: 1 1 260px;
+    min-width: 0;
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+
+  .pt__restart {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pt__restart :global(svg) {
+    width: 16px;
+    height: 16px;
   }
 
   .pt__disclaimer {
     text-align: center;
     font-size: 0.88rem;
+    color: var(--ink-2);
     margin-top: 16px;
-  }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .pt__bar {
-    background: rgb(255 255 255 / 0.12);
-  }
-
-  :global([data-theme='dark']) .pt__rec {
-    background:
-      radial-gradient(120% 100% at 100% 0%, rgb(109 158 214 / 0.24), transparent 60%),
-      radial-gradient(100% 100% at 0% 100%, rgb(200 123 128 / 0.2), transparent 60%),
-      rgb(255 255 255 / 0.07);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
   }
 </style>

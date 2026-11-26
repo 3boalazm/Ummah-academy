@@ -1,19 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import TrackCard from '@/components/TrackCard.astro';
 import TestimonialCard from '@/components/TestimonialCard.astro';
-import HomeJourneyDiagram from '@/components/HomeJourneyDiagram.astro';
 import TilawaTeaser from '@/components/TilawaTeaser.astro';
-import { HOME_UI } from '@/data/home-ui';
-import '@/styles/home-refactor.css';
 import SanadChain from '@/components/SanadChain.astro';
 import Faq from '@/components/Faq.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import heroArt from '@/assets/art/hero-learning.webp';
 import { getTracks } from '@/data/tracks';
-import { getTestimonials } from '@/data/people';
+import { getTeachers, getTestimonials } from '@/data/people';
 import { getPlans, perSession } from '@/data/pricing';
 import Money from '@/components/Money.astro';
 import { lp, num, type Lang } from '@/i18n';
@@ -23,117 +19,163 @@ interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const t = ui(lang);
 const tracks = getTracks(lang);
 const stories = getTestimonials(lang);
 const plans = getPlans(lang);
+const teachers = getTeachers(lang);
 
 const COPY = copy(lang).home;
 const C = COPY.C;
 
 const plans30 = plans.filter((p) => p.minutes === 30);
 const plans60 = plans.filter((p) => p.minutes === 60);
+
+// Hero headline: an inline pill (the teachers' initials + a verified seal) sits before the highlighted phrase.
+const ACCENT = '<span class="accent">';
+const cut = C.title.indexOf(ACCENT);
+const titleLead = cut >= 0 ? C.title.slice(0, cut) : C.title;
+const titleAccent = cut >= 0 ? C.title.slice(cut) : '';
+
+// Tones per programme (the same order as the tracks data: quran, arabic, kids, islamic).
+const TONE: Record<string, string> = { quran: 'lavender', arabic: 'sky', kids: 'rose', islamic: 'mauve' };
+const STEP_TONES = ['lavender', 'sky', 'mauve', 'rose'];
+const kids = tracks.find((tr) => tr.id === 'kids') ?? tracks[2];
+// Ticker: the four programmes and the three promises, looping.
+const tickerItems = [...tracks.map((tr) => tr.title), ...C.reassure];
+// Rotating badge text, repeated to fill the circle.
+const spinText = `${C.verified} · ${C.why.sanadKicker} · `.repeat(2);
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
-  <!-- 1 · Hero -->
-  <section class="hero">
-    <div class="container hero__grid">
-      <div class="hero__copy" data-reveal>
+  <!-- 1 · Hero: headline with an inline pill, and a bento of photo + figures -->
+  <section class="hero2">
+    <div class="container hero2__grid">
+      <div class="hero2__copy" data-reveal>
         <span class="eyebrow">{C.eyebrow}</span>
-        <h1 class="hero__title" set:html={C.title} />
-        <p class="lead hero__lede">{C.lede}</p>
-        <div class="cluster hero__actions">
+        <h1 class="hero2__title">
+          <Fragment set:html={titleLead} />
+          <span class="hero2__pill" aria-hidden="true">
+            <span class="avatars">{teachers.map((tt) => <span>{tt.initials}</span>)}</span>
+            <Icon name="seal-check" weight="fill" />
+          </span>
+          {' '}<Fragment set:html={titleAccent} />
+        </h1>
+        <p class="lead hero2__lede">{C.lede}</p>
+        <div class="cluster hero2__actions">
           <a class="btn btn--lg btn--primary" href={lp(lang, '/contact/') + '#book'} data-track="hero">
             {t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
           </a>
           <a class="btn btn--lg btn--glass" href={lp(lang, '/placement-test/')} data-track="hero">
             <Icon name="compass" weight="duotone" /> {t.findLevel}
-            <span class="hero__btn-note">{C.test}</span>
+            <span class="hero2__btn-note">{C.test}</span>
           </a>
         </div>
-        <ul role="list" class="hero__reassure">
+        <ul role="list" class="hero2__reassure">
           {C.reassure.map((r) => <li><Icon name="check-circle" weight="fill" /> {r}</li>)}
         </ul>
       </div>
 
-      <div class="hero__visual" data-reveal data-tilt style="--reveal-delay:.15s">
-        <span class="hero__iqra quranic" aria-hidden="true">اقْرَأْ</span>
-        <div class="frame frame--arch hero__frame">
-          <Image src={heroArt} alt="" widths={[420, 640, 900]} sizes="(min-width: 960px) 460px, 86vw" loading="eager" fetchpriority="high" />
-          <span class="hero__verified"><Icon name="seal-check" weight="fill" /> {C.verified}</span>
+      <div class="hero2__bento" data-reveal style="--reveal-delay:.12s">
+        <div class="hb-photo">
+          <Image src={heroArt} alt="" widths={[420, 640, 900]} sizes="(min-width: 1024px) 380px, 60vw" loading="eager" fetchpriority="high" />
+          <ul role="list" class="hb-photo__chips" aria-hidden="true">
+            {tracks.slice(0, 3).map((tr) => <li class="status">{tr.title}</li>)}
+          </ul>
+          <a class="hb-photo__bubble" href={lp(lang, '/contact/') + '#book'} data-track="hero-bubble">
+            <span>
+              <strong>{C.card2[0]}</strong>
+              <small>{C.card2[1]}</small>
+            </span>
+            <span class="arrow-btn arrow-btn--dark" style="--arrow-size:42px"><Icon name="arrow-up-right" weight="bold" /></span>
+          </a>
         </div>
-        <div class="hero__card hero__card--progress glass" aria-hidden="true">
-          <span class="icon-badge"><Icon name="book-open-text" /></span>
-          <div class="hero__card-body">
-            <p class="hero__card-title">{C.card1[0]}</p>
-            <p class="hero__card-meta">{C.card1[1]}</p>
-          </div>
+        <div class="stat-tile tone tone--sky hb-stat">
+          <span class="avatars" style="--av:34px" aria-hidden="true">{teachers.map((tt) => <span>{tt.initials}</span>)}<span>+</span></span>
+          <span>
+            <span class="stat-tile__num">{C.stats[1][0]}</span>
+            <span class="stat-tile__label">{C.stats[1][1]}</span>
+          </span>
         </div>
-        <div class="hero__card hero__card--live glass" aria-hidden="true">
-          <p class="hero__live"><span class="pulse"></span> {C.card2[0]}</p>
-          <p class="hero__card-title">{C.card2[1]}</p>
-          <p class="hero__card-meta">{C.card2[2]}</p>
+        <div class="stat-tile tone tone--mauve hb-stat">
+          <span class="hb-stat__icon" aria-hidden="true"><Icon name="globe-hemisphere-west" weight="duotone" /></span>
+          <span>
+            <span class="stat-tile__num">{C.stats[0][0]}</span>
+            <span class="stat-tile__label">{C.stats[0][1]}</span>
+          </span>
+        </div>
+        <div class="hb-spin" aria-hidden="true">
+          <svg class="spin-badge" viewBox="0 0 120 120" data-overflow-ok>
+            <defs><path id="hb-spin-path" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" /></defs>
+            <text><textPath href="#hb-spin-path">{spinText}</textPath></text>
+          </svg>
+          <span class="hb-spin__core"><Icon name="seal-check" weight="fill" /></span>
         </div>
       </div>
     </div>
 
-    <!-- 2 · Proof strip -->
-    <div class="container">
-      <ul role="list" class="proof glass" data-reveal>
-        {C.stats.map(([n, l]) => <li><strong>{n}</strong><span>{l}</span></li>)}
-      </ul>
+    <!-- Ticker: programmes and promises -->
+    <div class="ticker hero2__ticker" role="region" aria-label={C.tracks.eyebrow} data-overflow-ok>
+      <div class="ticker__track">
+        {tickerItems.map((item) => <span class="ticker__item">{item}</span>)}
+        {tickerItems.map((item) => <span class="ticker__item" aria-hidden="true">{item}</span>)}
+      </div>
     </div>
   </section>
 
-  <!-- 2b · Tilawa — free on-device recitation companion -->
+  <!-- 2 · Tilawa — free on-device recitation companion -->
   <TilawaTeaser lang={lang} />
 
-  <!-- 3 · Audience router -->
-  <section class="section router" aria-labelledby="router-title">
+  <!-- 3 · Who's learning: two pastel cards, status pills, "I want to…" rows -->
+  <section class="section rt" aria-labelledby="router-title">
     <div class="container">
-      <div class="router__head" data-reveal>
+      <div class="rt__head" data-reveal>
         <h2 id="router-title">{C.router.title}</h2>
         <p class="lead">{C.router.lede}</p>
       </div>
-      <div class="router__grid">
-        <a class="router__child glass glass--interactive" href={lp(lang, '/ummah-cubs-kids-islamic-studies/')} data-router="child" data-goal="kids" data-reveal>
-          <div class="router__art" aria-hidden="true">
-            <Image src={tracks[2].image} alt="" widths={[360, 560]} sizes="(min-width: 960px) 260px, 70vw" />
-          </div>
-          <div class="router__copy">
-            <span class="chip chip--accent"><Icon name="baby" /> {C.router.childKicker}</span>
+      <div class="rt__grid">
+        <a class="rt-card rt-card--child tone tone--rose" href={lp(lang, kids.href)} data-router="child" data-goal="kids" data-reveal>
+          <span class="rt-shape rt-shape--a" aria-hidden="true"></span>
+          <span class="rt-shape rt-shape--b" aria-hidden="true"></span>
+          <div class="rt-card__copy">
+            <span class="status">{C.router.childKicker}</span>
             <h3>{C.router.childTitle}</h3>
             <p>{C.router.childText}</p>
-            <ul role="list" class="cluster router__chips">{C.router.childChips.map((c) => <li class="chip">{c}</li>)}</ul>
-            <span class="btn btn--primary router__cta">{C.router.childCta} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></span>
+            <ul role="list" class="rt-card__chips">{C.router.childChips.map((c) => <li class="status status--ghost">{c}</li>)}</ul>
+            <span class="link-arrow">{C.router.childCta} <Icon name="arrow-right" weight="bold" /></span>
+          </div>
+          <div class="rt-card__art" aria-hidden="true">
+            <Image src={kids.image} alt="" widths={[320, 520]} sizes="(min-width: 960px) 240px, 60vw" />
+            <span class="arrow-btn arrow-btn--dark"><Icon name="arrow-up-right" weight="bold" /></span>
           </div>
         </a>
-        <div class="router__self glass" data-reveal style="--reveal-delay:.08s">
-          <span class="chip chip--accent"><Icon name="user" /> {C.router.selfKicker}</span>
+        <div class="rt-card rt-card--self tone tone--lavender" data-reveal style="--reveal-delay:.08s">
+          <span class="status">{C.router.selfKicker}</span>
           <h3>{C.router.selfTitle}</h3>
-          <ul role="list" class="router__goals">
+          <ul role="list" class="rt-goals">
             {
               C.router.goals.map(([label, href, goal]) => (
                 <li>
                   <a href={lp(lang, href)} data-router="self" data-goal={goal}>
                     <span>{label}</span>
-                    <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                    <span class="arrow-btn" style="--arrow-size:34px">
+                      <Icon name="arrow-up-right" weight="bold" />
+                    </span>
                   </a>
                 </li>
               ))
             }
           </ul>
-          <a class="router__unsure" href={lp(lang, '/placement-test/')} data-router="self" data-goal="unsure">
-            <Icon name="compass" /> {C.router.unsure}
+          <a class="link-arrow" href={lp(lang, '/placement-test/')} data-router="self" data-goal="unsure">
+            <Icon name="compass" weight="duotone" /> {C.router.unsure}
           </a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4 · Programmes: choose a path before exploring the method -->
+  <!-- 4 · Programmes: numbered panels that open on hover / focus -->
   <section class="section" aria-labelledby="tracks-title">
     <div class="container">
       <div class="head-row" data-reveal>
@@ -144,84 +186,119 @@ const plans60 = plans.filter((p) => p.minutes === 60);
         </div>
         <a class="btn btn--glass" href={lp(lang, '/courses/')}>{t.compareCourses} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
       </div>
-      <div class="home-programmes__controls" aria-hidden="false">
-        <button class="home-programmes__control" type="button" data-programme-prev aria-label={HOME_UI[lang].previous} aria-controls="home-programmes"><Icon name="arrow-left" weight="bold" /></button>
-        <button class="home-programmes__control" type="button" data-programme-next aria-label={HOME_UI[lang].next} aria-controls="home-programmes"><Icon name="arrow-right" weight="bold" /></button>
-      </div>
-      <div class="grid grid-4 home-programmes" id="home-programmes" tabindex="0" role="region" aria-label={C.tracks.eyebrow}>
-        {tracks.map((tr, i) => <TrackCard track={tr} lang={lang} delay={i * 0.06} compact />)}
+      <div class="pg" data-panels data-reveal>
+        {
+          tracks.map((tr, i) => (
+            <a class:list={['pg__panel', 'tone', `tone--${TONE[tr.id] ?? 'lavender'}`, { 'is-open': i === 0 }]} href={lp(lang, tr.href)}>
+              <span class="pg__num">{pad(i + 1)}</span>
+              <span class="pg__label" aria-hidden="true">{tr.title}</span>
+              <span class="pg__body">
+                <span class="pg__text">
+                  <span class="pg__sub">{tr.subtitle}</span>
+                  <span class="pg__title">{tr.title}</span>
+                  <span class="pg__intro">{tr.intro}</span>
+                  <span class="pg__foot">
+                    <span class="pg__price">
+                      {t.from} <Money usd={tr.from} lang={lang} />
+                      <small>{t.perMonth}</small>
+                    </span>
+                    <span class="arrow-btn arrow-btn--dark"><Icon name="arrow-up-right" weight="bold" /></span>
+                  </span>
+                </span>
+                <span class="pg__img">
+                  <Image src={tr.image} alt="" widths={[360, 560, 760]} sizes="(min-width: 960px) 420px, 90vw" />
+                </span>
+              </span>
+            </a>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <!-- 5 · Why (bento) -->
+  <!-- 5 · Why: bento of the Sanad card, figures, the method and the promises -->
   <section class="section" aria-labelledby="why-title">
     <div class="container">
       <div class="head-split" data-reveal>
         <span class="eyebrow">{C.why.eyebrow}</span>
         <h2 id="why-title" set:html={C.why.title} />
       </div>
-      <div class="bento">
-        <article class="bento__sanad theme-night" data-reveal>
+      <div class="wb">
+        <article class="wb__sanad theme-night" data-reveal>
           <div class="stars"></div>
-          <span class="chip"><Icon name="seal-check" weight="fill" /> {C.why.sanadKicker}</span>
+          <div class="wb__sanad-head">
+            <span class="status">{C.why.sanadKicker}</span>
+            <svg class="spin-badge wb__spin" viewBox="0 0 120 120" aria-hidden="true" data-overflow-ok>
+              <defs><path id="wb-spin-path" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" /></defs>
+              <text><textPath href="#wb-spin-path">{spinText}</textPath></text>
+            </svg>
+          </div>
           <h3>{C.why.sanadTitle}</h3>
           <p>{C.why.sanadText}</p>
           <SanadChain dark lang={lang} />
-          <a class="btn btn--glass btn--sm" href={lp(lang, '/teachers/') + '#process'}>{C.why.sanadLink} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+          <a class="link-arrow" href={lp(lang, '/teachers/') + '#process'}>{C.why.sanadLink} <Icon name="arrow-right" weight="bold" /></a>
         </article>
-        <article class="bento__tile glass" data-reveal style="--reveal-delay:.05s">
-          <span class="icon-badge"><Icon name="brain" /></span>
-          <h3>{C.why.itqan[0]}</h3>
-          <p>{C.why.itqan[1]}</p>
-          <a class="btn btn--link" href="/the-itqan-method-explained-how-thematic-memorization-makes-hifz-easier/">{C.why.itqan[2]} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
-        </article>
-        <article class="bento__tile glass" data-reveal style="--reveal-delay:.1s">
+        {
+          [C.stats[2], C.stats[3]].map(([n, l], i) => (
+            <div class:list={['stat-tile', 'tone', i ? 'tone--sky' : 'tone--mauve', 'wb__stat', i ? 'wb__stat--b' : 'wb__stat--a']} data-reveal style={`--reveal-delay:${0.05 + i * 0.05}s`}>
+              <Icon name={i ? 'chart-line-up' : 'certificate'} weight="duotone" class="wb__stat-icon" />
+              <span>
+                <span class="stat-tile__num">{n}</span>
+                <span class="stat-tile__label">{l}</span>
+              </span>
+            </div>
+          ))
+        }
+        <a class="wb__itqan tone tone--deep tone--grad-plum" href="/the-itqan-method-explained-how-thematic-memorization-makes-hifz-easier/" data-reveal style="--reveal-delay:.12s">
+          <span class="wb__itqan-copy">
+            <span class="status">{C.why.itqan[0]}</span>
+            <span class="wb__itqan-text">{C.why.itqan[1]}</span>
+            <span class="link-arrow">{C.why.itqan[2]} <Icon name="arrow-right" weight="bold" /></span>
+          </span>
+          <span class="arrow-btn arrow-btn--dark wb__itqan-arrow"><Icon name="arrow-up-right" weight="bold" /></span>
+        </a>
+        <article class="wb__tile wb__tile--safe" data-reveal style="--reveal-delay:.05s">
           <span class="icon-badge"><Icon name="shield-check" /></span>
           <h3>{C.why.safe[0]}</h3>
           <p>{C.why.safe[1]}</p>
         </article>
-        <article class="bento__tile glass" data-reveal style="--reveal-delay:.15s">
+        <article class="wb__tile wb__tile--time" data-reveal style="--reveal-delay:.1s">
           <span class="icon-badge"><Icon name="globe-hemisphere-west" /></span>
           <h3>{C.why.time[0]}</h3>
           <p>{C.why.time[1]}</p>
         </article>
-        <a class="bento__price glass glass--interactive" href={lp(lang, '/pricing/')} data-reveal style="--reveal-delay:.2s">
-          <span class="bento__price-num">{C.why.price[0]}</span>
+        <a class="wb__price tone tone--dusk" href={lp(lang, '/pricing/')} data-reveal style="--reveal-delay:.15s">
+          <span class="wb__price-num">{C.why.price[0]}</span>
           <span>{C.why.price[1]}</span>
-          <span class="btn btn--link">{C.why.price[2]} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></span>
+          <span class="link-arrow">{C.why.price[2]} <Icon name="arrow-right" weight="bold" /></span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- 6 · What happens after you book -->
+  <!-- 6 · What happens after you book: numbered cards on a dotted path -->
   <section class="section" aria-labelledby="how-title">
-    <div class="container split how">
-      <div class="how__visual" data-reveal>
-        <HomeJourneyDiagram lang={lang} steps={C.how.steps} />
-      </div>
-      <div class="how__copy">
-        <div class="stack" style="--stack:16px" data-reveal>
+    <div class="container">
+      <div class="head-row" data-reveal>
+        <div class="stack" style="--stack:14px">
           <span class="eyebrow" style="align-self:flex-start">{C.how.eyebrow}</span>
           <h2 id="how-title" class="h2" set:html={C.how.title} />
           <p class="lead">{C.how.lede}</p>
         </div>
-        <ol role="list" class="timeline-v">
-          {
-            C.how.steps.map(([h, p], i) => (
-              <li data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-                <span class="timeline-v__num">{num(lang, i + 1)}</span>
-                <div>
-                  <h3>{h}</h3>
-                  <p>{p}</p>
-                </div>
-              </li>
-            ))
-          }
-        </ol>
         <a class="btn btn--primary" href={lp(lang, '/contact/') + '#book'} data-track="how">{t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
       </div>
+      <ol role="list" class="hw">
+        {
+          C.how.steps.map(([h, p], i) => (
+            <li class:list={['num-card', 'tone', `tone--${STEP_TONES[i % STEP_TONES.length]}`]} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="hw__dot" aria-hidden="true"></span>
+              <span class="num-card__num">{pad(i + 1)}.</span>
+              <h3>{h}</h3>
+              <p>{p}</p>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
@@ -240,19 +317,19 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     </div>
     <p class="container rail__note">
       {C.stories.note && <span class="muted">{C.stories.note} </span>}
-      <a href={lp(lang, '/reviews/')}>{C.stories.all}</a>
+      <a class="link-arrow" href={lp(lang, '/reviews/')}>{C.stories.all} <Icon name="arrow-right" weight="bold" /></a>
     </p>
   </section>
 
   <!-- 8 · Pricing teaser -->
   <section class="section" aria-labelledby="pricing-title">
     <div class="container">
-      <div class="glass price-teaser" data-reveal>
+      <div class="price-teaser" data-reveal>
         <div class="price-teaser__copy">
           <span class="eyebrow">{C.pricing.eyebrow}</span>
           <h2 id="pricing-title" set:html={C.pricing.title} />
           <p class="lead">{C.pricing.text}</p>
-          <a class="btn btn--glass" href={lp(lang, '/pricing/')}>{C.pricing.all} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+          <a class="link-arrow" href={lp(lang, '/pricing/')}>{C.pricing.all} <Icon name="arrow-right" weight="bold" /></a>
         </div>
         <div class="price-teaser__plans" data-tabs>
           <div class="seg-tabs" role="tablist" aria-label={C.pricing.eyebrow}>
@@ -265,25 +342,25 @@ const plans60 = plans.filter((p) => p.minutes === 60);
               ['60', plans60],
             ].map(([id, list]) => (
               <div role="tabpanel" id={`pt-${id}`} aria-labelledby={`tab-${id}`} hidden={id === '60'}>
-              <ul role="list" class="mini-plans">
-                {(list as typeof plans).map((p) => (
-                  <li class:list={['mini-plan', { 'mini-plan--badge': p.badge }]}>
-                    <div>
-                      <p class="mini-plan__name">
-                        {p.name} {p.badge && <span class="mini-plan__badge">{p.badge}</span>}
+                <ul role="list" class="mini-plans">
+                  {(list as typeof plans).map((p, i) => (
+                    <li class:list={['mini-plan', 'tone', ['tone--lavender', 'tone--sky', 'tone--mauve', 'tone--rose'][i % 4], { 'mini-plan--badge': p.badge }]}>
+                      <div>
+                        <p class="mini-plan__name">
+                          {p.name} {p.badge && <span class="mini-plan__badge">{p.badge}</span>}
+                        </p>
+                        <p class="mini-plan__meta">{p.sessionsLabel}</p>
+                      </div>
+                      <p class="mini-plan__price">
+                        <Money usd={p.price} lang={lang} />
+                        <small>{t.perMonth}</small>
+                        <span>
+                          {t.approx}<Money usd={perSession(p)} lang={lang} /> {C.pricing.perSession}
+                        </span>
                       </p>
-                      <p class="mini-plan__meta">{p.sessionsLabel}</p>
-                    </div>
-                    <p class="mini-plan__price">
-                      <Money usd={p.price} lang={lang} />
-                      <small>{t.perMonth}</small>
-                      <span>
-                        {t.approx}<Money usd={perSession(p)} lang={lang} /> {C.pricing.perSession}
-                      </span>
-                    </p>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))
           }
@@ -298,7 +375,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
       <div class="stack faq-split__head" style="--stack:16px" data-reveal>
         <span class="eyebrow" style="align-self:flex-start">{C.faq.eyebrow}</span>
         <h2 id="faq-title" class="h2" set:html={C.faq.title} />
-        <a class="btn btn--link" href={lp(lang, '/faq/')}>{C.faq.more} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+        <a class="link-arrow" href={lp(lang, '/faq/')}>{C.faq.more} <Icon name="arrow-right" weight="bold" /></a>
       </div>
       <Faq items={C.faq.items} />
     </div>
@@ -309,20 +386,16 @@ const plans60 = plans.filter((p) => p.minutes === 60);
 </BaseLayout>
 
 <script>
-  const programmes = document.querySelector<HTMLElement>('#home-programmes');
-  if (programmes) {
-    const cards = Array.from(programmes.children) as HTMLElement[];
-    const rtl = document.documentElement.dir === 'rtl';
-    const move = (direction: number) => {
-      // Compare logical start edges rather than scrollLeft, whose RTL sign varies by browser.
-      const edge = rtl ? programmes.getBoundingClientRect().right : programmes.getBoundingClientRect().left;
-      const positions = cards.map((card) => rtl ? edge - card.getBoundingClientRect().right : card.getBoundingClientRect().left - edge);
-      const current = positions.reduce((best, value, i) => Math.abs(value) < Math.abs(positions[best]) ? i : best, 0);
-      cards[(current + direction + cards.length) % cards.length]?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', inline: 'start', block: 'nearest' });
-    };
-    document.querySelector('[data-programme-prev]')?.addEventListener('click', () => move(-1));
-    document.querySelector('[data-programme-next]')?.addEventListener('click', () => move(1));
-  }
+  // Programme panels: the hovered / focused panel opens (desktop); phones show every panel open.
+  document.querySelectorAll<HTMLElement>('[data-panels]').forEach((box) => {
+    const panels = Array.from(box.querySelectorAll<HTMLElement>('.pg__panel'));
+    const open = (panel: HTMLElement) => panels.forEach((p) => p.classList.toggle('is-open', p === panel));
+    panels.forEach((p) => {
+      p.addEventListener('mouseenter', () => open(p));
+      p.addEventListener('focus', () => open(p));
+    });
+  });
+
   document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
     const tabs = Array.from(box.querySelectorAll<HTMLButtonElement>('[role=tab]'));
     const select = (tab: HTMLButtonElement) => {
@@ -354,58 +427,82 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     font-size: var(--fs-h2);
   }
 
-  /* Hero */
-  .hero {
+  /* ── 1 · Hero ─────────────────────────────────────────────── */
+  .hero2 {
     position: relative;
     overflow-x: clip;
-    padding-block: clamp(32px, 5vw, 72px) clamp(24px, 4vw, 48px);
+    padding-block: clamp(24px, 3.5vw, 56px) 0;
   }
 
-  .hero__grid {
+  .hero2__grid {
     display: grid;
-    gap: clamp(36px, 5vw, 72px);
+    gap: clamp(32px, 5vw, 64px);
     align-items: center;
   }
 
-  @media (min-width: 960px) {
-    .hero__grid {
-      grid-template-columns: 1.1fr 0.9fr;
+  @media (min-width: 1024px) {
+    .hero2__grid {
+      grid-template-columns: 1.02fr 1fr;
     }
   }
 
-  .hero__copy {
+  .hero2__copy {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 22px;
   }
 
-  .hero__title {
-    font-size: clamp(2.5rem, 1.3rem + 4.6vw, 5.2rem);
-    line-height: 1;
-    letter-spacing: -0.045em;
-    font-weight: 600;
+  .hero2__title {
+    font-size: clamp(2.5rem, 1.3rem + 4.2vw, 4.7rem);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.048em;
   }
 
-  :global([dir='rtl']) .hero__title {
-    font-size: clamp(2.2rem, 1.2rem + 3.8vw, 4.3rem);
-    line-height: 1.3;
+  :global([dir='rtl']) .hero2__title {
+    font-size: clamp(2.2rem, 1.2rem + 3.6vw, 4rem);
+    font-weight: 600;
+    line-height: 1.38;
     letter-spacing: 0;
   }
 
-  .hero__title :global(.accent) {
-    display: inline;
+  .hero2__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.12em;
+    height: 0.84em;
+    padding-inline: 0.1em 0.16em;
+    border-radius: var(--r-pill);
+    vertical-align: -0.08em;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-soft);
   }
 
-  .hero__lede {
-    max-width: 46ch;
+  /* sized against the headline: font-size .2em x width 3em = .6em of the h1 */
+  .hero2__pill .avatars > span {
+    width: 3em;
+    height: 3em;
+    font-size: 0.2em;
+    border-width: 0.28em;
   }
 
-  .hero__actions {
-    margin-top: 2px;
+  .hero2__pill .avatars > span + span {
+    margin-inline-start: -0.85em;
   }
 
-  .hero__btn-note {
+  .hero2__pill :global(svg) {
+    width: 0.52em;
+    height: 0.52em;
+    color: var(--accent);
+  }
+
+  .hero2__lede {
+    max-width: 48ch;
+  }
+
+  .hero2__btn-note {
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--ink-3);
@@ -414,7 +511,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     margin-inline-start: 2px;
   }
 
-  .hero__reassure {
+  .hero2__reassure {
     display: flex;
     flex-wrap: wrap;
     gap: 8px 18px;
@@ -422,357 +519,524 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     color: var(--ink-2);
   }
 
-  .hero__reassure li {
+  .hero2__reassure li {
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
 
-  .hero__reassure :global(svg) {
+  .hero2__reassure :global(svg) {
     width: 17px;
     height: 17px;
     color: var(--success);
   }
 
-  .hero__visual {
-    --tx: 0px;
-    --ty: 0px;
+  /* bento */
+  .hero2__bento {
     position: relative;
-    justify-self: center;
-    width: min(100%, 470px);
-    padding: 30px 24px 36px;
-  }
-
-  .hero__iqra {
-    position: absolute;
-    left: 50%;
-    top: 47%;
-    translate: -50% -50%;
-    z-index: -1;
-    white-space: nowrap;
-    font-size: clamp(8rem, 5rem + 13vw, 17rem);
-    line-height: 1;
-    color: transparent;
-    -webkit-text-stroke: 1.5px rgb(91 58 142 / 0.16);
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0));
-    -webkit-background-clip: text;
-    background-clip: text;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  .hero__frame {
-    aspect-ratio: 4 / 5;
-    box-shadow:
-      0 0 0 10px rgb(255 255 255 / 0.4),
-      0 0 0 11px rgb(255 255 255 / 0.85),
-      var(--shadow-lift);
-  }
-
-  .hero__verified {
-    position: absolute;
-    left: 50%;
-    bottom: 16px;
-    translate: -50% 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 13px;
-    border-radius: var(--r-pill);
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-    color: var(--accent-ink);
-    background: rgb(255 255 255 / 0.88);
-    box-shadow: 0 8px 18px -10px rgb(46 29 70 / 0.5);
-  }
-
-  .hero__verified :global(svg) {
-    width: 16px;
-    height: 16px;
-  }
-
-  .hero__card {
-    --radius: 22px;
-    position: absolute;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    grid-template-rows: 1fr 1fr;
     gap: 14px;
-    padding: 16px 18px;
-    translate: var(--tx) var(--ty);
-    transition: translate 0.6s var(--ease-out);
-    animation: float-y 7s ease-in-out infinite;
+    min-height: 480px;
   }
 
-  .hero__card--progress {
-    inset-inline-start: -7%;
-    top: 14%;
-    width: 248px;
+  .hb-photo {
+    position: relative;
+    grid-row: span 2;
+    overflow: hidden;
+    border-radius: 32px;
+    box-shadow: var(--shadow-soft);
   }
 
-  .hero__card--live {
-    inset-inline-end: -7%;
-    bottom: 18%;
-    width: 240px;
-    flex-direction: column;
-    gap: 4px;
-    animation-delay: -3.5s;
-    translate: calc(var(--tx) * -1) calc(var(--ty) * -1);
+  .hb-photo :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  @media (max-width: 560px) {
-    .hero__card--progress {
-      inset-inline-start: -2%;
-      top: 6%;
-      width: 212px;
-      padding: 12px 14px;
-    }
-
-    .hero__card--live {
-      inset-inline-end: -2%;
-      width: 208px;
-      padding: 12px 14px;
-    }
-
-    .hero__card .icon-badge {
-      width: 40px;
-      height: 40px;
-    }
-  }
-
-  .hero__card-body {
-    flex: 1;
-    display: grid;
-    gap: 4px;
-  }
-
-  .hero__card-title {
-    font-weight: 620;
-    letter-spacing: -0.02em;
-  }
-
-  .hero__card-meta {
+  .hb-photo__chips {
+    position: absolute;
+    inset: 14px 14px auto;
     display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--ink-3);
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
-  .hero__card-meta strong {
-    color: var(--ink);
+  .hb-photo__chips .status {
+    font-size: 0.76rem;
+    background: rgb(255 255 255 / 0.86);
+    border-color: rgb(255 255 255 / 0.9);
+    color: var(--aubergine-900);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
-  .hero__live {
-    display: inline-flex;
+  .hb-photo__bubble {
+    position: absolute;
+    inset: auto 12px 12px;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--success);
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 12px 12px 18px;
+    border-radius: 22px;
+    color: var(--aubergine-900);
+    text-decoration: none;
+    background: rgb(255 255 255 / 0.84);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
 
-  :global([dir='rtl']) .hero__live {
-    letter-spacing: 0;
-    font-size: 0.82rem;
+  :global([dir='rtl']) .hb-photo__bubble {
+    padding: 12px 18px 12px 12px;
   }
 
-  .pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--wa-green);
-    box-shadow: 0 0 0 3px rgb(31 157 85 / .14);
+  .hb-photo__bubble strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 650;
   }
 
-  /* Proof strip */
-  .proof {
-    --radius: var(--r-xl);
+  .hb-photo__bubble small {
+    font-size: 0.84rem;
+    color: #4a4060;
+  }
+
+  .hb-stat {
+    min-height: 0;
+  }
+
+  .hb-stat__icon :global(svg) {
+    width: 34px;
+    height: 34px;
+    color: var(--tone-dot);
+  }
+
+  .hb-stat .stat-tile__num,
+  .hb-stat .stat-tile__label {
+    display: block;
+  }
+
+  .hb-spin {
+    position: absolute;
+    top: calc(50% - 50px);
+    inset-inline-start: calc(55.6% - 50px);
+    z-index: 2;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin-top: clamp(28px, 4vw, 48px);
-    padding: 8px;
+    place-items: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    color: var(--aubergine-900);
+    background: var(--card);
+    box-shadow: var(--shadow-soft);
   }
 
-  .proof li {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 18px 22px;
+  .hb-spin .spin-badge {
+    --spin: 92px;
+    position: absolute;
   }
 
-  .proof li + li {
-    border-inline-start: 1px solid var(--line);
+  .hb-spin__core :global(svg) {
+    width: 30px;
+    height: 30px;
+    color: var(--accent);
   }
 
-  .proof strong {
-    font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.5rem);
-    font-weight: 620;
-    letter-spacing: -0.045em;
-    line-height: 1;
+  :global([data-theme='dark']) .hb-spin {
+    color: #efe7fb;
   }
 
-  .proof span {
-    font-size: 0.9rem;
-    color: var(--ink-2);
-  }
-
-  @media (max-width: 720px) {
-    .proof {
+  @media (max-width: 1023px) {
+    .hero2__bento {
+      min-height: 0;
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto;
     }
 
-    .proof li:nth-child(3) {
-      border-inline-start: 0;
+    .hb-photo {
+      grid-row: auto;
+      grid-column: span 2;
+      aspect-ratio: 4 / 3;
     }
 
-    .proof li:nth-child(n + 3) {
-      border-top: 1px solid var(--line);
+    .hb-spin {
+      display: none;
     }
   }
 
-  /* Router */
-  .router__head {
+  @media (max-width: 420px) {
+    .hb-photo {
+      aspect-ratio: 4 / 4.4;
+    }
+  }
+
+  .hero2__ticker {
+    margin-top: clamp(36px, 5vw, 64px);
+  }
+
+  /* ── 3 · Router ───────────────────────────────────────────── */
+  .rt__head {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-bottom: 28px;
   }
 
-  .router__head h2 {
+  .rt__head h2 {
     font-size: var(--fs-h2);
   }
 
-  .router__grid {
+  .rt__grid {
     display: grid;
     gap: 16px;
   }
 
   @media (min-width: 960px) {
-    .router__grid {
-      grid-template-columns: 1.15fr 1fr;
+    .rt__grid {
+      grid-template-columns: 1.18fr 1fr;
     }
   }
 
-  .router__child {
-    --radius: var(--r-xl);
-    display: grid;
-    gap: 18px;
-    padding: 10px;
-    text-decoration: none;
-  }
-
-  @media (min-width: 640px) {
-    .router__child {
-      grid-template-columns: 0.85fr 1fr;
-      align-items: stretch;
-    }
-  }
-
-  .router__art {
-    border-radius: 30px;
+  .rt-card {
+    position: relative;
+    isolation: isolate;
     overflow: hidden;
-    min-height: 220px;
-  }
-
-  .router__art :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 1.2s var(--ease-out);
-  }
-
-  .router__child:hover .router__art :global(img) {
-    transform: scale(1.05);
-  }
-
-  .router__copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 14px 16px;
-  }
-
-  .router__copy h3,
-  .router__self h3 {
-    font-size: clamp(1.4rem, 1.15rem + 0.9vw, 1.9rem);
-  }
-
-  .router__copy p {
-    color: var(--ink-2);
-  }
-
-  .router__chips {
-    --cluster: 6px;
-  }
-
-  .router__cta {
-    margin-top: auto;
-  }
-
-  .router__self {
-    --radius: var(--r-xl);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 14px;
-    padding: clamp(20px, 3vw, 32px);
+    padding: clamp(22px, 3vw, 36px);
+    border-radius: 32px;
+    text-decoration: none;
   }
 
-  .router__goals {
+  .rt-card h3 {
+    font-size: clamp(1.45rem, 1.15rem + 1vw, 2rem);
+    font-weight: 560;
+    letter-spacing: -0.03em;
+  }
+
+  :global([dir='rtl']) .rt-card h3 {
+    letter-spacing: 0;
+  }
+
+  .rt-card p {
+    color: var(--ink-2);
+  }
+
+  .rt-card--child {
     display: grid;
+    gap: 22px;
+  }
+
+  @media (min-width: 640px) {
+    .rt-card--child {
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: stretch;
+    }
+  }
+
+  .rt-card__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .rt-card__copy .link-arrow {
+    margin-top: auto;
+  }
+
+  .rt-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rt-card__chips .status {
+    font-size: 0.78rem;
+    border-color: color-mix(in srgb, var(--tone-dot) 30%, transparent);
+  }
+
+  .rt-card__art {
+    position: relative;
+    min-height: 240px;
+    border-radius: 999px 999px 28px 28px;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .rt-card__art :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.1s var(--ease-out);
+  }
+
+  .rt-card--child:hover .rt-card__art :global(img) {
+    transform: scale(1.05);
+  }
+
+  .rt-card__art .arrow-btn {
+    position: absolute;
+    inset: auto 14px 14px auto;
+  }
+
+  :global([dir='rtl']) .rt-card__art .arrow-btn {
+    inset: auto auto 14px 14px;
+  }
+
+  /* abstract shapes, as on the reference cards */
+  .rt-shape {
+    position: absolute;
+    z-index: -1;
+    border-radius: 999px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--tone-dot) 55%, transparent), transparent 78%);
+    opacity: 0.45;
+  }
+
+  .rt-shape--a {
+    width: 220px;
+    height: 120px;
+    inset-block-start: -40px;
+    inset-inline-end: 18%;
+    rotate: -32deg;
+  }
+
+  .rt-shape--b {
+    width: 160px;
+    height: 160px;
+    inset-block-end: -70px;
+    inset-inline-start: 34%;
+  }
+
+  .rt-goals {
+    display: grid;
+    gap: 8px;
     width: 100%;
   }
 
-  .router__goals a {
+  .rt-goals a {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 4px;
-    border-bottom: 1px solid var(--line);
+    padding: 10px 10px 10px 18px;
+    border-radius: 20px;
     font-weight: 560;
-    font-size: 1.04rem;
+    color: var(--ink);
     text-decoration: none;
-    transition:
-      padding 0.3s var(--ease-out),
-      color 0.3s;
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    border: 1px solid var(--card-line);
+    transition: background-color 0.25s;
   }
 
-  .router__goals a:hover {
-    padding-inline-start: 12px;
-    color: var(--accent-ink);
+  :global([dir='rtl']) .rt-goals a {
+    padding: 10px 18px 10px 10px;
   }
 
-  .router__goals :global(svg) {
-    width: 18px;
-    height: 18px;
-    flex: none;
-    color: var(--accent-ink);
+  .rt-goals a:hover {
+    background: var(--card);
   }
 
-  :global([dir='rtl']) .router__goals :global(svg) {
-    transform: scaleX(-1);
+  .rt-card--self .link-arrow {
+    margin-top: 6px;
+    font-size: 0.95rem;
   }
 
-  .router__unsure {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
-    font-size: 0.94rem;
+  .rt-card--self .link-arrow :global(svg) {
+    color: var(--tone-dot);
+  }
+
+  /* ── 4 · Programme panels ─────────────────────────────────── */
+  .pg {
+    display: grid;
+    gap: 14px;
+  }
+
+  .pg__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: clamp(16px, 2vw, 22px);
+    border-radius: 30px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .pg__num {
+    align-self: flex-start;
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    font-size: 0.85rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+  }
+
+  .pg__label {
+    display: none;
+  }
+
+  .pg__body {
+    display: grid;
+    gap: 16px;
+  }
+
+  .pg__text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pg__sub {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--tone-dot);
+  }
+
+  .pg__title {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2.2rem);
     font-weight: 560;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+
+  :global([dir='rtl']) .pg__title {
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .pg__intro {
+    color: var(--ink-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pg__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .pg__price {
+    font-size: 0.92rem;
     color: var(--ink-2);
   }
 
-  .router__unsure :global(svg) {
-    width: 18px;
-    height: 18px;
-    color: var(--accent-ink);
+  .pg__price :global(.money),
+  .pg__price :global(span) {
+    font-weight: 650;
+    color: var(--ink);
   }
 
-  /* Head layouts */
+  .pg__img {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 22px;
+  }
+
+  .pg__img :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (min-width: 960px) {
+    .pg {
+      display: flex;
+      height: 460px;
+    }
+
+    .pg__panel {
+      flex: 0 0 96px;
+      min-width: 0;
+      transition: flex-basis 0.6s var(--ease-out), flex-grow 0.6s var(--ease-out);
+    }
+
+    .pg__panel.is-open {
+      flex: 1 1 0;
+    }
+
+    .pg__label {
+      position: absolute;
+      inset-block-end: 26px;
+      inset-inline-start: 50%;
+      display: block;
+      writing-mode: vertical-rl;
+      rotate: 180deg;
+      translate: -50% 0;
+      white-space: nowrap;
+      font-size: 1.15rem;
+      font-weight: 560;
+      transition: opacity 0.3s;
+    }
+
+    :global([dir='rtl']) .pg__label {
+      rotate: none;
+      translate: 50% 0;
+    }
+
+    .pg__panel.is-open .pg__label {
+      opacity: 0;
+    }
+
+    .pg__body {
+      position: absolute;
+      inset: 70px 22px 22px;
+      grid-template-columns: minmax(240px, 1fr) 1.1fr;
+      align-items: stretch;
+      min-width: 620px;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.25s,
+        visibility 0s 0.25s;
+    }
+
+    .pg__panel.is-open .pg__body {
+      opacity: 1;
+      visibility: visible;
+      transition:
+        opacity 0.45s 0.2s,
+        visibility 0s;
+    }
+
+    .pg__text {
+      justify-content: flex-end;
+    }
+
+    .pg__img {
+      aspect-ratio: auto;
+      height: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pg__panel,
+    .pg__body {
+      transition: none;
+    }
+  }
+
+  /* ── 5 · Why bento ────────────────────────────────────────── */
   .head-split {
     display: flex;
     flex-direction: column;
@@ -799,179 +1063,251 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     max-width: 720px;
   }
 
-  /* Bento */
-  .bento {
+  .wb {
     display: grid;
-    gap: 16px;
+    gap: 14px;
     grid-template-columns: 1fr;
   }
 
   @media (min-width: 760px) {
-    .bento {
+    .wb {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    .wb__sanad,
+    .wb__itqan,
+    .wb__price {
+      grid-column: span 2;
     }
   }
 
   @media (min-width: 1100px) {
-    .bento {
-      grid-template-columns: 1.3fr 1fr 1fr;
-      grid-template-rows: auto auto;
+    .wb {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-areas:
+        'sanad sanad stat1 stat2'
+        'sanad sanad itqan itqan'
+        'safe time price price';
     }
 
-    .bento__sanad {
-      grid-row: span 2;
+    .wb__sanad {
+      grid-area: sanad;
+    }
+
+    .wb__stat--a {
+      grid-area: stat1;
+    }
+
+    .wb__stat--b {
+      grid-area: stat2;
+    }
+
+    .wb__itqan {
+      grid-area: itqan;
+    }
+
+    .wb__tile--safe {
+      grid-area: safe;
+    }
+
+    .wb__tile--time {
+      grid-area: time;
+    }
+
+    .wb__price {
+      grid-area: price;
     }
   }
 
-  .bento__sanad {
+  .wb__sanad {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
-    padding: clamp(24px, 3vw, 40px);
-    border-radius: var(--r-xl);
+    gap: 14px;
+    padding: clamp(24px, 3vw, 38px);
+    border-radius: 32px;
   }
 
-  @media (min-width: 760px) and (max-width: 1099px) {
-    .bento__sanad {
-      grid-column: span 2;
-    }
+  .wb__sanad-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
   }
 
-  .bento__sanad h3 {
+  .wb__spin {
+    --spin: 96px;
+    color: #e3c8ff;
+    margin-block: -10px -30px;
+  }
+
+  .wb__sanad h3 {
     font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
     line-height: 1.12;
+    font-weight: 560;
   }
 
-  .bento__sanad p {
+  .wb__sanad p {
     color: var(--ink-2);
   }
 
-  .bento__sanad :global(.sanad) {
+  .wb__sanad :global(.sanad) {
     width: 100%;
-    margin-block: 18px 10px;
+    margin-block: 10px 6px;
   }
 
-  .bento__tile {
-    --radius: 28px;
+  .wb__sanad .link-arrow {
+    color: #f4effb;
+  }
+
+  .wb__stat :global(.wb__stat-icon) {
+    width: 30px;
+    height: 30px;
+    color: var(--tone-dot);
+  }
+
+  .wb__stat .stat-tile__num,
+  .wb__stat .stat-tile__label {
+    display: block;
+  }
+
+  .wb__itqan {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: clamp(22px, 3vw, 32px);
+    border-radius: 30px;
+    text-decoration: none;
+  }
+
+  .wb__itqan-copy {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .wb__itqan-text {
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    max-width: 34ch;
+  }
+
+  :global([dir='rtl']) .wb__itqan-text {
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  .wb__itqan-arrow {
+    --arrow-size: 64px;
+  }
+
+  .wb__tile {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
     padding: 26px;
+    border-radius: 28px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-soft);
   }
 
-  .bento__tile h3 {
-    font-size: 1.25rem;
+  .wb__tile h3 {
+    font-size: 1.2rem;
   }
 
-  .bento__tile p {
+  .wb__tile p {
     color: var(--ink-2);
   }
 
-  .bento__tile .btn--link {
-    margin-top: auto;
-  }
-
-  .bento__price {
-    --radius: 28px;
+  .wb__price {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 10px;
     padding: 26px;
+    border-radius: 28px;
     text-decoration: none;
-    background:
-      radial-gradient(120% 90% at 100% 0%, rgb(175 204 234 / 0.75), transparent 60%),
-      radial-gradient(100% 90% at 0% 100%, rgb(241 205 220 / 0.85), transparent 60%),
-      var(--glass-fill);
   }
 
-  .bento__price-num {
-    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem);
-    font-weight: 640;
+  .wb__price-num {
+    font-size: clamp(1.7rem, 1.2rem + 1.4vw, 2.5rem);
+    font-weight: 560;
     letter-spacing: -0.04em;
     line-height: 1.05;
   }
 
-  :global([dir='rtl']) .bento__price-num {
+  :global([dir='rtl']) .wb__price-num {
     letter-spacing: 0;
   }
 
-  .bento__price > span:nth-child(2) {
+  .wb__price > span:nth-child(2) {
+    color: var(--ink);
+  }
+
+  /* ── 6 · How: numbered cards on a dotted path ─────────────── */
+  .hw {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  }
+
+  .hw .num-card {
+    border: 0;
+    background: var(--tone-bg);
+    box-shadow: none;
+    min-height: 240px;
+  }
+
+  .hw h3 {
+    margin-top: 22px;
+    font-size: 1.15rem;
+  }
+
+  .hw p {
     color: var(--ink-2);
+    font-size: 0.97rem;
   }
 
-  /* How */
-  .how__visual {
-    order: 2;
+  .hw__dot {
+    position: absolute;
+    inset-block-start: 22px;
+    inset-inline-end: 22px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--tone-dot);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--tone-dot) 18%, transparent);
   }
 
-  @media (min-width: 960px) {
-    .how__visual {
-      order: 0;
+  @media (min-width: 1000px) {
+    .hw::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 27px;
+      inset-inline: 40px;
+      border-top: 2px dotted color-mix(in srgb, var(--accent) 45%, transparent);
+      z-index: 0;
+    }
+
+    .hw .num-card {
+      z-index: 1;
     }
   }
 
-  .how__copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 28px;
-  }
-
-  .timeline-v {
-    display: grid;
-    gap: 18px;
-    position: relative;
-  }
-
-  .timeline-v::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 17px;
-    top: 10px;
-    bottom: 10px;
-    width: 2px;
-    background: linear-gradient(180deg, rgb(143 47 158 / 0.35), rgb(29 95 168 / 0.35));
-  }
-
-  .timeline-v li {
-    position: relative;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .timeline-v__num {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    font-weight: 650;
-    font-size: 0.92rem;
-    color: #fff;
-    background: var(--grad-accent-on);
-    box-shadow:
-      0 0 0 5px rgb(255 255 255 / 0.8),
-      0 8px 18px -8px rgb(91 58 142 / 0.7);
-  }
-
-  .timeline-v h3 {
-    font-size: 1.12rem;
-    margin-bottom: 4px;
-  }
-
-  .timeline-v p {
-    color: var(--ink-2);
-  }
-
-  /* Rail */
+  /* ── 7 · Stories rail ─────────────────────────────────────── */
   .rail {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -996,17 +1332,50 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     scroll-snap-align: center;
   }
 
-  .rail__note {
-    font-size: 0.85rem;
+  .rail__track li :global(.tcard) {
+    height: 100%;
+    border: 0;
+    border-radius: 28px;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
-  /* Pricing teaser */
+  .rail__track li:nth-child(4n + 1) :global(.tcard) {
+    background: var(--tint-lavender);
+  }
+
+  .rail__track li:nth-child(4n + 2) :global(.tcard) {
+    background: var(--tint-sky);
+  }
+
+  .rail__track li:nth-child(4n + 3) :global(.tcard) {
+    background: var(--tint-mauve);
+  }
+
+  .rail__track li:nth-child(4n + 4) :global(.tcard) {
+    background: var(--tint-rose);
+  }
+
+  .rail__track li :global(.tcard::before),
+  .rail__track li :global(.tcard::after) {
+    display: none;
+  }
+
+  .rail__note {
+    font-size: 0.92rem;
+  }
+
+  /* ── 8 · Pricing teaser ───────────────────────────────────── */
   .price-teaser {
-    --radius: var(--r-xl);
     display: grid;
     gap: clamp(24px, 4vw, 56px);
     padding: clamp(24px, 4vw, 56px);
     align-items: center;
+    border-radius: var(--r-xl);
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-soft);
   }
 
   @media (min-width: 960px) {
@@ -1031,8 +1400,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     gap: 4px;
     padding: 5px;
     border-radius: var(--r-pill);
-    background: rgb(255 255 255 / 0.6);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
+    background: var(--tint-lavender);
     margin-bottom: 14px;
   }
 
@@ -1061,16 +1429,11 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     justify-content: space-between;
     gap: 14px;
     padding: 16px 18px;
-    border-radius: 20px;
-    background: rgb(255 255 255 / 0.7);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.07);
+    border-radius: 22px;
   }
 
   .mini-plan--badge {
-    background: #fff;
-    box-shadow:
-      inset 0 0 0 2px rgb(107 63 160 / 0.4),
-      0 12px 26px -16px rgb(91 58 142 / 0.6);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--tone-dot) 55%, transparent);
   }
 
   .mini-plan__name {
@@ -1088,18 +1451,18 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     font-size: 0.72rem;
     font-weight: 650;
     color: #fff;
-    background: var(--grad-accent-on);
+    background: var(--aubergine-800);
   }
 
   .mini-plan__meta {
     font-size: 0.86rem;
-    color: var(--ink-3);
+    color: var(--ink-2);
   }
 
   .mini-plan__price {
     text-align: end;
     font-size: 1.6rem;
-    font-weight: 640;
+    font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1.1;
     white-space: nowrap;
@@ -1108,7 +1471,7 @@ const plans60 = plans.filter((p) => p.minutes === 60);
   .mini-plan__price small {
     font-size: 0.8rem;
     font-weight: 450;
-    color: var(--ink-3);
+    color: var(--ink-2);
     letter-spacing: 0;
   }
 
@@ -1116,11 +1479,11 @@ const plans60 = plans.filter((p) => p.minutes === 60);
     display: block;
     font-size: 0.76rem;
     font-weight: 500;
-    color: var(--ink-3);
+    color: var(--ink-2);
     letter-spacing: 0;
   }
 
-  /* FAQ split */
+  /* ── 9 · FAQ split ────────────────────────────────────────── */
   .faq-split {
     display: grid;
     gap: 28px;
@@ -1137,51 +1500,26 @@ const plans60 = plans.filter((p) => p.minutes === 60);
       top: calc(var(--header-h) + 24px);
     }
   }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .hero__iqra {
-    -webkit-text-stroke: 1.5px rgb(201 160 255 / 0.22);
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0));
+
+  /* ── Dark theme ───────────────────────────────────────────── */
+  :global([data-theme='dark']) .hb-photo__chips .status,
+  :global([data-theme='dark']) .hb-photo__bubble {
+    background: rgb(24 18 36 / 0.82);
+    border-color: rgb(255 255 255 / 0.12);
+    color: #f4effb;
   }
 
-  :global([data-theme='dark']) .hero__frame {
-    box-shadow:
-      0 0 0 10px rgb(20 14 32 / 0.45),
-      0 0 0 11px rgb(255 255 255 / 0.16),
-      var(--shadow-lift);
+  :global([data-theme='dark']) .hb-photo__bubble small {
+    color: #d9d0ea;
   }
 
-  :global([data-theme='dark']) .hero__verified {
-    background: rgb(255 255 255 / 0.14);
-    box-shadow: 0 8px 18px -10px rgb(0 0 0 / 0.8);
+  :global([data-theme='dark']) .seg-tabs button[aria-selected='true'] {
+    color: var(--aubergine-900);
+    background: #efe7fb;
   }
 
-  :global([data-theme='dark']) .bento__price {
-    background:
-      radial-gradient(120% 90% at 100% 0%, rgb(109 158 214 / 0.3), transparent 60%),
-      radial-gradient(100% 90% at 0% 100%, rgb(200 123 128 / 0.24), transparent 60%),
-      var(--glass-fill);
-  }
-
-  :global([data-theme='dark']) .timeline-v__num {
-    box-shadow:
-      0 0 0 5px rgb(20 14 32 / 0.55),
-      0 8px 18px -8px rgb(0 0 0 / 0.85);
-  }
-
-  :global([data-theme='dark']) .seg-tabs {
-    background: rgb(255 255 255 / 0.07);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
-  }
-
-  :global([data-theme='dark']) .mini-plan {
-    background: rgb(255 255 255 / 0.08);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
-  }
-
-  :global([data-theme='dark']) .mini-plan--badge {
-    background: #2b2040;
-    box-shadow:
-      inset 0 0 0 2px rgb(185 140 232 / 0.55),
-      0 12px 26px -16px rgb(0 0 0 / 0.85);
+  :global([data-theme='dark']) .mini-plan__badge {
+    color: var(--aubergine-900);
+    background: #efe7fb;
   }
 </style>

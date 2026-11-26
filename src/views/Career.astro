@@ -7,14 +7,13 @@ import Steps from '@/components/Steps.astro';
 import Icon from '@/components/Icon.astro';
 import art from '@/assets/art/track-arabic.jpg';
 import { SITE, waLink } from '@/data/site';
-import type { Lang } from '@/i18n';
+import { num, type Lang } from '@/i18n';
 import { copy } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const COPY = copy(lang).career;
 const C = COPY.C;
 const fields: { id: string; label: string; type?: string; options?: string[] }[] = [
@@ -29,6 +28,8 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
   { id: 'spec', label: C.f.spec, options: C.specs },
   { id: 'eng', label: C.f.eng, options: C.engs },
 ];
+const TONES = ['lavender', 'sky', 'mauve', 'rose', 'mist'];
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -51,14 +52,44 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
 
   <section class="section" aria-labelledby="req-title">
     <div class="container">
-      <h2 id="req-title" class="block-title" data-reveal>{C.reqTitle}</h2>
-      <FeatureGrid items={C.reqs} cols={3} />
-      <div class="glass roles" data-reveal>
-        <p class="roles__title">{C.rolesTitle}</p>
-        <ul role="list">
-          {C.roles.map(([r, d]) => <li><strong>{r}</strong><span>{d}</span><a class="btn btn--sm btn--glass" href="#apply">{C.apply}</a></li>)}
+      <!-- Requirements: a wide tinted panel with a checklist of rows -->
+      <div class="req tone tone--dawn" data-reveal>
+        <div class="req__head">
+          <h2 id="req-title" class="block-title">{C.reqTitle}</h2>
+        </div>
+        <ul role="list" class="req__list">
+          {
+            C.reqs.map((r) => (
+              <li class="req__row">
+                <span class="req__icon" aria-hidden="true"><Icon name={r.icon} weight="duotone" /></span>
+                <span class="req__copy">
+                  <strong>{r.title}</strong>
+                  <span set:html={r.text} />
+                </span>
+              </li>
+            ))
+          }
         </ul>
       </div>
+
+      <!-- Open roles: pastel cards with a status pill and an underlined "Apply" link -->
+      <ul role="list" class="roles">
+        {
+          C.roles.map(([r, d], i) => (
+            <li class:list={['role', 'tone', `tone--${TONES[i % TONES.length]}`, { 'role--wide': i === 0 }]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="role__shape role__shape--a" aria-hidden="true"></span>
+              <span class="role__shape role__shape--b" aria-hidden="true"></span>
+              <span class="status">{C.roleOpen}</span>
+              <span class="role__num" aria-hidden="true">{pad(i + 1)}</span>
+              <h3>{r}</h3>
+              <p>{d}</p>
+              <a class="link-arrow role__apply" href="#apply">
+                {C.apply} <Icon name="arrow-right" weight="bold" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -73,26 +104,41 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
   </section>
 
   <section class="section" id="apply" aria-labelledby="apply-title">
-    <div class="container--narrow">
-      <div class="c-head" data-reveal>
+    <div class="container ap">
+      <div class="ap__intro tone tone--deep tone--grad-plum" data-reveal>
+        <span class="eyebrow">{C.eyebrow}</span>
         <h2 id="apply-title">{C.formTitle}</h2>
         <p class="lead">{C.formLede}</p>
+        <ol role="list" class="ap__steps">
+          {
+            C.process.map((s, i) => (
+              <li>
+                <span class="ap__step-num">{pad(i + 1)}</span>
+                <span>{s.title}</span>
+              </li>
+            ))
+          }
+        </ol>
       </div>
-      <form class="glass glass--strong apply" novalidate data-apply data-endpoint={SITE.leadEndpoint} data-email={SITE.email} data-wa={SITE.whatsapp.number} data-subject={C.subject} data-head={C.head} data-attach={C.attachNote}>
+
+      <form class="apply" novalidate data-apply data-endpoint={SITE.leadEndpoint} data-email={SITE.email} data-wa={SITE.whatsapp.number} data-subject={C.subject} data-head={C.head} data-attach={C.attachNote}>
         <div class="apply__grid">
           {
             fields.map((f) => (
               <div class="field">
                 <label for={`ap-${f.id}`}>
-                  {f.label} <span class="req" aria-hidden="true">*</span>
+                  {f.label} <span class="req-mark" aria-hidden="true">*</span>
                 </label>
                 {f.options ? (
-                  <select class="select" id={`ap-${f.id}`} name={f.label} required>
-                    <option value="">{C.f.select}</option>
-                    {f.options.map((o) => (
-                      <option>{o}</option>
-                    ))}
-                  </select>
+                  <span class="apply__select">
+                    <select class="select" id={`ap-${f.id}`} name={f.label} required>
+                      <option value="">{C.f.select}</option>
+                      {f.options.map((o) => (
+                        <option>{o}</option>
+                      ))}
+                    </select>
+                    <Icon name="caret-down" weight="bold" class="apply__caret" />
+                  </span>
                 ) : (
                   <input class="input" id={`ap-${f.id}`} name={f.label} type={f.type ?? 'text'} required dir={f.type === 'email' || f.type === 'tel' ? 'ltr' : undefined} />
                 )}
@@ -106,9 +152,18 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
           <textarea class="textarea" id="ap-msg" name={C.f.msg}></textarea>
         </div>
         <p class="apply__note"><Icon name="paperclip" weight="bold" /> {C.attach}</p>
-        <div class="cluster">
-          <button class="btn btn--lg btn--primary" type="submit" value="email"><Icon name="envelope-simple" /> {C.byEmail}</button>
-          <button class="btn btn--lg btn--glass" type="submit" value="whatsapp"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /> {C.byWa}</button>
+        <!-- Two ways to send, as choice cards with an arrow button -->
+        <div class="apply__send">
+          <button class="send-card" type="submit" value="email">
+            <span class="send-card__icon"><Icon name="envelope-simple" /></span>
+            <span class="send-card__label">{C.byEmail}</span>
+            <span class="arrow-btn arrow-btn--dark" style="--arrow-size:42px"><Icon name="arrow-up-right" weight="bold" /></span>
+          </button>
+          <button class="send-card send-card--wa" type="submit" value="whatsapp">
+            <span class="send-card__icon"><Icon name="whatsapp-logo" weight="fill" class="icon-wa" /></span>
+            <span class="send-card__label">{C.byWa}</span>
+            <span class="arrow-btn" style="--arrow-size:42px"><Icon name="arrow-up-right" weight="bold" /></span>
+          </button>
         </div>
       </form>
     </div>
@@ -186,92 +241,347 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
   }
 
   .block-title {
-    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
-    margin-bottom: clamp(20px, 3vw, 32px);
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3rem);
+    line-height: 1.08;
+    margin-bottom: clamp(22px, 3vw, 36px);
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .block-title {
+    line-height: 1.4;
   }
 
   .c-head {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 24px;
+    max-width: 760px;
+    margin-bottom: clamp(22px, 3vw, 36px);
   }
 
   .c-head h2 {
-    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3rem);
+    line-height: 1.08;
+    overflow-wrap: anywhere;
   }
 
-  .roles {
-    --radius: 28px;
-    margin-top: 20px;
-    padding: clamp(20px, 3vw, 32px);
+  :global([dir='rtl']) .c-head h2 {
+    line-height: 1.4;
   }
 
-  .roles__title {
-    font-size: 0.8rem;
-    font-weight: 650;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-    margin-bottom: 10px;
+  /* ── Requirements panel ──────────────────────────────────── */
+  .req {
+    display: grid;
+    gap: clamp(20px, 3vw, 40px);
+    padding: clamp(24px, 4vw, 52px);
+    border-radius: var(--sheet-radius);
   }
 
-  :global([dir='rtl']) .roles__title {
-    letter-spacing: 0;
+  @media (min-width: 960px) {
+    .req {
+      grid-template-columns: 0.8fr 1.2fr;
+      align-items: start;
+    }
+  }
+
+  .req__head .block-title {
+    margin-bottom: 0;
+  }
+
+  .req__list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .req__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: var(--card);
+    min-width: 0;
+  }
+
+  .req__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: var(--brand-plum);
+    background: var(--tint-lavender);
+  }
+
+  .req__icon :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+
+  :global([data-theme='dark']) .req__icon {
+    color: #dcc4f2;
+  }
+
+  .req__copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .req__copy strong {
+    font-weight: 620;
+  }
+
+  .req__copy > span {
+    color: var(--ink-2);
     font-size: 0.95rem;
   }
 
-  .roles li {
+  /* ── Open roles ──────────────────────────────────────────── */
+  .roles {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2px 16px;
+    gap: 14px;
+    margin-top: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  }
+
+  @media (min-width: 1000px) {
+    .roles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .role--wide {
+      grid-column: span 2;
+    }
+  }
+
+  .role {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 270px;
+    padding: clamp(22px, 3vw, 32px);
+    border-radius: 30px;
+    min-width: 0;
+  }
+
+  .role .status {
+    white-space: normal;
+  }
+
+  .role__num {
+    position: absolute;
+    inset-block-start: clamp(20px, 3vw, 30px);
+    inset-inline-end: clamp(22px, 3vw, 32px);
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.8rem);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--tone-dot);
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global([dir='rtl']) .role__num {
+    letter-spacing: 0;
+  }
+
+  .role h3 {
+    margin-top: auto;
+    font-size: clamp(1.4rem, 1.15rem + 0.9vw, 1.9rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .role h3 {
+    letter-spacing: 0;
+  }
+
+  .role p {
+    color: var(--ink-2);
+    max-width: 40ch;
+  }
+
+  .role__apply {
+    margin-top: 8px;
+    font-size: 0.95rem;
+  }
+
+  .role__shape {
+    position: absolute;
+    z-index: -1;
+    border-radius: 999px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--tone-dot) 50%, transparent), transparent 78%);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .role__shape--a {
+    width: 140px;
+    height: 230px;
+    inset-block-start: -70px;
+    inset-inline-end: 12%;
+    rotate: -30deg;
+  }
+
+  .role__shape--b {
+    width: 120px;
+    height: 120px;
+    inset-block-end: -50px;
+    inset-inline-end: -30px;
+  }
+
+  /* ── Application ─────────────────────────────────────────── */
+  .ap {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 1000px) {
+    .ap {
+      grid-template-columns: 0.75fr 1.25fr;
+      align-items: start;
+    }
+
+    .ap__intro {
+      position: sticky;
+      top: calc(var(--header-h, 72px) + 24px);
+    }
+  }
+
+  .ap__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: clamp(24px, 3.5vw, 40px);
+    border-radius: 32px;
+  }
+
+  .ap__intro h2 {
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 2.8rem);
+    line-height: 1.08;
+    color: #fff;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .ap__intro h2 {
+    line-height: 1.4;
+  }
+
+  .ap__intro .lead {
+    color: var(--ink-2);
+  }
+
+  .ap__steps {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .ap__steps li {
+    display: flex;
     align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line);
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-weight: 560;
+    background: rgb(255 255 255 / 0.08);
+    border: 1px solid rgb(255 255 255 / 0.14);
   }
 
-  .roles li:last-child {
-    border-bottom: 0;
-  }
-
-  .roles li span {
-    grid-column: 1;
-    color: var(--ink-3);
-    font-size: 0.92rem;
-  }
-
-  .roles li .btn {
-    grid-row: 1 / span 2;
-    grid-column: 2;
+  .ap__step-num {
+    flex: none;
+    font-size: 1.3rem;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
   }
 
   .apply {
-    --radius: var(--r-xl);
     display: grid;
     gap: 18px;
-    padding: clamp(22px, 3.5vw, 40px);
+    padding: clamp(20px, 3.5vw, 40px);
+    border-radius: 32px;
+    background: var(--tint-mist);
+    min-width: 0;
   }
 
   .apply__grid {
     display: grid;
-    gap: 14px;
+    gap: 16px;
   }
 
   @media (min-width: 640px) {
     .apply__grid {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+
+  .apply :global(.field) {
+    min-width: 0;
+  }
+
+  .apply :is(.input, .select, .textarea) {
+    min-height: 56px;
+    padding-inline: 20px;
+    border-radius: 999px;
+    border-color: var(--line-strong);
+    background: var(--card);
+  }
+
+  .apply .textarea {
+    padding: 16px 20px;
+    border-radius: 24px;
+  }
+
+  .apply :is(.input, .select, .textarea):focus-visible {
+    border-color: var(--brand-plum);
+    box-shadow: 0 0 0 4px rgb(84 44 108 / 0.14);
+  }
+
+  .apply .field[data-invalid] :is(.input, .select, .textarea) {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 4px rgb(179 38 30 / 0.1);
+  }
+
+  .apply .select {
+    padding-inline-end: 48px;
+  }
+
+  .apply__select {
+    position: relative;
+    display: block;
+  }
+
+  .apply__select :global(.apply__caret) {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 20px;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    color: var(--ink-2);
+    pointer-events: none;
   }
 
   .apply__note {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: flex-start;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     color: var(--ink-2);
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: rgb(255 255 255 / 0.6);
+    padding: 14px 18px;
+    border-radius: 20px;
+    background: var(--tint-lavender);
   }
 
   .apply__note :global(svg) {
@@ -279,13 +589,111 @@ const fields: { id: string; label: string; type?: string; options?: string[] }[]
     height: 18px;
     flex: none;
     margin-top: 2px;
+    color: var(--accent-ink);
   }
 
-  .req {
-    color: var(--magenta-600);
+  .req-mark {
+    color: var(--brand-magenta);
   }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .apply__note {
-    background: rgb(255 255 255 / 0.07);
+
+  :global([data-theme='dark']) .req-mark {
+    color: #dcc4f2;
+  }
+
+  /* send choice cards */
+  .apply__send {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  }
+
+  .send-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 12px 12px 14px;
+    border: 0;
+    border-radius: 24px;
+    font: inherit;
+    font-weight: 620;
+    text-align: start;
+    color: #fff;
+    background: var(--brand-ink);
+    cursor: pointer;
+    min-width: 0;
+    transition: background-color 0.25s;
+  }
+
+  .send-card:hover {
+    background: var(--brand-plum);
+  }
+
+  .send-card:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .send-card__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.12);
+  }
+
+  .send-card__icon :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .send-card__label {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .send-card .arrow-btn--dark {
+    color: var(--brand-ink);
+    background: #fff;
+  }
+
+  .send-card--wa {
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+  }
+
+  .send-card--wa:hover {
+    background: var(--tint-sky);
+  }
+
+  .send-card--wa .send-card__icon {
+    background: var(--tint-sky);
+  }
+
+  .send-card--wa .arrow-btn {
+    color: #fff;
+    background: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .send-card:not(.send-card--wa) {
+    color: var(--brand-ink);
+    background: #efe7f8;
+  }
+
+  :global([data-theme='dark']) .send-card:not(.send-card--wa) .send-card__icon {
+    background: rgb(44 28 68 / 0.1);
+  }
+
+  :global([data-theme='dark']) .send-card:not(.send-card--wa) .arrow-btn--dark {
+    color: #fff;
+    background: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .send-card--wa .arrow-btn {
+    color: var(--brand-ink);
+    background: #efe7f8;
   }
 </style>

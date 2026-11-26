@@ -29,6 +29,8 @@ export default {
       { icon: 'heart', title: 'L’amour de l’enseignement', text: 'Une vraie joie d’enseigner — surtout aux débutants et aux enfants.' },
     ],
     rolesTitle: 'Postes ouverts',
+    /** status pill on each open role card */
+    roleOpen: 'Ouvert',
     roles: [
       ['Spécialiste du tajwid', 'Les 3 niveaux · ijaza requise'],
       ['Enseignant(e) de hifz', 'Hafiz du Coran entier · ijaza requise'],

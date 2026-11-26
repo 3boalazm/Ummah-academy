@@ -3,24 +3,28 @@ import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHero from '@/components/PageHero.astro';
 import TeacherCard from '@/components/TeacherCard.astro';
-import Steps from '@/components/Steps.astro';
 import SanadChain from '@/components/SanadChain.astro';
 import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import art from '@/assets/art/track-islamic.jpg';
 import { getTeachers } from '@/data/people';
-import { lp, type Lang } from '@/i18n';
+import { lp, num, type Lang } from '@/i18n';
 import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const t = ui(lang);
 const teachers = getTeachers(lang);
 const COPY = copy(lang).teachers;
 const C = COPY.C;
+
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
+const STEP_TONES = ['lavender', 'sky', 'mauve', 'rose'];
+const PRINCIPLE_TONES = ['lavender', 'sky', 'mauve'];
+// The quote is Ustadha Omneya's: her initials sit beside the attribution.
+const quoteTeacher = teachers.find((tt) => tt.id === 'omneya-ali');
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang}>
@@ -41,64 +45,100 @@ const C = COPY.C;
     </Fragment>
   </PageHero>
 
+  <!-- The Sanad: one deep anchor card -->
   <section class="section section--tight" aria-labelledby="sanad-title">
-    <div class="night-panel theme-night sanad-panel">
-      <div class="stars"></div>
-      <div class="container sanad-panel__inner">
-        <div class="stack" style="--stack:16px" data-reveal>
-          <span class="eyebrow" style="align-self:flex-start">{C.sanadKicker}</span>
+    <div class="container">
+      <article class="sanad-card theme-night" data-reveal>
+        <div class="sanad-card__copy">
+          <span class="status">{C.sanadKicker}</span>
           <h2 id="sanad-title">{C.sanadTitle}</h2>
           <p class="lead">{C.sanadText}</p>
-          <p class="sanad-panel__note"><Icon name="seal-check" weight="fill" /> {C.sanadNote}</p>
+          <p class="sanad-card__note"><Icon name="seal-check" weight="fill" /> {C.sanadNote}</p>
         </div>
-        <div class="glass sanad-panel__chain" data-reveal style="--reveal-delay:.1s">
+        <div class="sanad-card__chain">
           <SanadChain dark lang={lang} />
         </div>
-      </div>
+      </article>
     </div>
   </section>
 
+  <!-- Faculty: profile cards -->
   <section class="section" id="faculty" aria-labelledby="leads-title">
     <div class="container">
-      <div class="t-head" data-reveal>
-        <h2 id="leads-title">{C.leadsTitle}</h2>
-        <p class="lead">{C.leadsLede}</p>
+      <div class="t-head t-head--row" data-reveal>
+        <div class="t-head__copy">
+          <h2 id="leads-title">{C.leadsTitle}</h2>
+          <p class="lead">{C.leadsLede}</p>
+        </div>
+        <span class="avatars t-head__avatars" style="--av:48px" aria-hidden="true">{teachers.map((tt) => <span>{tt.initials}</span>)}</span>
       </div>
-      <div class="stack" style="--stack: 20px">
+      <div class="faculty">
         {teachers.map((tt, i) => <TeacherCard teacher={tt} lang={lang} delay={i * 0.05} />)}
       </div>
     </div>
   </section>
 
+  <!-- Vetting: numbered cards on a dotted path -->
   <section class="section" id="process" aria-labelledby="process-title">
     <div class="container">
       <div class="t-head" data-reveal>
         <h2 id="process-title">{C.processTitle}</h2>
         <p class="lead">{C.processLede}</p>
       </div>
-      <Steps items={C.process} />
-      <p class="result" data-reveal>{C.result}</p>
-    </div>
-  </section>
-
-  <section class="section section--tight" aria-labelledby="principles-title">
-    <div class="container">
-      <figure class="quote" data-reveal>
-        <blockquote>{C.quote}</blockquote>
-        <figcaption>{C.quoteBy}</figcaption>
-      </figure>
-      <h2 id="principles-title" class="sr-only">{C.principlesTitle}</h2>
-      <ol role="list" class="grid grid-3 principles">
+      <ol role="list" class="vet">
         {
-          C.principles.map(([h, p], i) => (
-            <li class="principle" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-              <span class="principle__num">{ar ? ['١', '٢', '٣'][i] : `0${i + 1}`}</span>
-              <h3>{h}</h3>
-              <p>{p}</p>
+          C.process.map((s, i) => (
+            <li class:list={['num-card', 'tone', `tone--${STEP_TONES[i % STEP_TONES.length]}`]} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+              <span class="vet__dot" aria-hidden="true"></span>
+              <span class="num-card__num">{pad(i + 1)}.</span>
+              {s.icon && (
+                <span class="icon-badge vet__icon">
+                  <Icon name={s.icon} />
+                </span>
+              )}
+              <h3>{s.title}</h3>
+              <p set:html={s.text} />
             </li>
           ))
         }
       </ol>
+      <div class="vet-result tone tone--dusk" data-reveal>
+        <span class="stat-tile__num vet-result__num" aria-hidden="true">{pad(C.process.length)}</span>
+        <p class="result">{C.result}</p>
+        <a class="arrow-btn arrow-btn--dark vet-result__arrow" href={lp(lang, '/contact/') + '#book'} aria-label={t.book2}><Icon name="arrow-up-right" weight="bold" /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How we teach: a bento of the quote and the three principles -->
+  <section class="section section--tight" aria-labelledby="principles-title">
+    <div class="container">
+      <div class="t-head" data-reveal>
+        <h2 id="principles-title">{C.principlesTitle}</h2>
+      </div>
+      <div class="qb">
+        <figure class="quote tone tone--deep tone--grad-plum" data-reveal>
+          <span class="quote__mark" aria-hidden="true">“</span>
+          <blockquote>{C.quote}</blockquote>
+          <figcaption>
+            {quoteTeacher && <span class="avatars" style="--av:44px" aria-hidden="true"><span>{quoteTeacher.initials}</span></span>}
+            <span>{C.quoteBy}</span>
+          </figcaption>
+        </figure>
+        <ol role="list" class="principles">
+          {
+            C.principles.map(([h, p], i) => (
+              <li class:list={['principle', 'stat-tile', 'tone', `tone--${PRINCIPLE_TONES[i % PRINCIPLE_TONES.length]}`]} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+                <span class="principle__num">{pad(i + 1)}.</span>
+                <span class="principle__body">
+                  <h3>{h}</h3>
+                  <p>{p}</p>
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -106,6 +146,7 @@ const C = COPY.C;
 </BaseLayout>
 
 <style>
+  /* ── Hero visual (unchanged) ─────────────────────────────── */
   .t-visual {
     position: relative;
     width: min(100%, 420px);
@@ -160,46 +201,7 @@ const C = COPY.C;
     animation-delay: -3s;
   }
 
-  .sanad-panel {
-    position: relative;
-    padding-block: clamp(56px, 8vw, 104px);
-  }
-
-  .sanad-panel__inner {
-    display: grid;
-    gap: 32px;
-    align-items: center;
-  }
-
-  @media (min-width: 960px) {
-    .sanad-panel__inner {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .sanad-panel h2 {
-    font-size: var(--fs-h2);
-  }
-
-  .sanad-panel__note {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    color: var(--ink-2);
-    font-weight: 560;
-  }
-
-  .sanad-panel__note :global(svg) {
-    width: 20px;
-    height: 20px;
-    color: #e3c8ff;
-  }
-
-  .sanad-panel__chain {
-    --radius: 30px;
-    padding: clamp(28px, 4vw, 44px) clamp(16px, 3vw, 28px);
-  }
-
+  /* ── Section heads ───────────────────────────────────────── */
   .t-head {
     display: flex;
     flex-direction: column;
@@ -209,69 +211,319 @@ const C = COPY.C;
   }
 
   .t-head h2 {
-    font-size: clamp(1.8rem, 1.3rem + 1.8vw, 2.8rem);
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3.2rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .t-head h2 {
+    line-height: 1.4;
+  }
+
+  .t-head--row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px 32px;
+    max-width: none;
+  }
+
+  .t-head__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 760px;
+    min-width: 0;
+  }
+
+  /* ── The Sanad: deep anchor card ─────────────────────────── */
+  .sanad-card {
+    display: grid;
+    gap: clamp(28px, 4vw, 48px);
+    align-items: center;
+    padding: clamp(26px, 4.5vw, 64px);
+    border-radius: 34px;
+  }
+
+  @media (min-width: 960px) {
+    .sanad-card {
+      grid-template-columns: 1fr 1.05fr;
+    }
+  }
+
+  .sanad-card__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .sanad-card h2 {
+    font-size: clamp(1.9rem, 1.3rem + 2.2vw, 3.1rem);
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .sanad-card h2 {
+    line-height: 1.4;
+  }
+
+  .sanad-card__note {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--ink-2);
+    font-weight: 560;
+  }
+
+  .sanad-card__note :global(svg) {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    color: var(--brand-mauve);
+  }
+
+  .sanad-card__chain {
+    min-width: 0;
+    padding: clamp(26px, 3.6vw, 40px) clamp(16px, 2.6vw, 28px);
+    border-radius: 26px;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  /* ── Faculty ─────────────────────────────────────────────── */
+  .t-head__avatars {
+    flex: none;
+  }
+
+  .t-head__avatars > span {
+    border-color: var(--sheet);
+  }
+
+  .faculty {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    align-items: stretch;
+  }
+
+  .faculty > :global(*) {
+    min-width: 0;
+  }
+
+  /* ── Vetting: numbered cards on a dotted path ────────────── */
+  .vet {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  }
+
+  .vet .num-card {
+    border: 0;
+    background: var(--tone-bg);
+    box-shadow: none;
+    min-height: 260px;
+    min-width: 0;
+  }
+
+  .vet__icon {
+    margin-top: 14px;
+    background: #fff;
+    color: var(--tone-dot);
+  }
+
+  :global([data-theme='dark']) .vet__icon {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .vet h3 {
+    font-size: 1.15rem;
+    overflow-wrap: anywhere;
+  }
+
+  .vet p {
+    color: var(--ink-2);
+    font-size: 0.97rem;
+  }
+
+  .vet__dot {
+    position: absolute;
+    inset-block-start: 24px;
+    inset-inline-end: 24px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--tone-dot);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--tone-dot) 18%, transparent);
+  }
+
+  /* the dotted path: across the row on wide screens, down the inline-start edge on phones */
+  .vet::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    inset-block: 30px;
+    inset-inline-start: 30px;
+    border-inline-start: 2px dotted color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  .vet .num-card {
+    z-index: 1;
+  }
+
+  @media (min-width: 1000px) {
+    .vet::before {
+      inset-block: 29px auto;
+      inset-inline: 40px;
+      border-inline-start: 0;
+      border-top: 2px dotted color-mix(in srgb, var(--accent) 45%, transparent);
+    }
+  }
+
+  .vet-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 24px;
+    margin-top: 14px;
+    padding: clamp(20px, 3vw, 30px) clamp(22px, 3.4vw, 36px);
+    border-radius: 28px;
+  }
+
+  .vet-result__num {
+    color: var(--brand-plum);
+    font-weight: 300;
+  }
+
+  :global([data-theme='dark']) .vet-result__num {
+    color: var(--accent-ink);
   }
 
   .result {
-    margin-top: 28px;
-    color: var(--ink-2);
+    flex: 1 1 280px;
+    min-width: 0;
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
     font-weight: 540;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+
+  :global([dir='rtl']) .result {
+    line-height: 1.7;
+  }
+
+  .vet-result__arrow {
+    --arrow-size: 54px;
+  }
+
+  /* ── How we teach: quote + principles bento ──────────────── */
+  .qb {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 960px) {
+    .qb {
+      grid-template-columns: 1.15fr 1fr;
+      align-items: stretch;
+    }
   }
 
   .quote {
-    margin: 0 auto clamp(40px, 5vw, 64px);
-    max-width: 860px;
-    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    margin: 0;
+    padding: clamp(26px, 4vw, 52px);
+    border-radius: 32px;
+    min-width: 0;
+  }
+
+  .quote__mark {
+    font-size: clamp(4rem, 3rem + 4vw, 6.5rem);
+    font-weight: 300;
+    line-height: 0.6;
+    color: var(--brand-mauve);
   }
 
   .quote blockquote {
     margin: 0;
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(1.7rem, 1.2rem + 2vw, 2.8rem);
-    line-height: 1.2;
+    font-size: clamp(1.55rem, 1.1rem + 1.8vw, 2.5rem);
+    font-weight: 420;
+    letter-spacing: -0.03em;
+    line-height: 1.22;
+    color: #fff;
+    overflow-wrap: anywhere;
   }
 
   :global([dir='rtl']) .quote blockquote {
     font-family: var(--font-quran);
-    font-style: normal;
-    line-height: 1.6;
+    letter-spacing: 0;
+    line-height: 1.7;
   }
 
   .quote figcaption {
-    margin-top: 18px;
-    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink-2);
+    font-weight: 560;
+  }
+
+  .quote figcaption .avatars > span {
+    border-color: transparent;
   }
 
   .principles {
-    list-style: none;
+    display: grid;
+    gap: 14px;
     padding: 0;
+    margin: 0;
+    list-style: none;
   }
 
   .principle {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-top: 22px;
-    border-top: 1px solid var(--line-strong);
+    min-height: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(16px, 2.4vw, 26px);
+    min-width: 0;
   }
 
   .principle__num {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 1.8rem;
-    color: var(--accent-ink);
-    line-height: 1;
+    flex: none;
+    min-width: 2.1ch;
+    font-size: clamp(2.4rem, 1.9rem + 1.6vw, 3.2rem);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    color: var(--tone-dot);
+    font-variant-numeric: tabular-nums;
   }
 
   :global([dir='rtl']) .principle__num {
-    font-family: var(--font-arabic);
-    font-style: normal;
-    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .principle__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
   }
 
   .principle h3 {
     font-size: 1.2rem;
+    overflow-wrap: anywhere;
   }
 
   .principle p {

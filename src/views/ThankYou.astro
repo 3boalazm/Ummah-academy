@@ -2,40 +2,81 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { SITE, waLink } from '@/data/site';
-import { lp, type Lang } from '@/i18n';
-import { copy } from '@/locales';
+import { lp, num, type Lang } from '@/i18n';
+import { copy, ui } from '@/locales';
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
+const t = ui(lang);
 const COPY = copy(lang).thankYou;
 const C = COPY.C;
+// Reassurance figures, shared with the home page.
+const STATS = copy(lang).home.C.stats;
 const i18n = { titleReceived: C.titleReceived('{name}'), ledeReceived: C.ledeReceived, titlePending: C.titlePending('{name}'), copied: C.copied };
+const STEP_TONES = ['lavender', 'sky', 'rose'];
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
 ---
 
 <BaseLayout title={C.meta} lang={lang} noindex sticky={false}>
-  <section class="section">
-    <div class="container--narrow">
-      <div class="glass glass--strong ty" data-ty>
-        <span class="ty__icon"><Icon name="paper-plane-tilt" weight="duotone" /></span>
-        <h1 data-ty-title>{C.title}</h1>
-        <p class="lead" data-ty-lede>{C.lede}</p>
-        <a class="btn btn--lg btn--primary" href={waLink()} target="_blank" rel="noopener" data-ty-wa>
-          <Icon name="whatsapp-logo" weight="fill" /> {C.send}
-        </a>
-        <details class="ty__preview" data-ty-preview hidden>
-          <summary>{C.preview}</summary>
-          <pre data-ty-msg></pre>
-          <button class="btn btn--sm btn--glass" type="button" data-ty-copy><Icon name="copy" /> {C.copy}</button>
-        </details>
-        <ol role="list" class="ty__steps">
-          {C.steps.map((s, i) => <li><span>{ar ? ['١', '٢', '٣'][i] : i + 1}</span> {s}</li>)}
-        </ol>
-        <p class="muted ty__alt">{C.alt} <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+  <section class="ty-hero">
+    <div class="container">
+      <div class="ty" data-ty>
+        <!-- Copy on the sheet -->
+        <div class="ty__copy" data-reveal>
+          <span class="ty__icon"><Icon name="paper-plane-tilt" weight="duotone" /></span>
+          <h1 data-ty-title>{C.title}</h1>
+          <p class="lead" data-ty-lede>{C.lede}</p>
+          <a class="btn btn--lg btn--primary" href={waLink()} target="_blank" rel="noopener" data-ty-wa>
+            <Icon name="whatsapp-logo" weight="fill" /> {C.send}
+          </a>
+          <details class="ty__preview" data-ty-preview hidden>
+            <summary>{C.preview}</summary>
+            <pre data-ty-msg></pre>
+            <button class="btn btn--sm btn--glass" type="button" data-ty-copy><Icon name="copy" /> {C.copy}</button>
+          </details>
+          <p class="ty__alt">{C.alt} <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+        </div>
+
+        <!-- Numbered next steps on the gradient stage -->
+        <div class="ty__stage" data-reveal style="--reveal-delay:.1s">
+          <ol role="list" class="ty__steps">
+            {
+              C.steps.map((s, i) => (
+                <li class:list={['num-card', 'tone', `tone--${STEP_TONES[i % STEP_TONES.length]}`]}>
+                  <span class="num-card__num">{pad(i + 1)}.</span>
+                  <p>{s}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
       </div>
-      <div class="ty__next">
-        <a class="btn btn--glass" href={lp(lang, '/placement-test/')}><Icon name="compass" /> {C.wait}</a>
+    </div>
+  </section>
+
+  <!-- Reassurance: stat tiles and a deep card pointing to the placement test -->
+  <section class="section section--tight">
+    <div class="container ty-bento">
+      {
+        [STATS[1], STATS[0], STATS[3]].map(([n, l], i) => (
+          <div class:list={['stat-tile', 'tone', ['tone--lavender', 'tone--sky', 'tone--mauve'][i]]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+            <Icon name={['users-three', 'globe-hemisphere-west', 'chart-line-up'][i]} weight="duotone" class="ty-bento__icon" />
+            <span>
+              <span class="stat-tile__num">{n}</span>
+              <span class="stat-tile__label">{l}</span>
+            </span>
+          </div>
+        ))
+      }
+      <div class="ty-bento__deep tone tone--deep tone--grad-plum" data-reveal style="--reveal-delay:.15s">
+        <ul role="list" class="ty-bento__ticks">
+          {t.ctaTicks.map((tick) => <li><Icon name="check-circle" weight="fill" /> {tick}</li>)}
+        </ul>
+        <a class="ty__next" href={lp(lang, '/placement-test/')}>
+          <span class="ty__next-text"><Icon name="compass" /> {C.wait}</span>
+          <span class="arrow-btn" style="--arrow-size:44px" aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
+        </a>
       </div>
     </div>
   </section>
@@ -81,43 +122,72 @@ const i18n = { titleReceived: C.titleReceived('{name}'), ledeReceived: C.ledeRec
 </script>
 
 <style>
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .ty-hero {
+    overflow-x: clip;
+    padding-block: clamp(16px, 3vw, 44px) clamp(12px, 2vw, 24px);
+  }
+
   .ty {
-    --radius: var(--r-xl);
+    display: grid;
+    gap: clamp(28px, 4.5vw, 64px);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .ty {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+
+  .ty__copy {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
     gap: 20px;
-    padding: clamp(28px, 5vw, 60px);
+    min-width: 0;
   }
 
   .ty__icon {
     display: grid;
     place-items: center;
-    width: 76px;
-    height: 76px;
-    border-radius: 24px;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    color: var(--brand-plum);
+    background: var(--grad-dawn);
+  }
+
+  :global([data-theme='dark']) .ty__icon {
     color: var(--accent-ink);
-    background: linear-gradient(150deg, #fff, var(--blush-100));
-    box-shadow: var(--shadow-glass);
   }
 
   .ty__icon :global(svg) {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
 
   .ty h1 {
-    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem);
+    font-size: clamp(2.1rem, 1.3rem + 3vw, 3.8rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) .ty h1 {
+    font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3.2rem);
+    line-height: 1.4;
+  }
+
+  .ty__copy .lead {
+    max-width: 54ch;
   }
 
   .ty__preview {
     width: 100%;
     text-align: start;
-    border-radius: 18px;
-    background: rgb(255 255 255 / 0.6);
-    box-shadow: inset 0 0 0 1px rgb(46 29 70 / 0.08);
-    padding: 12px 16px;
+    border-radius: 20px;
+    background: var(--surface);
+    padding: 14px 18px;
   }
 
   .ty__preview summary {
@@ -126,58 +196,150 @@ const i18n = { titleReceived: C.titleReceived('{name}'), ledeReceived: C.ledeRec
   }
 
   .ty__preview pre {
+    margin-block: 12px;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
     font-family: inherit;
     font-size: 0.92rem;
     color: var(--ink-2);
   }
 
-  .ty__steps {
-    display: grid;
-    gap: 12px;
-    text-align: start;
-    width: 100%;
-    max-width: 520px;
-  }
-
-  .ty__steps li {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
+  .ty__alt {
+    font-size: 0.92rem;
     color: var(--ink-2);
-  }
-
-  .ty__steps span {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 650;
-    background: var(--grad-accent-on);
   }
 
   .ty__alt a {
     color: var(--accent-ink);
+    overflow-wrap: anywhere;
+  }
+
+  /* numbered steps on the stage */
+  .ty__stage {
+    min-width: 0;
+    padding: clamp(14px, 2.2vw, 26px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--grad-dusk);
+  }
+
+  .ty__steps {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ty__steps .num-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+    padding: clamp(16px, 2vw, 22px);
+    border: 0;
+    border-radius: 24px;
+    background: var(--card);
+  }
+
+  .ty__steps .num-card__num {
+    flex: none;
+    min-width: 2.2ch;
+    font-size: clamp(2.2rem, 1.8rem + 1.4vw, 3rem);
+  }
+
+  .ty__steps p {
+    min-width: 0;
+    color: var(--ink-2);
+  }
+
+  /* ── Reassurance bento ────────────────────────────────────── */
+  .ty-bento {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 560px) {
+    .ty-bento {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ty-bento__deep {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .ty-bento {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.5fr);
+    }
+
+    .ty-bento__deep {
+      grid-column: auto;
+    }
+  }
+
+  .ty-bento .stat-tile {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .ty-bento .stat-tile :global(.ty-bento__icon) {
+    width: 32px;
+    height: 32px;
+    color: var(--tone-dot);
+  }
+
+  .ty-bento__deep {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+    padding: clamp(20px, 2.4vw, 28px);
+    border-radius: 26px;
+  }
+
+  .ty-bento__ticks {
+    display: grid;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+
+  .ty-bento__ticks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ty-bento__ticks :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--brand-mauve);
   }
 
   .ty__next {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 24px;
-  }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .ty__icon {
-    background: linear-gradient(150deg, rgb(255 255 255 / 0.18), #33254a);
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px solid rgb(255 255 255 / 0.2);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
   }
 
-  :global([data-theme='dark']) .ty__preview {
-    background: rgb(255 255 255 / 0.07);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  .ty__next-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .ty__next-text :global(svg) {
+    flex: none;
+    width: 20px;
+    height: 20px;
   }
 </style>

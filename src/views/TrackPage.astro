@@ -25,7 +25,6 @@ interface Props {
   lang?: Lang;
 }
 const { page, lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const t = ui(lang);
 const C = getTrackPage(page, lang);
 const tracks = getTracks(lang);
@@ -38,6 +37,20 @@ const plans = getPlans(lang);
 const recPlans = C.plans.map((id) => plans.find((p) => p.id === id)!).filter(Boolean);
 const COPY = copy(lang).trackPage;
 const L = COPY.L;
+
+// Two of the at-a-glance facts ride on the hero photo as chips (decorative repeat of the spec card).
+const heroChips = [C.glance[0], C.glance[2]].filter(Boolean).map(([, v]) => v);
+// Levels: numbered cards with one featured, larger card (the second, as on the reference).
+const levels = C.learn ?? [];
+const featuredLevel = levels.length >= 3 ? 1 : 0;
+const pad = (n: number) => num(lang, String(n).padStart(2, '0'));
+// Course cards (programmes with a course list): the first is featured on the dusk gradient.
+const COURSE_TONES = ['dusk', 'lavender', 'sky', 'mauve'];
+// How lessons work: a bento of gradient / tint cards.
+const METHOD_TONES = ['tone--dusk', 'tone--sky', 'tone--rose', 'tone--lavender'];
+// Plans: the recommended plan is the deep anchor card, the others pastel tiles.
+const PLAN_TONES = ['', 'tone--lavender', 'tone--sky', 'tone--mauve'];
+
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'Course',
@@ -50,62 +63,81 @@ const ld = {
 ---
 
 <BaseLayout title={C.meta.title} description={C.meta.desc} lang={lang} jsonLd={ld}>
+  <!-- Hero: copy on the white sheet; photo + at-a-glance card on a brand-gradient stage -->
   <section class="tp-hero">
     <div class="container tp-hero__grid">
       <div class="tp-hero__copy" data-reveal>
         <Breadcrumbs lang={lang} items={[{ label: t.nav.courses, href: lp(lang, '/courses/') }, { label: C.crumb }]} />
         <span class="eyebrow">{C.eyebrow}</span>
         <h1 set:html={C.title} />
-        <p class="lead">{C.lede}</p>
-        <div class="cluster">
+        <p class="lead tp-hero__lede">{C.lede}</p>
+        <div class="cluster tp-hero__actions">
           <a class="btn btn--lg btn--primary" href={trialLink({ course: C.trial }, lang)} data-track="track-hero">{t.book2} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
           <a class="btn btn--lg btn--glass" href={`${lp(lang, '/placement-test/')}?track=${C.testTrack}`} data-track="track-hero"><Icon name="compass" /> {t.findLevel}</a>
         </div>
       </div>
-      <aside class="glass glass--strong glance" data-reveal style="--reveal-delay:.1s" aria-label={L.glance}>
-        <div class="glance__art">
-          <Image src={art} alt="" widths={[420, 640]} sizes="(min-width: 960px) 420px, 92vw" loading="eager" />
+      <div class="tp-hero__visual" data-reveal style="--reveal-delay:.1s">
+        <div class="tp-hero__stage">
+          <div class="tp-hero__photo">
+            <Image src={art} alt="" widths={[420, 640, 900]} sizes="(min-width: 960px) 520px, 92vw" loading="eager" />
+            <ul role="list" class="tp-hero__chips" aria-hidden="true">
+              {heroChips.map((v) => <li class="status">{v}</li>)}
+            </ul>
+          </div>
+          <aside class="glance" aria-label={L.glance}>
+            <p class="glance__kicker">{L.glance}</p>
+            <dl class="glance__list">
+              {
+                C.glance.map(([k, v]) => (
+                  <div>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+            <div class="glance__price">
+              <span>{L.from}</span>
+              <strong><Money usd={C.from} lang={lang} /></strong>
+              <span>{t.perMonth}</span>
+            </div>
+          </aside>
         </div>
-        <p class="glance__kicker">{L.glance}</p>
-        <dl class="glance__list">
-          {
-            C.glance.map(([k, v]) => (
-              <div>
-                <dt>{k}</dt>
-                <dd>{v}</dd>
-              </div>
-            ))
-          }
-        </dl>
-        <div class="glance__price">
-          <span>{L.from}</span>
-          <strong><Money usd={C.from} lang={lang} /></strong>
-          <span>{t.perMonth}</span>
-        </div>
-      </aside>
+      </div>
     </div>
   </section>
 
+  <!-- Levels / courses: numbered cards with a featured card -->
   <section class="section" aria-labelledby="learn-title">
     <div class="container">
-      <div class="tp-head" data-reveal>
+      <div class="tp-head tp-head--split" data-reveal>
         <h2 id="learn-title">{C.learnTitle}</h2>
         <p class="lead">{C.learnLede}</p>
       </div>
       {
         courses.length > 0 ? (
-          <div class:list={['grid', courses.length === 4 ? 'grid-4' : 'grid-3']}>
+          <div class:list={['tp-courses', `tp-courses--${courses.length}`]}>
             {courses.map((c, i) => (
-              <CourseCard course={c} lang={lang} delay={i * 0.05} showLink={false} />
+              <CourseCard course={c} lang={lang} delay={i * 0.05} showLink={false} tone={COURSE_TONES[i % COURSE_TONES.length]} featured={i === 0} />
             ))}
           </div>
         ) : (
-          <ol role="list" class="stages">
-            {C.learn?.map((s, i) => (
-              <li class="glass stage" data-reveal style={`--reveal-delay:${i * 0.06}s`}>
-                <span class="stage__num">{num(lang, String(i + 1).padStart(2, '0'))}</span>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
+          <ol role="list" class:list={['levels', `levels--${levels.length}`]}>
+            {levels.map((s, i) => (
+              <li class:list={['num-card', 'level', i === featuredLevel ? 'level--featured' : 'tone tone--mist']} data-reveal style={`--reveal-delay:${i * 0.06}s`}>
+                {i === featuredLevel ? (
+                  <span class="level__visual">
+                    <span class="level__shape level__shape--a" aria-hidden="true" />
+                    <span class="level__shape level__shape--b" aria-hidden="true" />
+                    <span class="num-card__num">{pad(i + 1)}.</span>
+                  </span>
+                ) : (
+                  <span class="num-card__num">{pad(i + 1)}.</span>
+                )}
+                <div class="level__body">
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                </div>
               </li>
             ))}
           </ol>
@@ -114,18 +146,21 @@ const ld = {
     </div>
   </section>
 
+  <!-- How lessons work: bento of gradient / tint cards -->
   <section class="section section--tight" aria-labelledby="method-title">
     <div class="container">
       <h2 id="method-title" class="tp-h2" data-reveal>{C.methodTitle}</h2>
-      <div class="grid grid-3">
+      <div class="mb">
         {
           C.method.map((m, i) => (
-            <article class="card glass" data-reveal style={`--reveal-delay:${i * 0.05}s`}>
-              <span class="icon-badge">
-                <Icon name={m.icon} />
+            <article class:list={['mb__card', 'tone', METHOD_TONES[i % METHOD_TONES.length], { 'mb__card--lead': i === 0 }]} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+              <span class="mb__icon">
+                <Icon name={m.icon} weight="duotone" />
               </span>
-              <h3>{m.title}</h3>
-              <p>{m.text}</p>
+              <div class="mb__copy">
+                <h3>{m.title}</h3>
+                <p>{m.text}</p>
+              </div>
             </article>
           ))
         }
@@ -147,7 +182,7 @@ const ld = {
           )}
           <div class="tp-people__side">
             {C.sanad && (
-              <div class="glass sanad-box" data-reveal>
+              <div class="tone tone--lavender sanad-box" data-reveal>
                 <p class="sanad-box__note">
                   <Icon name="seal-check" weight="fill" /> {L.sanadNote}
                 </p>
@@ -165,6 +200,7 @@ const ld = {
     )
   }
 
+  <!-- Recommended plans: a deep featured tile and pastel tiles with stat-style prices -->
   <section class="section section--tight" aria-labelledby="plans-title">
     <div class="container">
       <div class="tp-head tp-head--row" data-reveal>
@@ -172,17 +208,24 @@ const ld = {
           <h2 id="plans-title">{L.plansTitle}</h2>
           <p class="lead">{C.plansNote}</p>
         </div>
-        <a class="btn btn--glass" href={lp(lang, '/pricing/')}>{L.allPlans} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
+        <a class="link-arrow" href={lp(lang, '/pricing/')}>{L.allPlans} <Icon name="arrow-right" weight="bold" /></a>
       </div>
-      <div class="grid grid-3">
+      <div class="rplans">
         {
           recPlans.map((p, i) => (
-            <a class:list={['glass', 'glass--interactive', 'rplan', { 'rplan--top': i === 0 }]} href={trialLink({ course: C.trial, plan: p.canonical }, lang)} data-reveal style={`--reveal-delay:${i * 0.05}s`}>
+            <a
+              class:list={['rplan', 'tone', i === 0 ? 'tone--deep tone--grad-plum' : PLAN_TONES[i % PLAN_TONES.length] || 'tone--lavender', { 'rplan--top': i === 0 }]}
+              href={trialLink({ course: C.trial, plan: p.canonical }, lang)}
+              data-reveal
+              style={`--reveal-delay:${i * 0.05}s`}
+            >
               <span class="rplan__name">
-                {p.name} {p.badge && <span class="rplan__badge">{p.badge}</span>}
+                {p.name} {p.badge && <span class="status rplan__badge">{p.badge}</span>}
               </span>
               <span class="rplan__price">
-                <Money usd={p.price} lang={lang} />
+                <span class="rplan__num">
+                  <Money usd={p.price} lang={lang} />
+                </span>
                 <small>{t.perMonth}</small>
               </span>
               <span class="rplan__meta">
@@ -192,7 +235,10 @@ const ld = {
                 {t.approx}<Money usd={perSession(p)} lang={lang} /> {L.perSession}
               </span>
               <span class="rplan__go">
-                {L.choose} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                <span class="rplan__choose">{L.choose}</span>
+                <span class:list={['arrow-btn', { 'arrow-btn--dark': i !== 0 }]} aria-hidden="true">
+                  <Icon name="arrow-up-right" weight="bold" />
+                </span>
               </span>
             </a>
           ))
@@ -203,7 +249,7 @@ const ld = {
 
   <section class="section" aria-labelledby="tfaq-title">
     <div class="container tp-faq">
-      <h2 id="tfaq-title" class="tp-h2" data-reveal>{L.faq}</h2>
+      <h2 id="tfaq-title" class="tp-h2 tp-faq__title" data-reveal>{L.faq}</h2>
       <Faq items={C.faq} />
     </div>
   </section>
@@ -214,19 +260,22 @@ const ld = {
 </BaseLayout>
 
 <style>
+  /* ── Hero ─────────────────────────────────────────────── */
   .tp-hero {
-    padding-block: clamp(28px, 4vw, 64px) clamp(24px, 3vw, 40px);
+    overflow-x: clip;
+    padding-block: clamp(4px, 1vw, 12px) clamp(28px, 4vw, 56px);
   }
 
   .tp-hero__grid {
     display: grid;
-    gap: clamp(28px, 4vw, 64px);
+    gap: clamp(32px, 5vw, 72px);
     align-items: center;
+    padding-block: clamp(12px, 3vw, 40px);
   }
 
   @media (min-width: 960px) {
     .tp-hero__grid {
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1.1fr 0.9fr;
     }
   }
 
@@ -235,91 +284,160 @@ const ld = {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
+    min-width: 0;
+    max-width: 780px;
   }
 
   .tp-hero__copy h1 {
-    font-size: clamp(2.3rem, 1.4rem + 3.4vw, 4.2rem);
+    font-size: clamp(2.4rem, 1.4rem + 3.8vw, 4.6rem);
+    line-height: 1.04;
+    overflow-wrap: anywhere;
   }
 
   :global([dir='rtl']) .tp-hero__copy h1 {
-    font-size: clamp(2rem, 1.3rem + 2.8vw, 3.5rem);
+    font-size: clamp(2.1rem, 1.3rem + 3vw, 3.8rem);
+    line-height: 1.35;
   }
 
-  .glance {
-    --radius: var(--r-xl);
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 10px 10px 22px;
+  .tp-hero__lede {
+    max-width: 62ch;
   }
 
-  .glance__art {
-    aspect-ratio: 16 / 9;
-    border-radius: 30px;
+  .tp-hero__actions {
+    margin-top: 6px;
+  }
+
+  .tp-hero__visual {
+    min-width: 0;
+  }
+
+  .tp-hero__stage {
+    position: relative;
+    padding: clamp(14px, 2.2vw, 26px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--grad-dusk);
+  }
+
+  .tp-hero__photo {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: clamp(22px, 2.4vw, 30px);
     overflow: hidden;
   }
 
-  .glance__art :global(img) {
+  .tp-hero__photo :global(img) {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .glance__kicker {
-    padding-inline: 14px;
-    font-size: 0.78rem;
-    font-weight: 650;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
+  .tp-hero__chips {
+    position: absolute;
+    inset: 14px 14px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  :global([dir='rtl']) .glance__kicker {
-    letter-spacing: 0;
-    font-size: 0.9rem;
+  .tp-hero__chips .status {
+    max-width: 100%;
+    white-space: normal;
+    font-size: 0.78rem;
+    color: var(--brand-ink);
+    background: rgb(255 255 255 / 0.88);
+    border-color: rgb(255 255 255 / 0.9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  /* the at-a-glance spec card: white, lifted over the photo */
+  .glance {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: clamp(-64px, -6vw, -36px) clamp(8px, 1.4vw, 16px) 0;
+    padding: clamp(18px, 2.2vw, 24px);
+    border-radius: 24px;
+    color: var(--ink);
+    background: var(--card);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .glance__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .glance__kicker::before {
+    content: '';
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: var(--brand-magenta);
+  }
+
+  :global([data-theme='dark']) .glance__kicker::before {
+    background: var(--brand-mauve);
   }
 
   .glance__list {
     display: grid;
     margin: 0;
-    padding-inline: 14px;
   }
 
   .glance__list div {
     display: flex;
     justify-content: space-between;
     gap: 16px;
-    padding: 10px 0;
+    padding: 9px 0;
     border-bottom: 1px solid var(--line);
-    font-size: 0.94rem;
+    font-size: 0.93rem;
   }
 
   .glance__list dt {
+    flex: none;
     color: var(--ink-3);
   }
 
   .glance__list dd {
+    min-width: 0;
     margin: 0;
     font-weight: 560;
     text-align: end;
+    overflow-wrap: anywhere;
   }
 
   .glance__price {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 6px;
-    padding-inline: 14px;
     color: var(--ink-3);
     font-size: 0.9rem;
   }
 
   .glance__price strong {
-    font-size: 2.2rem;
-    font-weight: 640;
-    letter-spacing: -0.04em;
+    font-size: clamp(2rem, 1.6rem + 1.2vw, 2.6rem);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 1;
     color: var(--ink);
   }
 
+  :global([dir='rtl']) .glance__price strong {
+    letter-spacing: 0;
+  }
+
+  /* ── Section heads ────────────────────────────────────── */
   .tp-head {
     display: flex;
     flex-direction: column;
@@ -330,11 +448,27 @@ const ld = {
 
   .tp-head h2,
   .tp-h2 {
-    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.4rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
+  }
+
+  :global([dir='rtl']) :is(.tp-head h2, .tp-h2) {
+    line-height: 1.4;
   }
 
   .tp-h2 {
-    margin-bottom: clamp(20px, 3vw, 32px);
+    margin-bottom: clamp(24px, 3vw, 40px);
+  }
+
+  @media (min-width: 900px) {
+    .tp-head--split {
+      max-width: none;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: end;
+      gap: clamp(24px, 4vw, 64px);
+    }
   }
 
   .tp-head--row {
@@ -351,47 +485,278 @@ const ld = {
     flex-direction: column;
     gap: 10px;
     max-width: 680px;
+    min-width: 0;
   }
 
-  .stages {
+  /* ── Levels: numbered cards 01.–04. with a featured card ── */
+  .levels {
     display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .stage {
-    --radius: 26px;
+  @media (min-width: 700px) {
+    .levels {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    }
+
+    .levels--3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .levels--4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .levels {
+      align-items: end;
+    }
+
+    .levels--3 {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
+    }
+
+    .levels--4 {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  .level {
+    min-width: 0;
+    min-height: 270px;
+    justify-content: space-between;
+  }
+
+  .level.tone {
+    border: 0;
+    background: var(--tone-bg);
+  }
+
+  .level .num-card__num {
+    color: var(--brand-plum);
+  }
+
+  :global([data-theme='dark']) .level .num-card__num {
+    color: var(--accent);
+  }
+
+  .level__body {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 26px;
+    gap: 8px;
   }
 
-  .stage__num {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 2.2rem;
-    line-height: 1;
-    background: var(--grad-accent);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  :global([dir='rtl']) .stage__num {
-    font-family: var(--font-arabic);
-    font-style: normal;
-    font-weight: 700;
-  }
-
-  .stage h3 {
+  .level h3 {
     font-size: 1.2rem;
+    overflow-wrap: anywhere;
   }
 
-  .stage p {
+  .level p {
+    color: var(--ink-2);
+    font-size: 0.97rem;
+  }
+
+  .level--featured {
+    min-height: 360px;
+    padding: 10px 10px clamp(20px, 2.6vw, 28px);
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .level--featured .level__body {
+    padding-inline: clamp(10px, 1.6vw, 18px);
+    gap: 12px;
+  }
+
+  .level--featured h3 {
+    font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.1rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+  }
+
+  :global([dir='rtl']) .level--featured h3 {
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .level__visual {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    min-height: 150px;
+    padding: 20px;
+    border-radius: 20px;
+    background: var(--grad-dusk);
+  }
+
+  .level__visual .num-card__num {
+    position: relative;
+    color: var(--brand-ink);
+  }
+
+  :global([data-theme='dark']) .level__visual .num-card__num {
+    color: var(--ink);
+  }
+
+  /* abstract shapes on the gradient, as on the reference cards */
+  .level__shape {
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  .level__shape--a {
+    width: 150px;
+    height: 150px;
+    inset-block-start: -50px;
+    inset-inline-end: -30px;
+    background: rgb(255 255 255 / 0.28);
+  }
+
+  .level__shape--b {
+    width: 80px;
+    height: 80px;
+    inset-block-end: 18px;
+    inset-inline-end: 96px;
+    border: 2px solid rgb(255 255 255 / 0.5);
+  }
+
+  /* ── Course cards (programmes with a course list) ─────── */
+  .tp-courses {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  }
+
+  .tp-courses > :global(*) {
+    min-width: 0;
+  }
+
+  @media (min-width: 960px) {
+    .tp-courses--3,
+    .tp-courses--4 {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .tp-courses--3 > :global(*) {
+      grid-column: span 3;
+    }
+
+    .tp-courses--3 > :global(:first-child) {
+      grid-row: span 2;
+    }
+
+    .tp-courses--4 > :global(*) {
+      grid-column: span 2;
+    }
+
+    .tp-courses--4 > :global(:first-child) {
+      grid-column: span 4;
+    }
+  }
+
+  /* ── How lessons work: bento ──────────────────────────── */
+  .mb {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 860px) {
+    .mb {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    }
+
+    .mb__card--lead {
+      grid-row: span 2;
+    }
+  }
+
+  .mb__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    min-width: 0;
+    padding: clamp(22px, 2.8vw, 32px);
+    border-radius: 28px;
+  }
+
+  .mb__card.tone--dusk {
+    --ink-2: var(--ink);
+  }
+
+  .mb__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    color: var(--tone-dot);
+    background: #fff;
+  }
+
+  :global([data-theme='dark']) .mb__icon {
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  .mb__icon :global(svg) {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mb__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mb__card h3 {
+    font-size: 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  .mb__card p {
     color: var(--ink-2);
   }
 
+  .mb__card--lead {
+    min-height: 300px;
+  }
+
+  .mb__card--lead .mb__icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .mb__card--lead .mb__icon :global(svg) {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mb__card--lead h3 {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+  }
+
+  :global([dir='rtl']) .mb__card--lead h3 {
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .mb__card--lead p {
+    max-width: 44ch;
+    font-size: 1.05rem;
+  }
+
+  /* ── Teacher, Sanad and story ─────────────────────────── */
   .tp-people {
     display: grid;
     gap: 20px;
@@ -404,6 +769,10 @@ const ld = {
     }
   }
 
+  .tp-people > * {
+    min-width: 0;
+  }
+
   .tp-people__side {
     display: grid;
     gap: 16px;
@@ -411,15 +780,15 @@ const ld = {
 
   @media (min-width: 960px) {
     .tp-people__side {
-      padding-top: calc(clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem) * 1.2 + clamp(20px, 3vw, 32px));
+      padding-top: calc(clamp(2rem, 1.3rem + 2.6vw, 3.4rem) * 1.06 + clamp(24px, 3vw, 40px));
     }
   }
 
   .sanad-box {
-    --radius: 26px;
     display: grid;
     gap: 22px;
-    padding: 26px;
+    padding: clamp(22px, 2.8vw, 30px);
+    border-radius: 28px;
   }
 
   .sanad-box__note {
@@ -433,22 +802,54 @@ const ld = {
     width: 20px;
     height: 20px;
     flex: none;
-    color: var(--accent-ink);
+    color: var(--tone-dot);
+  }
+
+  /* ── Plans: plan tiles, stat-style prices ─────────────── */
+  .rplans {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 700px) {
+    .rplans {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rplan--top {
+      grid-row: span 2;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .rplans {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .rplan--top {
+      grid-row: auto;
+    }
   }
 
   .rplan {
-    --radius: 26px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 24px;
+    min-width: 0;
+    min-height: 280px;
+    padding: clamp(22px, 2.6vw, 28px);
+    border-radius: 28px;
     text-decoration: none;
+    transition: transform 0.4s var(--ease-out);
   }
 
-  .rplan--top {
-    box-shadow:
-      0 0 0 2px rgb(107 63 160 / 0.4),
-      var(--shadow-glass);
+  .rplan:hover {
+    transform: translateY(-3px);
+  }
+
+  .rplan:focus-visible {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 3px;
   }
 
   .rplan__name {
@@ -456,34 +857,38 @@ const ld = {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    font-size: 1.25rem;
-    font-weight: 620;
+    font-size: 1.2rem;
+    font-weight: 600;
   }
 
   .rplan__badge {
-    padding: 3px 9px;
-    border-radius: var(--r-pill);
-    font-size: 0.72rem;
-    font-weight: 650;
-    color: #fff;
-    background: var(--grad-accent);
+    font-size: 0.74rem;
+    white-space: normal;
   }
 
   .rplan__price {
-    font-size: 2.4rem;
-    font-weight: 640;
-    letter-spacing: -0.05em;
-    line-height: 1.05;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-block: auto 4px;
+    padding-top: 18px;
   }
 
-  :global([dir='rtl']) .rplan__price {
+  .rplan__num {
+    font-size: clamp(2.6rem, 1.9rem + 2.2vw, 3.8rem);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global([dir='rtl']) .rplan__num {
     letter-spacing: 0;
   }
 
   .rplan__price small {
     font-size: 0.9rem;
-    font-weight: 450;
-    letter-spacing: 0;
     color: var(--ink-3);
   }
 
@@ -493,25 +898,53 @@ const ld = {
   }
 
   .rplan__unit {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--ink-3);
   }
 
   .rplan__go {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 10px;
-    font-weight: 600;
-    color: var(--accent-ink);
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-weight: 620;
   }
 
-  .rplan__go :global(svg) {
-    width: 16px;
-    height: 16px;
+  .tone--deep .rplan__go {
+    border-top-color: rgb(255 255 255 / 0.18);
   }
 
+  .rplan__go .arrow-btn {
+    --arrow-size: 42px;
+  }
+
+  .rplan--top .rplan__num {
+    font-size: clamp(3rem, 2.1rem + 2.8vw, 4.6rem);
+  }
+
+  /* ── FAQ ──────────────────────────────────────────────── */
   .tp-faq {
-    max-width: var(--maxw-narrow);
+    display: grid;
+    gap: 8px;
+  }
+
+  @media (min-width: 960px) {
+    .tp-faq {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+      gap: clamp(32px, 5vw, 72px);
+      align-items: start;
+    }
+
+    .tp-faq__title {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+    }
+  }
+
+  .tp-faq > :global(*) {
+    min-width: 0;
   }
 </style>

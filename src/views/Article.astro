@@ -62,45 +62,51 @@ const ld = {
 
 <BaseLayout title={`${d.title} | ${ui(lang).siteName}`} description={d.description} type="article" jsonLd={ld} lang={lang} alternates={alternates} fallback="/blog/">
   <article class="post">
-    <header class="container--narrow post__head" data-reveal>
-      <Breadcrumbs items={[{ label: L.blog, href: lp(lang, '/blog/') }, { label: d.title }]} lang={lang} />
-      <span class="cluster" style="--cluster:8px">
-        <span class="chip chip--accent">{category}</span>
-      </span>
-      <h1>{d.title}</h1>
-      <p class="post__meta">
-        <span><Icon name="calendar-blank" weight="bold" /> <time datetime={d.date.toISOString()}>{fmtDate(lang, d.date)}</time></span>
-        <span><Icon name="clock" weight="bold" /> {readTime}</span>
-        <span><Icon name="pen-nib" weight="bold" /> {d.author}</span>
-      </p>
-      {
-        twins.length > 0 && (
-          <p class="post__twins">
-            <Icon name="translate" weight="bold" />
-            <span>{L.alsoIn}</span>
-            {twins.map((x) => (
-              <a class="chip post__twin" href={x.href} hreflang={x.lang} lang={x.lang} dir={LOCALE[x.lang].dir} data-lang-choice={x.lang}>
-                {x.label}
-              </a>
-            ))}
+    <!-- Hero: the copy on the white sheet, the cover on a brand-gradient stage (the PageHero approach) -->
+    <header class="container post__head">
+      <div class="post__hero">
+        <div class="post__copy" data-reveal>
+          <Breadcrumbs items={[{ label: L.blog, href: lp(lang, '/blog/') }, { label: d.title }]} lang={lang} />
+          <span class="status post__cat">{category}</span>
+          <h1>{d.title}</h1>
+          <p class="post__meta">
+            <span><Icon name="calendar-blank" weight="bold" /> <time datetime={d.date.toISOString()}>{fmtDate(lang, d.date)}</time></span>
+            <span><Icon name="clock" weight="bold" /> {readTime}</span>
+            <span><Icon name="pen-nib" weight="bold" /> {d.author}</span>
           </p>
-        )
-      }
+          {
+            twins.length > 0 && (
+              <p class="post__twins">
+                <Icon name="translate" weight="bold" />
+                <span>{L.alsoIn}</span>
+                {twins.map((x) => (
+                  <a class="post__twin" href={x.href} hreflang={x.lang} lang={x.lang} dir={LOCALE[x.lang].dir} data-lang-choice={x.lang}>
+                    {x.label}
+                  </a>
+                ))}
+              </p>
+            )
+          }
+        </div>
+        <div class="post__cover" data-reveal style="--reveal-delay:.12s">
+          <div class="post__stage">
+            <PostCover title={d.title} track={d.track} />
+          </div>
+        </div>
+      </div>
     </header>
-    <div class="container post__cover" data-reveal>
-      <PostCover title={d.title} track={d.track} />
-    </div>
-    <div class="container--narrow">
-      <div class="glass glass--strong post__body prose">
+
+    <div class="container--narrow post__main">
+      <div class="post__body prose">
         <Content />
       </div>
 
-      <aside class="glass post__cta" aria-label={L.start}>
-        <div>
-          <p class="post__cta-kicker">{(track ? track.title : L.start)}</p>
+      <aside class="post__cta tone tone--deep tone--grad-plum" aria-label={L.start}>
+        <div class="post__cta-copy">
+          <p class="status post__cta-kicker">{track ? track.title : L.start}</p>
           <p class="post__cta-title">{L.cta}</p>
         </div>
-        <div class="cluster">
+        <div class="cluster post__cta-actions">
           <a class="btn btn--primary" href={trialLink(track ? { course: track.trial } : {}, lang)}>{L.book} <Icon name="arrow-right" weight="bold" class="icon-arrow" /></a>
           {track && <a class="btn btn--glass" href={lp(lang, track.href)}>{L.about}</a>}
         </div>
@@ -109,8 +115,32 @@ const ld = {
       {
         (prev || next) && (
           <nav class="post__pager" aria-label={L.more}>
-            {prev ? <a class="glass" href={prev.href}><small>{L.prev}</small>{prev.title}</a> : <span />}
-            {next ? <a class="glass post__pager-next" href={next.href}><small>{L.next}</small>{next.title}</a> : <span />}
+            {prev ? (
+              <a class="tone tone--lavender post__pager-prev" href={prev.href}>
+                <span class="arrow-btn" style="--arrow-size:40px" aria-hidden="true">
+                  <Icon name="arrow-left" weight="bold" />
+                </span>
+                <span class="post__pager-text">
+                  <small>{L.prev}</small>
+                  {prev.title}
+                </span>
+              </a>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <a class="tone tone--sky post__pager-next" href={next.href}>
+                <span class="post__pager-text">
+                  <small>{L.next}</small>
+                  {next.title}
+                </span>
+                <span class="arrow-btn" style="--arrow-size:40px" aria-hidden="true">
+                  <Icon name="arrow-right" weight="bold" />
+                </span>
+              </a>
+            ) : (
+              <span />
+            )}
           </nav>
         )
       }
@@ -121,120 +151,74 @@ const ld = {
 
 <style>
   .post {
-    padding-block: clamp(28px, 4vw, 56px) 0;
+    padding-block: clamp(4px, 1vw, 12px) 0;
   }
 
-  .post__head {
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .post__hero {
+    display: grid;
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+    padding-block: clamp(12px, 3vw, 40px);
+  }
+
+  @media (min-width: 1024px) {
+    .post__hero {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    }
+  }
+
+  .post__copy {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .post__cat {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .post__head h1 {
-    font-size: clamp(2rem, 1.4rem + 2.6vw, 3.4rem);
+    font-size: clamp(2.1rem, 1.3rem + 2.8vw, 3.7rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
 
+  :global([dir='rtl']) .post__head h1 {
+    font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3.2rem);
+    line-height: 1.4;
+  }
+
+  /* meta as soft pills */
   .post__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 18px;
-    color: var(--ink-3);
-    font-size: 0.92rem;
+    gap: 8px;
+    color: var(--ink-2);
+    font-size: 0.9rem;
   }
 
-  .post__meta span {
+  .post__meta > span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
+    padding: 0.45em 0.95em;
+    border-radius: var(--r-pill);
+    background: var(--tint-mist);
   }
 
   .post__meta :global(svg) {
     width: 15px;
     height: 15px;
+    color: var(--brand-plum);
   }
 
-  .post__cover {
-    margin-block: 28px;
-    max-width: 1040px;
-  }
-
-  .post__cover :global(.cover) {
-    border-radius: 32px;
-    aspect-ratio: 21 / 9;
-  }
-
-  .post__body {
-    --radius: var(--r-xl);
-    padding: clamp(22px, 4vw, 56px);
-  }
-
-  .post__cta {
-    --radius: 28px;
-    display: grid;
-    gap: 16px;
-    margin-top: 20px;
-    padding: 26px;
-    align-items: center;
-    background:
-      radial-gradient(80% 120% at 100% 0%, rgb(175 204 234 / 0.55), transparent 60%),
-      radial-gradient(70% 120% at 0% 100%, rgb(241 205 220 / 0.6), transparent 60%),
-      var(--glass-fill);
-  }
-
-  @media (min-width: 760px) {
-    .post__cta {
-      grid-template-columns: 1fr auto;
-    }
-  }
-
-  .post__cta-kicker {
-    font-size: 0.78rem;
-    font-weight: 650;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-  }
-
-  .post__cta-title {
-    font-weight: 600;
-    font-size: 1.15rem;
-    letter-spacing: -0.015em;
-  }
-
-  .post__pager {
-    display: grid;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  @media (min-width: 640px) {
-    .post__pager {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .post__pager a {
-    --radius: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 18px 20px;
-    text-decoration: none;
-    font-weight: 560;
-    line-height: 1.35;
-  }
-
-  .post__pager small {
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-
-  .post__pager-next {
-    text-align: end;
+  :global([data-theme='dark']) .post__meta :global(svg) {
+    color: #d4b9ef;
   }
 
   .post__twins {
@@ -252,25 +236,243 @@ const ld = {
   }
 
   .post__twin {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 0.9em;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line-strong);
+    background: var(--card);
+    color: var(--ink);
+    font-weight: 560;
     text-decoration: none;
+    transition: background-color 0.25s;
+  }
+
+  .post__twin:hover {
+    background: var(--tint-lavender);
   }
 
   .post__twin:lang(ar) {
     font-family: var(--font-arabic);
   }
 
-  :global([dir='rtl']) .post__head h1 {
+  .post__cover {
+    min-width: 0;
+  }
+
+  .post__stage {
+    padding: clamp(12px, 2vw, 22px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--grad-dusk);
+  }
+
+  .post__stage :global(.cover) {
+    border-radius: clamp(20px, 2.4vw, 28px);
+    box-shadow: 0 24px 48px -30px rgb(44 28 68 / 0.55);
+  }
+
+  @media (min-width: 1024px) {
+    .post__stage :global(.cover) {
+      aspect-ratio: 1 / 0.85;
+    }
+  }
+
+  /* ── Reading column ───────────────────────────────────────── */
+  .post__main {
+    padding-top: clamp(8px, 2vw, 24px);
+  }
+
+  .post__body {
+    max-width: 70ch;
+    margin-inline: auto;
+  }
+
+  .post__body :global(:is(h2, h3)) {
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .post__body :global(h2) {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .post__body :global(h3) {
+    font-weight: 600;
+  }
+
+  :global([dir='rtl']) .post__body :global(:is(h2, h3)) {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .post__body :global(a) {
+    color: var(--brand-plum);
+    text-decoration: underline;
+    text-decoration-color: var(--brand-lavender);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.2em;
+  }
+
+  .post__body :global(a:hover) {
+    text-decoration-color: currentColor;
+  }
+
+  .post__body :global(li::marker) {
+    color: var(--brand-magenta);
+  }
+
+  .post__body :global(blockquote) {
+    padding: 20px 24px;
+    border-radius: 22px;
+    background: var(--tint-lavender);
+    border-inline-start: 4px solid var(--brand-plum);
+    color: var(--ink);
+  }
+
+  .post__body :global(hr) {
+    background: var(--line-strong);
+  }
+
+  .post__body :global(:is(.table-wrap, table)) {
+    border-radius: 20px;
+    background: var(--tint-mist);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .post__body :global(th) {
+    background: var(--tint-lavender);
+  }
+
+  .post__body :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 22px;
+  }
+
+  :global([data-theme='dark']) .post__body :global(a) {
+    color: #dcc4f2;
+    text-decoration-color: rgb(220 196 242 / 0.5);
+  }
+
+  :global([data-theme='dark']) .post__body :global(li::marker) {
+    color: #d4b9ef;
+  }
+
+  :global([data-theme='dark']) .post__body :global(blockquote) {
+    border-inline-start-color: #d4b9ef;
+  }
+
+  /* ── CTA: the page's deep anchor card ─────────────────────── */
+  .post__cta {
+    display: grid;
+    gap: 20px;
+    margin-top: clamp(32px, 4vw, 48px);
+    padding: clamp(22px, 3vw, 34px);
+    border-radius: 30px;
+    align-items: center;
+  }
+
+  @media (min-width: 760px) {
+    .post__cta {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+
+  .post__cta-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .post__cta-kicker {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .post__cta-title {
+    font-weight: 460;
+    font-size: clamp(1.2rem, 1rem + 0.8vw, 1.55rem);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    color: #fff;
+  }
+
+  :global([dir='rtl']) .post__cta-title {
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  /* ── Previous / next: tinted cards with round arrows ──────── */
+  .post__pager {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .post__pager {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .post__pager a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 560;
     line-height: 1.35;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .post__pager a:hover {
+    transform: translateY(-2px);
+  }
+
+  /* the pager arrows point back / forward, so they don't take the ↗ hover turn */
+  .post__pager a:hover .arrow-btn {
+    transform: none;
+  }
+
+  .post__pager-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .post__pager small {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .post__pager-next .post__pager-text {
+    text-align: end;
   }
 
   :global([dir='rtl']) .post__pager small {
     letter-spacing: 0;
   }
-  /* ---------- Dark theme ---------- */
-  :global([data-theme='dark']) .post__cta {
-    background:
-      radial-gradient(80% 120% at 100% 0%, rgb(109 158 214 / 0.24), transparent 60%),
-      radial-gradient(70% 120% at 0% 100%, rgb(200 123 128 / 0.2), transparent 60%),
-      var(--glass-fill);
+
+  @media (prefers-reduced-motion: reduce) {
+    .post__pager a,
+    .post__pager a:hover {
+      transition: none;
+      transform: none;
+    }
   }
 </style>

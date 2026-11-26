@@ -10,43 +10,73 @@ interface Props {
   lang?: Lang;
   delay?: number;
   showLink?: boolean;
+  /** brand tone surface: lavender | sky | mauve | rose | mist | dawn | dusk, or a deep one (ink, plum, grad-plum, grad-night…) */
+  tone?: string;
+  /** the larger card of a bento */
+  featured?: boolean;
 }
-const { course, lang = 'en', delay = 0, showLink = true } = Astro.props;
+const { course, lang = 'en', delay = 0, showLink = true, tone = 'lavender', featured = false } = Astro.props;
 const t = ui(lang);
+const DEEP = ['ink', 'plum', 'magenta', 'navy', 'slate', 'grad-plum', 'grad-night'];
+const deep = DEEP.includes(tone);
 ---
 
-<article class="course-card glass glass--interactive" data-reveal style={`--reveal-delay:${delay}s`}>
-  <span class="chip chip--accent">{course.badge}</span>
+<article class:list={['course-card', 'tone', `tone--${tone}`, { 'tone--deep': deep, 'course-card--featured': featured }]} data-reveal style={`--reveal-delay:${delay}s`}>
+  <span class="status course-card__badge">{course.badge}</span>
   <h3>
     {course.href && showLink ? <a href={lp(lang, course.href)}>{course.title}</a> : course.title}
   </h3>
-  <div class="cluster course-card__tags">
-    {course.tags.map((tag) => <span class="chip">{tag}</span>)}
+  <div class="course-card__tags">
+    {course.tags.map((tag) => <span class="status status--ghost">{tag}</span>)}
   </div>
   <p>{course.desc}</p>
   <div class="course-card__foot">
     <span class="course-card__price"><small>{t.from}</small> <Money usd={course.from} lang={lang} /><small>{t.perMonth}</small></span>
-    <a class="btn btn--sm btn--primary" href={trialLink({ course: course.trial }, lang)}>
-      {ui(lang).tryFree} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+    <a class="course-card__cta" href={trialLink({ course: course.trial }, lang)}>
+      <span>{t.tryFree}</span>
+      <span class:list={['arrow-btn', { 'arrow-btn--dark': !deep }]} aria-hidden="true"><Icon name="arrow-up-right" weight="bold" /></span>
     </a>
   </div>
 </article>
 
 <style>
-  .course-card {
-    --radius: 24px;
+  /* .course-card.tone outranks the older editorial top borders and glass shadow */
+  .course-card.tone {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-    padding: 24px;
+    min-width: 0;
+    padding: clamp(22px, 2.4vw, 28px);
+    border: 0;
+    border-radius: 28px;
+    box-shadow: none;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .course-card.tone:hover {
+    transform: translateY(-3px);
+  }
+
+  /* body copy on the mid-tone dusk gradient stays on the ink for contrast */
+  .course-card.tone--dusk {
+    --ink-2: var(--ink);
+    --ink-3: var(--ink);
+  }
+
+  .course-card__badge {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .course-card h3 {
     font-size: 1.3rem;
+    overflow-wrap: anywhere;
   }
 
   .course-card h3 a {
+    color: inherit;
     text-decoration: none;
   }
 
@@ -55,7 +85,20 @@ const t = ui(lang);
   }
 
   .course-card__tags {
-    --cluster: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .course-card__tags .status {
+    max-width: 100%;
+    white-space: normal;
+    font-size: 0.78rem;
+    border-color: var(--line-strong);
+  }
+
+  .tone--deep .course-card__tags .status {
+    border-color: rgb(255 255 255 / 0.28);
   }
 
   .course-card p {
@@ -65,7 +108,7 @@ const t = ui(lang);
 
   /* The price and the CTA share one row while there is room. Between ~540 and ~1180 px the
      card grid holds 3–4 columns, so the card gets narrow while the DE/FR/IT label
-     ("Kostenlos testen", "Essayer gratuitement") still needs ~210 px: the row then wraps and
+     ("Kostenlos testen", "Essayer gratuitement") still needs room: the row then wraps and
      the CTA takes the line below instead of pushing the card past the viewport.
      Found by the 20-width sweep (qa/suites/overflow.mjs --widths=…), invisible at 6 widths. */
   .course-card__foot {
@@ -76,26 +119,91 @@ const t = ui(lang);
     gap: 10px 12px;
     width: 100%;
     margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    border-top: 1px solid var(--line-strong);
   }
 
-  .course-card__foot :global(.btn) {
-    white-space: normal;
-    text-wrap: balance;
-    max-width: 100%;
+  .tone--deep .course-card__foot {
+    border-top-color: rgb(255 255 255 / 0.2);
   }
 
   .course-card__price {
-    font-size: 1.35rem;
-    font-weight: 620;
-    letter-spacing: -0.03em;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global([dir='rtl']) .course-card__price {
+    letter-spacing: 0;
   }
 
   .course-card__price small {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 450;
     color: var(--ink-3);
     letter-spacing: 0;
+  }
+
+  .course-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    font-weight: 620;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .course-card__cta > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .course-card__cta .arrow-btn {
+    --arrow-size: 42px;
+  }
+
+  .course-card__cta:focus-visible {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 4px;
+    border-radius: var(--r-pill);
+  }
+
+  /* Featured: the anchor card of a bento — bigger type, stat-style price */
+  .course-card--featured {
+    min-height: 320px;
+  }
+
+  .course-card--featured h3 {
+    margin-top: auto;
+    font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.5rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+  }
+
+  :global([dir='rtl']) .course-card--featured h3 {
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .course-card--featured p {
+    max-width: 46ch;
+    font-size: 1.05rem;
+  }
+
+  .course-card--featured .course-card__foot {
+    margin-top: 8px;
+  }
+
+  .course-card--featured .course-card__price {
+    font-size: clamp(2rem, 1.5rem + 1.6vw, 2.9rem);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+  }
+
+  .course-card--featured .course-card__cta .arrow-btn {
+    --arrow-size: 54px;
   }
 </style>

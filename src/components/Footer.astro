@@ -1,5 +1,10 @@
 ---
+import { Image } from 'astro:assets';
 import Logo from './Logo.astro';
+import photoA from '@/assets/art/recitation-lesson.webp';
+import photoB from '@/assets/art/kids-learning.webp';
+import photoC from '@/assets/art/arabic-practice.webp';
+import photoD from '@/assets/art/family-stories.webp';
 import Icon from './Icon.astro';
 import LangMenu from './LangMenu.astro';
 import { FOOTER_LINKS, SITE, waLink } from '@/data/site';
@@ -14,11 +19,19 @@ const t = ui(lang);
 const consent = /^GTM-[A-Z0-9]+$/.test(String(import.meta.env.PUBLIC_GTM_ID ?? '').trim());
 const cols = FOOTER_LINKS(lang, t.footerLinks);
 const year = new Date().getFullYear();
+// Tilted snapshots across the top of the footer (decorative).
+const photos = [photoA, photoB, photoC, photoD];
 ---
 
 <footer class="site-footer">
   <div class="night-panel theme-night site-footer__panel">
     <div class="stars"></div>
+    <div class="container site-footer__top">
+      <p class="site-footer__tagline">{t.footerNote}</p>
+      <ul role="list" class="site-footer__photos" aria-hidden="true">
+        {photos.map((p, i) => <li style={`--tilt:${[-7, 5, -3, 8][i]}deg`}><Image src={p} alt="" width={240} height={180} loading="lazy" /></li>)}
+      </ul>
+    </div>
     <div class="container site-footer__inner">
       <div class="site-footer__brand">
         <Logo tone="light" size="lg" label={t.siteName} />
@@ -71,12 +84,87 @@ const year = new Date().getFullYear();
         }
       </ul>
       <LangMenu lang={lang} targets={targets} variant="footer" />
-      <p class="site-footer__note">{t.footerNote}</p>
     </div>
   </div>
 </footer>
 
 <style>
+  /* Top band: a tagline and a few tilted snapshots, as on the reference footer. */
+  .site-footer__top {
+    display: grid;
+    gap: 28px;
+    align-items: center;
+    margin-bottom: clamp(36px, 5vw, 64px);
+    padding-bottom: clamp(28px, 4vw, 48px);
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  @media (min-width: 960px) {
+    .site-footer__top {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+  }
+
+  .site-footer__tagline {
+    font-size: clamp(1.6rem, 1.1rem + 1.8vw, 2.6rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    max-width: 18ch;
+  }
+
+  [dir='rtl'] .site-footer__tagline {
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .site-footer__photos {
+    display: flex;
+    justify-content: center;
+    padding-block: 10px;
+  }
+
+  .site-footer__photos li {
+    flex: 0 1 200px;
+    padding: 7px 7px 26px;
+    border-radius: 14px;
+    background: #fbf8ff;
+    rotate: var(--tilt);
+    box-shadow: 0 22px 40px -22px rgb(0 0 0 / 0.75);
+    transition: rotate 0.5s var(--ease-out), translate 0.5s var(--ease-out);
+  }
+
+  .site-footer__photos li + li {
+    margin-inline-start: -26px;
+  }
+
+  .site-footer__photos li:hover {
+    rotate: 0deg;
+    translate: 0 -8px;
+  }
+
+  .site-footer__photos :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 9px;
+  }
+
+  @media (max-width: 560px) {
+    .site-footer__photos li:nth-child(n + 4) {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-footer__photos li {
+      transition: none;
+    }
+  }
+
   .site-footer {
     padding-block: clamp(32px, 6vw, 72px) clamp(8px, 1.6vw, 24px);
   }

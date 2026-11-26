@@ -3,30 +3,29 @@ import Icon from './Icon.astro';
 import { teacherById, type Testimonial } from '@/data/people';
 import { lp, type Lang } from '@/i18n';
 import { ui } from '@/locales';
+type Tone = 'lavender' | 'sky' | 'mauve' | 'rose' | 'mist' | 'grad-plum' | 'ink';
 interface Props {
   t: Testimonial;
   lang?: Lang;
   /** link the named teacher's profile (off on that teacher's own page) */
   showTeacher?: boolean;
+  /** surface tone; defaults to the programme's tone (quran lavender, arabic sky, kids rose, islamic mauve) */
+  tone?: Tone;
 }
 const { t, lang = 'en', showTeacher = true } = Astro.props;
 const teacher = showTeacher && t.teacher ? teacherById(t.teacher, lang) : undefined;
+const TRACK_TONE: Record<string, Tone> = { quran: 'lavender', arabic: 'sky', kids: 'rose', islamic: 'mauve' };
+const tone: Tone = Astro.props.tone ?? TRACK_TONE[t.track] ?? 'lavender';
+const deep = tone === 'grad-plum' || tone === 'ink';
 ---
 
-<figure class="tcard glass">
-  <div class="tcard__stars" role="img" aria-label={ui(lang).stars}>
-    {Array.from({ length: 5 }).map(() => <Icon name="star" weight="fill" />)}
-  </div>
-  <blockquote>
-    <p>“{t.quote}”</p>
-  </blockquote>
-  <p class="tcard__result">
-    <Icon name="check-circle" weight="fill" />
-    <span>{t.result}</span>
-  </p>
-  <figcaption>
+<!-- Event-style story card (the Dei reference): a tone surface, a header row with the initials avatar,
+     the quote in an inner panel, and the result as a pill at the foot. The root stays figure.tcard
+     (the home page tints it through `.rail__track li .tcard`). -->
+<figure class:list={['tcard', 'tone', `tone--${tone}`, { 'tone--deep': deep, 'tcard--deep': deep }]}>
+  <figcaption class="tcard__head">
     <span class="tcard__avatar" aria-hidden="true">{t.initials}</span>
-    <span>
+    <span class="tcard__who">
       <strong>{t.name}</strong>
       <small>{t.location} · {t.program}</small>
       {
@@ -38,99 +37,189 @@ const teacher = showTeacher && t.teacher ? teacherById(t.teacher, lang) : undefi
       }
     </span>
   </figcaption>
+  <div class="tcard__panel">
+    <div class="tcard__stars" role="img" aria-label={ui(lang).stars}>
+      {Array.from({ length: 5 }).map(() => <Icon name="star" weight="fill" />)}
+    </div>
+    <blockquote>
+      <p>“{t.quote}”</p>
+    </blockquote>
+  </div>
+  <p class="tcard__result">
+    <Icon name="check-circle" weight="fill" />
+    <span>{t.result}</span>
+  </p>
 </figure>
 
 <style>
-  .tcard__teacher {
-    display: block;
-    width: fit-content;
-    font-size: 0.84rem;
-    font-weight: 560;
-    color: var(--accent-ink);
-  }
-
   .tcard {
-    --radius: 26px;
+    --tcard-star: var(--brand-magenta);
+    --tcard-panel: rgb(255 255 255 / 0.72);
+    position: relative;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding: 26px;
+    gap: 12px;
+    padding: 12px;
     height: 100%;
+    min-width: 0;
+    border: 0;
+    border-radius: 28px;
+    box-shadow: none;
+  }
+
+  /* header row: avatar + who */
+  .tcard__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 8px 2px;
+    min-width: 0;
+  }
+
+  .tcard__avatar {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex: none;
+    border-radius: 50%;
+    font-size: 0.86rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--tone-dot, var(--brand-plum));
+  }
+
+  .tcard__who {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .tcard__who strong {
+    font-weight: 620;
+    font-size: 0.98rem;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .tcard__who small {
+    color: var(--ink-3);
+    font-size: 0.84rem;
+    overflow-wrap: anywhere;
+  }
+
+  .tcard__teacher {
+    width: fit-content;
+    margin-top: 2px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--brand-lavender);
+    text-underline-offset: 0.2em;
+  }
+
+  .tcard__teacher:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* the quote sits in an inner panel, like the event text on the reference */
+  .tcard__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    padding: 18px 18px 20px;
+    border-radius: 20px;
+    background: var(--tcard-panel);
   }
 
   .tcard__stars {
     display: flex;
     gap: 2px;
-    color: var(--gold-400);
+    color: var(--tcard-star);
   }
 
   .tcard__stars :global(svg) {
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
   }
 
   .tcard blockquote {
     margin: 0;
-    font-size: 1.06rem;
-    line-height: 1.6;
+    font-size: 1.04rem;
+    line-height: 1.62;
     color: var(--ink);
     letter-spacing: -0.005em;
   }
 
+  :global([dir='rtl']) .tcard blockquote {
+    letter-spacing: 0;
+    line-height: 1.85;
+  }
+
+  /* the result as a white pill at the foot */
   .tcard__result {
     display: flex;
     gap: 8px;
     align-items: flex-start;
-    padding: 10px 12px;
-    border-radius: 14px;
-    background: rgb(31 122 77 / 0.07);
-    color: #1d5e3f;
+    padding: 10px 16px;
+    border-radius: 18px;
+    background: #fff;
+    color: var(--brand-ink);
     font-size: 0.88rem;
-    font-weight: 540;
+    font-weight: 560;
+    line-height: 1.4;
   }
 
   .tcard__result :global(svg) {
     width: 18px;
     height: 18px;
     flex: none;
-    margin-top: 2px;
+    margin-top: 1px;
+    color: var(--success);
   }
 
-  .tcard figcaption {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
+  /* Deep variant (an anchor card on the story wall) */
+  .tcard--deep {
+    --tcard-star: var(--brand-mauve);
+    --tcard-panel: rgb(255 255 255 / 0.08);
   }
 
-  .tcard figcaption strong {
-    display: block;
-    font-weight: 600;
-    font-size: 0.97rem;
+  .tcard--deep .tcard__avatar {
+    color: var(--brand-ink);
+    background: var(--brand-mauve);
   }
 
-  .tcard figcaption small {
-    color: var(--ink-3);
-    font-size: 0.84rem;
-  }
-
-  .tcard__avatar {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    flex: none;
-    border-radius: 50%;
-    font-size: 0.85rem;
-    font-weight: 650;
+  .tcard--deep .tcard__teacher {
     color: #fff;
-    background: var(--grad-accent-on);
-    box-shadow: 0 6px 14px -6px rgb(91 58 142 / 0.7);
+    text-decoration-color: var(--brand-mauve);
   }
+
+  .tcard--deep .tcard__result :global(svg) {
+    color: var(--brand-plum);
+  }
+
   /* ---------- Dark theme ---------- */
+  /* (global.css paints every .tcard a flat dark surface in dark mode; the tone shows in the avatar.) */
+  :global([data-theme='dark']) .tcard {
+    --tcard-star: var(--brand-mauve);
+    --tcard-panel: rgb(255 255 255 / 0.05);
+  }
+
+  :global([data-theme='dark']) .tcard__avatar {
+    color: var(--brand-ink);
+  }
+
   :global([data-theme='dark']) .tcard__result {
-    background: rgb(127 220 174 / 0.12);
-    color: #8fe6b8;
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.08);
+  }
+
+  :global([data-theme='dark']) .tcard__teacher {
+    text-decoration-color: var(--brand-mauve);
   }
 </style>

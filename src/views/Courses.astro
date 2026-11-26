@@ -9,18 +9,22 @@ import CtaPanel from '@/components/CtaPanel.astro';
 import Icon from '@/components/Icon.astro';
 import { getTracks } from '@/data/tracks';
 import { trialLink } from '@/data/site';
-import { lp, num, type Lang } from '@/i18n';
+import Money from '@/components/Money.astro';
+import { lp, type Lang } from '@/i18n';
 import { copy, ui } from '@/locales';
 
 interface Props {
   lang?: Lang;
 }
 const { lang = 'en' } = Astro.props;
-const ar = lang === 'ar';
 const t = ui(lang);
 const tracks = getTracks(lang);
 const COPY = copy(lang).courses;
 const C = COPY.C;
+// Course bento: each programme's first course is the larger featured card; the page's one deep
+// anchor card is the very first (Quran), the other featured cards sit on the dusk gradient.
+const COURSE_TONES = ['lavender', 'sky', 'mauve', 'rose'];
+const courseTone = (trackIdx: number, i: number) => (i === 0 ? (trackIdx === 0 ? 'grad-plum' : 'dusk') : COURSE_TONES[(trackIdx + i) % COURSE_TONES.length]);
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
@@ -42,7 +46,7 @@ const ld = {
   </PageHero>
 
   <nav class="track-nav" aria-label={C.jump}>
-    <div class="track-nav__inner glass">
+    <div class="track-nav__inner">
       {tracks.map((tr) => <a href={`#${tr.id}`} class="track-nav__link"><Icon name={tr.icon} /> {tr.title}</a>)}
     </div>
   </nav>
@@ -53,7 +57,7 @@ const ld = {
         <h2 id="chooser-title">{C.chooserTitle}</h2>
         <p class="lead">{C.chooserLede}</p>
       </div>
-      <div class="glass table-wrap chooser" data-reveal>
+      <div class="table-wrap chooser tone tone--mist" data-reveal>
         <table class="table">
           <thead><tr>{C.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
           <tbody>
@@ -100,18 +104,26 @@ const ld = {
                 </a>
               </div>
               {tr.id === 'kids' && (
-                <a class="btn btn--link" href={`${lp(lang, '/placement-test/')}?track=kids`}>
-                  {C.kidsTest} <Icon name="arrow-right" weight="bold" class="icon-arrow" />
+                <a class="link-arrow track__kids" href={`${lp(lang, '/placement-test/')}?track=kids`}>
+                  {C.kidsTest} <Icon name="arrow-right" weight="bold" />
                 </a>
               )}
             </div>
-            <div class="frame track__art" data-reveal style="--reveal-delay:.1s">
+            <div class="track__art" data-reveal style="--reveal-delay:.1s">
               <Image src={tr.image} alt="" widths={[480, 720, 960]} sizes="(min-width: 960px) 520px, 92vw" />
+              <ul role="list" class="track__chips">
+                <li class="status track__chip--sub">
+                  <Icon name={tr.icon} /> {tr.subtitle}
+                </li>
+                <li class="status">
+                  {t.from} <Money usd={tr.from} lang={lang} /> {t.perMonth}
+                </li>
+              </ul>
             </div>
           </div>
-          <div class:list={['grid', tr.courses.length === 4 ? 'grid-4' : 'grid-3', 'track__courses']}>
+          <div class:list={['course-bento', `course-bento--${tr.courses.length}`, 'track__courses']}>
             {tr.courses.map((c, i) => (
-              <CourseCard course={c} lang={lang} delay={i * 0.05} />
+              <CourseCard course={c} lang={lang} delay={i * 0.05} tone={courseTone(idx, i)} featured={i === 0} />
             ))}
           </div>
         </div>
@@ -129,20 +141,83 @@ const ld = {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 24px;
+    margin-bottom: clamp(24px, 3vw, 36px);
+    max-width: 760px;
   }
 
   .c-head h2 {
-    font-size: clamp(1.7rem, 1.25rem + 1.6vw, 2.6rem);
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.4rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
   }
 
-  .chooser {
-    --radius: 30px;
-    padding: 8px;
+  :global([dir='rtl']) .c-head h2 {
+    line-height: 1.4;
+  }
+
+  /* ── Jump bar: a white capsule with pill links ─────────── */
+  .track-nav {
+    position: sticky;
+    top: calc(var(--header-h) + 4px);
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    padding-inline: var(--gutter);
+  }
+
+  .track-nav__inner {
+    display: flex;
+    gap: 4px;
+    max-width: 100%;
+    padding: 5px;
+    overflow-x: auto;
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--sheet) 92%, transparent);
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 30px -24px rgb(44 28 68 / 0.5);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    scrollbar-width: none;
+  }
+
+  .track-nav__link.track-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: var(--r-pill);
+    font-size: 0.92rem;
+    font-weight: 560;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--ink-2);
+    transition:
+      background-color 0.25s,
+      color 0.25s;
+  }
+
+  .track-nav__link :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-ink);
+  }
+
+  .track-nav__link:hover {
+    color: var(--ink);
+    background: var(--tint-lavender);
+  }
+
+  /* ── Chooser: the comparison table on a soft rounded surface ── */
+  .chooser.tone {
+    padding: clamp(6px, 1vw, 12px);
+    border: 0;
+    border-radius: 30px;
+    box-shadow: none;
   }
 
   .chooser th a {
     color: var(--accent-ink);
+    font-weight: 620;
     text-decoration: none;
   }
 
@@ -154,51 +229,13 @@ const ld = {
     color: var(--ink-2);
   }
 
-  .track-nav {
-    position: sticky;
-    top: calc(var(--header-h) + 4px);
-    z-index: 20;
-    display: flex;
-    justify-content: center;
-    padding-inline: var(--gutter);
-  }
-
-  .track-nav__inner {
-    --radius: var(--r-pill);
-    display: flex;
-    gap: 4px;
-    padding: 6px;
-    overflow-x: auto;
-    max-width: 100%;
-    scrollbar-width: none;
-  }
-
-  .track-nav__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: var(--r-pill);
-    font-size: 0.92rem;
-    font-weight: 540;
-    white-space: nowrap;
-    text-decoration: none;
-    color: var(--ink-2);
-  }
-
-  .track-nav__link :global(svg) {
-    width: 18px;
-    height: 18px;
-    color: var(--accent-ink);
-  }
-
-  .track-nav__link:hover {
-    background: rgb(255 255 255 / 0.8);
-    color: var(--ink);
-  }
-
+  /* ── Programmes ─────────────────────────────────────────── */
   .track {
     scroll-margin-top: 150px;
+  }
+
+  .track__intro > * {
+    min-width: 0;
   }
 
   .track__copy {
@@ -209,16 +246,105 @@ const ld = {
   }
 
   .track__copy h2 {
-    font-size: var(--fs-h2);
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.4rem);
+    line-height: 1.06;
+    overflow-wrap: anywhere;
   }
 
-  .track__art {
+  :global([dir='rtl']) .track__copy h2 {
+    line-height: 1.4;
+  }
+
+  .track__kids {
+    margin-top: 4px;
+  }
+
+  /* image with a large radius and chips on it (outranks the older framed border) */
+  .track__art.track__art {
+    position: relative;
     aspect-ratio: 5 / 4;
+    overflow: hidden;
+    border: 0;
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--tint-mist);
+    box-shadow: none;
   }
 
-  .track__courses {
-    margin-top: clamp(32px, 4vw, 56px);
+  .track__art :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
+
+  .track__chips {
+    position: absolute;
+    inset: auto 14px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .track__chips .status {
+    max-width: 100%;
+    white-space: normal;
+    font-size: 0.8rem;
+    color: var(--brand-ink);
+    background: rgb(255 255 255 / 0.9);
+    border-color: rgb(255 255 255 / 0.9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .track__chips .track__chip--sub::before {
+    display: none;
+  }
+
+  .track__chips :global(svg) {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    color: var(--brand-plum);
+  }
+
+  /* ── Course bento: one featured card per programme ──────── */
+  .course-bento {
+    display: grid;
+    gap: 14px;
+    margin-top: clamp(32px, 4vw, 56px);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  }
+
+  .course-bento > :global(*) {
+    min-width: 0;
+  }
+
+  @media (min-width: 960px) {
+    .course-bento--3,
+    .course-bento--4 {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .course-bento--3 > :global(*) {
+      grid-column: span 3;
+    }
+
+    .course-bento--3 > :global(:first-child) {
+      grid-row: span 2;
+    }
+
+    .course-bento--4 > :global(*) {
+      grid-column: span 2;
+    }
+
+    .course-bento--4 > :global(:first-child) {
+      grid-column: span 4;
+    }
+  }
+
   /* ---------- Dark theme ---------- */
   :global([data-theme='dark']) .track-nav__link:hover {
     background: rgb(255 255 255 / 0.1);

@@ -17,7 +17,9 @@ const hasVisual = Astro.slots.has('visual');
 ---
 
 <section class:list={['page-hero', { 'page-hero--center': align === 'center', 'page-hero--compact': compact }]}>
-  <div class:list={['container', 'page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
+  <div class="container">
+  <div class:list={['page-hero__panel', { 'page-hero__panel--soft': !hasVisual }]}>
+  <div class:list={['page-hero__grid', { 'page-hero__grid--split': hasVisual }]}>
     <div class="page-hero__copy" data-reveal>
       {crumbs && <Breadcrumbs items={crumbs} lang={lang} />}
       {
@@ -47,17 +49,49 @@ const hasVisual = Astro.slots.has('visual');
     {
       hasVisual && (
         <div class="page-hero__visual" data-reveal style="--reveal-delay:.12s">
-          <slot name="visual" />
+          <div class="page-hero__stage">
+            <slot name="visual" />
+          </div>
         </div>
       )
     }
+  </div>
+  </div>
   </div>
 </section>
 
 <style>
   .page-hero {
     overflow-x: clip;
-    padding-block: clamp(40px, 6vw, 88px) clamp(32px, 5vw, 72px);
+    padding-block: clamp(4px, 1vw, 12px) clamp(28px, 4vw, 56px);
+  }
+
+  /* Reference-led hero: the copy on the white sheet, the visual on a brand-gradient stage.
+     Heroes without a visual sit on a soft lavender → sky panel instead. */
+  .page-hero__panel {
+    border-radius: var(--sheet-radius);
+    padding-block: clamp(12px, 3vw, 40px);
+  }
+
+  .page-hero__panel--soft {
+    padding: clamp(28px, 5vw, 76px) clamp(20px, 4.5vw, 64px);
+    background: var(--grad-dawn);
+  }
+
+  .page-hero__stage {
+    position: relative;
+    padding: clamp(14px, 2.2vw, 26px);
+    border-radius: clamp(26px, 3vw, 38px);
+    background: var(--grad-dusk);
+  }
+
+  /* cards placed on the stage (at-a-glance, badges) are white cards */
+  .page-hero__stage :global(.glass) {
+    background: #fff;
+  }
+
+  :global([data-theme='dark']) .page-hero__stage :global(.glass) {
+    background: #201830;
   }
 
   .page-hero--compact {
@@ -91,7 +125,13 @@ const hasVisual = Astro.slots.has('visual');
   }
 
   .page-hero h1 {
-    font-size: var(--fs-h1);
+    font-size: clamp(2.4rem, 1.4rem + 3.8vw, 4.6rem);
+    line-height: 1.04;
+  }
+
+  :global([dir='rtl']) .page-hero h1 {
+    font-size: clamp(2.1rem, 1.3rem + 3vw, 3.8rem);
+    line-height: 1.35;
   }
 
   .page-hero__sub {

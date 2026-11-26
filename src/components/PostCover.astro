@@ -20,33 +20,60 @@ const artwork: Record<string, ImageMetadata> = { quran, arabic, kids, islamic, g
 </span>
 
 <style>
+  /* A rounded photo frame, as on the reference cards: the artwork fills it, a hairline keeps the edge. */
   .cover {
     position: relative;
     display: block;
     aspect-ratio: 16 / 10;
-    border-radius: 20px;
+    border-radius: 24px;
     overflow: hidden;
-    background: #eee5da;
+    background: var(--tint-lavender);
     isolation: isolate;
   }
+
   .cover :global(img) {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center 55%;
+    transition: transform 0.8s var(--ease-out);
   }
+
   .cover::after {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow: inset 0 0 0 1px rgb(91 58 142 / .08);
+    box-shadow: inset 0 0 0 1px rgb(44 28 68 / 0.08);
     pointer-events: none;
   }
-  .cover--small { border-radius: 16px; }
+
+  .cover--small {
+    border-radius: 20px;
+  }
+
+  /* cards zoom the artwork a touch on hover */
+  :global(a:hover) .cover :global(img) {
+    transform: scale(1.04);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cover :global(img) {
+      transition: none;
+    }
+
+    :global(a:hover) .cover :global(img) {
+      transform: none;
+    }
+  }
+
   /* ---------- Dark theme ---------- */
-  /* The artwork is image-based now; the old gradient (--a/--b/--c) no longer exists,
-     so only the loading backdrop needs a dark tone. */
-  :global([data-theme='dark']) .cover { background: #241a34; }
+  :global([data-theme='dark']) .cover {
+    background: var(--tint-mist);
+  }
+
+  :global([data-theme='dark']) .cover::after {
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  }
 </style>
